@@ -1,7 +1,6 @@
-import { Express, Request, Response } from "express"
+import { Express, Request, Response } from "express";
+import { processLogin } from "./controller/user.controller";
 
 export default function (app: Express) {
-    app.get('/', (req: Request, res: Response) => {
-        res.send('Done')
-    })
+    app.post('/login', processLogin);
 }
