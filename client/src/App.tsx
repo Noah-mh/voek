@@ -1,14 +1,15 @@
-import { useState } from 'react'
+import { useState } from "react";
 import "./App.css";
-
+import Header from "./components/header/header.tsx";
+import LoginBanner from "./components/loginBanner/loginBanner.tsx";
 
 function App() {
-
   return (
-    <>
-      <div className='text-5xl font-bold'>Hello World</div>
-    </>
-  )
+    <div>
+      <Header />
+      <LoginBanner />
+    </div>
+  );
 }
 
-export default App
+export default App;
