@@ -10,6 +10,8 @@ const config = {
     accessTokenSecret: process.env.ACCESS_TOKEN_SECRET,
     refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET,
     emailTokenSecret: process.env.EMAIL_TOKEN_SECRET,
+    telesignAPIKey: process.env.TELESIGN_API_KEY,
+    telesignCustomerId: process.env.TELESIGN_CUSTOMER_ID,
     ssl: {
         rejectUnauthorized: false,
     }
