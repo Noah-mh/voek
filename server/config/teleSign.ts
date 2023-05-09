@@ -10,3 +10,4 @@ const client = new TeleSignSDK(config.telesignCustomerId,
 );
 
 export default client;
+//

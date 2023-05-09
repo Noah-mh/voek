@@ -11,6 +11,7 @@ export const processLogin = async (req: Request, res: Response, next: NextFuncti
         return res.sendStatus(400);
     } else {
         try {
+            console.log();
             const response: UserInfo | null = await handleLogin(email, password);
             if (response) {
                 return res.json(response);

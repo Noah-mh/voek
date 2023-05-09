@@ -5,6 +5,9 @@ import verifyRoles from "./middlewares/verifyRoles";
 import {
   processPublicProductDetails,
   processCartDetails,
+  getRecommendedProductsBasedOnCat,
+  getWishlistItems,
+  getLastViewed
 } from "./controller/product.controller";
 
 
@@ -23,4 +26,9 @@ export default function (app: Express) {
 
   app.get("/productDetails", processPublicProductDetails);
   app.get("/cartDetails", processCartDetails);
+
+
+  app.get("/getRecommendedProductsBasedOnCat", getRecommendedProductsBasedOnCat);
+  app.get("/getWishlistItems", getWishlistItems);
+  app.get("/getLastViewed", getLastViewed);
 }
