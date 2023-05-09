@@ -1,5 +1,5 @@
 import pool from '../../config/database';
-import bycrpt from 'bcrypt';
+import bcrypt from 'bcrypt';
 import config from '../../config/config';
 import Sib from '../../config/sendInBlue';
 import client from '../../config/teleSign';
@@ -11,7 +11,7 @@ export const handleLogin = async (email: string, password: string) => {
     try {
         const result = await connection.query(sql, [email]);
         const encryptrdPassword = result[0].length ? result[0][0].password : '';
-        const check = await bycrpt.compare(password, encryptrdPassword);
+        const check = await bcrypt.compare(password, encryptrdPassword);
         if (check) {
             const customer_id: number = result[0][0]?.customer_id;
             const username: string = result[0][0]?.username;
@@ -116,7 +116,7 @@ export const handleVerifyOTP = async (customer_id: number, OTP: number) => {
     try {
         console.log();
         const result = await connection.query(sql, [OTP, customer_id]);
-        return result[0]
+        return result[0];
     } catch (err: any) {
         throw new Error(err);
     } finally {
@@ -124,6 +124,49 @@ export const handleVerifyOTP = async (customer_id: number, OTP: number) => {
     }
 }
 
+export const handleSendEmailLink = async (signUpToken: string, email: string) => {
+    try {
+        const tranEmailApi = new Sib.TransactionalEmailsApi();
+        const sender = {
+            email: 'voek.help.centre@gmail.com'
+        }
+
+        const receivers = [
+            {
+                email: email
+            }
+        ]
+
+        tranEmailApi.sendTransacEmail({
+            sender,
+            to: receivers,
+            subject: 'Verification Link For VOEK Sign Up',
+            textContent: `http://localhost:5173/signUp/${signUpToken}`
+        }).then((response: any) => {
+            console.log(response);
+            return;
+        }).catch((err: any) => {
+            throw new Error(err);
+        })
+    } catch (err: any) {
+        throw new Error(err);
+    }
+}
+
+export const handleSignUp = async (username: string, password: string, email: string, phoneNumber: number) => {
+    const promisePool = pool.promise();
+    const connection = await promisePool.getConnection();
+    const sql = `INSERT INTO customer (username, password, email, phone_number) VALUES (?, ?, ?, ?)`;
+    try {
+        const encryptedPassword = await bcrypt.hash(password, 10)
+        const result = await connection.query(sql, [username, encryptedPassword, email, phoneNumber]);
+        return result[0].affectedRows;
+    } catch (err: any) {
+        throw new Error(err);
+    } finally {
+        await connection.release();
+    }
+}
 
 
 
