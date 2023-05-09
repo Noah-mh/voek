@@ -12,8 +12,8 @@ export default function (app: Express) {
     app.post('/auth/SMS/OTP', processSendSMSOTP);
     app.post('/auth/email/OTP', processSendEmailOTP);
 
+    app.post('/auth/verify/OTP', processVerifyOTP);
+
     app.get("/productDetails", processPublicProductDetails);
     app.get("/cartDetails", processCartDetails);
-
-
 }
