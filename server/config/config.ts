@@ -13,6 +13,7 @@ const config = {
     telesignAPIKey: process.env.TELESIGN_API_KEY,
     telesignCustomerId: process.env.TELESIGN_CUSTOMER_ID,
     sendInBlueAPIKey: process.env.SENDINBLUE_API_KEY,
+    signUpTokenSecret: process.env.SIGNUP_TOKEN_SECRET,
     ssl: {
         rejectUnauthorized: false,
     }
