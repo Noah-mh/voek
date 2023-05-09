@@ -87,6 +87,7 @@ export const handlesGetLastViewed = async (customer_id: number, date_viewed: str
   try {
     const result = await connection.query(sql, [customer_id, date_viewed]);
     console.log(result[0]);
+    console.log(result[0]);
     return result[0]
   } catch (err: any) {
     throw new Error(err);
