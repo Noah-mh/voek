@@ -22,13 +22,11 @@ export default function (app: Express) {
   app.post('/signup/verify/link', processSignUpLink);
   app.post('/signup', processSignUp);
   //
-
-
-  app.get("/productDetails", processPublicProductDetails);
-  app.get("/cartDetails", processCartDetails);
-
-
   app.get("/getRecommendedProductsBasedOnCat", getRecommendedProductsBasedOnCat);
   app.get("/getWishlistItems", getWishlistItems);
   app.get("/getLastViewed", getLastViewed);
+
+  app.get("/productDetails", processPublicProductDetails);
+  app.get("/cartDetails", processCartDetails);
 }
+
