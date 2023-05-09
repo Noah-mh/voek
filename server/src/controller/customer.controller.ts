@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import config from '../../config/config';
 import { UserInfo } from '../interfaces/interfaces';
 import { Request, Response, NextFunction } from "express";
-import { handleLogin, handleStoreRefreshToken, handleSendSMSOTP } from '../model/customer.model';
+import { handleLogin, handleStoreRefreshToken, handleSendSMSOTP, handleSendEmailOTP } from '../model/customer.model';
 
 //DO NOT TOUCH THIS CODE
 // const accessToken = jwt.sign(
@@ -53,9 +53,20 @@ export const processLogin = async (req: Request, res: Response, next: NextFuncti
 
 export const processSendSMSOTP = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { phoneNumber } = req.body;
-        if (!phoneNumber) return res.sendStatus(400);
-        const response = await handleSendSMSOTP(phoneNumber, 1);
+        const { phoneNumber, customer_id } = req.body;
+        if (!phoneNumber || !customer_id) return res.sendStatus(400);
+        const response = await handleSendSMSOTP(phoneNumber, customer_id);
+        return res.sendStatus(200);
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processSendEmailOTP = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { email, customer_id } = req.body;
+        if (!email || !customer_id) return res.sendStatus(400);
+        const response = await handleSendEmailOTP(email, customer_id);
         return res.sendStatus(200);
     } catch (err: any) {
         return next(err);

@@ -12,6 +12,7 @@ const config = {
     emailTokenSecret: process.env.EMAIL_TOKEN_SECRET,
     telesignAPIKey: process.env.TELESIGN_API_KEY,
     telesignCustomerId: process.env.TELESIGN_CUSTOMER_ID,
+    sendInBlueAPIKey: process.env.SENDINBLUE_API_KEY,
     ssl: {
         rejectUnauthorized: false,
     }

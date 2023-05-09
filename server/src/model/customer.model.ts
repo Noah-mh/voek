@@ -1,16 +1,8 @@
 import pool from '../../config/database';
 import bycrpt from 'bcrypt';
 import config from '../../config/config';
-
-
-var TeleSignSDK = require('telesignsdk');
-const rest_endpoint = "https://rest-api.telesign.com";
-const timeout = 10 * 1000; // 10 secs
-const client = new TeleSignSDK(config.telesignCustomerId,
-    config.telesignAPIKey,
-    rest_endpoint,
-    timeout
-);
+import Sib from '../../config/sendInBlue';
+import client from '../../config/teleSign';
 
 export const handleLogin = async (email: string, password: string) => {
     const promisePool = pool.promise();
@@ -71,6 +63,38 @@ export const handleSendSMSOTP = async (phoneNumber: number, customer_id: number)
     }
 }
 
+export const handleSendEmailOTP = async (email: string, customer_id: number) => {
+    try {
+        const OTP = Math.floor(100000 + Math.random() * 900000);
+        const tranEmailApi = new Sib.TransactionalEmailsApi();
+        const sender = {
+            email: 'voek.help.centre@gmail.com'
+        }
+
+        const receivers = [
+            {
+                email: email
+            }
+        ]
+
+        const result = await updateOTP(OTP, customer_id);
+
+        tranEmailApi.sendTransacEmail({
+            sender,
+            to: receivers,
+            subject: 'OTP Verification For VOEK Login',
+            textContent: `Your OTP is ${OTP}`
+        }).then((response: any) => {
+            console.log(response);
+            return result[0];
+        }).catch((err: any) => {
+            throw new Error(err);
+        })
+    } catch (err: any) {
+        throw new Error(err);
+    }
+}
+
 export const updateOTP = async (OTP: number, customer_id: number) => {
     const promisePool = pool.promise();
     const connection = await promisePool.getConnection();
@@ -84,6 +108,8 @@ export const updateOTP = async (OTP: number, customer_id: number) => {
         await connection.release();
     }
 }
+
+
 
 
 
