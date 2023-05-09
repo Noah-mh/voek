@@ -1,7 +1,8 @@
 import React from "react";
-import "./loginBanner.css";
+import "./signUP.css";
 import loginPhoto from "../../img/login/loginVec.png";
 import LoginBannerRight from "./loginBannerRight.tsx";
+import SignUP from "./signUP.tsx";
 const loginBanner = () => {
   return (
     <div className="containerZ main w-screen h-screen flex">
@@ -12,7 +13,8 @@ const loginBanner = () => {
             Explore a new world with VOEK.
           </h1>
         </div>
-        <LoginBannerRight />
+        {/* <LoginBannerRight /> */}
+        <SignUP />
       </div>
     </div>
   );
