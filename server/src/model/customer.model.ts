@@ -114,6 +114,7 @@ export const handleVerifyOTP = async (customer_id: number, OTP: number) => {
     const connection = await promisePool.getConnection();
     const sql = 'SELECT * FROM customer_otp WHERE otp = ? and customer_id = ? and timestampdiff(SECOND, otp_creation, utc_timestamp()) < 120';
     try {
+        console.log();
         const result = await connection.query(sql, [OTP, customer_id]);
         return result[0]
     } catch (err: any) {

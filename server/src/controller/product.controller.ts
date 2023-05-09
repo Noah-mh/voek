@@ -7,6 +7,7 @@ export const processPublicProductDetails = async (
   next: NextFunction
 ) => {
   try {
+    console.log();
     const { productId } = req.body;
     const response: Array<object> = await handlesGetProductDetails(
       productId

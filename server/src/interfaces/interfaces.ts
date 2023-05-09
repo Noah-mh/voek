@@ -4,3 +4,5 @@ export interface UserInfo {
     phone_number?: number,
     email?: string
 }
+
+console.log();
