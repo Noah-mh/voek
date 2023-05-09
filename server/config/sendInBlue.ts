@@ -6,3 +6,4 @@ const apiKey = client.authentications['api-key'];
 apiKey.apiKey = config.sendInBlueAPIKey;
 
 export default Sib;
+//
