@@ -1,0 +1,76 @@
+::selection {
+  background-color: #2f4858;
+  color: #a6ad8f;
+}
+
+.voekLogo {
+  color: #2f4858;
+  letter-spacing: 3px;
+  transform: scale(1, 1);
+}
+
+.searchBar {
+  /* margin-top: 12px; */
+  border-color: #2f4858;
+  background-color: transparent;
+}
+
+.searchBar::placeholder {
+  color: #3d626a;
+}
+
+.navbarLinks {
+  /* color: #7a9681; */
+  color: #567d77;
+}
+
+.backgroundImg {
+  margin-bottom: 24px;
+  background-image: url("../assets/background2.jpg");
+  height: 100vh;
+  background-position: 0% 88%;
+  background-repeat: no-repeat;
+}
+
+.box {
+  position: relative;
+}
+
+.input {
+  padding: 10px;
+  width: 40px;
+  height: 40px;
+  opacity: 0;
+  background: none;
+  border: 4px solid #2f4858;
+  border-radius: 50px;
+  box-sizing: border-box;
+  font-size: 26px;
+  color: #2f4858;
+  outline: none;
+  transition: 0.5s;
+}
+.box:hover input {
+  width: 350px;
+  background: transparent;
+  border-radius: 10px;
+}
+.magnifyingGlassIcon {
+  position: absolute;
+  top: 50%;
+  left: 18px;
+  transform: translate(-50%, -50%);
+  font-size: 26px;
+  color: #2f4858;
+  transition: 0.2s;
+}
+
+.box:hover .magnifyingGlassIcon {
+  opacity: 0;
+  z-index: -1;
+}
+
+.input:hover,
+.input:active {
+  opacity: 1;
+}

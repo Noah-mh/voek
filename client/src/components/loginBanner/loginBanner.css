@@ -19,7 +19,6 @@
 
 .left img {
   filter: drop-shadow(5px 5px 5px rgba(0, 0, 0, 0.3));
-  animation: float 10s infinite both;
 }
 
 .right h1 {
@@ -30,16 +29,4 @@
 }
 .right {
   filter: drop-shadow(5px 5px 5px rgba(0, 0, 0, 0.3));
-}
-
-@keyframes float {
-  0% {
-    transform: translatey(0px);
-  }
-  50% {
-    transform: translatey(-20px);
-  }
-  100% {
-    transform: translatey(0px);
-  }
 }
