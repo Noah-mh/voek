@@ -1,0 +1,21 @@
+input {
+  background-color: transparent;
+  color: white;
+  border-bottom: 2px solid white;
+  margin: 20px auto;
+}
+input::placeholder {
+  font-size: 0.8em;
+  color: white;
+  font-family: "Barlow", serif;
+  font-weight: -100;
+  letter-spacing: 3px;
+}
+.submitLogin {
+  background-color: var(--softerPurple);
+  border-bottom: 0;
+  display: block;
+  font-family: "Barlow", "sans";
+  width: 60%;
+  padding: 10px;
+}

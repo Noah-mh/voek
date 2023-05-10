@@ -1,5 +1,5 @@
 import React from "react";
-import "./loginBanner.css";
+import "./LBRight.css";
 
 const loginBannerRight = (): JSX.Element => {
   return (
