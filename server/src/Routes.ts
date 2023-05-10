@@ -13,7 +13,6 @@ import verifyJWT from "./middlewares/verifyJwt";
 import verifyRoles from "./middlewares/verifyRoles";
 import {
   processPublicProductDetails,
-  processCartDetails,
   getRecommendedProductsBasedOnCat,
   getWishlistItems,
   getLastViewed,
@@ -21,6 +20,7 @@ import {
 } from "./controller/product.controller";
 import { processRefreshToken } from "./controller/auth.controller";
 import { processGetAllProductsOfSeller } from "./controller/seller.controller";
+import {  retrieveCartDetails, } from "./controller/cart.controller";
 
 export default function (app: Express, router: Router) {
   // KANG RUI ENDPOINTS - user management system
@@ -49,5 +49,5 @@ export default function (app: Express, router: Router) {
   router.get("/getTopProducts", getTopProducts);
   router.get("/updateCustLastViewedCat", updateCustLastViewedCat);
 
-  router.get("/cartDetails", processCartDetails);
+  router.get("/cartDetails", retrieveCartDetails);
 }
