@@ -28,6 +28,6 @@ export default function (app: Express, router: Router) {
   router.get("/getLastViewed", getLastViewed);
 
   router.get("/productDetails", processPublicProductDetails);
-  router.get("/cartDetails", processCartDetails);
+  router.get("/cartDetails",verifyJWT,verifyRoles("customer"), processCartDetails);
 }
 
