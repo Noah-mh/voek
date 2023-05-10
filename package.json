@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start-backend": "cd server && npm install && nodemon --config nodemon.json src/App.ts",
-    "start-client": "cd client && npm install && npm run dev",
+    "start-backend": "cd server && nodemon --config nodemon.json src/App.ts",
+    "start-client": "cd client && npm run dev",
     "dev": "npm-run-all -p -r start-backend start-client"
   },
   "author": "",
