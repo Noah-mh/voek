@@ -1,9 +1,19 @@
 import React from "react";
 import "./header.css";
+import { useRef, useEffect } from "react";
 
 const header = () => {
+  const ref: any = useRef();
+
+  useEffect(() => {
+    console.log(ref.current.clientHeight);
+  }, []);
+
   return (
-    <nav className="flex items-center justify-center bg-white p-6 px-8 drop-shadow-md">
+    <nav
+      ref={ref}
+      className="flex items-center justify-center bg-white p-6 px-8 drop-shadow-md"
+    >
       <div className=" w-9/12 flex">
         <div className="flex items-center  mr-6">
           <span className="font-bold text-xl tracking-widest">VOEK</span>
