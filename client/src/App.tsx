@@ -8,7 +8,6 @@ import Layout from "./components/Layout/Layout";
 import RequireAuthCustomer from "./components/RequireAuth/RequireAuthCustomer";
 // 
 function App() {
-
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
