@@ -25,3 +25,4 @@ const loginBanner = () => {
 };
 
 export default loginBanner;
+

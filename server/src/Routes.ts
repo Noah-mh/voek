@@ -1,4 +1,4 @@
-import { Express, Request, Response } from "express";
+import { Express, Router } from "express";
 import { processLogin, processSendEmailOTP, processSendSMSOTP, processVerifyOTP, processSignUp, processSendEmailLink, processSignUpLink } from "./controller/customer.controller";
 import verifyJWT from "./middlewares/verifyJwt";
 import verifyRoles from "./middlewares/verifyRoles";
@@ -9,24 +9,29 @@ import {
   getWishlistItems,
   getLastViewed
 } from "./controller/product.controller";
+import { processRefreshToken } from "./controller/auth.controller";
+import { processGetAllProductsOfSeller } from "./controller/seller.controller";
 
+export default function (app: Express, router: Router) {
 
-export default function (app: Express) {
+  // KANG RUI ENDPOINTS - user management system
+  router.post('/login', processLogin);
+  router.post('/auth/SMS/OTP', processSendSMSOTP);
+  router.post('/auth/email/OTP', processSendEmailOTP);
+  router.post('/auth/verify/OTP', processVerifyOTP);
+  router.post('/signup/link', processSendEmailLink);
+  router.post('/signup/verify/link', processSignUpLink);
+  router.post('/signup', processSignUp);
+  router.post('/refresh', processRefreshToken)
 
-  // KANG RUI ENDPOINTS
-  app.post('/login', processLogin);
-  app.post('/auth/SMS/OTP', processSendSMSOTP);
-  app.post('/auth/email/OTP', processSendEmailOTP);
-  app.post('/auth/verify/OTP', processVerifyOTP);
-  app.post('/signup/link', processSendEmailLink);
-  app.post('/signup/verify/link', processSignUpLink);
-  app.post('/signup', processSignUp);
+  // ASHLEY ENDPOINTS - seller platform
+  app.get('/products/:sellerId', processGetAllProductsOfSeller);
+
   //
-  app.get("/getRecommendedProductsBasedOnCat", getRecommendedProductsBasedOnCat);
-  app.get("/getWishlistItems", getWishlistItems);
-  app.get("/getLastViewed", getLastViewed);
-
-  app.get("/productDetails", processPublicProductDetails);
-  app.get("/cartDetails", processCartDetails);
+  router.get("/getRecommendedProductsBasedOnCat", getRecommendedProductsBasedOnCat);
+  router.get("/getWishlistItems", getWishlistItems);
+  router.get("/getLastViewed", getLastViewed);
+  router.get("/productDetails", processPublicProductDetails);
+  router.get("/cartDetails", processCartDetails);
 }
 
