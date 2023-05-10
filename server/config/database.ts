@@ -1,16 +1,19 @@
 import mysql2 from 'mysql2';
-import config from './config';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 
 const pool = mysql2.createPool({
-    user: config.user,
-    password: config.password,
-    host: config.host,
-    database: config.database,
-    connectionLimit: config.connectionLimit as unknown as number,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    host: process.env.DB_HOST,
+    database: process.env.DB_DATABASE,
+    connectionLimit: process.env.DB_CONNECTION_LIMIT as unknown as number,
     ssl: {
         rejectUnauthorized: false,
     }
 })
 
 export default pool
+//
