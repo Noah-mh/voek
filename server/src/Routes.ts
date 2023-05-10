@@ -46,8 +46,12 @@ export default function (app: Express, router: Router) {
   router.get("/getWishlistItems", getWishlistItems);
   router.get("/getLastViewed", getLastViewed);
   router.get("/productDetails", processPublicProductDetails);
+
+  router.get("/cartDetails",verifyJWT,verifyRoles("customer"), processCartDetails);
+
   router.get("/getTopProducts", getTopProducts);
   router.get("/updateCustLastViewedCat", updateCustLastViewedCat);
 
   router.get("/cartDetails", processCartDetails);
+
 }
