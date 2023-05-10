@@ -182,32 +182,40 @@ export const handleSendEmailLink = async (
   }
 };
 
-export const handleSignUp = async (
-  username: string,
-  password: string,
-  email: string,
-  phoneNumber: number
-) => {
-  const promisePool = pool.promise();
-  const connection = await promisePool.getConnection();
-  const sql = `INSERT INTO customer (username, password, email, phone_number) VALUES (?, ?, ?, ?)`;
-  try {
-    const encryptedPassword = await bcrypt.hash(password, 10);
-    const result = await connection.query(sql, [
-      username,
-      encryptedPassword,
-      email,
-      phoneNumber,
-    ]);
-    return result[0].affectedRows;
-  } catch (err: any) {
-    throw new Error(err);
-  } finally {
-    await connection.release();
-  }
-};
+export const handleSignUp = async (username: string, password: string, email: string, phoneNumber: number) => {
+    const promisePool = pool.promise();
+    const connection = await promisePool.getConnection();
+    const sql = `INSERT INTO customer (username, password, email, phone_number) VALUES (?, ?, ?, ?)`;
+    try {
+        const encryptedPassword = await bcrypt.hash(password, 10)
+        const result = await connection.query(sql, [username, encryptedPassword, email, phoneNumber]);
+        const sql2 = `INSERT INTO customer_otp (customer_id) VALUES(?)`;
+        const result2 = await connection.query(sql2, [result[0].insertId]);
+        return result2[0].affectedRows;
+    } catch (err: any) {
+        throw new Error(err);
+    } finally {
+        await connection.release();
+    }
+}
 
-export const handleLogOut = async (refreshToken: number) => {};
+export const handleLogOut = async (refreshToken: string) => {
+    const promisePool = pool.promise();
+    const connection = await promisePool.getConnection();
+    const sql = `UPDATE customer SET refresh_token = '' WHERE refresh_token = ?`;
+    try {
+        const result = await connection.query(sql, [refreshToken]);
+        return result[0].affectedRows;
+    } catch (err: any) {
+        throw new Error(err);
+    } finally {
+        await connection.release();
+    }
+}
+
+
+
+
 
 const convertLocalTimeToUTC = (): string => {
   const now = new Date();
