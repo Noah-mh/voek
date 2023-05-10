@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import config from '../../config/config';
 import { UserInfo } from '../interfaces/interfaces';
 import { Request, Response, NextFunction } from "express";
-import { handleLogin, handleStoreRefreshToken, handleSendSMSOTP, handleSendEmailOTP, handleVerifyOTP, handleSignUp, handleSendEmailLink } from '../model/customer.model';
+import { handleLogin, handleStoreRefreshToken, handleSendSMSOTP, handleSendEmailOTP, handleVerifyOTP, handleSignUp, handleSendEmailLink, handleLogOut } from '../model/customer.model';
 
 
 export const processLogin = async (req: Request, res: Response, next: NextFunction) => {
@@ -136,7 +136,13 @@ export const processSignUp = async (req: Request, res: Response, next: NextFunct
 
 export const processLogout = async (req: Request, res: Response, next: NextFunction) => {
     const cookies = req.cookies;
-    if (!cookies?.jwt) return res.sendStatus(201);
+    if (!cookies?.jwt) return res.sendStatus(204);
     const refreshToken = cookies.jwt;
-    await 
+    await handleLogOut(refreshToken);
+    res.clearCookie('jwt', {
+        httpOnly: true
+        , sameSite: "none",
+        secure: true
+    });
+    res.sendStatus(204);
 }

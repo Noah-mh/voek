@@ -1,6 +1,6 @@
 import { Express, Router } from "express";
 import { processLogin, processSendEmailOTP, processSendSMSOTP, processVerifyOTP, processSignUp, processSendEmailLink, processSignUpLink } from "./controller/customer.controller";
-import verifyJWT from "./middlewares/verifyJwt";
+import verifyJWT from "./middlewares/verifyJWT";
 import verifyRoles from "./middlewares/verifyRoles";
 import {
   processPublicProductDetails,
