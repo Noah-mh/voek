@@ -1,6 +1,5 @@
 import pool from '../../config/database';
 import bcrypt from 'bcrypt';
-import config from '../../config/config';
 import Sib from '../../config/sendInBlue';
 import client from '../../config/teleSign';
 
@@ -168,6 +167,9 @@ export const handleSignUp = async (username: string, password: string, email: st
     }
 }
 
+export const handleLogOut = async (refreshToken: number) => {
+
+}
 
 
 
