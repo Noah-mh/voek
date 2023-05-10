@@ -1,5 +1,5 @@
 import React from "react";
-import "./loginBanner.css";
+import "./signUP.css";
 
 // havent finish any of the routes
 

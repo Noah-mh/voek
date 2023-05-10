@@ -150,13 +150,11 @@ export const processSignUpLink = async (
       config.signUpTokenSecret as any,
       (err: any, decoded: any) => {
         if (err) return res.sendStatus(403);
-        return res
-          .status(200)
-          .json({
-            email: decoded.UserInfo.email,
-            username: decoded.UserInfo.username,
-            phone_number: decoded.UserInfo.phone_number,
-          });
+        return res.status(200).json({
+          email: decoded.UserInfo.email,
+          username: decoded.UserInfo.username,
+          phone_number: decoded.UserInfo.phone_number,
+        });
       }
     );
   } catch (err: any) {
@@ -184,10 +182,3 @@ export const processSignUp = async (
     return next(err);
   }
 };
-
-// export const processLogout = async (req: Request, res: Response, next: NextFunction) => {
-//     const cookies = req.cookies;
-//     if (!cookies?.jwt) return res.sendStatus(201);
-//     const refreshToken = cookies.jwt;
-//     await
-// }
