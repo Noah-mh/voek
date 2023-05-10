@@ -6,7 +6,7 @@ import {
     handlesGetCartDetails
 } from "../model/cart.model";
 
-export const processCartDetails = async (
+export const retrieveCartDetails = async (
     req: Request,
     res: Response,
     next: NextFunction
@@ -20,4 +20,5 @@ export const processCartDetails = async (
       return next(err);
     }
   };
+  
   
