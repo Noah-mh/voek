@@ -134,9 +134,3 @@ export const processSignUp = async (req: Request, res: Response, next: NextFunct
     }
 }
 
-export const processLogout = async (req: Request, res: Response, next: NextFunction) => {
-    const cookies = req.cookies;
-    if (!cookies?.jwt) return res.sendStatus(201);
-    const refreshToken = cookies.jwt;
-    await 
-}
