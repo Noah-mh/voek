@@ -4,8 +4,10 @@ import verifyRoles from "./middlewares/verifyRoles";
 import * as customerController from "./controller/customer.controller";
 import * as productController from "./controller/product.controller";
 import * as sellerController from "./controller/seller.controller";
+import * as cartController from "./controller/cart.controller";
 import { processRefreshTokenCustomer } from "./controller/auth.controller";
 import { processGetAllProductsOfSeller } from "./controller/seller.controller";
+import {  retrieveCartDetails, } from "./controller/cart.controller";
 
 export default function (app: Express, router: Router) {
   // KANG RUI ENDPOINTS - user management system
@@ -39,8 +41,7 @@ export default function (app: Express, router: Router) {
   router.get("/getLastViewed", productController.getLastViewed);
   router.get("/productDetails", productController.processPublicProductDetails);
 
-  router.get("/cartDetails",verifyJWT,verifyRoles("customer"), productController.processCartDetails);
+  router.get("/cartDetails",verifyJWT,verifyRoles("customer"),cartController.retrieveCartDetails);
 
-  router.get("/getTopProducts", productController.getTopProducts);
-  router.get("/updateCustLastViewedCat", customerController.updateCustLastViewedCat);
-  }
+  router.get("/cartDetails", cartController.retrieveCartDetails);
+}

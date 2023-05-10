@@ -27,10 +27,10 @@ const signUP = (): JSX.Element => {
         </div>
         <div className="field-wrapper flex">
           <input
-            type="password"
-            name="password"
-            placeholder="PASSWORD"
-            autoComplete="new-password"
+            type="number"
+            name="phoneNumber"
+            placeholder="PHONE NUMBER"
+            autoComplete="new-phoneNumber"
             className="w-72"
           />
         </div>

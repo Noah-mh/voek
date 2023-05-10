@@ -1,3 +1,35 @@
-input {
-  background-color: red;
+.OTPz input {
+  margin: 20px 10px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  justify-content: center;
+}
+.OTPz input:focus {
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.4);
+}
+.wrapper {
+  display: flex;
+}
+.wrapper > input:last-child {
+  font-family: "Barlow", "sans";
+  margin: 0 auto;
+}
+.OTPz > div {
+  justify-content: center;
+}
+
+.OTPModal {
+  background-color: rgba(87, 165, 83, 0.5);
+  border-color: #516c43;
+}
+.OTPModal p {
+  color: #3d5132;
+  font-size: small;
+}
+
+.wrapper > input:last-child:hover {
+  border: 2px solid var(--purpleAccent);
+  color: var(--purpleAccent);
+  cursor: pointer;
 }
