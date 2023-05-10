@@ -10,6 +10,7 @@ import {
   handleVerifyOTP,
   handleSignUp,
   handleSendEmailLink,
+  handlesCustLastViewdCat,
 } from "../model/customer.model";
 
 export const processLogin = async (
@@ -177,6 +178,30 @@ export const processSignUp = async (
       email,
       phone_number
     );
+    return res.sendStatus(200);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const updateCustLastViewedCat = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { cat_id, customer_id } = req.body;
+    try {
+      const response: number = await handlesCustLastViewdCat(
+        cat_id,
+        customer_id
+      );
+      console.log(response);
+      if (response === 0) return res.sendStatus(404);
+      return res.sendStatus(200);
+    } catch (err: any) {
+      return next(err);
+    }
     return res.sendStatus(200);
   } catch (err: any) {
     return next(err);
