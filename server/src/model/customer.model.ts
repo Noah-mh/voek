@@ -159,7 +159,9 @@ export const handleSignUp = async (username: string, password: string, email: st
     try {
         const encryptedPassword = await bcrypt.hash(password, 10)
         const result = await connection.query(sql, [username, encryptedPassword, email, phoneNumber]);
-        return result[0].affectedRows;
+        const sql2 = `INSERT INTO customer_otp (customer_id) VALUES(?)`;
+        const result2 = await connection.query(sql2, [result[0].insertId]);
+        return result2[0].affectedRows;
     } catch (err: any) {
         throw new Error(err);
     } finally {

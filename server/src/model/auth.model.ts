@@ -1,7 +1,7 @@
 import { connect } from 'http2';
 import pool from '../../config/database';
 
-export const handleRefreshToken = async (refreshToken: string) => {
+export const handleRefreshTokenCustomer = async (refreshToken: string) => {
     const promisePool = pool.promise();
     const connection = await promisePool.getConnection();
     const sql = `SELECT customer_id FROM customer WHERE refresh_token = ?`;
