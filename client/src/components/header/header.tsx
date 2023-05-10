@@ -1,9 +1,15 @@
 import React from "react";
 import "./header.css";
+import { useRef } from "react";
 
-const header = () => {
+const Header = () => {
+  const ref: any = useRef();
+
   return (
-    <nav className="flex items-center justify-center bg-white p-6 px-8 drop-shadow-md">
+    <nav
+      ref={ref}
+      className="flex items-center justify-center bg-white p-6 px-8 drop-shadow-md"
+    >
       <div className=" w-9/12 flex">
         <div className="flex items-center  mr-6">
           <span className="font-bold text-xl tracking-widest">VOEK</span>
@@ -33,4 +39,4 @@ const header = () => {
     </nav>
   );
 };
-export default header;
+export default Header;

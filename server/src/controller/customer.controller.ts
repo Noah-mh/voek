@@ -1,8 +1,8 @@
-import jwt from 'jsonwebtoken';
-import config from '../../config/config';
-import { UserInfo } from '../interfaces/interfaces';
+import jwt from "jsonwebtoken";
+import config from "../../config/config";
+import { UserInfo } from "../interfaces/interfaces";
 import { Request, Response, NextFunction } from "express";
-import { handleLogin, handleStoreRefreshToken, handleSendSMSOTP, handleSendEmailOTP, handleVerifyOTP, handleSignUp, handleSendEmailLink } from '../model/customer.model';
+import * as customerModel from '../model/customer.model';
 
 
 export const processLogin = async (req: Request, res: Response, next: NextFunction) => {
@@ -11,8 +11,7 @@ export const processLogin = async (req: Request, res: Response, next: NextFuncti
         return res.sendStatus(400);
     } else {
         try {
-            console.log();
-            const response: UserInfo | null = await handleLogin(email, password);
+            const response: UserInfo | null = await customerModel.handleLogin(email, password);
             if (response) {
                 return res.json(response);
             } else {
@@ -28,7 +27,7 @@ export const processSendSMSOTP = async (req: Request, res: Response, next: NextF
     try {
         const { phoneNumber, customer_id } = req.body;
         if (!phoneNumber || !customer_id) return res.sendStatus(400);
-        const response = await handleSendSMSOTP(phoneNumber, customer_id);
+        const response = await customerModel.handleSendSMSOTP(phoneNumber, customer_id);
         return res.sendStatus(200);
     } catch (err: any) {
         return next(err);
@@ -39,7 +38,7 @@ export const processSendEmailOTP = async (req: Request, res: Response, next: Nex
     try {
         const { email, customer_id } = req.body;
         if (!email || !customer_id) return res.sendStatus(400);
-        const response = await handleSendEmailOTP(email, customer_id);
+        const response = await customerModel.handleSendEmailOTP(email, customer_id);
         return res.sendStatus(200);
     } catch (err: any) {
         return next(err);
@@ -50,12 +49,12 @@ export const processVerifyOTP = async (req: Request, res: Response, next: NextFu
     try {
         const { customer_id, OTP } = req.body;
         if (!customer_id || !OTP) return res.sendStatus(400);
-        const response = await handleVerifyOTP(customer_id, OTP);
+        const response = await customerModel.handleVerifyOTP(customer_id, OTP);
         if (response.length) {
             const accessToken = jwt.sign(
                 {
                     UserInfo: {
-                        customer_id: response.customer_id,
+                        customer_id: response[0].customer_id,
                         role: "customer"
                     }
                 },
@@ -65,14 +64,14 @@ export const processVerifyOTP = async (req: Request, res: Response, next: NextFu
             const refreshToken = jwt.sign(
                 {
                     UserInfo: {
-                        customer_id: response.customer_id,
+                        customer_id: response[0].customer_id,
                         role: "customer"
                     }
                 },
                 config.refreshTokenSecret!,
                 { expiresIn: '3600s' }
             );
-            await handleStoreRefreshToken(refreshToken, response.customer_id);
+            await customerModel.handleStoreRefreshToken(refreshToken, response[0].customer_id);
             res.cookie('jwt', refreshToken, {
                 httpOnly: true,
                 sameSite: "none",
@@ -91,19 +90,19 @@ export const processVerifyOTP = async (req: Request, res: Response, next: NextFu
 export const processSendEmailLink = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email, username, phone_number } = req.body;
-        if (!email || !username) return res.sendStatus(400);
+        if (!email || !username || !phone_number) return res.sendStatus(400);
         const signUpToken = jwt.sign(
             {
                 UserInfo: {
-                    email, 
+                    email,
                     username,
                     phone_number
                 }
             },
-            config.signUpTokenSecret!,
+            config.signUpCustomerTokenSecret!,
             { expiresIn: '300s' }
         );
-        const result = await handleSendEmailLink(signUpToken, email);
+        const result = await customerModel.handleSendEmailLink(signUpToken, email);
         return res.sendStatus(200);
     } catch (err: any) {
         return next(err);
@@ -114,22 +113,69 @@ export const processSignUpLink = async (req: Request, res: Response, next: NextF
     try {
         const { signUpToken } = req.body;
         if (!signUpToken) return res.sendStatus(400);
-        jwt.verify(signUpToken, config.signUpTokenSecret as any, (err: any, decoded: any) => {
+        jwt.verify(signUpToken, config.signUpCustomerTokenSecret as any, (err: any, decoded: any) => {
             if (err) return res.sendStatus(403);
-            return res.status(200).json({email: decoded.UserInfo.email, username: decoded.UserInfo.username, phone_number: decoded.UserInfo.phone_number});
+            return res.status(200).json({ email: decoded.UserInfo.email, username: decoded.UserInfo.username, phone_number: decoded.UserInfo.phone_number });
         });
     } catch (err: any) {
         return next(err);
     }
-}
+};
 
-export const processSignUp = async (req: Request, res: Response, next: NextFunction) => {
+export const processSignUp = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
     try {
         const { username, password, email, phone_number } = req.body;
-        if (!username || !password || !email || !phone_number) return res.sendStatus(400);
-        const response = await handleSignUp(username, password, email, phone_number);
+        if (!username || !password || !email || !phone_number)
+            return res.sendStatus(400);
+        const response = await customerModel.handleSignUp(
+            username,
+            password,
+            email,
+            phone_number
+        );
         return res.sendStatus(200);
     } catch (err: any) {
         return next(err);
     }
-}
+};
+
+export const updateCustLastViewedCat = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { cat_id, customer_id } = req.body;
+      try {
+        const response: number = await customerModel.handlesCustLastViewdCat(
+          cat_id,
+          customer_id
+        );
+        console.log(response);
+        if (response === 0) return res.sendStatus(404);
+        return res.sendStatus(200);
+      } catch (err: any) {
+        return next(err);
+      }
+      return res.sendStatus(200);
+    } catch (err: any) {
+      return next(err);
+    }
+  };
+
+export const processLogout = async (req: Request, res: Response, next: NextFunction) => {
+        const cookies = req.cookies;
+        if (!cookies?.jwt) return res.sendStatus(204);
+        const refreshToken = cookies.jwt;
+        await customerModel.handleLogOut(refreshToken);
+        res.clearCookie('jwt', {
+            httpOnly: true
+            , sameSite: "none",
+            secure: true
+        });
+        res.sendStatus(204);
+    }

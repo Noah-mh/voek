@@ -1,9 +1,9 @@
 import React from "react";
-import "./loginBanner.css";
+import "./signUP.css";
 
 // havent finish any of the routes
 
-const signUP = (): JSX.Element => {
+const Signup = (): JSX.Element => {
   return (
     <div className="right w-1/2  h-full flex-wrap justify-center p-12">
       <h1 className=" text-center font-bold">SIGN UP</h1>
@@ -27,10 +27,10 @@ const signUP = (): JSX.Element => {
         </div>
         <div className="field-wrapper flex">
           <input
-            type="password"
-            name="password"
-            placeholder="PASSWORD"
-            autoComplete="new-password"
+            type="number"
+            name="phoneNumber"
+            placeholder="PHONE NUMBER"
+            autoComplete="new-phoneNumber"
             className="w-72"
           />
         </div>
@@ -39,4 +39,4 @@ const signUP = (): JSX.Element => {
     </div>
   );
 };
-export default signUP;
+export default Signup;

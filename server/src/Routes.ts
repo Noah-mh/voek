@@ -1,32 +1,47 @@
-import { Express, Request, Response } from "express";
-import { processLogin, processSendEmailOTP, processSendSMSOTP, processVerifyOTP, processSignUp, processSendEmailLink, processSignUpLink } from "./controller/customer.controller";
-import verifyJWT from "./middlewares/verifyJwt";
+import { Express, Router } from "express";
+import verifyJWT from "./middlewares/verifyJWT";
 import verifyRoles from "./middlewares/verifyRoles";
-import {
-  processPublicProductDetails,
-  processCartDetails,
-  getRecommendedProductsBasedOnCat,
-  getWishlistItems,
-  getLastViewed
-} from "./controller/product.controller";
+import * as customerController from "./controller/customer.controller";
+import * as productController from "./controller/product.controller";
+import * as sellerController from "./controller/seller.controller";
+import * as cartController from "./controller/cart.controller";
+import { processRefreshTokenCustomer } from "./controller/auth.controller";
+import { processGetAllProductsOfSeller } from "./controller/seller.controller";
+import {  retrieveCartDetails, } from "./controller/cart.controller";
 
+export default function (app: Express, router: Router) {
+  // KANG RUI ENDPOINTS - user management system
+  router.post('/login', customerController.processLogin);
+  router.post('/customer/auth/SMS/OTP', customerController.processSendSMSOTP);
+  router.post('/customer/auth/email/OTP', customerController.processSendEmailOTP);
+  router.post('/customer/auth/verify/OTP', customerController.processVerifyOTP);
+  router.post('/customer/signup/link', customerController.processSendEmailLink);
+  router.post('/customer/signup/verify/link', customerController.processSignUpLink);
+  router.post('/customer/signup', customerController.processSignUp);
+  
+  router.post('/login/seller', sellerController.processLogin);
+  router.post('/seller/auth/SMS/OTP', sellerController.processSendSMSOTP);
+  router.post('/seller/auth/email/OTP', sellerController.processSendEmailOTP);
+  router.post('/seller/auth/verify/OTP', sellerController.processVerifyOTP);
+  router.post('/seller/signup/link', sellerController.processSendEmailLink);
+  router.post('/seller/signup/verify/link', sellerController.processSignUpLink);
+  router.post('/seller/signup', sellerController.processSignUp);
+  router.post('/refresh/customer', processRefreshTokenCustomer);
+  router.post('/refresh/seller', processRefreshTokenCustomer);
 
-export default function (app: Express) {
+  // ASHLEY ENDPOINTS - seller platform
+  router.get("/products/:sellerId", processGetAllProductsOfSeller);
+  router.get(
+    "/getRecommendedProductsBasedOnCat",
+    productController.getRecommendedProductsBasedOnCat
+  );
 
-  // KANG RUI ENDPOINTS
-  app.post('/login', processLogin);
-  app.post('/auth/SMS/OTP', processSendSMSOTP);
-  app.post('/auth/email/OTP', processSendEmailOTP);
-  app.post('/auth/verify/OTP', processVerifyOTP);
-  app.post('/signup/link', processSendEmailLink);
-  app.post('/signup/verify/link', processSignUpLink);
-  app.post('/signup', processSignUp);
-  //
-  app.get("/getRecommendedProductsBasedOnCat", getRecommendedProductsBasedOnCat);
-  app.get("/getWishlistItems", getWishlistItems);
-  app.get("/getLastViewed", getLastViewed);
+  // NHAT TIEN ENDPOINTS - Homepage, Last Viewed, Wishlist, Product Details
+  router.get("/getWishlistItems", productController.getWishlistItems);
+  router.get("/getLastViewed", productController.getLastViewed);
+  router.get("/productDetails", productController.processPublicProductDetails);
 
-  app.get("/productDetails", processPublicProductDetails);
-  app.get("/cartDetails", processCartDetails);
+  router.get("/cartDetails",verifyJWT,verifyRoles("customer"), cartController.retrieveCartDetails);
+
+  router.get("/cartDetails", cartController.retrieveCartDetails);
 }
-
