@@ -4,13 +4,14 @@ import { Request, Response, NextFunction } from 'express';
 
 interface DecodedToken extends JwtPayload {
     UserInfo: {
-        customer_id: string;
+        customer_id?: string;
+        seller_id?: string;
         role: string;
     };
 }
 
 interface AuthenticatedRequest extends Request {
-    customer_id?: string;
+    user_id?: string;
     role?: string;
 }
 
@@ -34,7 +35,7 @@ const verifyJWT = (
         }
 
         const decodedToken = decoded as DecodedToken;
-        req.customer_id = decodedToken.UserInfo.customer_id;
+        req.user_id = decodedToken.UserInfo.customer_id || decodedToken.UserInfo.seller_id;
         req.role = decodedToken.UserInfo.role;
 
         next();
