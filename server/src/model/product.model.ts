@@ -117,3 +117,88 @@ export const handlesTopProducts = async () => {
     await connection.release();
   }
 };
+
+export const handlesSearchBarPredictions = async () => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT products.product_id, products.name 
+  FROM listed_products
+  JOIN products ON  listed_products.product_id = products.product_id;`;
+  try {
+    const result = await connection.query(sql, []);
+    console.log(result[0]);
+    return result[0];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handlesSearchResult = async (input: string) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT products.product_id, products.name 
+  FROM listed_products
+  JOIN products ON  listed_products.product_id = products.product_id
+  WHERE products.name LIKE ?;`;
+  const params = [`%${input}%`];
+  try {
+    const result = await connection.query(sql, params);
+    console.log(result[0]);
+    return result[0];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handlesProductsBasedOnCategory = async (category_id: number) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT products.product_id, products.name 
+  FROM listed_products
+  JOIN products ON  listed_products.product_id = products.product_id
+  JOIN category ON  products.category_id = category.category_id
+  WHERE category.category_id = ?;`;
+  try {
+    const result = await connection.query(sql, [category_id]);
+    console.log(result[0]);
+    return result[0];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handlesInsertingWishlistedProduct = async (customer_id: number, product_id: number) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `INSERT INTO wishlist (customer_id, product_id) VALUES (?, ?);`;
+  try {
+    const result = await connection.query(sql, [customer_id, product_id]);
+    console.log(result[0]);
+    return result[0].affectedRows;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handlesDeletingWishlistedProduct = async (wishlist_id: number) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `DELETE FROM wishlist WHERE wishlist.wishlist_id = ?;`;
+  try {
+    const result = await connection.query(sql, [wishlist_id]);
+    console.log(result[0]);
+    return result[0].affectedRows;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
