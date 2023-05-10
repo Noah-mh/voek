@@ -1,6 +1,6 @@
-import jwt from 'jsonwebtoken';
-import config from '../../config/config';
-import { UserInfo } from '../interfaces/interfaces';
+import jwt from "jsonwebtoken";
+import config from "../../config/config";
+import { UserInfo } from "../interfaces/interfaces";
 import { Request, Response, NextFunction } from "express";
 import * as customerModel from '../model/customer.model';
 
@@ -95,7 +95,7 @@ export const processSendEmailLink = async (req: Request, res: Response, next: Ne
         const signUpToken = jwt.sign(
             {
                 UserInfo: {
-                    email, 
+                    email,
                     username,
                     phone_number
                 }
@@ -116,33 +116,67 @@ export const processSignUpLink = async (req: Request, res: Response, next: NextF
         if (!signUpToken) return res.sendStatus(400);
         jwt.verify(signUpToken, config.signUpCustomerTokenSecret as any, (err: any, decoded: any) => {
             if (err) return res.sendStatus(403);
-            return res.status(200).json({email: decoded.UserInfo.email, username: decoded.UserInfo.username, phone_number: decoded.UserInfo.phone_number});
+            return res.status(200).json({ email: decoded.UserInfo.email, username: decoded.UserInfo.username, phone_number: decoded.UserInfo.phone_number });
         });
     } catch (err: any) {
         return next(err);
     }
-}
+};
 
-export const processSignUp = async (req: Request, res: Response, next: NextFunction) => {
+export const processSignUp = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
     try {
         const { username, password, email, phone_number } = req.body;
-        if (!username || !password || !email || !phone_number) return res.sendStatus(400);
-        const response = await customerModel.handleSignUp(username, password, email, phone_number);
+        if (!username || !password || !email || !phone_number)
+            return res.sendStatus(400);
+        const response = await customerModel.handleSignUp(
+            username,
+            password,
+            email,
+            phone_number
+        );
         return res.sendStatus(200);
     } catch (err: any) {
         return next(err);
     }
-}
+};
+
+export const updateCustLastViewedCat = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { cat_id, customer_id } = req.body;
+      try {
+        const response: number = await customerModel.handlesCustLastViewdCat(
+          cat_id,
+          customer_id
+        );
+        console.log(response);
+        if (response === 0) return res.sendStatus(404);
+        return res.sendStatus(200);
+      } catch (err: any) {
+        return next(err);
+      }
+      return res.sendStatus(200);
+    } catch (err: any) {
+      return next(err);
+    }
+  };
 
 export const processLogout = async (req: Request, res: Response, next: NextFunction) => {
-    const cookies = req.cookies;
-    if (!cookies?.jwt) return res.sendStatus(204);
-    const refreshToken = cookies.jwt;
-    await customerModel.handleLogOut(refreshToken);
-    res.clearCookie('jwt', {
-        httpOnly: true
-        , sameSite: "none",
-        secure: true
-    });
-    res.sendStatus(204);
-}
+        const cookies = req.cookies;
+        if (!cookies?.jwt) return res.sendStatus(204);
+        const refreshToken = cookies.jwt;
+        await customerModel.handleLogOut(refreshToken);
+        res.clearCookie('jwt', {
+            httpOnly: true
+            , sameSite: "none",
+            secure: true
+        });
+        res.sendStatus(204);
+    }

@@ -8,7 +8,6 @@ import { processRefreshTokenCustomer } from "./controller/auth.controller";
 import { processGetAllProductsOfSeller } from "./controller/seller.controller";
 
 export default function (app: Express, router: Router) {
-
   // KANG RUI ENDPOINTS - user management system
   router.post('/login', customerController.processLogin);
   router.post('/customer/auth/SMS/OTP', customerController.processSendSMSOTP);
@@ -29,13 +28,19 @@ export default function (app: Express, router: Router) {
   router.post('/refresh/seller', processRefreshTokenCustomer);
 
   // ASHLEY ENDPOINTS - seller platform
-  app.get('/products/:sellerId', processGetAllProductsOfSeller);
+  router.get("/products/:sellerId", processGetAllProductsOfSeller);
+  router.get(
+    "/getRecommendedProductsBasedOnCat",
+    productController.getRecommendedProductsBasedOnCat
+  );
 
-  // NHAT TIEN ENDPOINTS - product management system
-  router.get("/getRecommendedProductsBasedOnCat", productController.getRecommendedProductsBasedOnCat);
+  // NHAT TIEN ENDPOINTS - Homepage, Last Viewed, Wishlist, Product Details
   router.get("/getWishlistItems", productController.getWishlistItems);
   router.get("/getLastViewed", productController.getLastViewed);
   router.get("/productDetails", productController.processPublicProductDetails);
-  router.get("/cartDetails", productController.processCartDetails);
-}
 
+  router.get("/cartDetails",verifyJWT,verifyRoles("customer"), productController.processCartDetails);
+
+  router.get("/getTopProducts", productController.getTopProducts);
+  router.get("/updateCustLastViewedCat", customerController.updateCustLastViewedCat);
+  }
