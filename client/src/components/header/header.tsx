@@ -1,13 +1,9 @@
 import React from "react";
 import "./header.css";
-import { useRef, useEffect } from "react";
+import { useRef } from "react";
 
-const header = () => {
+const Header = () => {
   const ref: any = useRef();
-
-  useEffect(() => {
-    console.log(ref.current.clientHeight);
-  }, []);
 
   return (
     <nav
@@ -43,4 +39,4 @@ const header = () => {
     </nav>
   );
 };
-export default header;
+export default Header;
