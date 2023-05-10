@@ -1,0 +1,32 @@
+.category {
+  margin: 30px 10%;
+}
+
+.categoriesHeader {
+  text-shadow: 0px 0px;
+}
+
+.sixty {
+  height: 60%;
+}
+
+.forty {
+  height: 40%;
+}
+
+img {
+  object-fit: cover;
+  border-radius: 48px;
+}
+
+img:hover {
+  cursor: pointer;
+}
+
+.watchesText {
+  bottom: 26.5rem;
+}
+
+.categoryText {
+  text-shadow: 1px 2px rgb(39, 39, 39);
+}
