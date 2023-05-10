@@ -1,5 +1,12 @@
 import { Request, Response, NextFunction } from "express";
-import { handlesGetProductDetails, handlesGetCartDetails, handlesGetRecommendedProductsBasedOnCat, handlesGetWishlistItems, handlesGetLastViewed } from "../model/product.model";
+import {
+  handlesGetProductDetails,
+  handlesGetCartDetails,
+  handlesGetRecommendedProductsBasedOnCat,
+  handlesGetWishlistItems,
+  handlesGetLastViewed,
+  handlesTopProducts,
+} from "../model/product.model";
 
 export const processPublicProductDetails = async (
   req: Request,
@@ -9,9 +16,7 @@ export const processPublicProductDetails = async (
   try {
     console.log();
     const { productId } = req.body;
-    const response: Array<object> = await handlesGetProductDetails(
-      productId
-    );
+    const response: Array<object> = await handlesGetProductDetails(productId);
     if (!response?.length) return res.sendStatus(404);
     return res.sendStatus(200);
   } catch (err: any) {
@@ -26,9 +31,7 @@ export const processCartDetails = async (
 ) => {
   try {
     const { customerId } = req.body;
-    const response: Array<object> = await handlesGetCartDetails(
-      customerId
-    );
+    const response: Array<object> = await handlesGetCartDetails(customerId);
     if (!response?.length) return res.sendStatus(404);
     return res.sendStatus(200);
   } catch (err: any) {
@@ -43,9 +46,8 @@ export const getRecommendedProductsBasedOnCat = async (
 ) => {
   try {
     const { category_id } = req.body;
-    const response: Array<object> = await handlesGetRecommendedProductsBasedOnCat(
-      category_id
-    );
+    const response: Array<object> =
+      await handlesGetRecommendedProductsBasedOnCat(category_id);
     if (!response?.length) return res.sendStatus(404);
     return res.sendStatus(200);
   } catch (err: any) {
@@ -60,9 +62,7 @@ export const getWishlistItems = async (
 ) => {
   try {
     const { customer_id } = req.body;
-    const response: Array<object> = await handlesGetWishlistItems(
-      customer_id
-    );
+    const response: Array<object> = await handlesGetWishlistItems(customer_id);
     if (!response?.length) return res.sendStatus(404);
     return res.sendStatus(200);
   } catch (err: any) {
@@ -78,7 +78,8 @@ export const getLastViewed = async (
   try {
     const { customer_id, date_viewed } = req.body;
     const response: Array<object> = await handlesGetLastViewed(
-      customer_id, date_viewed
+      customer_id,
+      date_viewed
     );
     if (!response?.length) return res.sendStatus(404);
     return res.sendStatus(200);
@@ -87,3 +88,16 @@ export const getLastViewed = async (
   }
 };
 
+export const getTopProducts = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const response: Array<object> = await handlesTopProducts();
+    if (!response?.length) return res.sendStatus(404);
+    return res.sendStatus(200);
+  } catch (err: any) {
+    return next(err);
+  }
+};

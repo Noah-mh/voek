@@ -40,7 +40,9 @@ export const handlesGetCartDetails = async (customerId: number) => {
   }
 };
 
-export const handlesGetRecommendedProductsBasedOnCat = async (category_id: number) => {
+export const handlesGetRecommendedProductsBasedOnCat = async (
+  category_id: number
+) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT products.product_id , products.name, products.description, products.price 
@@ -49,13 +51,13 @@ export const handlesGetRecommendedProductsBasedOnCat = async (category_id: numbe
   LIMIT 6;`;
   try {
     const result = await connection.query(sql, [category_id]);
-    return result[0]
+    return result[0];
   } catch (err: any) {
     throw new Error(err);
   } finally {
     await connection.release();
   }
-}
+};
 
 export const handlesGetWishlistItems = async (customer_id: number) => {
   const promisePool = pool.promise();
@@ -67,15 +69,18 @@ export const handlesGetWishlistItems = async (customer_id: number) => {
   WHERE wishlist.customer_id = ?;`;
   try {
     const result = await connection.query(sql, [customer_id]);
-    return result[0]
+    return result[0];
   } catch (err: any) {
     throw new Error(err);
   } finally {
     await connection.release();
   }
-}
+};
 
-export const handlesGetLastViewed = async (customer_id: number, date_viewed: string) => {
+export const handlesGetLastViewed = async (
+  customer_id: number,
+  date_viewed: string
+) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT products.product_id, products.name, products.description
@@ -83,15 +88,32 @@ export const handlesGetLastViewed = async (customer_id: number, date_viewed: str
   JOIN customer ON last_viewed.customer_id = customer.customer_id
   JOIN products ON last_viewed.product_id = products.product_id
   WHERE last_viewed.customer_id = ? and last_viewed.date_viewed LIKE "2023-05-09%";`;
-  const params = [customer_id, `${date_viewed}%`]
+  const params = [customer_id, `${date_viewed}%`];
   try {
     const result = await connection.query(sql, [customer_id, date_viewed]);
     console.log(result[0]);
-    console.log(result[0]);
-    return result[0]
+    return result[0];
   } catch (err: any) {
     throw new Error(err);
   } finally {
     await connection.release();
   }
-}
+};
+
+export const handlesTopProducts = async () => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT DISTINCT products.product_id, products.name, products.description 
+  FROM (SELECT orders_product.product_id FROM orders_product) x 
+  JOIN products ON x.product_id = products.product_id 
+  GROUP BY x.product_id;`;
+  try {
+    const result = await connection.query(sql, []);
+    console.log(result[0]);
+    return result[0];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
