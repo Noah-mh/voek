@@ -1,12 +1,12 @@
-import express, { NextFunction, Request, Response } from 'express';
-import config from 'config';
-import log from './logger';
-import routes from './Routes';
-import cors from 'cors';
-const cookieParser = require('cookie-parser');
-import * as bodyParser from 'body-parser'
-import credientals from './middlewares/credentials'
-import corsOptions from '../config/corsOptions'
+import express, { NextFunction, Request, Response } from "express";
+import config from "config";
+import log from "./logger";
+import routes from "./Routes";
+import cors from "cors";
+const cookieParser = require("cookie-parser");
+import * as bodyParser from "body-parser";
+import credientals from "./middlewares/credentials";
+import corsOptions from "../config/corsOptions";
 
 const port: number = config.get("port");
 const host: string = config.get("host");
@@ -34,9 +34,9 @@ routes(app, router);
 
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
   console.log(error);
-  res.status(500).json(error.message)
-})
+  res.status(500).json(error.message);
+});
 
 app.listen(port, host, () => {
   log.info(`Server is listening on http://${host}:${port}`);
-})
+});

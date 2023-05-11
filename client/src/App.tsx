@@ -5,6 +5,7 @@ import LoginBanner from "./components/LoginBanner/LoginBanner";
 import SignupBanner from "./components/SignupBanner/SignupBanner.js";
 import Layout from "./components/Layout/Layout";
 import RequireAuthCustomer from "./components/RequireAuth/RequireAuthCustomer";
+import CartPage from "./components/cart/UserCart";
 import PersistLoginCustomer from "./components/PersistLogin/PersistLoginCustomer";
 import PersistLoginSeller from "./components/PersistLogin/PersistLoginSeller.js";
 import RequireAuthSeller from "./components/RequireAuth/RequireAuthSeller.js";
@@ -14,32 +15,29 @@ import LayoutSeller from "./components/Layout/LayouSeller.js";
 function App() {
   return (
     <Routes>
-
       <Route path="/" element={<Layout />}>
         {/* Public Routes*/}
-        <Route path='/' element={<h1></h1>} />
-        <Route path='login' element={<LoginBanner />} />
-        <Route path='signup' element={<SignupBanner />} />
-
+        <Route path="/" element={<h1></h1>} />
+        <Route path="login" element={<LoginBanner />} />
+        <Route path="signup" element={<SignupBanner />} />
+        <Route path="cart" element={<CartPage />} />
 
         {/* Protected Routes for customer*/}
         <Route element={<PersistLoginCustomer />}>
           <Route element={<RequireAuthCustomer />}>
-            <Route path='customer' element={<Test />} />
-            <Route path='monkey' element={<Link to='/customer'>Customer</Link>} />
+            <Route path="customer" element={<Test />} />
+            <Route
+              path="monkey"
+              element={<Link to="/customer">Customer</Link>}
+            />
           </Route>
         </Route>
-
       </Route>
-      <Route path='/' element={<LayoutSeller />}>
-    
+      <Route path="/" element={<LayoutSeller />}>
         {/* Protected Routes for seller only*/}
         <Route element={<PersistLoginSeller />}>
-          <Route element={<RequireAuthSeller />}>
-
-          </Route>
+          <Route element={<RequireAuthSeller />}></Route>
         </Route>
-
       </Route>
 
       {/* unauthorized or forbidden */}
