@@ -3,11 +3,9 @@ import verifyJWT from "./middlewares/verifyJWT";
 import verifyRoles from "./middlewares/verifyRoles";
 import * as customerController from "./controller/customer.controller";
 import * as productController from "./controller/product.controller";
+import * as authController from "./controller/auth.controller";
 import * as sellerController from "./controller/seller.controller";
 import * as cartController from "./controller/cart.controller";
-import { processRefreshTokenCustomer } from "./controller/auth.controller";
-import { processGetAllProductsOfSeller } from "./controller/seller.controller";
-import { retrieveCartDetails } from "./controller/cart.controller";
 
 export default function (app: Express, router: Router) {
   // KANG RUI ENDPOINTS - user management system
@@ -24,6 +22,7 @@ export default function (app: Express, router: Router) {
     customerController.processSignUpLink
   );
   router.post("/customer/signup", customerController.processSignUp);
+  router.get("/refresh/customer", authController.processRefreshTokenCustomer);
 
   router.post("/login/seller", sellerController.processLogin);
   router.post("/seller/auth/SMS/OTP", sellerController.processSendSMSOTP);
@@ -32,11 +31,13 @@ export default function (app: Express, router: Router) {
   router.post("/seller/signup/link", sellerController.processSendEmailLink);
   router.post("/seller/signup/verify/link", sellerController.processSignUpLink);
   router.post("/seller/signup", sellerController.processSignUp);
-  router.post("/refresh/customer", processRefreshTokenCustomer);
-  router.post("/refresh/seller", processRefreshTokenCustomer);
+  router.get("/refresh/seller", authController.processRefreshTokenCustomer);
 
   // ASHLEY ENDPOINTS - seller platform
-  router.get("/products/:sellerId", processGetAllProductsOfSeller);
+  router.get(
+    "/products/:sellerId",
+    sellerController.processGetAllProductsOfSeller
+  );
   router.get(
     "/getRecommendedProductsBasedOnCat",
     productController.getRecommendedProductsBasedOnCat
