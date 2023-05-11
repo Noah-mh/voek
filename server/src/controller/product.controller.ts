@@ -10,6 +10,7 @@ import {
   handlesProductsBasedOnCategory,
   handlesInsertingWishlistedProduct,
   handlesDeletingWishlistedProduct,
+  handlesCheckWishlistProductExistence,
 } from "../model/product.model";
 
 export const processPublicProductDetails = async (
@@ -143,13 +144,14 @@ export const insertWishlistedProduct = async (
   next: NextFunction
 ) => {
   try {
-    const { customer_id, product_id } = req.body;
+    console.log("test");
+    const { customerId, productId } = req.body;
     const response: number = await handlesInsertingWishlistedProduct(
-      customer_id,
-      product_id
+      customerId,
+      productId
     );
     if (response === 0) return res.sendStatus(404);
-    return res.sendStatus(200);
+    return res.sendStatus(201);
   } catch (err: any) {
     return next(err);
   }
@@ -160,13 +162,34 @@ export const deleteWishlistedProduct = async (
   res: Response,
   next: NextFunction
 ) => {
+  console.log("test2");
   try {
-    const { wishlist_id } = req.body;
+    const { customerId, productId } = req.body;
     const response: number = await handlesDeletingWishlistedProduct(
-      wishlist_id
+      customerId, productId
     );
     if (response === 0) return res.sendStatus(404);
     return res.sendStatus(200);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const checkWishListProductExistence = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  console.log("test2");
+  try {
+    const { customerId, productId } = req.body;
+    const response: Array<object> = await handlesCheckWishlistProductExistence(
+      customerId, productId
+    );
+    console.log("response in controller: ", response);
+    // if (response.length === 0) return res.sendStatus(404);
+    // return res.sendStatus(response[0]["COUNT(*)"] === 0 ? 404 : 200);
+    return res.send(response);
   } catch (err: any) {
     return next(err);
   }

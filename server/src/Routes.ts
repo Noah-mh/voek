@@ -75,6 +75,7 @@ export default function (app: Express, router: Router) {
     "/deleteWishlistedProduct",
     productController.deleteWishlistedProduct
   );
+  router.post("/checkWishlistProductExistence", productController.checkWishListProductExistence);
 
   router.get(
     "/cartDetails",

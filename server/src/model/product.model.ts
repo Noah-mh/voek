@@ -8,11 +8,8 @@ export const handlesGetProductDetails = async (productId: number) => {
   INNER JOIN product_variations pv ON p.product_id = pv.product_id
   LEFT JOIN review r ON pv.sku = r.sku
   WHERE p.product_id = ?;`;
-  console.log(sql);
   try {
     const result = await connection.query(sql, [productId]);
-    console.log(result[0]);
-    // console.log(typeof result[0]);
     return result[0];
   } catch (err: any) {
     throw new Error(err);
@@ -192,12 +189,12 @@ export const handlesInsertingWishlistedProduct = async (
   }
 };
 
-export const handlesDeletingWishlistedProduct = async (wishlist_id: number) => {
+export const handlesDeletingWishlistedProduct = async (customer_id: number, product_id: number) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `DELETE FROM wishlist WHERE wishlist.wishlist_id = ?;`;
+  const sql = `DELETE FROM wishlist WHERE wishlist.customer_id = ? and wishlist.product_id = ?;`;
   try {
-    const result = await connection.query(sql, [wishlist_id]);
+    const result = await connection.query(sql, [customer_id, product_id]);
     console.log(result[0]);
     return result[0].affectedRows;
   } catch (err: any) {
@@ -206,3 +203,21 @@ export const handlesDeletingWishlistedProduct = async (wishlist_id: number) => {
     await connection.release();
   }
 };
+
+export const handlesCheckWishlistProductExistence = async (customer_id: number, product_id: number) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT * FROM wishlist WHERE wishlist.customer_id = ? and wishlist.product_id = ?;`;
+  try {
+    console.log(sql);
+    const result = await connection.query(sql, [customer_id, product_id]);
+    console.log(result[0]);
+    return result[0];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+

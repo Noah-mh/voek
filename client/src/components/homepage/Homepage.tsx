@@ -21,11 +21,13 @@ const Homepage = () => {
   };
 
   const viewProduct = async () => {
-    console.log("productId: ", productId);
-    const response = await axios.post(`/productDetails`, JSON.stringify({ productId }), {headers: { 'Content-Type': 'application/json' }})
-    console.log("response: ", response);
+    const response = await axios.post(
+      `/productDetails`,
+      JSON.stringify({ productId }),
+      { headers: { "Content-Type": "application/json" }, withCredentials: true }
+    );
     return response.data;
-  }
+  };
 
   return (
     <div className="Homepage">
@@ -52,7 +54,11 @@ const Homepage = () => {
       </div>
       <AnimatePresence initial={false} onExitComplete={() => null}>
         {modalOpen && (
-          <Modal handleClose={modalCloseFn} productImg={productImg} viewProduct={viewProduct} />
+          <Modal
+            handleClose={modalCloseFn}
+            productImg={productImg}
+            viewProduct={viewProduct}
+          />
         )}
       </AnimatePresence>
     </div>
