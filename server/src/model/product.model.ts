@@ -202,3 +202,24 @@ export const handlesDeletingWishlistedProduct = async (wishlist_id: number) => {
     await connection.release();
   }
 };
+
+export const handleProductDetailsWithReviews =async (product_id:number) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT p.name, p.price, p.description, pv.variation_1, pv.variation_2, r.rating, r.comment ,c.username
+  FROM products p
+  INNER JOIN product_variations pv ON p.product_id = pv.product_id
+  LEFT JOIN review r ON pv.sku = r.sku
+  RIGHT JOIN customer c ON r.customer_id = c.customer_id
+  WHERE p.product_id = ?
+    `;
+  try {
+    const result = await connection.query(sql, [product_id]);
+    console.log(result[0]);
+    return result[0];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+}

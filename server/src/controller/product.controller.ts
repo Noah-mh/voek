@@ -10,6 +10,7 @@ import {
   handlesProductsBasedOnCategory,
   handlesInsertingWishlistedProduct,
   handlesDeletingWishlistedProduct,
+  handleProductDetailsWithReviews
 } from "../model/product.model";
 
 export const processPublicProductDetails = async (
@@ -164,3 +165,14 @@ export const deleteWishlistedProduct = async (
     return next(err);
   }
 };  
+
+export const getProductDetailsWithReviews =async (req:Request, res : Response, next : NextFunction) => {
+  try {
+    const {product_id} = req.body;
+    const response : Array<object> = await handleProductDetailsWithReviews(product_id);
+    if (!response?.length) return res.sendStatus(404);
+    return res.sendStatus(200);
+  } catch (err : any) {
+    return next(err);
+  }
+}

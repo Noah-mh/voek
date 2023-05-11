@@ -1,5 +1,5 @@
 import "./App.css";
-import { Route, Routes } from "react-router-dom";
+import { Link, Route, Routes } from "react-router-dom";
 import Missing from "./components/Missing/Missing";
 import LoginBanner from "./components/LoginBanner/LoginBanner";
 import SignupBanner from "./components/SignupBanner/SignupBanner.js";
@@ -10,6 +10,7 @@ import PersistLoginSeller from "./components/PersistLogin/PersistLoginSeller.js"
 import RequireAuthSeller from "./components/RequireAuth/RequireAuthSeller.js";
 import Test from "./components/test";
 import LayoutSeller from "./components/Layout/LayouSeller.js";
+import ProductDetails from "./components/Product/ProductDetailsWithReviews.js";
 
 function App() {
   return (
@@ -20,7 +21,7 @@ function App() {
         <Route path='/' element={<h1></h1>} />
         <Route path='login' element={<LoginBanner />} />
         <Route path='signup' element={<SignupBanner />} />
-
+        <Route path='productDetailsWithReviews' element={<ProductDetails />} />
 
         {/* Protected Routes for customer*/}
         <Route element={<PersistLoginCustomer />}>

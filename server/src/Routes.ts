@@ -27,6 +27,9 @@ export default function (app: Express, router: Router) {
   router.post('/seller/signup', sellerController.processSignUp);
   router.get('/refresh/seller', authController.processRefreshTokenCustomer);
 
+  // NOAH ENDPOINTS - reviews
+  router.get("productDetails/reviews", productController.getProductDetailsWithReviews);
+
   // ASHLEY ENDPOINTS - seller platform
   router.get("/products/:sellerId", sellerController.processGetAllProductsOfSeller);
   router.get(
