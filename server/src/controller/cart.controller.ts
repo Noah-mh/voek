@@ -10,9 +10,11 @@ export const retrieveCartDetails = async (
   next: NextFunction
 ) => {
   try {
-    const { customerId } = req.body;
+    const { customerId } = req.params;
+    console.log("connected?");
+    console.log(customerId);
     const response: Array<object> = await cartModel.handlesGetCartDetails(
-      customerId
+      parseInt(customerId)
     );
     if (!response?.length) return res.sendStatus(404);
     return res.sendStatus(200);

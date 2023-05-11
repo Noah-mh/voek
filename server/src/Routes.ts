@@ -47,14 +47,34 @@ export default function (app: Express, router: Router) {
   router.get("/getLastViewed", productController.getLastViewed);
   router.get("/productDetails", productController.processPublicProductDetails);
 
-  router.get("/cartDetails",verifyJWT,verifyRoles("customer"), cartController.retrieveCartDetails);
+  router.get(
+    "/cartDetails",
+    verifyJWT,
+    verifyRoles("customer"),
+    cartController.retrieveCartDetails
+  );
   router.get("/topProducts", productController.getTopProducts);
-  router.get("/searchBarPredictions", productController.getSearchBarPredictions);
+  router.get(
+    "/searchBarPredictions",
+    productController.getSearchBarPredictions
+  );
   router.get("/searchResult", productController.getSearchResult);
-  router.get("/productsBasedOnCategory", productController.getProductsBasedOnCategory);
-  router.post("/insertWishlistedProduct", productController.insertWishlistedProduct);
-  router.put("/updateCustLastViewedCat", customerController.updateCustLastViewedCat);
-  router.delete("/deleteWishlistedProduct", productController.deleteWishlistedProduct);
+  router.get(
+    "/productsBasedOnCategory",
+    productController.getProductsBasedOnCategory
+  );
+  router.post(
+    "/insertWishlistedProduct",
+    productController.insertWishlistedProduct
+  );
+  router.put(
+    "/updateCustLastViewedCat",
+    customerController.updateCustLastViewedCat
+  );
+  router.delete(
+    "/deleteWishlistedProduct",
+    productController.deleteWishlistedProduct
+  );
 
   //ALLISON'S ENDPOINTS - CART
 
@@ -65,6 +85,6 @@ export default function (app: Express, router: Router) {
   //   cartController.retrieveCartDetails
   // );
 
-  router.post("/getCart", cartController.retrieveCartDetails);
+  router.get("/getCart/:customerId", cartController.retrieveCartDetails);
   router.post("/alterCart", cartController.alterCartDetails);
 }
