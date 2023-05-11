@@ -1,7 +1,7 @@
 import "./css/Homepage.css";
 import { useState } from "react";
 import Slider from "./Slider";
-import Banner from "./Banner";
+import { Banner } from "./Banner";
 import Category from "./Category";
 import Modal from "./Modal";
 import { AnimatePresence } from "framer-motion";

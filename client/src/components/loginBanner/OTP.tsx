@@ -36,7 +36,7 @@ export default function OTP({ userDetails }: props): JSX.Element {
   const emailSentHandler = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     try {
-      const response = await axios.post("/customer/auth/email/OTP",
+      await axios.post("/customer/auth/email/OTP",
         JSON.stringify({ customer_id, email }),
         {
           headers: { 'Content-Type': 'application/json' },
@@ -79,7 +79,7 @@ export default function OTP({ userDetails }: props): JSX.Element {
   const smsSentHandler = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     try {
-      const response = await axios.post("/customer/auth/SMS/OTP",
+        await axios.post("/customer/auth/SMS/OTP",
         JSON.stringify({ phoneNumber: phone_number, customer_id }),
         {
           headers: { 'Content-Type': 'application/json' },

@@ -7,7 +7,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faXmark,
   faCartPlus,
-  faHeart,
   faHeartCircleXmark,
   faHeartCircleCheck,
 } from "@fortawesome/free-solid-svg-icons";

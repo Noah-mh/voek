@@ -1,12 +1,10 @@
-import { useEffect } from "react";
 import "./App.css";
-import { Link, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import Missing from "./components/Missing/Missing";
 import LoginBanner from "./components/LoginBanner/LoginBanner";
 import SignUP from "./components/LoginBanner/Signup";
 import Layout from "./components/Layout/Layout";
-import RequireAuthCustomer from "./components/RequireAuth/RequireAuthCustomer";
-// 
+
 function App() {
   return (
     <Routes>

@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "../../api/axios";
 import { AxiosResponse } from 'axios'
-import { Link } from "react-router-dom";
 import "./LBRight.css";
 
 interface props {

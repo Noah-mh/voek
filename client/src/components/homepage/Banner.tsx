@@ -60,4 +60,4 @@ const Banner: React.FC = () => {
   );
 };
 
-export default Banner;
+export {Banner,NavBar};

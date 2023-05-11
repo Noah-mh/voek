@@ -1,4 +1,3 @@
-import React from "react";
 import "./signUP.css";
 
 // havent finish any of the routes
