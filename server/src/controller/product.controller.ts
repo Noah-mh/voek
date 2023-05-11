@@ -21,8 +21,8 @@ export const processPublicProductDetails = async (
     console.log();
     const { productId } = req.body;
     const response: Array<object> = await handlesGetProductDetails(productId);
-    if (!response?.length) return res.sendStatus(404);
-    return res.sendStatus(200);
+    if (response.length === 0) return res.sendStatus(404);
+    return res.json({ response });
   } catch (err: any) {
     return next(err);
   }
@@ -118,7 +118,7 @@ export const getSearchResult = async (
   } catch (err: any) {
     return next(err);
   }
-};  
+};
 
 export const getProductsBasedOnCategory = async (
   req: Request,
@@ -127,13 +127,15 @@ export const getProductsBasedOnCategory = async (
 ) => {
   try {
     const { category_id } = req.body;
-    const response: Array<object> = await handlesProductsBasedOnCategory(category_id);
+    const response: Array<object> = await handlesProductsBasedOnCategory(
+      category_id
+    );
     if (!response?.length) return res.sendStatus(404);
     return res.sendStatus(200);
   } catch (err: any) {
     return next(err);
   }
-};  
+};
 
 export const insertWishlistedProduct = async (
   req: Request,
@@ -142,13 +144,16 @@ export const insertWishlistedProduct = async (
 ) => {
   try {
     const { customer_id, product_id } = req.body;
-    const response: number = await handlesInsertingWishlistedProduct(customer_id, product_id);
+    const response: number = await handlesInsertingWishlistedProduct(
+      customer_id,
+      product_id
+    );
     if (response === 0) return res.sendStatus(404);
     return res.sendStatus(200);
   } catch (err: any) {
     return next(err);
   }
-};  
+};
 
 export const deleteWishlistedProduct = async (
   req: Request,
@@ -157,10 +162,12 @@ export const deleteWishlistedProduct = async (
 ) => {
   try {
     const { wishlist_id } = req.body;
-    const response: number = await handlesDeletingWishlistedProduct(wishlist_id);
+    const response: number = await handlesDeletingWishlistedProduct(
+      wishlist_id
+    );
     if (response === 0) return res.sendStatus(404);
     return res.sendStatus(200);
   } catch (err: any) {
     return next(err);
   }
-};  
+};
