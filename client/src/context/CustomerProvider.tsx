@@ -16,7 +16,6 @@ interface CustomerProviderProps {
 
 export const CustomerProvider: React.FC<CustomerProviderProps> = ({ children }) => {
     const [customer, setCustomer] = useState<any>({});
-
     return (
         <CustomerContext.Provider value={{ customer, setCustomer }}>
             {children}

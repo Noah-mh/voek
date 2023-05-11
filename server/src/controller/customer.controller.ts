@@ -147,35 +147,35 @@ export const updateCustLastViewedCat = async (
     req: Request,
     res: Response,
     next: NextFunction
-  ) => {
+) => {
     try {
-      const { cat_id, customer_id } = req.body;
-      try {
-        const response: number = await customerModel.handlesCustLastViewdCat(
-          cat_id,
-          customer_id
-        );
-        console.log(response);
-        if (response === 0) return res.sendStatus(404);
+        const { cat_id, customer_id } = req.body;
+        try {
+            const response: number = await customerModel.handlesCustLastViewdCat(
+                cat_id,
+                customer_id
+            );
+            console.log(response);
+            if (response === 0) return res.sendStatus(404);
+            return res.sendStatus(200);
+        } catch (err: any) {
+            return next(err);
+        }
         return res.sendStatus(200);
-      } catch (err: any) {
-        return next(err);
-      }
-      return res.sendStatus(200);
     } catch (err: any) {
-      return next(err);
+        return next(err);
     }
-  };
+};
 
 export const processLogout = async (req: Request, res: Response, next: NextFunction) => {
-        const cookies = req.cookies;
-        if (!cookies?.jwt) return res.sendStatus(204);
-        const refreshToken = cookies.jwt;
-        await customerModel.handleLogOut(refreshToken);
-        res.clearCookie('jwt', {
-            httpOnly: true
-            , sameSite: "none",
-            secure: true
-        });
-        res.sendStatus(204);
-    }
+    const cookies = req.cookies;
+    if (!cookies?.jwt) return res.sendStatus(204);
+    const refreshToken = cookies.jwt;
+    await customerModel.handleLogOut(refreshToken);
+    res.clearCookie('jwt', {
+        sameSite: "none",
+        secure: true,
+        maxAge: 24 * 60 * 60 * 1000
+    });
+    res.sendStatus(204);
+}
