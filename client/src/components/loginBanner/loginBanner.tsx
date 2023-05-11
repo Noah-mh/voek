@@ -1,11 +1,14 @@
-import React from "react";
+import { useState } from "react";
 // import "./signUP.css";
 import loginPhoto from "../../img/login/loginVec.png";
 import OTP from "./OTP.tsx";
 import "./loginBanner.css";
 import LBRight from "./LBRight.tsx";
 
-const loginBanner = () => {
+const LoginBanner = () => {
+  
+  const [userDetails, setUserDetails] = useState<object>({});
+  const [login, setLogin] = useState<boolean>(false);
   return (
     <div className="containerZ main w-screen h-screen flex">
       <div className="cardZ bg-white flex w-2/3 h-3/5 justify-between mx-auto my-20 rounded-md overflow-hidden">
@@ -15,13 +18,14 @@ const loginBanner = () => {
             Explore a new world with VOEK.
           </h1>
         </div>
-        {/* <LBRight /> */}
-        {/* <SignUP /> */}
-        <OTP />
+          {
+            login ? <OTP userDetails={userDetails} />
+            : <LBRight setLogin={setLogin} setUserDetails={setUserDetails}/>
+          }
       </div>
     </div>
   );
 };
 
-export default loginBanner;
+export default LoginBanner;
 

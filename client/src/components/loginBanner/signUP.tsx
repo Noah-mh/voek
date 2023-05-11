@@ -3,7 +3,7 @@ import "./signUP.css";
 
 // havent finish any of the routes
 
-const signUP = (): JSX.Element => {
+const Signup = (): JSX.Element => {
   return (
     <div className="right w-1/2  h-full flex-wrap justify-center p-12">
       <h1 className=" text-center font-bold">SIGN UP</h1>
@@ -39,4 +39,4 @@ const signUP = (): JSX.Element => {
     </div>
   );
 };
-export default signUP;
+export default Signup;
