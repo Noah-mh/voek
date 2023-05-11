@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import OtpInput from "react-otp-input";
 import axios from "../../api/axios";
 import "./OTP.css";
-import useCustomer from "../../hooks/UseCustomer";
+import useCustomer from "../../hooks/useCustomer";
 interface props {
   userDetails: object
 }
@@ -63,7 +63,7 @@ export default function OTP({ userDetails }: props): JSX.Element {
           withCredentials: true
         })
       const { accessToken } = response.data;
-      setCustomer({ username, accessToken, cart: [] })
+      setCustomer({ customer_id, username, accessToken, cart: [] })
       navigate(from);
     } catch (err: any) {
       if (!err?.response) {
