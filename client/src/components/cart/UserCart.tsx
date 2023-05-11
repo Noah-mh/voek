@@ -25,6 +25,7 @@ export default function cartPage(): JSX.Element {
     stock: number;
   }
   const [errMsg, setErrMsg] = useState<string>("");
+  const [userCart, setUserCart] = useState<cartItem[]>([]);
   //   const [customerId, setCustomerId] = useState<number>(2);
   useEffect(() => {
     const getUserCart = async () => {
@@ -37,11 +38,12 @@ export default function cartPage(): JSX.Element {
             //   withCredentials: true,
           }
         );
-        const userCart: userCart = {
-          customer_id: customer_id,
-          role: "customer",
-          cartItems: response.data,
-        };
+        // const userCart: userCart = {
+        //   customer_id: customer_id,
+        //   role: "customer",
+        //   cartItems: response.data,
+        // };
+        setUserCart(response.data);
         console.log(userCart);
       } catch (err: any) {
         if (!err?.response) {
@@ -55,7 +57,24 @@ export default function cartPage(): JSX.Element {
     };
     getUserCart();
   }, []);
-  return <div>ni hao</div>;
+  return (
+    <div>
+      <div className="container">
+        {userCart.map((item: cartItem) => (
+          <div className="cart-item">
+            <div className="product-id">{item.product_id}</div>
+            <div className="name">{item.name}</div>
+            <div className="quantity">{item.quantity}</div>
+            <div className="price">{item.price}</div>
+            <div className="image-url">{item.image_url}</div>
+            <div className="variation-1">{item.variation_1}</div>
+            <div className="variation-2">{item.variation_2}</div>
+            <div className="stock">{item.stock}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 // const smsSentHandler = async (e: React.MouseEvent<HTMLAnchorElement>) => {

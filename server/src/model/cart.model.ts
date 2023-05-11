@@ -12,7 +12,8 @@ export const handlesGetCartDetails = async (customerId: number) => {
       `;
   try {
     const result = await connection.query(sql, [customerId]);
-    console.log(result[0]);
+    console.log("Results received:");
+    console.log(result[0].length);
     return result[0];
   } catch (err: any) {
     throw new Error(err);

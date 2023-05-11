@@ -10,14 +10,15 @@ export const retrieveCartDetails = async (
   next: NextFunction
 ) => {
   try {
-    const { customerId } = req.params;
-    console.log("connected?");
-    console.log(customerId);
+    const { customer_id } = req.body;
+
+    console.log("Connected to Controller");
+
     const response: Array<object> = await cartModel.handlesGetCartDetails(
-      parseInt(customerId)
+      parseInt(customer_id)
     );
     if (!response?.length) return res.sendStatus(404);
-    return res.sendStatus(200);
+    return res.json(response);
   } catch (err: any) {
     return next(err);
   }

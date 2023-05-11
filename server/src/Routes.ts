@@ -85,6 +85,6 @@ export default function (app: Express, router: Router) {
   //   cartController.retrieveCartDetails
   // );
 
-  router.get("/getCart/:customerId", cartController.retrieveCartDetails);
+  router.post("/getCart", cartController.retrieveCartDetails);
   router.post("/alterCart", cartController.alterCartDetails);
 }
