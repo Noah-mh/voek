@@ -9,6 +9,7 @@ interface SliderProps {
   modalCloseFn: () => void;
   modalOpen: boolean;
   setProductImg: (img: string) => void;
+  setProductId: (id: number) => void;
 }
 
 const Slider: React.FC<SliderProps> = ({
@@ -17,6 +18,7 @@ const Slider: React.FC<SliderProps> = ({
   modalCloseFn,
   modalOpen,
   setProductImg,
+  setProductId,
 }) => {
   const [width, setWidth] = useState<number>(0);
   const carousel = useRef<HTMLDivElement>(null);
@@ -65,6 +67,7 @@ const Slider: React.FC<SliderProps> = ({
                   console.log("testing", modalOpen);
                   modalOpen ? modalCloseFn() : modalOpenFn();
                   setProductImg(image);
+                  setProductId(1);
                 }}
               />
             </motion.div>

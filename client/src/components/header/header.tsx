@@ -1,9 +1,11 @@
 import "./header.css";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import { Link } from "react-router-dom";
 
 const Header = () => {
   const ref: any = useRef();
-
+  const [customerId, setCustomerId] = useState<number>(2);
+  // setCustomerId(2);
   return (
     <nav
       ref={ref}
@@ -21,12 +23,18 @@ const Header = () => {
       </div>
       <div className=" block flex justify-end">
         <div className="text-sm lg:flex-grow inline-block  px-4  leading-none">
-          <a
+          <Link
+            to={`cart`}
+            className="block mt-4 lg:inline-block lg:mt-0 hover:text-white mr-4"
+          >
+            Cart
+          </Link>
+          {/* <a
             href="./Cart.tsx"
             className="block mt-4 lg:inline-block lg:mt-0 hover:text-white mr-4"
           >
             Cart
-          </a>
+          </a> */}
           <a
             href="./Profile.tsx"
             className="block mt-4 lg:inline-block lg:mt-0 hover:text-white mr-4"
