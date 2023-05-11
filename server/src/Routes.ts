@@ -3,6 +3,7 @@ import verifyJWT from "./middlewares/verifyJWT";
 import verifyRoles from "./middlewares/verifyRoles";
 import * as customerController from "./controller/customer.controller";
 import * as productController from "./controller/product.controller";
+import * as authController from "./controller/auth.controller";
 import * as sellerController from "./controller/seller.controller";
 import * as cartController from "./controller/cart.controller";
 import { processRefreshTokenCustomer } from "./controller/auth.controller";
@@ -24,6 +25,7 @@ export default function (app: Express, router: Router) {
     customerController.processSignUpLink
   );
   router.post("/customer/signup", customerController.processSignUp);
+  router.get("/refresh/customer", authController.processRefreshTokenCustomer);
 
   router.post("/login/seller", sellerController.processLogin);
   router.post("/seller/auth/SMS/OTP", sellerController.processSendSMSOTP);
@@ -36,7 +38,10 @@ export default function (app: Express, router: Router) {
   router.post("/refresh/seller", processRefreshTokenCustomer);
 
   // ASHLEY ENDPOINTS - seller platform
-  router.get("/products/:sellerId", processGetAllProductsOfSeller);
+  router.get(
+    "/products/:sellerId",
+    sellerController.processGetAllProductsOfSeller
+  );
   router.get(
     "/getRecommendedProductsBasedOnCat",
     productController.getRecommendedProductsBasedOnCat
@@ -84,5 +89,13 @@ export default function (app: Express, router: Router) {
     cartController.retrieveCartDetails
   );
 
-  router.get("/cartDetails", cartController.retrieveCartDetails);
+  // router.get(
+  //   "/cartDetails",
+  //   verifyJWT,
+  //   verifyRoles("customer"),
+  //   cartController.retrieveCartDetails
+  // );
+
+  router.post("/getCart", cartController.retrieveCartDetails);
+  router.post("/alterCart", cartController.alterCartDetails);
 }
