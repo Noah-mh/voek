@@ -15,6 +15,7 @@ import {
 interface Props {
   handleClose: () => void;
   productImg: string | undefined;
+  viewProduct: () => Promise<object[]>;
 }
 
 const dropIn = {
@@ -36,7 +37,7 @@ interface Variation {
   color: string;
 }
 
-const Modal: React.FC<Props> = ({ handleClose, productImg }) => {
+const Modal: React.FC<Props> = ({ handleClose, productImg, viewProduct }) => {
   const [heart, setHeart] = useState(false);
   const [variation1, setVariation1] = useState("");
 
@@ -49,6 +50,14 @@ const Modal: React.FC<Props> = ({ handleClose, productImg }) => {
     { color: "Gold" },
     { color: "Silver" },
   ];
+
+  const responseArr: any = viewProduct().then((data) => {
+    return data;
+  });
+  responseArr.then((data: any) => {
+    const firstElement = data[0];
+    console.log(firstElement);
+  });
 
   return (
     <Backdrop onClick={handleClose}>
@@ -79,7 +88,7 @@ const Modal: React.FC<Props> = ({ handleClose, productImg }) => {
             />
           </div>
           <div className="pl-7">
-            <h1 className="font-extrabold text-3xl">Name of Product</h1>
+            <h1 className="font-extrabold text-3xl">Name Of Product</h1>
             <h1 className="">4.9 stars | 1.7k Ratings</h1>
             <h1 className="price mt-8 text-2xl font-bold">$1,615.00</h1>
             <h1 className="description">

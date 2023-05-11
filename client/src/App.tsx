@@ -5,6 +5,7 @@ import Missing from "./components/Missing/Missing";
 import LoginBanner from "./components/loginBanner/LoginBanner";
 import SignUP from "./components/loginBanner/Signup";
 import Layout from "./components/Layout/Layout";
+import Homepage from "./components/Homepage/Homepage";
 import RequireAuthCustomer from "./components/RequireAuth/RequireAuthCustomer";
 //
 function App() {
@@ -12,7 +13,7 @@ function App() {
     <Routes>
       <Route path="/" element={<Layout />}>
         {/* Public Routes*/}
-        <Route path="/" element={<h1></h1>} />
+        <Route path="/" element={<Homepage />} />
         <Route path="login" element={<LoginBanner />} />
         <Route path="signup" element={<SignUP />} />
 
