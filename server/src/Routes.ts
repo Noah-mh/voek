@@ -6,6 +6,9 @@ import * as productController from "./controller/product.controller";
 import * as authController from "./controller/auth.controller";
 import * as sellerController from "./controller/seller.controller";
 import * as cartController from "./controller/cart.controller";
+import { processRefreshTokenCustomer } from "./controller/auth.controller";
+import { processGetAllProductsOfSeller } from "./controller/seller.controller";
+import { retrieveCartDetails } from "./controller/cart.controller";
 
 export default function (app: Express, router: Router) {
   // KANG RUI ENDPOINTS - user management system
@@ -31,7 +34,8 @@ export default function (app: Express, router: Router) {
   router.post("/seller/signup/link", sellerController.processSendEmailLink);
   router.post("/seller/signup/verify/link", sellerController.processSignUpLink);
   router.post("/seller/signup", sellerController.processSignUp);
-  router.get("/refresh/seller", authController.processRefreshTokenCustomer);
+  router.post("/refresh/customer", processRefreshTokenCustomer);
+  router.post("/refresh/seller", processRefreshTokenCustomer);
 
   // ASHLEY ENDPOINTS - seller platform
   router.get(
@@ -46,7 +50,7 @@ export default function (app: Express, router: Router) {
   // NHAT TIEN ENDPOINTS - Homepage, Last Viewed, Wishlist, Product Details
   router.get("/getWishlistItems", productController.getWishlistItems);
   router.get("/getLastViewed", productController.getLastViewed);
-  router.get("/productDetails", productController.processPublicProductDetails);
+  router.post("/productDetails", productController.processPublicProductDetails);
 
   router.get(
     "/cartDetails",
@@ -76,8 +80,14 @@ export default function (app: Express, router: Router) {
     "/deleteWishlistedProduct",
     productController.deleteWishlistedProduct
   );
+  router.post("/checkWishlistProductExistence", productController.checkWishListProductExistence);
 
-  //ALLISON'S ENDPOINTS - CART
+  router.get(
+    "/cartDetails",
+    verifyJWT,
+    verifyRoles("customer"),
+    cartController.retrieveCartDetails
+  );
 
   // router.get(
   //   "/cartDetails",

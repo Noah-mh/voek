@@ -1,9 +1,10 @@
 import "./App.css";
 import { Link, Route, Routes } from "react-router-dom";
 import Missing from "./components/Missing/Missing";
-import LoginBanner from "./components/LoginBanner/LoginBanner";
+import LoginBanner from "./components/LoginBanner/LoginBanner.js";
 import SignupBanner from "./components/SignupBanner/SignupBanner.js";
 import Layout from "./components/Layout/Layout";
+import Homepage from "./components/Homepage/Homepage";
 import RequireAuthCustomer from "./components/RequireAuth/RequireAuthCustomer";
 import CartPage from "./components/cart/UserCart";
 import PersistLoginCustomer from "./components/PersistLogin/PersistLoginCustomer";
