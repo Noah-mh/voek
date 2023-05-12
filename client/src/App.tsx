@@ -12,13 +12,15 @@ import PersistLoginSeller from "./components/PersistLogin/PersistLoginSeller.js"
 import RequireAuthSeller from "./components/RequireAuth/RequireAuthSeller.js";
 import Test from "./components/test";
 import LayoutSeller from "./components/Layout/LayouSeller.js";
+import Wishlist from "./components/Wishlist/Wishlist.js";
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
         {/* Public Routes*/}
-        <Route path="/" element={<h1></h1>} />
+        {/* <Route path="/" element={<Homepage />} /> */}
+        <Route path="/" element={<Wishlist />} />
         <Route path="login" element={<LoginBanner />} />
         <Route path="signup" element={<SignupBanner />} />
         <Route path="cart" element={<CartPage />} />
@@ -32,6 +34,7 @@ function App() {
               element={<Link to="/customer">Customer</Link>}
             />
           </Route>
+          <Route path="wishlist" element={<Wishlist />} />
         </Route>
       </Route>
       <Route path="/" element={<LayoutSeller />}>

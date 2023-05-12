@@ -48,7 +48,7 @@ export default function (app: Express, router: Router) {
   );
 
   // NHAT TIEN ENDPOINTS - Homepage, Last Viewed, Wishlist, Product Details
-  router.get("/getWishlistItems", productController.getWishlistItems);
+  router.post("/getWishlistItems", productController.getWishlistItems);
   router.get("/getLastViewed", productController.getLastViewed);
   router.post("/productDetails", productController.processPublicProductDetails);
 

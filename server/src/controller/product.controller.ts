@@ -51,10 +51,11 @@ export const getWishlistItems = async (
   next: NextFunction
 ) => {
   try {
-    const { customer_id } = req.body;
-    const response: Array<object> = await handlesGetWishlistItems(customer_id);
+    const { customerId } = req.body;
+    const response: Array<object> = await handlesGetWishlistItems(customerId);
     if (!response?.length) return res.sendStatus(404);
-    return res.sendStatus(200);
+    console.log("resonse", response);
+    return res.send(response);
   } catch (err: any) {
     return next(err);
   }
