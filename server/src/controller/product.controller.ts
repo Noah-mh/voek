@@ -10,8 +10,8 @@ import {
   handlesProductsBasedOnCategory,
   handlesInsertingWishlistedProduct,
   handlesDeletingWishlistedProduct,
-  handleProductDetailsWithReviews
-  handlesCheckWishlistProductExistence,
+  handleProductDetailsWithReviews,
+  handlesCheckWishlistProductExistence
 } from "../model/product.model";
 
 export const processPublicProductDetails = async (

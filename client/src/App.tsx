@@ -4,7 +4,7 @@ import Missing from "./components/Missing/Missing";
 import LoginBanner from "./components/LoginBanner/LoginBanner.js";
 import SignupBanner from "./components/SignupBanner/SignupBanner.js";
 import Layout from "./components/Layout/Layout";
-import Homepage from "./components/Homepage/Homepage";
+import Homepage from "./components/Homepage/Homepage.js";
 import RequireAuthCustomer from "./components/RequireAuth/RequireAuthCustomer";
 import CartPage from "./components/cart/UserCart";
 import PersistLoginCustomer from "./components/PersistLogin/PersistLoginCustomer";
@@ -22,6 +22,7 @@ function App() {
         <Route path="/" element={<h1></h1>} />
         <Route path="login" element={<LoginBanner />} />
         <Route path="signup" element={<SignupBanner />} />
+        <Route path="homepage" element={<Homepage />} />
         <Route path='productDetailsWithReviews' element={<ProductDetails />} />
         <Route path="cart" element={<CartPage />} />
 
