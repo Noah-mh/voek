@@ -7,3 +7,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+.heading::selection {
+  -webkit-text-fill-color: var(--lighterGreyAccent);
+}

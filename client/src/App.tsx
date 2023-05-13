@@ -19,8 +19,7 @@ function App() {
     <Routes>
       <Route path="/" element={<Layout />}>
         {/* Public Routes*/}
-        {/* <Route path="/" element={<Homepage />} /> */}
-        <Route path="/" element={<Wishlist />} />
+        <Route path="/" element={<Homepage />} />
         <Route path="login" element={<LoginBanner />} />
         <Route path="signup" element={<SignupBanner />} />
         <Route path="cart" element={<CartPage />} />

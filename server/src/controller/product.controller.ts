@@ -53,7 +53,6 @@ export const getWishlistItems = async (
   try {
     const { customerId } = req.body;
     const response: Array<object> = await handlesGetWishlistItems(customerId);
-    if (!response?.length) return res.sendStatus(404);
     console.log("resonse", response);
     return res.send(response);
   } catch (err: any) {
