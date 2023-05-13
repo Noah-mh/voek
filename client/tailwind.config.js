@@ -12,6 +12,8 @@ module.exports = {
         purpleAccent: "#310d20",
         greyAccent: "#484848",
         softerPurple: "#5c4444",
+        lighterGreyAccent: "#dbdce0",
+        pink: "#de8285",
       },
     },
   },

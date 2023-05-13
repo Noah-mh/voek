@@ -62,13 +62,14 @@ export const handlesGetWishlistItems = async (
 ) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `SELECT products.product_id, products.name, products.description
+  const sql = `SELECT products.product_id, products.name, products.description, products.price
   FROM wishlist
   JOIN customer ON wishlist.customer_id = customer.customer_id
   JOIN products ON wishlist.product_id = products.product_id
   WHERE wishlist.customer_id = ?;`;
   try {
     const result = await connection.query(sql, [customer_id]);
+    console.log(result[0]);
     return result[0];
   } catch (err: any) {
     throw new Error(err);
