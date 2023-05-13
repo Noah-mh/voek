@@ -12,18 +12,17 @@ import PersistLoginSeller from "./components/PersistLogin/PersistLoginSeller.js"
 import RequireAuthSeller from "./components/RequireAuth/RequireAuthSeller.js";
 import Test from "./components/test";
 import LayoutSeller from "./components/Layout/LayouSeller.js";
-import ProductDetails from "./components/Product/ProductDetailsWithReviews.js";
+import ProductDetailWithReview from "./components/Product/ProductDetailsWithReviews.js";
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
         {/* Public Routes*/}
-        <Route path="/" element={<h1></h1>} />
+        <Route path="/" element={<Homepage />} />
         <Route path="login" element={<LoginBanner />} />
         <Route path="signup" element={<SignupBanner />} />
-        <Route path="homepage" element={<Homepage />} />
-        <Route path='productDetailsWithReviews' element={<ProductDetails />} />
+        <Route path='productDetailsWithReviews/:product_id' element={<ProductDetailWithReview />} />
         <Route path="cart" element={<CartPage />} />
 
         {/* Protected Routes for customer*/}

@@ -219,20 +219,68 @@ export const handlesDeletingWishlistedProduct = async (
     await connection.release();
   }
 };
-export const handleProductDetailsWithReviews = async (
+export const handleProductDetailsWithoutReviews = async (
   product_id: number
 ) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `SELECT p.name, p.price, p.description, pv.variation_1, pv.variation_2, r.rating, r.comment ,c.username
-  FROM products p
-  INNER JOIN product_variations pv ON p.product_id = pv.product_id
-  LEFT JOIN review r ON pv.sku = r.sku
-  RIGHT JOIN customer c ON r.customer_id = c.customer_id
-  WHERE p.product_id = ?
+  const sql = `SELECT 
+  JSON_ARRAYAGG(COALESCE(pi.image_url, 'test/1_cksdtz')) AS image_urls,
+  p.name,
+  p.description,
+  GROUP_CONCAT(
+    DISTINCT JSON_OBJECT(
+      'variation_1',  pv.variation_1,
+      'variation_2', pv.variation_2
+    )
+  ) AS variations
+FROM products p
+INNER JOIN product_variations pv ON p.product_id = pv.product_id
+LEFT JOIN product_images pi ON p.product_id = pi.product_id
+WHERE p.product_id = ?
+GROUP BY
+  p.name,
+  p.description
     `;
+
   try {
-    const result = await connection.query(sql, [product_id]);
+    const result = await connection.query(sql, product_id);
+    console.log(result[0]);
+    return result[0];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handleProductReviews = async (product_id: number) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT p.name,
+  (SELECT JSON_ARRAYAGG(image_url)
+   FROM product_images pi
+   WHERE pi.product_id = p.product_id) AS image_urls,
+  ROUND(AVG(r.rating), 2) AS rating,
+  (SELECT JSON_ARRAYAGG(JSON_OBJECT(
+            'customerName', c.username,
+            'comment', r.comment
+          ))
+   FROM review r
+   INNER JOIN customer c ON r.customer_id = c.customer_id
+   WHERE r.sku IN (
+     SELECT pv.sku
+     FROM product_variations pv
+     WHERE pv.product_id = p.product_id
+   )) AS reviews
+FROM products p
+LEFT JOIN review r ON p.product_id = r.product_id
+WHERE p.product_id = ?
+GROUP BY p.product_id, p.name;
+    `;
+
+  try {
+    const result = await connection.query(sql, product_id);
     console.log(result[0]);
     return result[0];
   } catch (err: any) {
