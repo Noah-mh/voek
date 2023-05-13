@@ -1,0 +1,39 @@
+
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.container h1, .container h3 {
+    color: #333;
+}
+
+.container p {
+    color: #666;
+    line-height: 1.6;
+}
+
+.container .image-container {
+    margin-bottom: 15px;
+}
+
+.container .image-container img {
+    max-width: 100%;
+    height: auto;
+}
+
+.container .variation {
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #f6f6f6;
+    border-radius: 5px;
+}
+
+.container .review {
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #f6f6f6;
+    border-radius: 5px;
+}
