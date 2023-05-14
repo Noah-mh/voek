@@ -6,6 +6,9 @@ import * as productController from "./controller/product.controller";
 import * as authController from "./controller/auth.controller";
 import * as sellerController from "./controller/seller.controller";
 import * as cartController from "./controller/cart.controller";
+import { processRefreshTokenCustomer } from "./controller/auth.controller";
+import { processGetAllProductsOfSeller } from "./controller/seller.controller";
+import { retrieveCartDetails } from "./controller/cart.controller";
 
 export default function (app: Express, router: Router) {
   // KANG RUI ENDPOINTS - user management system
@@ -15,7 +18,6 @@ export default function (app: Express, router: Router) {
   router.post('/customer/auth/verify/OTP', customerController.processVerifyOTP);
   router.post('/customer/signup/link', customerController.processSendEmailLink);
   router.post('/customer/signup/verify/link', customerController.processSignUpLink);
-  // router.post('/customer/signup', customerController.processSignUp);
   router.get('/refresh/customer', authController.processRefreshTokenCustomer);
   
   router.post('/login/seller', sellerController.processLogin);
@@ -26,29 +28,83 @@ export default function (app: Express, router: Router) {
   router.post('/seller/signup/verify/link', sellerController.processSignUpLink);
   router.post('/seller/signup', sellerController.processSignUp);
   router.get('/refresh/seller', authController.processRefreshTokenCustomer);
+ 
+
+  // NOAH ENDPOINTS - reviews
+  router.get(
+    "/productDetailsWithoutReviews/:product_id",
+    productController.getProductDetailsWithoutReviews
+  );
+  router.get(
+    "/productReviews/:product_id",
+    productController.getProductReviews
+  );
 
   // ASHLEY ENDPOINTS - seller platform
-  router.get("/products/:sellerId", sellerController.processGetAllProductsOfSeller);
+  router.get(
+    "/products/:sellerId",
+    sellerController.processGetAllProductsOfSeller
+  );
   router.get(
     "/getRecommendedProductsBasedOnCat",
     productController.getRecommendedProductsBasedOnCat
   );
 
   // NHAT TIEN ENDPOINTS - Homepage, Last Viewed, Wishlist, Product Details
-  router.get("/getWishlistItems", productController.getWishlistItems);
+  router.post("/getWishlistItems", productController.getWishlistItems);
   router.get("/getLastViewed", productController.getLastViewed);
-  router.get("/productDetails", productController.processPublicProductDetails);
+  router.post(
+    "/productDetails",
+    productController.processPublicProductDetails
+  );
 
-  router.get("/cartDetails",verifyJWT,verifyRoles("customer"), cartController.retrieveCartDetails);
+  router.get(
+    "/cartDetails",
+    verifyJWT,
+    verifyRoles("customer"),
+    cartController.retrieveCartDetails
+  );
   router.get("/topProducts", productController.getTopProducts);
-  router.get("/searchBarPredictions", productController.getSearchBarPredictions);
+  router.get(
+    "/searchBarPredictions",
+    productController.getSearchBarPredictions
+  );
   router.get("/searchResult", productController.getSearchResult);
-  router.get("/productsBasedOnCategory", productController.getProductsBasedOnCategory);
-  router.post("/insertWishlistedProduct", productController.insertWishlistedProduct);
-  router.put("/updateCustLastViewedCat", customerController.updateCustLastViewedCat);
-  router.delete("/deleteWishlistedProduct", productController.deleteWishlistedProduct);
+  router.get(
+    "/productsBasedOnCategory",
+    productController.getProductsBasedOnCategory
+  );
+  router.post(
+    "/insertWishlistedProduct",
+    productController.insertWishlistedProduct
+  );
+  router.put(
+    "/updateCustLastViewedCat",
+    customerController.updateCustLastViewedCat
+  );
+  router.delete(
+    "/deleteWishlistedProduct",
+    productController.deleteWishlistedProduct
+  );
+  router.post(
+    "/checkWishlistProductExistence",
+    productController.checkWishListProductExistence
+  );
 
-  router.get("/cartDetails",verifyJWT,verifyRoles("customer"),cartController.retrieveCartDetails);
+  router.get(
+    "/cartDetails",
+    verifyJWT,
+    verifyRoles("customer"),
+    cartController.retrieveCartDetails
+  );
 
-  router.get("/cartDetails", cartController.retrieveCartDetails);
+  // router.get(
+  //   "/cartDetails",
+  //   verifyJWT,
+  //   verifyRoles("customer"),
+  //   cartController.retrieveCartDetails
+  // );
+
+  router.post("/getCart", cartController.retrieveCartDetails);
+  router.post("/alterCart", cartController.alterCartDetails);
 }

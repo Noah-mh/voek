@@ -34,9 +34,9 @@ routes(app, router);
 
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
   console.log(error);
-  res.status(500).json(error.message)
-})
+  res.status(500).json(error.message);
+});
 
 app.listen(port, host, () => {
   log.info(`Server is listening on http://${host}:${port}`);
-})
+});

@@ -1,56 +1,83 @@
-
-import { connect } from 'http2';
-import pool from '../../config/database';
+import { connect } from "http2";
+import pool from "../../config/database";
 
 export const handlesGetCartDetails = async (customerId: number) => {
-    const promisePool = pool.promise();
-    const connection = await promisePool.getConnection();
-    const sql = `SELECT p.product_id, p.name, c.quantity, p.price, p.image_url, pv.variation_1, pv.variation_2, pv.quantity AS stock
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT p.product_id, p.name, c.quantity, p.price, p.image_url, pv.variation_1, pv.variation_2, pv.quantity AS stock
     FROM cart c
     INNER JOIN  product_variations pv ON  c.sku = pv.sku
     LEFT JOIN products p ON p.product_id = pv.product_id 
     WHERE c.customer_id = ?
       `;
+  try {
+    const result = await connection.query(sql, [customerId]);
+    console.log("Results received:");
+    console.log(result[0].length);
+    return result[0];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handleAlterCart = async (
+  customer_id: number,
+  sku: string,
+  quantity: number,
+  new_sku: string,
+  product_id: number
+) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  if (quantity === 0 && !new_sku) {
+    //If quantity of object hits 0, it will be deleted, and no new sku is defined
+    const sql = `DELETE FROM cart WHERE customer_id = ? AND sku = ?`;
     try {
-      const result = await connection.query(sql, [customerId]);
-      console.log(result[0]);
-      return result[0];
+      const result = await connection.query(sql, [customer_id, sku]);
+      console.log(result);
+      return result;
     } catch (err: any) {
       throw new Error(err);
     } finally {
       await connection.release();
     }
-};
-  
-export const alterQuantityCartDetails = async (cart_id: number, sku: string, quantity: number) => {
-    const promisePool = pool.promise();
-    const connection = await promisePool.getConnection();
-    if (quantity === 0) {
-        const sql = `DELETE FROM cart WHERE cart_id = ? AND sku = ?`;
-        try {
-            const result = await connection.query(sql, [cart_id, sku]);
-            console.log(result);
-    
-        } catch (err: any) {
-            throw new Error(err);
-        } finally {
-            await connection.release();
-        }
-        return;
-    }
-    const sql = `UPDATE cart SET quantity = ? WHERE cart_id = ? AND sku = ?`;
+  } else if (!new_sku) {
+    //no new sku is provided, so only quantity has changed.
+    const sql = `UPDATE cart SET quantity = ? WHERE customer_id = ? AND sku = ?`;
     try {
-        const result = await connection.query(sql, [quantity, cart_id, sku]);
-        console.log(result);
+      const result = await connection.query(sql, [quantity, customer_id, sku]);
 
+      console.log(result);
     } catch (err: any) {
-        throw new Error(err);
+      throw new Error(err);
     } finally {
-        await connection.release();
+      await connection.release();
     }
+  } else {
+    //new product variation has changed.
+    const sql = `UPDATE cart SET sku = ? WHERE customer_id = ? AND sku = ? AND product_id= ?`;
+
+    try {
+      const result = await connection.query(sql, [
+        new_sku,
+        customer_id,
+        sku,
+        product_id,
+      ]);
+      console.log(result);
+      return result;
+    } catch (err: any) {
+      throw new Error(err);
+    } finally {
+      await connection.release();
+    }
+  }
 };
- 
-export const alterSKUCartDetails = async (cart_id: number, sku: string, new_sku: string) => {
-    const promisePool = pool.promise();
-    const connection = await promisePool.getConnection();
-}
+
+// export const handleAlterSKUCart = async (cart_id: number, sku: string, new_sku: string, product_id: number ) => {
+//     const promisePool = pool.promise();
+//     const connection = await promisePool.getConnection();
+
+// }

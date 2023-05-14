@@ -15,6 +15,11 @@
   font-family: Barlow, sans-serif;
 }
 
+::selection {
+  background-color: var(--purpleAccent);
+  color: var(--lighterGreyAccent);
+}
+
 div {
   font-family: "Barlow", sans-serif;
 }

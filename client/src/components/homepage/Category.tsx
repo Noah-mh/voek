@@ -19,7 +19,7 @@ const Category: React.FC = () => {
       transition={{ type: "spring", duration: 2 }}
     >
       <motion.div
-        className="categoriesHeader m-3 ml-3 text-3xl font-semibold hover:cursor-pointer"
+        className="categoriesHeader m-3 ml-3 text-3xl font-semibold hover:cursor-pointer tracking-widest"
         whileHover={{ scale: 1.05, x: 8 }}
         whileTap={{ scale: 0.9, x: 0 }}
       >
