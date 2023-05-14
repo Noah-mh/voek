@@ -10,30 +10,19 @@ const WishlistCard = () => {
   const [customerId, setCustomerId] = useState<number>(1);
 
   useEffect(() => {
-    const getWishlistItems = async () => {
-      try {
-        const response = await axios.post(
-          `/getWishlistItems`,
-          JSON.stringify({ customerId }),
-          {
-            headers: { "Content-Type": "application/json" },
-            withCredentials: true,
-          }
-        );
-        console.log("response.data", response.data);
-        return response.data;
-      } catch (err: any) {
+    axios
+      .post(`/getWishlistItems`, JSON.stringify({ customerId }), {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true,
+      })
+      .then((response) => response.data)
+      .then((data) => {
+        setStatus(true);
+        setWishlistItems(data);
+      })
+      .catch((err: any) => {
         setStatus(false);
-      }
-    };
-    const reponseArr: Promise<any> = getWishlistItems().then((data: any) => {
-      return data;
-    });
-    reponseArr.then((data: any) => {
-      console.log("data", data);
-      setStatus(true);
-      setWishlistItems(data);
-    });
+      });
   }, []);
 
   return (

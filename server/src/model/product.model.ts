@@ -310,3 +310,19 @@ export const handlesCheckWishlistProductExistence = async (
     await connection.release();
   }
 };
+
+export const handlesGetAllListedProducts = async () => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT products.product_id, products.name 
+  FROM listed_products
+  JOIN products ON  listed_products.product_id = products.product_id;`;
+  try {
+    const result = await connection.query(sql, []);
+    return result[0];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};

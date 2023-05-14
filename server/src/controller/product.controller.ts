@@ -13,6 +13,7 @@ import {
   handleProductDetailsWithoutReviews,
   handlesCheckWishlistProductExistence,
   handleProductReviews,
+  handlesGetAllListedProducts,
 } from "../model/product.model";
 
 export const processPublicProductDetails = async (
@@ -227,6 +228,19 @@ export const checkWishListProductExistence = async (
       );
     // if (response.length === 0) return res.sendStatus(404);
     // return res.sendStatus(response[0]["COUNT(*)"] === 0 ? 404 : 200);
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const getAllListedProducts = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const response: Array<object> = await handlesGetAllListedProducts();
     return res.send(response);
   } catch (err: any) {
     return next(err);
