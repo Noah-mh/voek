@@ -55,10 +55,10 @@ const WishlistCard = () => {
                         <h5 className="mb-2 text-2xl font-bold tracking-wider text-pink">
                           {item.name}
                         </h5>
-                        <h5 className="price mb-2 text-2xl font-bold tracking-wider text-gray-900 dark:text-white">
+                        <h5 className="whislistPrice mb-2 text-2xl font-bold tracking-wider text-gray-900 dark:text-white">
                           ${item.price}
                         </h5>
-                        <p className="description mb-3 font-normal text-gray-700 dark:text-gray-400">
+                        <p className="whislistDescription mb-3 font-normal text-gray-700 dark:text-gray-400">
                           {item.description}
                         </p>
                       </div>

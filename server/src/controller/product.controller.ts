@@ -166,7 +166,6 @@ export const deleteWishlistedProduct = async (
   res: Response,
   next: NextFunction
 ) => {
-  console.log("test2");
   try {
     const { customerId, productId } = req.body;
     const response: number = await handlesDeletingWishlistedProduct(
@@ -219,7 +218,6 @@ export const checkWishListProductExistence = async (
   res: Response,
   next: NextFunction
 ) => {
-  console.log("test2");
   try {
     const { customerId, productId } = req.body;
     const response: Array<object> =
@@ -227,7 +225,6 @@ export const checkWishListProductExistence = async (
         customerId,
         productId
       );
-    console.log("response in controller: ", response);
     // if (response.length === 0) return res.sendStatus(404);
     // return res.sendStatus(response[0]["COUNT(*)"] === 0 ? 404 : 200);
     return res.send(response);
