@@ -1,12 +1,12 @@
-import express, { NextFunction, Request, Response } from "express";
-import config from "config";
-import log from "./logger";
-import routes from "./Routes";
-import cors from "cors";
-const cookieParser = require("cookie-parser");
-import * as bodyParser from "body-parser";
-import credientals from "./middlewares/credentials";
-import corsOptions from "../config/corsOptions";
+import express, { NextFunction, Request, Response } from 'express';
+import config from 'config';
+import log from './logger';
+import routes from './Routes';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import * as bodyParser from 'body-parser'
+import credientals from './middlewares/credentials'
+import corsOptions from '../config/corsOptions'
 
 const port: number = config.get("port");
 const host: string = config.get("host");

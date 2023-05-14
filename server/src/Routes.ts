@@ -12,57 +12,23 @@ import { retrieveCartDetails } from "./controller/cart.controller";
 
 export default function (app: Express, router: Router) {
   // KANG RUI ENDPOINTS - user management system
-  router.post("/login", customerController.processLogin);
-  router.post(
-    "/customer/auth/SMS/OTP",
-    customerController.processSendSMSOTP
-  );
-  router.post(
-    "/customer/auth/email/OTP",
-    customerController.processSendEmailOTP
-  );
-  router.post(
-    "/customer/auth/verify/OTP",
-    customerController.processVerifyOTP
-  );
-  router.post(
-    "/customer/signup/link",
-    customerController.processSendEmailLink
-  );
-  router.post(
-    "/customer/signup/verify/link",
-    customerController.processSignUpLink
-  );
-  router.post("/customer/signup", customerController.processSignUp);
-  router.get(
-    "/refresh/customer",
-    authController.processRefreshTokenCustomer
-  );
-
-  router.post("/login/seller", sellerController.processLogin);
-  router.post(
-    "/seller/auth/SMS/OTP",
-    sellerController.processSendSMSOTP
-  );
-  router.post(
-    "/seller/auth/email/OTP",
-    sellerController.processSendEmailOTP
-  );
-  router.post(
-    "/seller/auth/verify/OTP",
-    sellerController.processVerifyOTP
-  );
-  router.post(
-    "/seller/signup/link",
-    sellerController.processSendEmailLink
-  );
-  router.post(
-    "/seller/signup/verify/link",
-    sellerController.processSignUpLink
-  );
-  router.post("/seller/signup", sellerController.processSignUp);
-  router.post("/refresh/customer", processRefreshTokenCustomer);
-  router.post("/refresh/seller", processRefreshTokenCustomer);
+  router.post('/login', customerController.processLogin);
+  router.post('/customer/auth/SMS/OTP', customerController.processSendSMSOTP);
+  router.post('/customer/auth/email/OTP', customerController.processSendEmailOTP);
+  router.post('/customer/auth/verify/OTP', customerController.processVerifyOTP);
+  router.post('/customer/signup/link', customerController.processSendEmailLink);
+  router.post('/customer/signup/verify/link', customerController.processSignUpLink);
+  router.get('/refresh/customer', authController.processRefreshTokenCustomer);
+  
+  router.post('/login/seller', sellerController.processLogin);
+  router.post('/seller/auth/SMS/OTP', sellerController.processSendSMSOTP);
+  router.post('/seller/auth/email/OTP', sellerController.processSendEmailOTP);
+  router.post('/seller/auth/verify/OTP', sellerController.processVerifyOTP);
+  router.post('/seller/signup/link', sellerController.processSendEmailLink);
+  router.post('/seller/signup/verify/link', sellerController.processSignUpLink);
+  router.post('/seller/signup', sellerController.processSignUp);
+  router.get('/refresh/seller', authController.processRefreshTokenCustomer);
+ 
 
   // NOAH ENDPOINTS - reviews
   router.get(

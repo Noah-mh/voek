@@ -10,6 +10,7 @@ import CartPage from "./components/cart/UserCart";
 import PersistLoginCustomer from "./components/PersistLogin/PersistLoginCustomer";
 import PersistLoginSeller from "./components/PersistLogin/PersistLoginSeller.js";
 import RequireAuthSeller from "./components/RequireAuth/RequireAuthSeller.js";
+import ConfirmPassword from "./components/SignupBanner/ConfirmPassword.js";
 import Test from "./components/test";
 import LayoutSeller from "./components/Layout/LayouSeller.js";
 import Wishlist from "./components/Wishlist/Wishlist.js";
@@ -19,31 +20,49 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
-        {/* Public Routes*/}
-        <Route path="/" element={<Homepage />} />
-        <Route path="login" element={<LoginBanner />} />
-        <Route path="signup" element={<SignupBanner />} />
-        <Route path='productDetailsWithReviews/:product_id' element={<ProductDetailWithReview />} />
-        <Route path="cart" element={<CartPage />} />
 
-        {/* Protected Routes for customer*/}
+        <Route path='signup/verify' element={<ConfirmPassword />} />
+
+        {/* Customer Routes */}
         <Route element={<PersistLoginCustomer />}>
+
+          {/* Public Routes with persist login */}
+
+          <Route path="/" element={<Homepage />} />
+          <Route path="login" element={<LoginBanner />} />
+          <Route path="signup" element={<SignupBanner />} />
+          <Route path='productDetailsWithReviews/:product_id' element={<ProductDetailWithReview />} />
+          <Route path="cart" element={<CartPage />} />
+
           <Route element={<RequireAuthCustomer />}>
+
+            {/* Prtoected Routes with persist login */}
+
             <Route path="customer" element={<Test />} />
             <Route
               path="monkey"
               element={<Link to="/customer">Customer</Link>}
             />
+
           </Route>
           <Route path="wishlist" element={<Wishlist />} />
         </Route>
       </Route>
+
+
+
+      {/* Seller Routes */}
       <Route path="/" element={<LayoutSeller />}>
         {/* Protected Routes for seller only*/}
         <Route element={<PersistLoginSeller />}>
-          <Route element={<RequireAuthSeller />}></Route>
+          <Route element={<RequireAuthSeller />}>
+
+          </Route>
         </Route>
       </Route>
+
+
+
 
       {/* unauthorized or forbidden */}
       <Route path="/*" element={<Missing />} />
