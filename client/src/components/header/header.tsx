@@ -38,8 +38,8 @@ const Header = ({ isCustomer, isSeller }: Props) => {
         <div className="text-sm lg:flex-grow inline-block  px-4  leading-none">
           {
             isCustomer ?
-              customer?.customer_id ? <><Link to='/customer/profile'><p>Profile</p></Link><Link to='/customer/cart'><p>Cart</p></Link></>
-                : <><Link to='/login'><p>Login</p></Link><Link to='/customer/cart'><p>Cart</p></Link></>
+              customer?.customer_id ? <><Link to='/profile'><p>Profile</p></Link><Link to='/cart'><p>Cart</p></Link></>
+                : <><Link to='/login'><p>Login</p></Link><Link to='/cart'><p>Cart</p></Link></>
               : isSeller ?
                 seller?.seller_id ? <Link to='/seller/profile'><p>Profile</p></Link>
                   : <Link to='/seller/login'><p>Login</p></Link>

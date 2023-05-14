@@ -2,26 +2,30 @@ import "./App.css";
 import { Link, Route, Routes } from "react-router-dom";
 import Missing from "./components/Missing/Missing";
 import LoginBanner from "./components/LoginBanner/LoginBanner.js";
-import SignupBanner from "./components/SignupBanner/SignupBanner.js";
+import SignupBanner from "./components/SignupBannerCustomer/SignupBanner.js";
 import Layout from "./components/Layout/Layout";
-import Homepage from "./components/Homepage/Homepage.js";
+import Homepage from "./components/homepage/Homepage.js";
 import RequireAuthCustomer from "./components/RequireAuth/RequireAuthCustomer";
 import CartPage from "./components/cart/UserCart";
 import PersistLoginCustomer from "./components/PersistLogin/PersistLoginCustomer";
 import PersistLoginSeller from "./components/PersistLogin/PersistLoginSeller.js";
 import RequireAuthSeller from "./components/RequireAuth/RequireAuthSeller.js";
-import ConfirmPassword from "./components/SignupBanner/ConfirmPassword.js";
+import VerifySignupCustomer from "./components/SignupBannerCustomer/VerifySignupCustomer.js";
 import Test from "./components/test";
 import LayoutSeller from "./components/Layout/LayouSeller.js";
 import Wishlist from "./components/Wishlist/Wishlist.js";
 import ProductDetailWithReview from "./components/Product/ProductDetailsWithReviews.js";
+import ForgetPasswordCustomer from "./components/ForgetPasswordCustomer/ForgetPasswordCustomer.js";
+import ResetPasswordCustomer from "./components/ResetPasswordCustomer/ResetPasswordCustomer.js";
+
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
 
-        <Route path='signup/verify' element={<ConfirmPassword />} />
+        <Route path='signup/verify' element={<VerifySignupCustomer />} />
+        <Route path='/forgetPassword/verify' element={<ResetPasswordCustomer />} />
 
         {/* Customer Routes */}
         <Route element={<PersistLoginCustomer />}>
@@ -32,7 +36,8 @@ function App() {
           <Route path="login" element={<LoginBanner />} />
           <Route path="signup" element={<SignupBanner />} />
           <Route path='productDetailsWithReviews/:product_id' element={<ProductDetailWithReview />} />
-          <Route path="cart" element={<CartPage />} />
+          <Route path="/forgetPassword" element={<ForgetPasswordCustomer />}/>
+
 
           <Route element={<RequireAuthCustomer />}>
 
@@ -43,7 +48,7 @@ function App() {
               path="monkey"
               element={<Link to="/customer">Customer</Link>}
             />
-
+            <Route path="cart" element={<CartPage />} />
           </Route>
           <Route path="wishlist" element={<Wishlist />} />
         </Route>

@@ -79,7 +79,7 @@ const LBRight =  ({ setLogin, setUserDetails }: props): JSX.Element => {
           />
         </div>
         {/* change to link create route for this */}
-        <p>Forget Password</p>
+        <Link to='/forgetpassword'>Forget Password?</Link>
         <Link to='/signup'>Sign Up</Link>
         <p>{errMsg}</p>
         <input disabled={disabled} type="submit" value="LOG IN" className="submitLogin" />

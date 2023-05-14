@@ -243,10 +243,81 @@ export const handleLogOut = async (refreshToken: string) => {
   }
 }
 
+export const handlesCustLastViewdCat = async (
+  cat_id: number,
+  customer_id: number
+) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `UPDATE customer SET customer.last_viewed_id = ? WHERE customer.customer_id = ?;`;
+  try {
+    const result = await connection.query(sql, [cat_id, customer_id]);
+    return result[0].affectedRows;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
 
+export const handleForgetPassword = async (email: string) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT * FROM customer WHERE email = ? AND active = 1`;
+  try {
+    const result = await connection.query(sql, [email]);
+    return result[0];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+}
 
+export const handleSendEmailForgetPassword = async (forgetPasswordToken: string, email: string) => {
+  try {
+    const tranEmailApi = new Sib.TransactionalEmailsApi();
+    const sender = {
+      email: "voek.help.centre@gmail.com",
+    };
 
+    const receivers = [
+      {
+        email: email,
+      },
+    ];
 
+    tranEmailApi
+      .sendTransacEmail({
+        sender,
+        to: receivers,
+        subject: "Verification Link For VOEK Sign Up",
+        textContent: `http://localhost:5173/forgetPassword/verify?forgetPasswordToken=${forgetPasswordToken}`,
+      })
+      .then((response: any) => {
+        console.log(response);
+        return;
+      })
+      .catch((err: any) => {
+        throw new Error(err);
+      });
+  } catch (err: any) {
+    throw new Error(err);
+  }
+}
+
+export const handleResetPassword = async (password: string, customer_id: string) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `UPDATE customer SET password = ? WHERE customer_id = ? AND active = 1`;
+  try {
+    const encryptedPassword = await bcrypt.hash(password, 10)
+    const result = await connection.query(sql, [encryptedPassword, customer_id]);
+    return result[0].affectedRows;
+  } catch (err: any) {
+    throw new Error(err);
+  }
+}
 
 const convertLocalTimeToUTC = (): string => {
   const now = new Date();
@@ -263,21 +334,4 @@ const convertLocalTimeToUTC = (): string => {
 
 const padZero = (value: number): string => {
   return value.toString().padStart(2, "0");
-};
-
-export const handlesCustLastViewdCat = async (
-  cat_id: number,
-  customer_id: number
-) => {
-  const promisePool = pool.promise();
-  const connection = await promisePool.getConnection();
-  const sql = `UPDATE customer SET customer.last_viewed_id = ? WHERE customer.customer_id = ?;`;
-  try {
-    const result = await connection.query(sql, [cat_id, customer_id]);
-    return result[0].affectedRows;
-  } catch (err: any) {
-    throw new Error(err);
-  } finally {
-    await connection.release();
-  }
 };

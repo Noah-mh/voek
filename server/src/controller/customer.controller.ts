@@ -96,7 +96,7 @@ export const processSendEmailLink = async (req: Request, res: Response, next: Ne
             return res.sendStatus(409);
         }
         console.log(result)
-        const signUpToken = jwt.sign({customer_id: result},
+        const signUpToken = jwt.sign({ customer_id: result },
             config.signUpCustomerTokenSecret!,
             { expiresIn: '300s' }
         );
@@ -157,4 +157,48 @@ export const processLogout = async (req: Request, res: Response, next: NextFunct
         maxAge: 24 * 60 * 60 * 1000
     });
     res.sendStatus(204);
+}
+
+export const processForgetPassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { email } = req.body;
+        if (!email) return res.sendStatus(400);
+        const result = await customerModel.handleForgetPassword(email);
+        if (result) {
+            const forgetPasswordToken = jwt.sign({ customer_id: result[0].customer_id },
+                config.forgetPasswordCustomerTokenSecret!,
+                { expiresIn: '300s' }
+            );
+            await customerModel.handleSendEmailForgetPassword(forgetPasswordToken, email);
+        }
+        return res.sendStatus(200);
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processForgetPasswordLink = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { forgetPasswordToken } = req.body;
+        if (!forgetPasswordToken) return res.sendStatus(400);
+        jwt.verify(forgetPasswordToken, config.forgetPasswordCustomerTokenSecret as any, (err: any, decoded: any) => {
+            if (err) return res.sendStatus(403);
+            const { customer_id } = decoded;
+            return res.json({ customer_id });
+        });
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processResetPassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { password, customer_id } = req.body;
+        console.log(password, customer_id)
+        if (!password || !customer_id) return res.sendStatus(400);
+        const result = await customerModel.handleResetPassword(password, customer_id);
+        return res.sendStatus(200);
+    } catch (err: any) {
+        return next(err);
+    }
 }
