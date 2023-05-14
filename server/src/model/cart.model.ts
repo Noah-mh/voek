@@ -4,7 +4,7 @@ import pool from "../../config/database";
 export const handlesGetCartDetails = async (customerId: number) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `SELECT p.product_id, p.name, c.quantity, p.price, p.image_url, pv.variation_1, pv.variation_2, pv.quantity AS stock
+  const sql = `SELECT p.product_id, p.name, c.quantity, p.price, p.image_id, pv.variation_1, pv.variation_2, pv.quantity AS stock
     FROM cart c
     INNER JOIN  product_variations pv ON  c.sku = pv.sku
     LEFT JOIN products p ON p.product_id = pv.product_id 
