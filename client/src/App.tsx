@@ -8,6 +8,7 @@ import RequireAuthCustomer from "./components/RequireAuth/RequireAuthCustomer";
 import PersistLoginCustomer from "./components/PersistLogin/PersistLoginCustomer";
 import PersistLoginSeller from "./components/PersistLogin/PersistLoginSeller.js";
 import RequireAuthSeller from "./components/RequireAuth/RequireAuthSeller.js";
+import ConfirmPassword from "./components/SignupBanner/ConfirmPassword.js";
 import Test from "./components/test";
 import LayoutSeller from "./components/Layout/LayouSeller.js";
 
@@ -16,14 +17,16 @@ function App() {
     <Routes>
 
       <Route path="/" element={<Layout />}>
-        {/* Public Routes*/}
-        <Route path='/' element={<h1></h1>} />
-        <Route path='login' element={<LoginBanner />} />
-        <Route path='signup' element={<SignupBanner />} />
 
+        <Route path='signup/verify' element={<ConfirmPassword />} />
 
         {/* Protected Routes for customer*/}
         <Route element={<PersistLoginCustomer />}>
+
+          <Route path='/' element={<h1>Home</h1>} />
+          <Route path='login' element={<LoginBanner />} />
+          <Route path='signup' element={<SignupBanner />} />
+
           <Route element={<RequireAuthCustomer />}>
             <Route path='customer' element={<Test />} />
             <Route path='monkey' element={<Link to='/customer'>Customer</Link>} />
@@ -31,8 +34,10 @@ function App() {
         </Route>
 
       </Route>
+
+
       <Route path='/' element={<LayoutSeller />}>
-    
+
         {/* Protected Routes for seller only*/}
         <Route element={<PersistLoginSeller />}>
           <Route element={<RequireAuthSeller />}>

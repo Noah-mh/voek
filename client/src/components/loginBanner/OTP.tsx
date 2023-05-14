@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import OtpInput from "react-otp-input";
 import axios from "../../api/axios";
 import "./OTP.css";
-import useCustomer from "../../hooks/useCustomer";
+import useCustomer from "../../hooks/UseCustomer.js";
 interface props {
   userDetails: object
 }

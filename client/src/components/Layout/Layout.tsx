@@ -5,9 +5,9 @@ import Footer from '../footer/footer.js';
 const Layout = () => {
     return (
         <main className='App'>
-            <Header />
+            <Header isCustomer={true}/>
             <Outlet />
-            <Footer />
+            <Footer/>
         </main>
     )
 }

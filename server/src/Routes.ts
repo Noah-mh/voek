@@ -15,7 +15,7 @@ export default function (app: Express, router: Router) {
   router.post('/customer/auth/verify/OTP', customerController.processVerifyOTP);
   router.post('/customer/signup/link', customerController.processSendEmailLink);
   router.post('/customer/signup/verify/link', customerController.processSignUpLink);
-  router.post('/customer/signup', customerController.processSignUp);
+  // router.post('/customer/signup', customerController.processSignUp);
   router.get('/refresh/customer', authController.processRefreshTokenCustomer);
   
   router.post('/login/seller', sellerController.processLogin);

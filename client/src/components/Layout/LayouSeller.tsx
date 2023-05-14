@@ -5,7 +5,7 @@ import Footer from '../footer/footer.js';
 const LayoutSeller = () => {
     return (
         <main className='App'>
-            <Header />
+            <Header isSeller={true}/>
             <Outlet />
             <Footer />
         </main>
