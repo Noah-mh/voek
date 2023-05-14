@@ -13,6 +13,7 @@ import {
   handleProductDetailsWithoutReviews,
   handlesCheckWishlistProductExistence,
   handleProductReviews,
+  handlesGetAllListedProducts,
 } from "../model/product.model";
 
 export const processPublicProductDetails = async (
@@ -166,7 +167,6 @@ export const deleteWishlistedProduct = async (
   res: Response,
   next: NextFunction
 ) => {
-  console.log("test2");
   try {
     const { customerId, productId } = req.body;
     const response: number = await handlesDeletingWishlistedProduct(
@@ -219,7 +219,6 @@ export const checkWishListProductExistence = async (
   res: Response,
   next: NextFunction
 ) => {
-  console.log("test2");
   try {
     const { customerId, productId } = req.body;
     const response: Array<object> =
@@ -227,9 +226,21 @@ export const checkWishListProductExistence = async (
         customerId,
         productId
       );
-    console.log("response in controller: ", response);
     // if (response.length === 0) return res.sendStatus(404);
     // return res.sendStatus(response[0]["COUNT(*)"] === 0 ? 404 : 200);
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const getAllListedProducts = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const response: Array<object> = await handlesGetAllListedProducts();
     return res.send(response);
   } catch (err: any) {
     return next(err);

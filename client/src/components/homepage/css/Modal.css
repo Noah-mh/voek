@@ -34,7 +34,7 @@
   border-radius: 20px;
 }
 
-.price {
+.modalPrice {
   color: #6a0500;
 }
 
@@ -51,7 +51,7 @@
   min-width: 50%;
 }
 
-.description {
+.modalDescription {
   word-wrap: break-word;
   text-align: justify;
   width: 80%;
