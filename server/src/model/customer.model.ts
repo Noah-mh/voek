@@ -2,11 +2,12 @@ import pool from "../../config/database";
 import bcrypt from "bcrypt";
 import Sib from "../../config/sendInBlue";
 import client from "../../config/teleSign";
+import c from "config";
 
 export const handleLogin = async (email: string, password: string) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `SELECT username, password, customer_id, phone_number, email FROM customer WHERE email = ?`;
+  const sql = `SELECT username, password, customer_id, phone_number, email FROM customer WHERE email = ? AND active != 0`;
   try {
     const result = await connection.query(sql, [email]);
     const encryptrdPassword = result[0].length ? result[0][0].password : "";
@@ -57,8 +58,8 @@ export const handleSendSMSOTP = async (
         if (err === null) {
           console.log(
             `Messaging response for messaging phone number: ${phoneNumber}` +
-              ` => code: ${res["status"]["code"]}` +
-              `, description: ${res["status"]["description"]}`
+            ` => code: ${res["status"]["code"]}` +
+            `, description: ${res["status"]["description"]}`
           );
         } else {
           console.log("Unable to send message. " + err);
@@ -162,13 +163,14 @@ export const handleSendEmailLink = async (
         email: email,
       },
     ];
+    console.log(signUpToken)
 
     tranEmailApi
       .sendTransacEmail({
         sender,
         to: receivers,
         subject: "Verification Link For VOEK Sign Up",
-        textContent: `http://localhost:5173/signUp/${signUpToken}`,
+        textContent: `http://localhost:5173/signup/verify?signupToken=${signUpToken}`,
       })
       .then((response: any) => {
         console.log(response);
@@ -183,35 +185,64 @@ export const handleSendEmailLink = async (
 };
 
 export const handleSignUp = async (username: string, password: string, email: string, phoneNumber: number) => {
-    const promisePool = pool.promise();
-    const connection = await promisePool.getConnection();
-    const sql = `INSERT INTO customer (username, password, email, phone_number) VALUES (?, ?, ?, ?)`;
-    try {
-        const encryptedPassword = await bcrypt.hash(password, 10)
-        const result = await connection.query(sql, [username, encryptedPassword, email, phoneNumber]);
-        const sql2 = `INSERT INTO customer_otp (customer_id) VALUES(?)`;
-        const result2 = await connection.query(sql2, [result[0].insertId]);
-        return result2[0].affectedRows;
-    } catch (err: any) {
-        throw new Error(err);
-    } finally {
-        await connection.release();
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `UPDATE customer SET username = ?, password = ?, phone_number = ?, date_created = NULL WHERE email = ? AND active = 0`;
+  try {
+    const encryptedPassword = await bcrypt.hash(password, 10)
+    const result = await connection.query(sql, [username, encryptedPassword, phoneNumber, email]);
+    if (result[0].affectedRows === 0) {
+      const sql2 = `INSERT INTO customer (username, password, email, phone_number, date_created) VALUES (?, ?, ?, ?, NULL)`;
+      const result2 = await connection.query(sql2, [username, encryptedPassword, email, phoneNumber]);
+      return result2[0].insertId
+    } else {
+      const sql2 = `SELECT customer_id FROM customer WHERE email =  ?`;
+      const result2 = await connection.query(sql2, [email]);
+      return result2[0][0].customer_id
     }
+  } catch (err: any) {
+    if (err.errno === 1062) {
+      return 1062
+    } else {
+      throw new Error(err);
+    }
+  } finally {
+    await connection.release();
+  }
+}
+
+export const handleActiveAccount = async (customer_id: string) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `UPDATE customer SET active = 1 WHERE customer_id = ?`;
+  try {
+    const result = await connection.query(sql, [customer_id]);
+    const sql2 = `UPDATE customer SET date_created = CURRENT_TIMESTAMP()`;
+    const result2 = await connection.query(sql2, null);
+    const sql3 = `INSERT INTO customer_otp (customer_id) VALUES (?)`;
+    const result3 = await connection.query(sql3, [customer_id]);
+    return result3[0].affectedRows;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
 }
 
 export const handleLogOut = async (refreshToken: string) => {
-    const promisePool = pool.promise();
-    const connection = await promisePool.getConnection();
-    const sql = `UPDATE customer SET refresh_token = '' WHERE refresh_token = ?`;
-    try {
-        const result = await connection.query(sql, [refreshToken]);
-        return result[0].affectedRows;
-    } catch (err: any) {
-        throw new Error(err);
-    } finally {
-        await connection.release();
-    }
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `UPDATE customer SET refresh_token = '' WHERE refresh_token = ?`;
+  try {
+    const result = await connection.query(sql, [refreshToken]);
+    return result[0].affectedRows;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
 }
+
 
 
 

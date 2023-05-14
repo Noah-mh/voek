@@ -12,17 +12,22 @@
   "dependencies": {
     "@cloudinary/react": "^1.11.2",
     "@cloudinary/url-gen": "^1.10.0",
+    "@emotion/memoize": "^0.8.1",
+    "@esbuild/darwin-arm64": "^0.17.18",
     "@fortawesome/fontawesome-svg-core": "^6.4.0",
     "@fortawesome/free-solid-svg-icons": "^6.4.0",
     "@fortawesome/react-fontawesome": "^0.2.0",
     "axios": "^1.4.0",
+    "framer-motion": "^10.12.10",
     "jwt-decode": "^3.1.2",
+    "koa-bodyparser": "^4.4.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-otp-input": "^3.0.2",
-    "framer-motion": "^10.12.10",
     "react-responsive-masonry": "^2.1.7",
-    "react-router-dom": "^6.11.0"
+    "react-router-dom": "^6.11.0",
+    "react-spinners": "^0.13.8",
+    "util-deprecate": "^1.0.2"
   },
   "devDependencies": {
     "@types/react": "^18.0.28",
@@ -32,6 +37,7 @@
     "@typescript-eslint/parser": "^5.57.1",
     "@vitejs/plugin-react": "^4.0.0",
     "autoprefixer": "^10.4.14",
+    "esbuild": "^0.17.18",
     "eslint": "^8.38.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.3.4",

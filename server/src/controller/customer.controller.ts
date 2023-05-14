@@ -89,20 +89,18 @@ export const processVerifyOTP = async (req: Request, res: Response, next: NextFu
 
 export const processSendEmailLink = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { email, username, phone_number } = req.body;
-        if (!email || !username || !phone_number) return res.sendStatus(400);
-        const signUpToken = jwt.sign(
-            {
-                UserInfo: {
-                    email,
-                    username,
-                    phone_number
-                }
-            },
+        const { email, username, phone_number, password } = req.body;
+        if (!email || !username || !phone_number || !password) return res.sendStatus(400);
+        const result = await customerModel.handleSignUp(username, password, email, phone_number);
+        if (result === 1062) {
+            return res.sendStatus(409);
+        }
+        console.log(result)
+        const signUpToken = jwt.sign({customer_id: result},
             config.signUpCustomerTokenSecret!,
             { expiresIn: '300s' }
         );
-        const result = await customerModel.handleSendEmailLink(signUpToken, email);
+        const result2 = await customerModel.handleSendEmailLink(signUpToken, email);
         return res.sendStatus(200);
     } catch (err: any) {
         return next(err);
@@ -115,29 +113,10 @@ export const processSignUpLink = async (req: Request, res: Response, next: NextF
         if (!signUpToken) return res.sendStatus(400);
         jwt.verify(signUpToken, config.signUpCustomerTokenSecret as any, (err: any, decoded: any) => {
             if (err) return res.sendStatus(403);
-            return res.status(200).json({ email: decoded.UserInfo.email, username: decoded.UserInfo.username, phone_number: decoded.UserInfo.phone_number });
+            const { customer_id } = decoded;
+            const result = customerModel.handleActiveAccount(customer_id);
+            return res.status(200)
         });
-    } catch (err: any) {
-        return next(err);
-    }
-};
-
-export const processSignUp = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
-    try {
-        const { username, password, email, phone_number } = req.body;
-        if (!username || !password || !email || !phone_number)
-            return res.sendStatus(400);
-        const response = await customerModel.handleSignUp(
-            username,
-            password,
-            email,
-            phone_number
-        );
-        return res.sendStatus(200);
     } catch (err: any) {
         return next(err);
     }
