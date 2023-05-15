@@ -2,12 +2,15 @@ import { useEffect, useState } from "react";
 // import { useNavigate, useLocation } from "react-router-dom";
 // import OtpInput from "react-otp-input";
 import axios from "../../api/axios";
+import useCustomer from "../../hooks/UseCustomer";
 // import "./OTP.css";
 // import useCustomer from "../../hooks/UseCustomer";
 
 // { customer_id }: { customer_id: number }
 export default function cartPage(): JSX.Element {
-  const customer_id = 2;
+  // const customer_id = 2;
+  const { customer } = useCustomer();
+  const customer_id = customer.customer_id;
 
   interface userCart {
     customer_id: number;

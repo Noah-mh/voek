@@ -4,12 +4,8 @@ import pool from "../../config/database";
 export const handlesGetCartDetails = async (customerId: number) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `SELECT p.product_id, p.name, c.quantity, p.price, p.image_id, pv.variation_1, pv.variation_2, pv.quantity AS stock
-    FROM cart c
-    INNER JOIN  product_variations pv ON  c.sku = pv.sku
-    LEFT JOIN products p ON p.product_id = pv.product_id 
-    WHERE c.customer_id = ?
-      `;
+  const sql = `SELECT cart.product_id, cart.customer_id, product_variations.sku, products.name, product_variations.variation_1, product_variations.variation_1, product_images.image_id FROM cart JOIN products ON cart.product_id = products.product_id JOIN product_variations ON products.product_id = product_variations.product_id 
+  LEFT JOIN product_images ON product_variations.product_id = product_images.product_id`;
   try {
     const result = await connection.query(sql, [customerId]);
     console.log("Results received:");
