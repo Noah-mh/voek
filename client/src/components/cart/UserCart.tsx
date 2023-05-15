@@ -81,31 +81,38 @@ export default function cartPage(): JSX.Element {
     getUserCart();
   }, []);
   return (
-    <div className="container bg-white rounded-lg shadow-lg p-2">
-      <div className="grid grid-cols-6 gap-2">
-        <div className="col-span-2 sm:col-span-1"></div>
-        <div className="col-span-2 sm:col-span-1">Name</div>
-        <div className="col-span-2 sm:col-span-1">Quantity</div>
-        <div className="col-span-2 sm:col-span-1">Price</div>
-        <div className="col-span-2 sm:col-span-1">Variations</div>
-      </div>
-
-      {userCart.map((item: cartItem) => (
-        <div className="grid grid-cols-6 gap-4 py-4" key={item.product_id}>
-          <div className="col-span-2 sm:col-span-1">
-            <img src={noImage} className="productImage" />
-          </div>
-          <div className="col-span-2 sm:col-span-1">{item.name}</div>
-          <div className="col-span-4 sm:col-span-1">{item.quantity}</div>
-          <div className="col-span-2 sm:col-span-1">${item.price}</div>
-          <div className="col-span-6 sm:flex sm:col-span-2">
-            <div className="mr-4">
-              {item.variation_1 ? item.variation_1 : "-"}
-            </div>
-            <div>{item.variation_2 ? item.variation_2 : null}</div>
-          </div>
+    <div className="container flex">
+      <div className="w-2/3 bg-white rounded-lg shadow-lg p-2">
+        <div className="grid grid-cols-6 gap-2">
+          <div className="col-span-2 sm:col-span-1"></div>
+          <div className="col-span-2 sm:col-span-1">Name</div>
+          <div className="col-span-2 sm:col-span-1">Price</div>
+          <div className="col-span-2 sm:col-span-1">Variations</div>
+          <div className="col-span-4 sm:col-span-1">Quantity</div>
         </div>
-      ))}
+
+        {userCart.map((item: cartItem) => (
+          <div className="grid grid-cols-6 gap-4 py-4" key={item.product_id}>
+            <div className="col-span-2 sm:col-span-1">
+              <img src={noImage} className="productImage" />
+            </div>
+            <div className="col-span-2 sm:col-span-1">{item.name}</div>
+            <div className="col-span-2 sm:col-span-1">${item.price}</div>
+            <div className="col-span-2 sm:flex-row sm:col-span-1">
+              <div className="mr-4">
+                {item.variation_1 ? item.variation_1 : "-"}
+              </div>
+              <div>{item.variation_2 ? item.variation_2 : null}</div>
+            </div>
+            <div className="col-span-4 sm:col-span-1">
+              <button className="text-sm border px-2 py-1 mx-2">-</button>
+              {item.quantity}
+              <button className="text-sm border  px-2 py-1 mx-2"> + </button>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="right w-1/3 bg-softerPurple"></div>
     </div>
   );
 }
