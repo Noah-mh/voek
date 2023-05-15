@@ -12,7 +12,7 @@ const VerifySignupCustomer = () => {
     useEffect(() => {
         const checkSignUpToken = async () => {
             try {
-                const result = await axios.post('/customer/signup/verify/link', JSON.stringify({ signUpToken: signupToken }), {
+                 await axios.post('/customer/signup/verify/link', JSON.stringify({ signUpToken: signupToken }), {
                     headers: { 'Content-Type': 'application/json' },
                     withCredentials: true
                 });
