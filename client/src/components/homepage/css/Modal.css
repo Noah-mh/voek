@@ -1,0 +1,69 @@
+.modal {
+  width: clamp(50%, 700px, 90%);
+  height: min(50%, 300px);
+  margin: auto;
+  border-radius: 12px;
+  margin-bottom: 200px;
+  height: 50%;
+}
+
+.modalBackground {
+  /* background: linear-gradient(15deg, #d4c3a5, #2f4858); */
+  background-color: #dfe0df;
+}
+
+.closeButtonContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: flex-end;
+}
+
+.close-button {
+  padding: 0 2rem;
+  height: 2.5rem;
+  margin: 2rem auto 1rem 0;
+  /* background: #101111; */
+  /* color: #6a0500; */
+  border-radius: 4px;
+  transition: background ease 400ms;
+  /* box-shadow: 1px 1px 15px #03030399; */
+}
+
+.imgContainer img {
+  border-radius: 20px;
+}
+
+.modalPrice {
+  color: #6a0500;
+}
+
+.variation {
+  border: 1px solid black;
+}
+
+.variationSelected {
+  background-color: #6a0500;
+  color: white;
+}
+
+.imgContainer {
+  min-width: 50%;
+}
+
+.modalDescription {
+  word-wrap: break-word;
+  text-align: justify;
+  width: 80%;
+}
+
+.cartButton {
+  border-width: 1px;
+  border-color: #6a0500;
+  background-color: rgba(184, 62, 55, 0.3);
+  color: #6a0500;
+}
+
+.buyButton {
+  background-color: #6a0500;
+}

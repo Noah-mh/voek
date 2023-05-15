@@ -1,37 +1,108 @@
 import { Express, Router } from "express";
-import { processLogin, processSendEmailOTP, processSendSMSOTP, processVerifyOTP, processSignUp, processSendEmailLink, processSignUpLink } from "./controller/customer.controller";
-import verifyJWT from "./middlewares/verifyJwt";
+import verifyJWT from "./middlewares/verifyJWT";
 import verifyRoles from "./middlewares/verifyRoles";
-import {
-  processPublicProductDetails,
-  processCartDetails,
-  getRecommendedProductsBasedOnCat,
-  getWishlistItems,
-  getLastViewed
-} from "./controller/product.controller";
-import { processRefreshToken } from "./controller/auth.controller";
-import { processGetAllProductsOfSeller } from "./controller/seller.controller";
+import * as customerController from "./controller/customer.controller";
+import * as productController from "./controller/product.controller";
+import * as authController from "./controller/auth.controller";
+import * as sellerController from "./controller/seller.controller";
+import * as cartController from "./controller/cart.controller";
 
 export default function (app: Express, router: Router) {
-
   // KANG RUI ENDPOINTS - user management system
-  router.post('/login', processLogin);
-  router.post('/auth/SMS/OTP', processSendSMSOTP);
-  router.post('/auth/email/OTP', processSendEmailOTP);
-  router.post('/auth/verify/OTP', processVerifyOTP);
-  router.post('/signup/link', processSendEmailLink);
-  router.post('/signup/verify/link', processSignUpLink);
-  router.post('/signup', processSignUp);
-  router.post('/refresh', processRefreshToken)
+  router.post('/login', customerController.processLogin);
+  router.post('/customer/auth/SMS/OTP', customerController.processSendSMSOTP);
+  router.post('/customer/auth/email/OTP', customerController.processSendEmailOTP);
+  router.post('/customer/auth/verify/OTP', customerController.processVerifyOTP);
+  router.post('/customer/signup/link', customerController.processSendEmailLink);
+  router.post('/customer/signup/verify/link', customerController.processSignUpLink);
+  router.get('/refresh/customer', authController.processRefreshTokenCustomer);
+  router.post('/customer/forget/password', customerController.processForgetPassword);
+  router.post('/customer/verify/reset/password', customerController.processForgetPasswordLink);
+  router.post('/customer/reset/password', customerController.processResetPassword);
+  
+  router.post('/login/seller', sellerController.processLogin);
+  router.post('/seller/auth/SMS/OTP', sellerController.processSendSMSOTP);
+  router.post('/seller/auth/email/OTP', sellerController.processSendEmailOTP);
+  router.post('/seller/auth/verify/OTP', sellerController.processVerifyOTP);
+  router.post('/seller/signup/link', sellerController.processSendEmailLink);
+  router.post('/seller/signup/verify/link', sellerController.processSignUpLink);
+  router.get('/refresh/seller', authController.processRefreshTokenCustomer);
+  // router.post('/seller/forget/password', sellerController.processForgetPassword);
+ 
+
+  // NOAH ENDPOINTS - reviews
+  router.get(
+    "/productDetailsWithoutReviews/:product_id",
+    productController.getProductDetailsWithoutReviews
+  );
+  router.get(
+    "/productReviews/:product_id",
+    productController.getProductReviews
+  );
 
   // ASHLEY ENDPOINTS - seller platform
-  app.get('/products/:sellerId', processGetAllProductsOfSeller);
+  router.get(
+    "/products/:sellerId",
+    sellerController.processGetAllProductsOfSeller
+  );
+  router.get(
+    "/getRecommendedProductsBasedOnCat",
+    productController.getRecommendedProductsBasedOnCat
+  );
 
-  //
-  router.get("/getRecommendedProductsBasedOnCat", getRecommendedProductsBasedOnCat);
-  router.get("/getWishlistItems", getWishlistItems);
-  router.get("/getLastViewed", getLastViewed);
-  router.get("/productDetails", processPublicProductDetails);
-  router.get("/cartDetails", processCartDetails);
+  // NHAT TIEN ENDPOINTS - Homepage, Last Viewed, Wishlist, Product Details
+  router.post("/getWishlistItems", productController.getWishlistItems);
+  router.get("/getLastViewed", productController.getLastViewed);
+  router.post("/productDetails", productController.processPublicProductDetails);
+
+  router.get(
+    "/cartDetails",
+    verifyJWT,
+    verifyRoles("customer"),
+    cartController.retrieveCartDetails
+  );
+  router.get("/topProducts", productController.getTopProducts);
+  router.get(
+    "/searchBarPredictions",
+    productController.getSearchBarPredictions
+  );
+  router.post("/searchResult", productController.getSearchResult);
+  router.get(
+    "/productsBasedOnCategory",
+    productController.getProductsBasedOnCategory
+  );
+  router.post(
+    "/insertWishlistedProduct",
+    productController.insertWishlistedProduct
+  );
+  router.put(
+    "/updateCustLastViewedCat",
+    customerController.updateCustLastViewedCat
+  );
+  router.delete(
+    "/deleteWishlistedProduct",
+    productController.deleteWishlistedProduct
+  );
+  router.post(
+    "/checkWishlistProductExistence",
+    productController.checkWishListProductExistence
+  );
+  router.get("/getAllListedProducts", productController.getAllListedProducts);
+
+  router.get(
+    "/cartDetails",
+    verifyJWT,
+    verifyRoles("customer"),
+    cartController.retrieveCartDetails
+  );
+
+  // router.get(
+  //   "/cartDetails",
+  //   verifyJWT,
+  //   verifyRoles("customer"),
+  //   cartController.retrieveCartDetails
+  // );
+
+  router.post("/getCart", cartController.retrieveCartDetails);
+  router.post("/alterCart", cartController.alterCartDetails);
 }
-

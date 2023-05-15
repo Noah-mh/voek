@@ -1,7 +1,6 @@
-import React from "react";
 import "./footer.css";
 
-const footer = (props: any) => {
+const Footer = (props: any) => {
   const logoStyle = {
     color: props.mode === "dark" ? "#310d20" : "white",
   };
@@ -113,4 +112,4 @@ const footer = (props: any) => {
     </footer>
   );
 };
-export default footer;
+export default Footer;
