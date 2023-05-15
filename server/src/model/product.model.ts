@@ -233,22 +233,31 @@ export const handleProductDetailsWithoutReviews = async (
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT 
-  JSON_ARRAYAGG(COALESCE(pi.image_url, 'test/1_cksdtz')) AS image_urls,
   p.name,
   p.description,
-  GROUP_CONCAT(
-    DISTINCT JSON_OBJECT(
-      'variation_1',  pv.variation_1,
-      'variation_2', pv.variation_2
-    )
-  ) AS variations
+  img.image_urls,
+  var.variations
 FROM products p
-INNER JOIN product_variations pv ON p.product_id = pv.product_id
-LEFT JOIN product_images pi ON p.product_id = pi.product_id
-WHERE p.product_id = ?
-GROUP BY
-  p.name,
-  p.description
+LEFT JOIN (
+  SELECT 
+    product_id,
+    JSON_ARRAYAGG(image_url) AS image_urls
+  FROM product_images
+  GROUP BY product_id
+) AS img ON p.product_id = img.product_id
+LEFT JOIN (
+  SELECT 
+    product_id,
+    JSON_ARRAYAGG(
+      JSON_OBJECT(
+        'variation_1', variation_1,
+        'variation_2', variation_2
+      )
+    ) AS variations
+  FROM product_variations
+  GROUP BY product_id
+) AS var ON p.product_id = var.product_id
+WHERE p.product_id = ?;
     `;
 
   try {

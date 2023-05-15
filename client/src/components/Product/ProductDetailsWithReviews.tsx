@@ -26,7 +26,7 @@ export interface Product {
     image_urls: string[] | null;
     name: string;
     description: string | null;
-    variations: string | null;
+    variations: ProductVariation[] | null;
 }
 
 
