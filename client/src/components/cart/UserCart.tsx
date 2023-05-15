@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 // import OtpInput from "react-otp-input";
 import axios from "../../api/axios";
 import useCustomer from "../../hooks/UseCustomer";
-import { AdvancedImage } from "@cloudinary/react";
+// import { AdvancedImage } from "@cloudinary/react";
 import noImage from "../../img/product/No_Image_Available.jpg";
 // import "./OTP.css";
 // import useCustomer from "../../hooks/UseCustomer";

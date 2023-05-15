@@ -1,5 +1,5 @@
 import "./App.css";
-import { Link, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import Missing from "./components/Missing/Missing";
 import LoginBanner from "./components/LoginBanner/LoginBanner.js";
 import SignupBanner from "./components/SignupBannerCustomer/SignupBanner.js";
@@ -11,7 +11,6 @@ import PersistLoginCustomer from "./components/PersistLogin/PersistLoginCustomer
 import PersistLoginSeller from "./components/PersistLogin/PersistLoginSeller.js";
 import RequireAuthSeller from "./components/RequireAuth/RequireAuthSeller.js";
 import VerifySignupCustomer from "./components/SignupBannerCustomer/VerifySignupCustomer.js";
-import Test from "./components/test";
 import LayoutSeller from "./components/Layout/LayouSeller.js";
 import Wishlist from "./components/Wishlist/Wishlist.js";
 import ProductDetailWithReview from "./components/Product/ProductDetailsWithReviews.js";
@@ -54,12 +53,6 @@ function App() {
 
           <Route element={<RequireAuthCustomer />}>
             {/* Prtoected Routes with persist login */}
-
-            <Route path="customer" element={<Test />} />
-            <Route
-              path="monkey"
-              element={<Link to="/customer">Customer</Link>}
-            />
             <Route path="cart" element={<CartPage />} />
             <Route path="wishlist" element={<Wishlist />} />
             <Route path="/customer/cart" element={<CartPage />} />
