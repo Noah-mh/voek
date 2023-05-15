@@ -3,8 +3,11 @@ import { useEffect, useState } from "react";
 // import OtpInput from "react-otp-input";
 import axios from "../../api/axios";
 import useCustomer from "../../hooks/UseCustomer";
+import { AdvancedImage } from "@cloudinary/react";
+import noImage from "../../img/product/No_Image_Available.jpg";
 // import "./OTP.css";
 // import useCustomer from "../../hooks/UseCustomer";
+import "./UserCart.css";
 
 // { customer_id }: { customer_id: number }
 export default function cartPage(): JSX.Element {
@@ -32,50 +35,77 @@ export default function cartPage(): JSX.Element {
   //   const [customerId, setCustomerId] = useState<number>(2);
   useEffect(() => {
     const getUserCart = async () => {
-      try {
-        const response = await axios.post(
-          "/getCart",
-          JSON.stringify({ customer_id }),
-          {
-            headers: { "Content-Type": "application/json" },
-            //   withCredentials: true,
+      // try {
+      //   const response = await axios.post(
+      //     "/getCart",
+      //     JSON.stringify({ customer_id }),
+      //     {
+      //       headers: { "Content-Type": "application/json" },
+      //       //   withCredentials: true,
+      //     }
+      //   );
+      //   // const userCart: userCart = {
+      //   //   customer_id: customer_id,
+      //   //   role: "customer",
+      //   //   cartItems: response.data,
+      //   // };
+      //   setUserCart(response.data);
+      //   console.log(userCart);
+      // } catch (err: any) {
+      //   if (!err?.response) {
+      //     setErrMsg("No Server Response");
+      //     console.log("no resp");
+      //   } else {
+      //     setErrMsg("Server Error");
+      //     console.log("server error");
+      //   }
+      // }
+      return axios
+        .post("/getCart", JSON.stringify({ customer_id }), {
+          headers: { "Content-Type": "application/json" },
+        })
+        .then((response) => {
+          setUserCart(response.data);
+          console.log(userCart);
+        })
+        .catch((err) => {
+          if (!err?.response) {
+            setErrMsg("No Server Response");
+            console.log("no resp");
+          } else {
+            setErrMsg("Server Error");
+            console.log("server error");
           }
-        );
-        // const userCart: userCart = {
-        //   customer_id: customer_id,
-        //   role: "customer",
-        //   cartItems: response.data,
-        // };
-        setUserCart(response.data);
-        console.log(userCart);
-      } catch (err: any) {
-        if (!err?.response) {
-          setErrMsg("No Server Response");
-          console.log("no resp");
-        } else {
-          setErrMsg("Server Error");
-          console.log("server error");
-        }
-      }
+        });
     };
     getUserCart();
   }, []);
   return (
-    <div>
-      <div className="container">
-        {userCart.map((item: cartItem) => (
-          <div className="cart-item">
-            <div className="product-id">{item.product_id}</div>
-            <div className="name">{item.name}</div>
-            <div className="quantity">{item.quantity}</div>
-            <div className="price">{item.price}</div>
-            <div className="image-url">{item.image_url}</div>
-            <div className="variation-1">{item.variation_1}</div>
-            <div className="variation-2">{item.variation_2}</div>
-            <div className="stock">{item.stock}</div>
-          </div>
-        ))}
+    <div className="container bg-white rounded-lg shadow-lg p-2">
+      <div className="grid grid-cols-6 gap-2">
+        <div className="col-span-2 sm:col-span-1"></div>
+        <div className="col-span-2 sm:col-span-1">Name</div>
+        <div className="col-span-2 sm:col-span-1">Quantity</div>
+        <div className="col-span-2 sm:col-span-1">Price</div>
+        <div className="col-span-2 sm:col-span-1">Variations</div>
       </div>
+
+      {userCart.map((item: cartItem) => (
+        <div className="grid grid-cols-6 gap-4 py-4" key={item.product_id}>
+          <div className="col-span-2 sm:col-span-1">
+            <img src={noImage} className="productImage" />
+          </div>
+          <div className="col-span-2 sm:col-span-1">{item.name}</div>
+          <div className="col-span-4 sm:col-span-1">{item.quantity}</div>
+          <div className="col-span-2 sm:col-span-1">${item.price}</div>
+          <div className="col-span-6 sm:flex sm:col-span-2">
+            <div className="mr-4">
+              {item.variation_1 ? item.variation_1 : "-"}
+            </div>
+            <div>{item.variation_2 ? item.variation_2 : null}</div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
