@@ -1,0 +1,15 @@
+.carousel {
+  margin: 30px 10%;
+}
+
+.item {
+  min-height: 13.2rem;
+  min-width: 30rem;
+  /* padding: 20px; */
+  margin-top: -12px;
+}
+
+.item img {
+  width: 100%;
+  height: 100%;
+}

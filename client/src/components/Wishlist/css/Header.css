@@ -1,0 +1,13 @@
+.heading {
+  background: -webkit-linear-gradient(
+    45.34deg,
+    var(--purpleAccent) 5.66%,
+    #f74f7d 94.35%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.heading::selection {
+  -webkit-text-fill-color: var(--lighterGreyAccent);
+}
