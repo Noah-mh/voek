@@ -33,6 +33,7 @@ function App() {
             path="productDetailsWithReviews/:product_id"
             element={<ProductDetailWithReview />}
           />
+          <Route path="cart" element={<CartPage />} />
 
           <Route element={<RequireAuthCustomer />}>
             {/* Prtoected Routes with persist login */}
@@ -42,7 +43,6 @@ function App() {
               path="monkey"
               element={<Link to="/customer">Customer</Link>}
             />
-            <Route path="cart" element={<CartPage />} />
           </Route>
           <Route path="wishlist" element={<Wishlist />} />
         </Route>

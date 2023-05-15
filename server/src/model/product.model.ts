@@ -299,12 +299,26 @@ export const handlesCheckWishlistProductExistence = async (
   const connection = await promisePool.getConnection();
   const sql = `SELECT * FROM wishlist WHERE wishlist.customer_id = ? and wishlist.product_id = ?;`;
   try {
-    console.log(sql);
     const result = await connection.query(sql, [
       customer_id,
       product_id,
     ]);
-    console.log(result[0]);
+    return result[0];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handlesGetAllListedProducts = async () => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT products.product_id, products.name 
+  FROM listed_products
+  JOIN products ON  listed_products.product_id = products.product_id;`;
+  try {
+    const result = await connection.query(sql, []);
     return result[0];
   } catch (err: any) {
     throw new Error(err);
