@@ -4,7 +4,7 @@ import Sib from '../../config/sendInBlue';
 import client from '../../config/teleSign';
 
 // GET all products from 1 seller
-export const handleGetAllProducts = async (sellerId: number) => {
+export const handleGetAllProducts = async (sellerId: number): Promise<Product[]> => {
     const promisePool = pool.promise();
     const connection = await promisePool.getConnection();
     const sql = 
@@ -13,7 +13,7 @@ export const handleGetAllProducts = async (sellerId: number) => {
     WHERE lp.seller_id = ?;`
     try {
         const result = await connection.query(sql, [sellerId]);
-        return result[0];
+        return result[0] as Product[];
     } catch (err: any) {
         console.log(err);
         throw new Error(err);
@@ -23,12 +23,12 @@ export const handleGetAllProducts = async (sellerId: number) => {
 }
 
 
-export const handleLogin = async (email: string, password: string) => {
+export const handleLogin = async (email: string, password: string): Promise<Seller | null> => {
     const promisePool = pool.promise();
     const connection = await promisePool.getConnection();
     const sql = `SELECT password, seller_id, phone_number, shop_name email FROM seller WHERE email = ?`;
     try {
-        const result = await connection.query(sql, [email]);
+        const result: any = await connection.query(sql, [email]);
         const encryptrdPassword = result[0].length ? result[0][0].password : '';
         const check = await bcrypt.compare(password, encryptrdPassword);
         if (check) {
@@ -36,7 +36,7 @@ export const handleLogin = async (email: string, password: string) => {
             const phone_number: number = result[0][0]?.phone_number;
             const email: string = result[0][0]?.email;
             const shopName: string = result[0][0]?.shop_name;
-            return { seller_id, phone_number, email, shopName  };
+            return { seller_id, phone_number, email, shopName  }
         }
         return null;
     } catch (err: any) {
@@ -46,13 +46,13 @@ export const handleLogin = async (email: string, password: string) => {
     }
 }
 
-export const handleStoreRefreshToken = async (refreshtoken: string, seller_id: number) => {
+export const handleStoreRefreshToken = async (refreshtoken: string, seller_id: number): Promise<number> => {
     const promisePool = pool.promise();
     const connection = await promisePool.getConnection();
     const sql = `UPDATE seller SET refresh_token =? WHERE seller_id =?`;
     try {
         const result = await connection.query(sql, [refreshtoken, seller_id]);
-        return result[0].affectedRows;
+        return (result[0] as any).affectedRows as number;
     } catch (err: any) {
         throw new Error(err);
     } finally {
@@ -76,7 +76,7 @@ export const handleSendSMSOTP = async (phoneNumber: number, seller_id: number) =
                 throw new Error(err);
             }
         }, `65${phoneNumber}`, message, messageType);
-        return result[0];
+        return result;
     } catch (err: any) {
         throw new Error(err);
     }
@@ -105,7 +105,7 @@ export const handleSendEmailOTP = async (email: string, seller_id: number) => {
             textContent: `Your OTP is ${OTP}`
         }).then((response: any) => {
             console.log(response);
-            return result[0];
+            return result;
         }).catch((err: any) => {
             throw new Error(err);
         })
@@ -114,13 +114,13 @@ export const handleSendEmailOTP = async (email: string, seller_id: number) => {
     }
 }
 
-export const updateOTP = async (OTP: number, seller_id: number) => {
+export const updateOTP = async (OTP: number, seller_id: number): Promise<number> => {
     const promisePool = pool.promise();
     const connection = await promisePool.getConnection();
     const sql = `UPDATE seller_otp SET otp = ?, otp_creation = ? WHERE seller_id = ?`;
     try {
         const result = await connection.query(sql, [OTP, convertLocalTimeToUTC(), seller_id]);
-        return result[0].affectedRows;
+        return (result[0] as any).affectedRows as number;
     } catch (err: any) {
         throw new Error(err);
     } finally {
@@ -128,13 +128,13 @@ export const updateOTP = async (OTP: number, seller_id: number) => {
     }
 }
 
-export const handleVerifyOTP = async (seller_id: number, OTP: number) => {
+export const handleVerifyOTP = async (seller_id: number, OTP: number): Promise<Object[]> => {
     const promisePool = pool.promise();
     const connection = await promisePool.getConnection();
     const sql = 'SELECT * FROM seller_otp WHERE otp = ? and seller_id = ? and timestampdiff(SECOND, otp_creation, utc_timestamp()) < 120';
     try {
         const result = await connection.query(sql, [OTP, seller_id]);
-        return result[0];
+        return result[0] as Object[];
     } catch (err: any) {
         throw new Error(err);
     } finally {
@@ -179,8 +179,8 @@ export const handleSignUp = async (shopName: string, password: string, email: st
         const encryptedPassword = await bcrypt.hash(password, 10)
         const result = await connection.query(sql, [shopName, encryptedPassword, email, phoneNumber]);
         const sql2 = `INSERT INTO seller_otp (seller_id) VALUES(?)`;
-        const result2 = await connection.query(sql2, [result[0].insertId]);
-        return result2[0].affectedRows;
+        const result2 = await connection.query(sql2, [(result[0] as any).insertId as number]);
+        return (result2[0] as any).affectedRows as number;
     } catch (err: any) {
         throw new Error(err);
     } finally {
@@ -188,13 +188,13 @@ export const handleSignUp = async (shopName: string, password: string, email: st
     }
 }
 
-export const handleLogOut = async (refreshToken: string) => {
+export const handleLogOut = async (refreshToken: string): Promise<number> => {
     const promisePool = pool.promise();
     const connection = await promisePool.getConnection();
     const sql = `UPDATE seller SET refresh_token = '' WHERE refresh_token = ?`;
     try {
         const result = await connection.query(sql, [refreshToken]);
-        return result[0].affectedRows;
+        return (result[0] as any).affectedRows as number;
     } catch (err: any) {
         throw new Error(err);
     } finally {
@@ -222,3 +222,19 @@ const convertLocalTimeToUTC = (): string => {
 const padZero = (value: number): string => {
     return value.toString().padStart(2, '0');
 }
+
+
+interface Product {
+    name: string;
+    description: string;
+    price: number;
+    image_url: string;
+  }
+  
+  interface Seller {
+    seller_id: number;
+    phone_number: number;
+    email: string;
+    shopName: string;
+  }
+  

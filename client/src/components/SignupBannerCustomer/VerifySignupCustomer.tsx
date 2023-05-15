@@ -1,9 +1,9 @@
 import { useEffect } from "react";
-import "./signUP.css";
+import "./VerifySignupCustomer.css"
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import axios from '../../api/axios.js';
 
-const ConfirmPassword = () => {
+const VerifySignupCustomer = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
@@ -31,4 +31,4 @@ const ConfirmPassword = () => {
     )
 }
 
-export default ConfirmPassword
+export default VerifySignupCustomer

@@ -5,15 +5,16 @@ import axios from "../../api/axios.js";
 import "./OTP.css";
 import useCustomer from "../../hooks/UseCustomer.js";
 interface props {
-  userDetails: object;
+  userDetails: object
 }
 
 export default function OTP({ userDetails }: props): JSX.Element {
+
   const { setCustomer } = useCustomer();
 
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || "/";
+  const from = location.state?.from?.pathname || '/';
 
   const { customer_id, username, phone_number, email } = userDetails as {
     customer_id: number;
@@ -29,77 +30,71 @@ export default function OTP({ userDetails }: props): JSX.Element {
   const [errMsg, setErrMsg] = useState<string>("");
 
   useEffect(() => {
-    setDisabled(otp.length === 6 ? false : true);
-  }, [otp]);
+    setDisabled(otp.length === 6 ? false : true)
+  }, [otp])
 
   const emailSentHandler = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-        "/customer/auth/email/OTP",
+      const response = await axios.post("/customer/auth/email/OTP",
         JSON.stringify({ customer_id, email }),
         {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        }
-      );
+          headers: { 'Content-Type': 'application/json' },
+          withCredentials: true
+        })
       setModalEmail(true);
       setModalSMS(false);
     } catch (err: any) {
       if (!err?.response) {
-        setErrMsg("No Server Response");
+        setErrMsg('No Server Response');
       } else {
         setErrMsg("Server Error");
       }
     }
-  };
+  }
 
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-        "/customer/auth/verify/OTP",
+      const response = await axios.post("/customer/auth/verify/OTP",
         JSON.stringify({ customer_id, OTP: otp }),
         {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        }
-      );
+          headers: { 'Content-Type': 'application/json' },
+          withCredentials: true
+        })
       const { accessToken } = response.data;
-      setCustomer({ customer_id, username, accessToken, cart: [] });
+      setCustomer({ customer_id, username, accessToken, cart: [] })
       navigate(from);
     } catch (err: any) {
       if (!err?.response) {
-        setErrMsg("No Server Response");
+        setErrMsg('No Server Response');
       } else if (err.response.status === 400) {
         setErrMsg("OTP Is Incorrect");
       } else {
         setErrMsg("Server Error");
       }
     }
-  };
+  }
 
   const smsSentHandler = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-        "/customer/auth/SMS/OTP",
+      const response = await axios.post("/customer/auth/SMS/OTP",
         JSON.stringify({ phoneNumber: phone_number, customer_id }),
         {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        }
-      );
+          headers: { 'Content-Type': 'application/json' },
+          withCredentials: true
+        })
       setModalEmail(false);
       setModalSMS(true);
     } catch (err: any) {
       if (!err?.response) {
-        setErrMsg("No Server Response");
+        setErrMsg('No Server Response');
       } else {
         setErrMsg("Server Error");
       }
     }
-  };
+  }
 
   return (
     <div className="w-1/2 flex-col justify-center pt-20">
@@ -107,11 +102,17 @@ export default function OTP({ userDetails }: props): JSX.Element {
         <h1 className="text-center font-bold text-3xl">Enter OTP</h1>
         <div className="text-center mb-3  ">
           Receive OTP through{" "}
-          <span onClick={emailSentHandler} className="underline text-white">
+          <span
+            onClick={emailSentHandler}
+            className="underline text-white"
+          >
             Email
           </span>{" "}
           or{" "}
-          <span onClick={smsSentHandler} className="underline text-white">
+          <span
+            onClick={smsSentHandler}
+            className="underline text-white"
+          >
             SMS
           </span>
         </div>
@@ -149,10 +150,7 @@ export default function OTP({ userDetails }: props): JSX.Element {
             }}
           />
         </div>
-        <form
-          className="wrapper flex-col justify-center"
-          onSubmit={submitHandler}
-        >
+        <form className="wrapper flex-col justify-center" onSubmit={submitHandler}>
           <input
             disabled={disabled}
             type="submit"

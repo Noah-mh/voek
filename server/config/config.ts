@@ -15,6 +15,8 @@ const config = {
   sendInBlueAPIKey: process.env.SENDINBLUE_API_KEY,
   signUpCustomerTokenSecret: process.env.SIGNUP_CUSTOMER_TOKEN_SECRET,
   signUpSellerTokenSecret: process.env.SIGNUP_SELLER_TOKEN_SECRET,
+  forgetPasswordCustomerTokenSecret: process.env.FORGETPASSWORD_CUSTOMER_TOKEN_SECRET,
+  forgetPasswordSellerTokenSecret: process.env.FORGETPASSWORD_SELLER_TOKEN_SECRET,
   ssl: {
     rejectUnauthorized: false,
   },

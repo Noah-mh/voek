@@ -9,7 +9,7 @@ export const processGetAllProductsOfSeller = async (req: Request, res: Response,
     try {
         console.log("yes")
         const sellerId: number = parseInt(req.params.sellerId);
-        const response: JSON = await sellerModel.handleGetAllProducts(sellerId);
+        const response: any = await sellerModel.handleGetAllProducts(sellerId);
         return res.json(response);
     } catch (err: any) {
         return next(err);
@@ -60,7 +60,7 @@ export const processVerifyOTP = async (req: Request, res: Response, next: NextFu
     try {
         const { seller_id, OTP } = req.body;
         if (!seller_id || !OTP) return res.sendStatus(400);
-        const response = await sellerModel.handleVerifyOTP(seller_id, OTP);
+        const response: any = await sellerModel.handleVerifyOTP(seller_id, OTP);
         if (response.length) {
             const accessToken = jwt.sign(
                 {

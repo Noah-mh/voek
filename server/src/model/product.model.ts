@@ -1,6 +1,8 @@
 import pool from "../../config/database";
 
-export const handlesGetProductDetails = async (productId: number) => {
+export const handlesGetProductDetails = async (
+  productId: number
+): Promise<ProductDetails[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT p.product_id, p.name, p.price, p.description, pv.variation_1, pv.variation_2, r.rating, r.comment 
@@ -10,7 +12,7 @@ export const handlesGetProductDetails = async (productId: number) => {
   WHERE p.product_id = ?;`;
   try {
     const result = await connection.query(sql, [productId]);
-    return result[0];
+    return result[0] as ProductDetails[];
   } catch (err: any) {
     throw new Error(err);
   } finally {
@@ -18,7 +20,9 @@ export const handlesGetProductDetails = async (productId: number) => {
   }
 };
 
-export const handlesGetCartDetails = async (customerId: number) => {
+export const handlesGetCartDetails = async (
+  customerId: number
+): Promise<ProductDetails[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT p.product_id, p.name, c.quantity, p.price, p.image_url, pv.variation_1, pv.variation_2
@@ -30,7 +34,7 @@ export const handlesGetCartDetails = async (customerId: number) => {
   try {
     const result = await connection.query(sql, [customerId]);
     console.log(result[0]);
-    return result[0];
+    return result[0] as ProductDetails[];
   } catch (err: any) {
     throw new Error(err);
   } finally {
@@ -40,7 +44,7 @@ export const handlesGetCartDetails = async (customerId: number) => {
 
 export const handlesGetRecommendedProductsBasedOnCat = async (
   category_id: number
-) => {
+): Promise<Product[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT products.product_id , products.name, products.description, products.price 
@@ -49,7 +53,7 @@ export const handlesGetRecommendedProductsBasedOnCat = async (
   LIMIT 6;`;
   try {
     const result = await connection.query(sql, [category_id]);
-    return result[0];
+    return result[0] as Product[];
   } catch (err: any) {
     throw new Error(err);
   } finally {
@@ -57,7 +61,9 @@ export const handlesGetRecommendedProductsBasedOnCat = async (
   }
 };
 
-export const handlesGetWishlistItems = async (customer_id: number) => {
+export const handlesGetWishlistItems = async (
+  customer_id: number
+): Promise<Product[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT products.product_id, products.name, products.description, products.price
@@ -68,7 +74,7 @@ export const handlesGetWishlistItems = async (customer_id: number) => {
   try {
     const result = await connection.query(sql, [customer_id]);
     console.log(result[0]);
-    return result[0];
+    return result[0] as Product[];
   } catch (err: any) {
     throw new Error(err);
   } finally {
@@ -79,7 +85,7 @@ export const handlesGetWishlistItems = async (customer_id: number) => {
 export const handlesGetLastViewed = async (
   customer_id: number,
   date_viewed: string
-) => {
+): Promise<Product[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT products.product_id, products.name, products.description
@@ -91,7 +97,7 @@ export const handlesGetLastViewed = async (
   try {
     const result = await connection.query(sql, [customer_id, date_viewed]);
     console.log(result[0]);
-    return result[0];
+    return result[0] as Product[];
   } catch (err: any) {
     throw new Error(err);
   } finally {
@@ -99,7 +105,7 @@ export const handlesGetLastViewed = async (
   }
 };
 
-export const handlesTopProducts = async () => {
+export const handlesTopProducts = async (): Promise<Product[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT DISTINCT products.product_id, products.name, products.description 
@@ -109,7 +115,7 @@ export const handlesTopProducts = async () => {
   try {
     const result = await connection.query(sql, []);
     console.log(result[0]);
-    return result[0];
+    return result[0] as Product[];
   } catch (err: any) {
     throw new Error(err);
   } finally {
@@ -117,7 +123,9 @@ export const handlesTopProducts = async () => {
   }
 };
 
-export const handlesSearchBarPredictions = async () => {
+export const handlesSearchBarPredictions = async (): Promise<
+  Product[]
+> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT products.product_id, products.name 
@@ -126,7 +134,7 @@ export const handlesSearchBarPredictions = async () => {
   try {
     const result = await connection.query(sql, []);
     console.log(result[0]);
-    return result[0];
+    return result[0] as Product[];
   } catch (err: any) {
     throw new Error(err);
   } finally {
@@ -134,7 +142,9 @@ export const handlesSearchBarPredictions = async () => {
   }
 };
 
-export const handlesSearchResult = async (input: string) => {
+export const handlesSearchResult = async (
+  input: string
+): Promise<Product[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT products.product_id, products.name, products.price, products.description
@@ -146,7 +156,7 @@ export const handlesSearchResult = async (input: string) => {
   try {
     const result = await connection.query(sql, params);
     console.log(result[0]);
-    return result[0];
+    return result[0] as Product[];
   } catch (err: any) {
     throw new Error(err);
   } finally {
@@ -154,7 +164,9 @@ export const handlesSearchResult = async (input: string) => {
   }
 };
 
-export const handlesProductsBasedOnCategory = async (category_id: number) => {
+export const handlesProductsBasedOnCategory = async (
+  category_id: number
+): Promise<Product[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT products.product_id, products.name 
@@ -165,7 +177,7 @@ export const handlesProductsBasedOnCategory = async (category_id: number) => {
   try {
     const result = await connection.query(sql, [category_id]);
     console.log(result[0]);
-    return result[0];
+    return result[0] as Product[];
   } catch (err: any) {
     throw new Error(err);
   } finally {
@@ -176,14 +188,16 @@ export const handlesProductsBasedOnCategory = async (category_id: number) => {
 export const handlesInsertingWishlistedProduct = async (
   customer_id: number,
   product_id: number
-) => {
+): Promise<number> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `INSERT INTO wishlist (customer_id, product_id) VALUES (?, ?);`;
   try {
-    const result = await connection.query(sql, [customer_id, product_id]);
-    console.log(result[0]);
-    return result[0].affectedRows;
+    const result = await connection.query(sql, [
+      customer_id,
+      product_id,
+    ]);
+    return (result[0] as any).affectedRows as number;
   } catch (err: any) {
     throw new Error(err);
   } finally {
@@ -194,14 +208,14 @@ export const handlesInsertingWishlistedProduct = async (
 export const handlesDeletingWishlistedProduct = async (
   customer_id: number,
   product_id: number
-) => {
+): Promise<number> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `DELETE FROM wishlist WHERE wishlist.customer_id = ? and wishlist.product_id = ?;`;
   try {
     const result = await connection.query(sql, [customer_id, product_id]);
     console.log(result[0]);
-    return result[0].affectedRows;
+    return (result[0] as any).affectedRows as number;
   } catch (err: any) {
     throw new Error(err);
   } finally {
@@ -210,32 +224,41 @@ export const handlesDeletingWishlistedProduct = async (
 };
 export const handleProductDetailsWithoutReviews = async (
   product_id: number
-) => {
+): Promise<ProductWithImages[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT 
-  JSON_ARRAYAGG(COALESCE(pi.image_url, 'test/1_cksdtz')) AS image_urls,
   p.name,
   p.description,
-  GROUP_CONCAT(
-    DISTINCT JSON_OBJECT(
-      'variation_1',  pv.variation_1,
-      'variation_2', pv.variation_2
-    )
-  ) AS variations
+  img.image_urls,
+  var.variations
 FROM products p
-INNER JOIN product_variations pv ON p.product_id = pv.product_id
-LEFT JOIN product_images pi ON p.product_id = pi.product_id
-WHERE p.product_id = ?
-GROUP BY
-  p.name,
-  p.description
+LEFT JOIN (
+  SELECT 
+    product_id,
+    JSON_ARRAYAGG(image_url) AS image_urls
+  FROM product_images
+  GROUP BY product_id
+) AS img ON p.product_id = img.product_id
+LEFT JOIN (
+  SELECT 
+    product_id,
+    JSON_ARRAYAGG(
+      JSON_OBJECT(
+        'variation_1', variation_1,
+        'variation_2', variation_2
+      )
+    ) AS variations
+  FROM product_variations
+  GROUP BY product_id
+) AS var ON p.product_id = var.product_id
+WHERE p.product_id = ?;
     `;
 
   try {
     const result = await connection.query(sql, product_id);
     console.log(result[0]);
-    return result[0];
+    return result[0] as ProductWithImages[];
   } catch (err: any) {
     throw new Error(err);
   } finally {
@@ -243,11 +266,13 @@ GROUP BY
   }
 };
 
-export const handleProductReviews = async (product_id: number) => {
+export const handleProductReviews = async (
+  product_id: number
+): Promise<Review[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT p.name,
-  (SELECT JSON_ARRAYAGG(image_url)
+  (SELECT JSON_ARRAYAGG(COALESCE(image_url, 'test/1_cksdtz'))
    FROM product_images pi
    WHERE pi.product_id = p.product_id) AS image_urls,
   ROUND(AVG(r.rating), 2) AS rating,
@@ -271,7 +296,7 @@ GROUP BY p.product_id, p.name;
   try {
     const result = await connection.query(sql, product_id);
     console.log(result[0]);
-    return result[0];
+    return result[0] as Review[];
   } catch (err: any) {
     throw new Error(err);
   } finally {
@@ -282,13 +307,17 @@ GROUP BY p.product_id, p.name;
 export const handlesCheckWishlistProductExistence = async (
   customer_id: number,
   product_id: number
-) => {
+): Promise<Object[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT * FROM wishlist WHERE wishlist.customer_id = ? and wishlist.product_id = ?;`;
   try {
-    const result = await connection.query(sql, [customer_id, product_id]);
-    return result[0];
+    const result = await connection.query(sql, [
+      customer_id,
+      product_id,
+    ]);
+    console.log(result[0]);
+    return result[0] as Array<Object>;
   } catch (err: any) {
     throw new Error(err);
   } finally {
@@ -304,10 +333,33 @@ export const handlesGetAllListedProducts = async () => {
   JOIN products ON  listed_products.product_id = products.product_id;`;
   try {
     const result = await connection.query(sql, []);
-    return result[0];
+    return result[0] as Array<Object>;
   } catch (err: any) {
     throw new Error(err);
   } finally {
     await connection.release();
   }
 };
+
+interface Product {
+  product_id: number;
+  name: string;
+  price: number;
+  description: string;
+}
+
+interface ProductDetails extends Product {
+  variation_1: string;
+  variation_2: string;
+  rating: number;
+  comment: string;
+}
+
+interface ProductWithImages extends Product {
+  image_urls: string[];
+}
+
+interface Review {
+  customerName: string;
+  comment: string;
+}

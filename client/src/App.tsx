@@ -10,18 +10,24 @@ import CartPage from "./components/cart/UserCart";
 import PersistLoginCustomer from "./components/PersistLogin/PersistLoginCustomer";
 import PersistLoginSeller from "./components/PersistLogin/PersistLoginSeller.js";
 import RequireAuthSeller from "./components/RequireAuth/RequireAuthSeller.js";
-import ConfirmPassword from "./components/SignupBanner/ConfirmPassword.js";
+import VerifySignupCustomer from "./components/SignupBannerCustomer/VerifySignupCustomer.js";
 import Test from "./components/test";
 import LayoutSeller from "./components/Layout/LayouSeller.js";
 import Wishlist from "./components/Wishlist/Wishlist.js";
 import ProductDetailWithReview from "./components/Product/ProductDetailsWithReviews.js";
 import SearchResults from "./components/SearchResults/SearchResults.js";
+import ForgetPasswordCustomer from "./components/ForgetPasswordCustomer/ForgetPasswordCustomer.js";
+import ResetPasswordCustomer from "./components/ResetPasswordCustomer/ResetPasswordCustomer.js";
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
-        <Route path="signup/verify" element={<ConfirmPassword />} />
+        <Route path="signup/verify" element={<VerifySignupCustomer />} />
+        <Route
+          path="/forgetPassword/verify"
+          element={<ResetPasswordCustomer />}
+        />
 
         {/* Customer Routes */}
         <Route element={<PersistLoginCustomer />}>
@@ -36,6 +42,15 @@ function App() {
           />
           <Route path="searchResults/:userInput" element={<SearchResults />} />
           <Route path="/customer/cart" element={<CartPage />} />
+          <Route
+            path="productDetailsWithReviews/:product_id"
+            element={<ProductDetailWithReview />}
+          />
+          <Route path="/forgetPassword" element={<ForgetPasswordCustomer />} />
+          <Route
+            path="productDetailsWithReviews/:product_id"
+            element={<ProductDetailWithReview />}
+          />
 
           <Route element={<RequireAuthCustomer />}>
             {/* Prtoected Routes with persist login */}
@@ -45,8 +60,10 @@ function App() {
               path="monkey"
               element={<Link to="/customer">Customer</Link>}
             />
+            <Route path="cart" element={<CartPage />} />
+            <Route path="wishlist" element={<Wishlist />} />
+            <Route path="/customer/cart" element={<CartPage />} />
           </Route>
-          <Route path="wishlist" element={<Wishlist />} />
         </Route>
       </Route>
 
