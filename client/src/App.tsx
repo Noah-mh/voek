@@ -28,6 +28,7 @@ function App() {
           path="/forgetPassword/verify"
           element={<ResetPasswordCustomer />}
         />
+        <Route path="/forgetPassword" element={<ForgetPasswordCustomer />} />
 
         {/* Customer Routes */}
         <Route element={<PersistLoginCustomer />}>
@@ -46,7 +47,6 @@ function App() {
             path="productDetailsWithReviews/:product_id"
             element={<ProductDetailWithReview />}
           />
-          <Route path="/forgetPassword" element={<ForgetPasswordCustomer />} />
           <Route
             path="productDetailsWithReviews/:product_id"
             element={<ProductDetailWithReview />}
