@@ -2,11 +2,11 @@ import "./css/Homepage.css";
 import { useState } from "react";
 import Slider from "./Slider.js";
 import { Banner } from "./Banner.js";
-import Category from "./Category";
-import Modal from "./Modal";
+import Category from "./Category.js";
+import Modal from "./Modal.js";
 import { AnimatePresence } from "framer-motion";
 
-import axios from "../../api/axios";
+import axios from "../../api/axios.js";
 
 const Homepage = () => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);

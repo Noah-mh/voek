@@ -1,4 +1,4 @@
-import "./signUP.css";
+import "./VerifySignupCustomer.css"
 import '../LoginBanner/OTP.css';
 import axios from '../../api/axios.js'
 import { useEffect, useState } from "react";

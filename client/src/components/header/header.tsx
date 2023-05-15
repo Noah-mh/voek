@@ -59,44 +59,17 @@ const Header = ({ isCustomer, isSeller }: Props) => {
           ) : null}
         </div>
       </div>
-      <div className="block flex justify-end">
-        <LiveSearch
-          results={results}
-          setSearchResults={setSearchResults}
-          searchResults={searchResults}
-        />
-        <div className="text-sm lg:flex-grow inline-block px-4 leading-none mt-8">
-          {isCustomer ? (
-            customer?.customer_id ? (
-              <>
-                <Link to="/customer/profile">
-                  <p>Profile</p>
-                </Link>
-                <Link to="/customer/cart">
-                  <p>Cart</p>
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link to="/login">
-                  <p className="text-purpleAccent">Login</p>
-                </Link>
-                <Link to="/customer/cart">
-                  <p className="text-purpleAccent">Cart</p>
-                </Link>
-              </>
-            )
-          ) : isSeller ? (
-            seller?.seller_id ? (
-              <Link to="/seller/profile">
-                <p className="text-purpleAccent">Profile</p>
-              </Link>
-            ) : (
-              <Link to="/seller/login">
-                <p className="text-purpleAccent">Login</p>
-              </Link>
-            )
-          ) : null}
+      <div className=" block flex justify-end">
+        <div className="text-sm lg:flex-grow inline-block  px-4  leading-none">
+          {
+            isCustomer ?
+              customer?.customer_id ? <><Link to='/profile'><p>Profile</p></Link><Link to='/cart'><p>Cart</p></Link></>
+                : <><Link to='/login'><p>Login</p></Link><Link to='/cart'><p>Cart</p></Link></>
+              : isSeller ?
+                seller?.seller_id ? <Link to='/seller/profile'><p>Profile</p></Link>
+                  : <Link to='/seller/login'><p>Login</p></Link>
+                : null
+          }
         </div>
       </div>
     </nav>
