@@ -10,30 +10,19 @@ const WishlistCard = () => {
   const [customerId, setCustomerId] = useState<number>(1);
 
   useEffect(() => {
-    const getWishlistItems = async () => {
-      try {
-        const response = await axios.post(
-          `/getWishlistItems`,
-          JSON.stringify({ customerId }),
-          {
-            headers: { "Content-Type": "application/json" },
-            withCredentials: true,
-          }
-        );
-        console.log("response.data", response.data);
-        return response.data;
-      } catch (err: any) {
+    axios
+      .post(`/getWishlistItems`, JSON.stringify({ customerId }), {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true,
+      })
+      .then((response) => response.data)
+      .then((data) => {
+        setStatus(true);
+        setWishlistItems(data);
+      })
+      .catch((err: any) => {
         setStatus(false);
-      }
-    };
-    const reponseArr: Promise<any> = getWishlistItems().then((data: any) => {
-      return data;
-    });
-    reponseArr.then((data: any) => {
-      console.log("data", data);
-      setStatus(true);
-      setWishlistItems(data);
-    });
+      });
   }, []);
 
   return (
@@ -55,10 +44,10 @@ const WishlistCard = () => {
                         <h5 className="mb-2 text-2xl font-bold tracking-wider text-pink">
                           {item.name}
                         </h5>
-                        <h5 className="price mb-2 text-2xl font-bold tracking-wider text-gray-900 dark:text-white">
+                        <h5 className="whislistPrice mb-2 text-2xl font-bold tracking-wider text-gray-900 dark:text-white">
                           ${item.price}
                         </h5>
-                        <p className="description mb-3 font-normal text-gray-700 dark:text-gray-400">
+                        <p className="whislistDescription mb-3 font-normal text-gray-700 dark:text-gray-400">
                           {item.description}
                         </p>
                       </div>

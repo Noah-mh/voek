@@ -90,6 +90,7 @@ export default function (app: Express, router: Router) {
     "/checkWishlistProductExistence",
     productController.checkWishListProductExistence
   );
+  router.get("/getAllListedProducts", productController.getAllListedProducts);
 
   router.get(
     "/cartDetails",

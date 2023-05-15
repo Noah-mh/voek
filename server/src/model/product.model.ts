@@ -298,7 +298,6 @@ export const handlesCheckWishlistProductExistence = async (
   const connection = await promisePool.getConnection();
   const sql = `SELECT * FROM wishlist WHERE wishlist.customer_id = ? and wishlist.product_id = ?;`;
   try {
-    console.log(sql);
     const result = await connection.query(sql, [
       customer_id,
       product_id,

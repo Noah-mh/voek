@@ -29,45 +29,36 @@ function App() {
 
         {/* Customer Routes */}
         <Route element={<PersistLoginCustomer />}>
-
           {/* Public Routes with persist login */}
 
           <Route path="/" element={<Homepage />} />
           <Route path="login" element={<LoginBanner />} />
           <Route path="signup" element={<SignupBanner />} />
           <Route path='productDetailsWithReviews/:product_id' element={<ProductDetailWithReview />} />
-          <Route path="/forgetPassword" element={<ForgetPasswordCustomer />}/>
-
+          <Route path="/forgetPassword" element={<ForgetPasswordCustomer />} />
+          <Route path="productDetailsWithReviews/:product_id" element={<ProductDetailWithReview />} />
 
           <Route element={<RequireAuthCustomer />}>
-
             {/* Prtoected Routes with persist login */}
 
             <Route path="customer" element={<Test />} />
-            <Route
-              path="monkey"
-              element={<Link to="/customer">Customer</Link>}
-            />
+            <Route path="monkey" element={<Link to="/customer">Customer</Link>} />
             <Route path="cart" element={<CartPage />} />
+            <Route path="wishlist" element={<Wishlist />} />
+            <Route path="/customer/cart" element={<CartPage />} />
+
+
           </Route>
-          <Route path="wishlist" element={<Wishlist />} />
         </Route>
       </Route>
-
-
 
       {/* Seller Routes */}
       <Route path="/" element={<LayoutSeller />}>
         {/* Protected Routes for seller only*/}
         <Route element={<PersistLoginSeller />}>
-          <Route element={<RequireAuthSeller />}>
-
-          </Route>
+          <Route element={<RequireAuthSeller />}></Route>
         </Route>
       </Route>
-
-
-
 
       {/* unauthorized or forbidden */}
       <Route path="/*" element={<Missing />} />
