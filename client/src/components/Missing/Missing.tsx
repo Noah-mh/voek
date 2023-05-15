@@ -1,4 +1,4 @@
-import Header from "../Header/Header";
+import Header from "../Header/header";
 import Footer from "../Footer/Footer";
 import { Link } from "react-router-dom";
 import loginPhoto from "../../img/login/loginVec.png";
