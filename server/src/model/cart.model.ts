@@ -1,7 +1,37 @@
 import { connect } from "http2";
 import pool from "../../config/database";
 
-export const handlesGetCartDetails = async (customerId: number) => {
+interface Product {
+  product_id: number;
+  name: string;
+  price: number;
+  image_url: string;
+}
+
+interface ProductVariation {
+  variation_1: string;
+  variation_2: string;
+  quantity: number;
+}
+
+interface CartItem {
+  product: Product;
+  quantity: number;
+  variations: ProductVariation;
+  stock: number;
+}
+
+export interface CartDetails extends Array<CartItem> {}
+
+export interface CartItemUpdate {
+  customer_id: number;
+  sku: string;
+  quantity: number;
+  new_sku?: string;
+  product_id?: number;
+}
+
+export const handlesGetCartDetails = async (customerId: number): Promise<CartItem[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   console.log(customerId);
@@ -10,8 +40,7 @@ export const handlesGetCartDetails = async (customerId: number) => {
   try {
     const result = await connection.query(sql, [customerId]);
     console.log("Results received:");
-    console.log(result[0].length);
-    return result[0];
+    return result[0] as CartItem[];
   } catch (err: any) {
     throw new Error(err);
   } finally {
@@ -25,7 +54,7 @@ export const handleAlterCart = async (
   quantity: number,
   new_sku: string,
   product_id: number
-) => {
+): Promise<any> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   if (quantity === 0 && !new_sku) {
