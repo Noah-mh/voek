@@ -53,10 +53,7 @@ export default function (app: Express, router: Router) {
   // NHAT TIEN ENDPOINTS - Homepage, Last Viewed, Wishlist, Product Details
   router.post("/getWishlistItems", productController.getWishlistItems);
   router.get("/getLastViewed", productController.getLastViewed);
-  router.post(
-    "/productDetails",
-    productController.processPublicProductDetails
-  );
+  router.post("/productDetails", productController.processPublicProductDetails);
 
   router.get(
     "/cartDetails",
@@ -69,7 +66,7 @@ export default function (app: Express, router: Router) {
     "/searchBarPredictions",
     productController.getSearchBarPredictions
   );
-  router.get("/searchResult", productController.getSearchResult);
+  router.post("/searchResult", productController.getSearchResult);
   router.get(
     "/productsBasedOnCategory",
     productController.getProductsBasedOnCategory
