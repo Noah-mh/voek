@@ -15,6 +15,7 @@ import Test from "./components/test";
 import LayoutSeller from "./components/Layout/LayouSeller.js";
 import Wishlist from "./components/Wishlist/Wishlist.js";
 import ProductDetailWithReview from "./components/Product/ProductDetailsWithReviews.js";
+import SearchResults from "./components/SearchResults/SearchResults.js";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
             element={<ProductDetailWithReview />}
           />
           <Route path="cart" element={<CartPage />} />
+          <Route path="searchResults/:userInput" element={<SearchResults />} />
 
           <Route element={<RequireAuthCustomer />}>
             {/* Prtoected Routes with persist login */}
