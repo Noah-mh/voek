@@ -107,6 +107,7 @@ export default function OTP({ userDetails }: props): JSX.Element {
         <h1 className="text-center font-bold text-3xl">Enter OTP</h1>
         <div className="text-center mb-3  ">
           Receive OTP through{" "}
+
           <span
             onClick={emailSentHandler}
             className="underline text-white hover:cursor-pointer"
@@ -118,6 +119,7 @@ export default function OTP({ userDetails }: props): JSX.Element {
             onClick={smsSentHandler}
             className="underline text-white hover:cursor-pointer"
           >
+
             SMS
           </span>
         </div>
