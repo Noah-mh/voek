@@ -6,7 +6,7 @@ import SignupBanner from "./components/SignupBannerCustomer/SignupBanner.js";
 import Layout from "./components/Layout/Layout";
 import Homepage from "./components/Homepage/Homepage.js";
 import RequireAuthCustomer from "./components/RequireAuth/RequireAuthCustomer";
-import CartPage from "./components/Cart/UserCart";
+import CartPage from "./components/Cart/UserCart.js";
 import PersistLoginCustomer from "./components/PersistLogin/PersistLoginCustomer";
 import PersistLoginSeller from "./components/PersistLogin/PersistLoginSeller.js";
 import RequireAuthSeller from "./components/RequireAuth/RequireAuthSeller.js";
