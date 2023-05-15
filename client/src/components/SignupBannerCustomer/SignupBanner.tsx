@@ -1,4 +1,3 @@
-import { useState } from "react";
 import loginPhoto from "../../img/login/loginVec.png";
 import "./signupBanner.css";
 import Signup from "./Signup.js";

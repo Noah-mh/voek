@@ -46,7 +46,7 @@ const ResetPasswordCustomer = () => {
     const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
-            const result = await axios.post('/customer/reset/password', JSON.stringify({ customer_id, password }), {
+             await axios.post('/customer/reset/password', JSON.stringify({ customer_id, password }), {
                 headers: { 'Content-Type': 'application/json' },
                 withCredentials: true
             })

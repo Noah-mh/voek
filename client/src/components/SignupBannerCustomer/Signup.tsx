@@ -24,7 +24,7 @@ const Signup = (): JSX.Element => {
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const result = await axios.post("/customer/signup/link", JSON.stringify({ username, email, phone_number: phoneNumber, password }), {
+       await axios.post("/customer/signup/link", JSON.stringify({ username, email, phone_number: phoneNumber, password }), {
         headers: { 'Content-Type': 'application/json' },
         withCredentials: true
       });

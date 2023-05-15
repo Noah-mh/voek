@@ -35,7 +35,9 @@ const Header = ({ isCustomer, isSeller }: Props) => {
         setResults(data);
         setSearchResults(data);
       })
-      .catch((err: any) => {});
+      .catch((err: any) => {
+        console.log(err);
+      });
   }, []);
 
   return (
