@@ -61,15 +61,51 @@ const Header = ({ isCustomer, isSeller }: Props) => {
       </div>
       <div className=" block flex justify-end">
         <div className="text-sm lg:flex-grow inline-block  px-4  leading-none">
-          {
-            isCustomer ?
-              customer?.customer_id ? <><Link to='/profile'><p>Profile</p></Link><Link to='/cart'><p>Cart</p></Link></>
-                : <><Link to='/login'><p>Login</p></Link><Link to='/cart'><p>Cart</p></Link></>
-              : isSeller ?
-                seller?.seller_id ? <Link to='/seller/profile'><p>Profile</p></Link>
-                  : <Link to='/seller/login'><p>Login</p></Link>
-                : null
-          }
+          {isCustomer ? (
+            customer?.customer_id ? (
+              <div className="flex flex-row justify-center items-center">
+                <LiveSearch
+                  results={results}
+                  searchResults={searchResults}
+                  setSearchResults={setSearchResults}
+                />
+                <div className="ml-5 flex flex-row">
+                  <Link to="/profile" className="mx-2">
+                    <p className="text-purpleAccent">Profile</p>
+                  </Link>
+                  <Link to="/cart" className="mx-2">
+                    <p className="text-purpleAccent">Cart</p>
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-row justify-center items-center">
+                <LiveSearch
+                  results={results}
+                  searchResults={searchResults}
+                  setSearchResults={setSearchResults}
+                />
+                <div className="ml-5 flex flex-row">
+                  <Link to="/login" className="mx-2">
+                    <p className="text-purpleAccent">Login</p>
+                  </Link>
+                  <Link to="/cart" className="mx-2">
+                    <p className="text-purpleAccent">Cart</p>
+                  </Link>
+                </div>
+              </div>
+            )
+          ) : isSeller ? (
+            seller?.seller_id ? (
+              <Link to="/seller/profile">
+                <p>Profile</p>
+              </Link>
+            ) : (
+              <Link to="/seller/login">
+                <p>Login</p>
+              </Link>
+            )
+          ) : null}
         </div>
       </div>
     </nav>
