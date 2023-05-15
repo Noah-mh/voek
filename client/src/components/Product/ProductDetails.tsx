@@ -1,14 +1,8 @@
 // ProductDetail.tsx
 import React from 'react';
 import { AdvancedImage } from '@cloudinary/react';
-import { Cloudinary } from "@cloudinary/url-gen";
 import { Product, ProductVariation, Review, Customer } from './ProductDetailsWithReviews'; // make sure the path is correct
-
-const cld = new Cloudinary({
-    cloud: {
-        cloudName: "dgheg6ml5",
-    },
-});
+import { cld } from '../../cloudinary';
 
 interface ProductDetailProps {
     productData: Product[];
@@ -33,7 +27,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productData, productRevie
                         )}
                     <h3>Description: {pData.description}</h3>
                     <div className="variation">
-                        {Object.values((JSON.parse(pData.variations!) as ProductVariation)).map(v => <p>{v}</p>)}
+                        {pData.variations && Object.values((JSON.parse(pData.variations!) as ProductVariation)).map((variation: string | undefined, index: React.Key | null | undefined) => <p key={index}>{variation}</p>)}
                     </div>
                 </>
             ))}

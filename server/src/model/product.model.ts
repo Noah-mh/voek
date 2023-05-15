@@ -259,7 +259,7 @@ export const handleProductReviews = async (product_id: number) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT p.name,
-  (SELECT JSON_ARRAYAGG(image_url)
+  (SELECT JSON_ARRAYAGG(COALESCE(image_url, 'test/1_cksdtz'))
    FROM product_images pi
    WHERE pi.product_id = p.product_id) AS image_urls,
   ROUND(AVG(r.rating), 2) AS rating,
