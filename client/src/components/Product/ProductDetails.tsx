@@ -1,4 +1,3 @@
-// ProductDetail.tsx
 import React from 'react';
 import { AdvancedImage } from '@cloudinary/react';
 import { Carousel } from 'react-responsive-carousel';
@@ -32,7 +31,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productData, productRevie
                     )}
                     <h3>Description: {pData.description}</h3>
                     <div className="variation">
-                        <h3>Variation:</h3>
                         {pData.variations && pData.variations.map((variation: ProductVariation, index: number) => {
                             return (
                                 <div className="variation" key={index}>
