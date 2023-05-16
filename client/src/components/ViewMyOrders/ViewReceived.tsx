@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom';
 
 interface Product {
@@ -15,16 +16,15 @@ interface Product {
 }
 
 interface Props {
-  deliveredOrders: Product[]
+  receivedOrders: Product[]
 }
 
-
-const ViewDelivered = ({ deliveredOrders }: Props) => {
+const ViewReceived = ({ receivedOrders }: Props) => {
 
   return (
     <div className="flex flex-col items-center justify-center p-8">
-      <h1 className="mb-8 text-4xl font-bold">Delivered Orders</h1>
-      {deliveredOrders.map((order: Product) => (
+      <h1 className="mb-8 text-4xl font-bold">Received Orders</h1>
+      {receivedOrders.map((order: Product) => (
         <div key={order.sku} className="mb-8 border border-gray-300 rounded p-4 w-4/5">
           <Link to={`/productDetailsWithReviews/${order.product_id}`} className="text-blue-500 hover:underline">
             {order.name}
@@ -44,15 +44,16 @@ const ViewDelivered = ({ deliveredOrders }: Props) => {
                     ? order.variation_2
                     : "No Variation"}
             </p>
-            <h3 className="mt-2 text-lg">Shipment was received on {convertUtcToLocal(order.shipment_created!)}</h3>
+            <h3 className="mt-2 text-lg">Shipment was received on {convertUtcToLocal(order.shipment_delivered!)}</h3>
           </div>
         </div>
       ))}
     </div>
+
   )
 }
 
-export default ViewDelivered
+export default ViewReceived;
 
 function convertUtcToLocal(utcTime: string): string {
   // Convert UTC time to local time
@@ -68,3 +69,4 @@ function convertUtcToLocal(utcTime: string): string {
 
   return formattedLocalTime;
 }
+

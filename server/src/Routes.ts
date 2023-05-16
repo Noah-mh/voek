@@ -53,6 +53,8 @@ export default function (app: Express, router: Router) {
   );
   router.post("/seller/reset/password", sellerController.processResetPassword);
   router.get('/customer/orders/:customer_id', orderController.processHandleGetCustomerOrders)
+  router.get('/customer/delivered/orders/:customer_id', orderController.processhandleGetCustomerDeliveredOrders)
+  router.get('/customer/received/orders/:customer_id', orderController.processGetCustomerReceivedOrders)
 
   // NOAH ENDPOINTS - reviews
   router.get(
