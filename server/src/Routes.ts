@@ -111,20 +111,16 @@ export default function (app: Express, router: Router) {
   );
   // router.get("/getAllListedProducts", productController.getAllListedProducts);
 
-  router.get(
-    "/cartDetails",
+  router.post(
+    "/getCart",
     verifyJWT,
     verifyRoles("customer"),
     cartController.retrieveCartDetails
   );
-
-  // router.get(
-  //   "/cartDetails",
-  //   verifyJWT,
-  //   verifyRoles("customer"),
-  //   cartController.retrieveCartDetails
-  // );
-
-  router.post("/getCart", cartController.retrieveCartDetails);
-  router.post("/alterCart", cartController.alterCartDetails);
+  router.post(
+    "/alterCart",
+    verifyJWT,
+    verifyRoles("customer"),
+    cartController.alterCartDetails
+  );
 }

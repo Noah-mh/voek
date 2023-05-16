@@ -1,19 +1,15 @@
 import { useEffect, useState } from "react";
-// import { useNavigate, useLocation } from "react-router-dom";
-// import OtpInput from "react-otp-input";
 import axios from "../../api/axios";
 import useCustomer from "../../hooks/UseCustomer";
-// import { AdvancedImage } from "@cloudinary/react";
 import noImage from "../../img/product/No_Image_Available.jpg";
-// import "./OTP.css";
-// import useCustomer from "../../hooks/UseCustomer";
+import useAxiosPrivateCustomer from "../../hooks/UseAxiosPrivateCustomer";
 import "./UserCart.css";
 
-// { customer_id }: { customer_id: number }
 export default function cartPage(): JSX.Element {
-  // const customer_id = 2;
   const { customer } = useCustomer();
   const customer_id = customer.customer_id;
+
+  const axiosPrivateCustomer = useAxiosPrivateCustomer();
 
   interface userCart {
     customer_id: number;
@@ -32,37 +28,14 @@ export default function cartPage(): JSX.Element {
   }
   const [errMsg, setErrMsg] = useState<string>("");
   const [userCart, setUserCart] = useState<cartItem[]>([]);
-  //   const [customerId, setCustomerId] = useState<number>(2);
+  const [prodQuantity, setProdQuantity] = useState<number>(0);
+
   useEffect(() => {
     const getUserCart = async () => {
-      // try {
-      //   const response = await axios.post(
-      //     "/getCart",
-      //     JSON.stringify({ customer_id }),
-      //     {
-      //       headers: { "Content-Type": "application/json" },
-      //       //   withCredentials: true,
-      //     }
-      //   );
-      //   // const userCart: userCart = {
-      //   //   customer_id: customer_id,
-      //   //   role: "customer",
-      //   //   cartItems: response.data,
-      //   // };
-      //   setUserCart(response.data);
-      //   console.log(userCart);
-      // } catch (err: any) {
-      //   if (!err?.response) {
-      //     setErrMsg("No Server Response");
-      //     console.log("no resp");
-      //   } else {
-      //     setErrMsg("Server Error");
-      //     console.log("server error");
-      //   }
-      // }
-      return axios
+      return axiosPrivateCustomer
         .post("/getCart", JSON.stringify({ customer_id }), {
           headers: { "Content-Type": "application/json" },
+          withCredentials: true,
         })
         .then((response) => {
           setUserCart(response.data);
@@ -80,6 +53,40 @@ export default function cartPage(): JSX.Element {
     };
     getUserCart();
   }, []);
+  const handleQuantityChange = (item: cartItem, newQuantity: number) => {
+    const updatedCart = userCart.map((cartItem) => {
+      if (cartItem.product_id === item.product_id) {
+        return {
+          ...cartItem,
+          quantity: Math.max(0, Math.min(newQuantity, cartItem.stock)),
+        };
+      }
+      return cartItem;
+    });
+
+    setUserCart(updatedCart);
+  };
+  useEffect(() => {
+    axiosPrivateCustomer
+      .post("/alterCart", JSON.stringify({ customer_id }), {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true,
+      })
+      .then((response) => {
+        setUserCart(response.data);
+        console.log(userCart);
+      })
+      .catch((err) => {
+        if (!err?.response) {
+          setErrMsg("No Server Response");
+          console.log("no resp");
+        } else {
+          setErrMsg("Server Error");
+          console.log("server error");
+        }
+      });
+  }, [userCart]);
+
   return (
     <div className="container flex">
       <div className="w-2/3 bg-white rounded-lg shadow-lg p-2">
@@ -92,6 +99,7 @@ export default function cartPage(): JSX.Element {
         </div>
 
         {userCart.map((item: cartItem) => (
+
           <div className="grid grid-cols-6 gap-4 py-4" key={item.product_id}>
             <div className="col-span-2 sm:col-span-1">
               <img src={noImage} className="productImage" />
@@ -105,16 +113,27 @@ export default function cartPage(): JSX.Element {
               <div>{item.variation_2 ? item.variation_2 : null}</div>
             </div>
             <div className="col-span-4 sm:col-span-1">
-              <button className="text-sm border px-2 py-1 mx-2">-</button>
+              <button
+                className="text-sm border px-2 py-1 mx-2"
+                onClick={() => handleQuantityChange(item, - 1)}
+                disabled={item.quantity <= 0}
+              >
+                -
+              </button>
               {item.quantity}
-              <button className="text-sm border  px-2 py-1 mx-2"> + </button>
+              <button
+                className="text-sm border  px-2 py-1 mx-2"
+                onClick={() => handleQuantityChange(item, item.quantity + 1)}
+                disabled={item.quantity >= item.stock}
+              >
+                {" "}
+                +{" "}
+              </button>
             </div>
           </div>
         ))}
       </div>
-      <div className="right w-1/3 bg-softerPurple">
-        
-      </div>
+      <div className="right w-1/3 bg-softerPurple"></div>
     </div>
   );
 }
