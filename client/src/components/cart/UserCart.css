@@ -1,3 +1,7 @@
 img {
   border-radius: 0;
 }
+
+.prodCont:hover {
+  background-color: #f5f5f5;
+}

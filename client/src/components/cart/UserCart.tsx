@@ -3,7 +3,9 @@ import axios from "../../api/axios";
 import useCustomer from "../../hooks/UseCustomer";
 import noImage from "../../img/product/No_Image_Available.jpg";
 import useAxiosPrivateCustomer from "../../hooks/UseAxiosPrivateCustomer";
+import ConfirmModal from "./ConfirmModal";
 import "./UserCart.css";
+import { Link } from "react-router-dom";
 
 export default function cartPage(): JSX.Element {
   const { customer } = useCustomer();
@@ -27,37 +29,33 @@ export default function cartPage(): JSX.Element {
     variation_2: string;
     stock: number;
   }
+
   const [errMsg, setErrMsg] = useState<string>("");
   const [userCart, setUserCart] = useState<cartItem[]>([]);
   const [prodQuantity, setProdQuantity] = useState<number>(0);
   const [changedSKU, setChangedSKU] = useState<string>("");
-  const [changedProdID, setChangedProdID] = useState<number>(0);
   const [changedQuantState, setChangedQuantState] = useState<boolean>(false);
-  const [changedSKUtate, setChangedSKUState] = useState<boolean>(false);
 
-  useEffect(() => {
-    const getUserCart = async () => {
-      return axiosPrivateCustomer
-        .post("/getCart", JSON.stringify({ customer_id }), {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        })
-        .then((response) => {
-          setUserCart(response.data);
-        })
-        .catch((err) => {
-          if (!err?.response) {
-            setErrMsg("No Server Response");
-            console.log("no resp");
-          } else {
-            setErrMsg("Server Error");
-            console.log("server error");
-          }
-        });
-    };
-    getUserCart();
-    console.log(userCart[1].stock);
-  }, []);
+  const getUserCart = async () => {
+    return axiosPrivateCustomer
+      .post("/getCart", JSON.stringify({ customer_id }), {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true,
+      })
+      .then((response) => {
+        setUserCart(response.data);
+      })
+      .catch((err) => {
+        if (!err?.response) {
+          setErrMsg("No Server Response");
+          console.log("no resp");
+        } else {
+          setErrMsg("Server Error");
+          console.log("server error");
+        }
+      });
+  };
+
   const handleQuantityChange = (item: cartItem, change: number) => {
     const updatedCart = userCart.map((cartItem) => {
       if (cartItem.product_id === item.product_id) {
@@ -65,19 +63,29 @@ export default function cartPage(): JSX.Element {
           ...cartItem,
           quantity: cartItem.quantity + change,
         };
-        setChangedSKU(newItem.sku);
-        setChangedQuantState(true);
-        setChangedSKUState(false);
-        setProdQuantity(newItem.quantity);
+        if (newItem.quantity != 0) {
+          setChangedSKU(newItem.sku);
+          setChangedQuantState(true);
+          setProdQuantity(newItem.quantity);
+        }
         return newItem;
       }
-
       return cartItem;
     });
-
     setUserCart(updatedCart);
   };
 
+  // page onload
+  useEffect(() => {
+    getUserCart();
+  }, []);
+
+  // page onload
+  useEffect(() => {
+    getUserCart();
+  }, []);
+
+  //when cartQuant state changes
   useEffect(() => {
     if (changedQuantState === false) return;
 
@@ -108,6 +116,7 @@ export default function cartPage(): JSX.Element {
       })
       .finally(() => {
         setChangedQuantState(false);
+        getUserCart();
       });
   }, [changedQuantState]);
 
@@ -117,24 +126,28 @@ export default function cartPage(): JSX.Element {
         <div className="grid grid-cols-5 gap-2">
           <div className="col-span-2 sm:col-span-1"></div>
           <div className="col-span-2 sm:col-span-1">Name</div>
-          <div className="col-span-2 sm:col-span-1">Price</div>
           <div className="col-span-2 sm:col-span-1">Variations</div>
+          <div className="col-span-2 sm:col-span-1">Price</div>
           <div className="col-span-3 sm:col-span-1">Quantity</div>
         </div>
 
         {userCart.map((item: cartItem) => (
-          <div className="grid grid-cols-5 gap-4 py-4" key={item.product_id}>
+          <Link
+            to={"/productDetails/" + item.product_id}
+            className="grid grid-cols-5 gap-4 py-4 prodCont"
+            key={item.sku}
+          >
             <div className="col-span-2 sm:col-span-1">
               <img src={noImage} className="productImage" />
             </div>
             <div className="col-span-2 sm:col-span-1">{item.name}</div>
-            <div className="col-span-2 sm:col-span-1">${item.price}</div>
             <div className="col-span-2 sm:flex-row sm:col-span-1">
               <div className="mr-4">
                 {item.variation_1 ? item.variation_1 : "-"}
               </div>
               <div>{item.variation_2 ? item.variation_2 : "-"}</div>
             </div>
+            <div className="col-span-2 sm:col-span-1">${item.price}</div>
             <div className="col-span-3 sm:col-span-1">
               <button
                 className="text-sm border px-2 py-1 mx-2"
@@ -153,7 +166,7 @@ export default function cartPage(): JSX.Element {
                 +{" "}
               </button>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
       <div className="right w-1/3 bg-softerPurple"></div>
