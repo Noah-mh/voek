@@ -1,9 +1,8 @@
-import { useState } from "react";
 import loginPhoto from "../../img/login/loginVec.png";
 import "./signupBanner.css";
-import Signup from "./Signup.js";
+import SignupCustomer from "./SignupCustomer.js";
 
-const LoginBanner = () => {  
+const SignupBannerCustomer = () => {  
   return (
     <div className="containerZ main w-screen h-screen flex">
       <div className="cardZ bg-white flex w-2/3 h-3/5 justify-between mx-auto my-20 rounded-md overflow-hidden">
@@ -13,11 +12,11 @@ const LoginBanner = () => {
             Explore a new world with VOEK.
           </h1>
         </div>
-        <Signup />
+        <SignupCustomer />
       </div>
     </div>
   );
 };
 
-export default LoginBanner;
+export default SignupBannerCustomer;
 

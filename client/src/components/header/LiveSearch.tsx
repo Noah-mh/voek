@@ -1,5 +1,9 @@
 import { FormEvent, ChangeEvent, FC, useState } from "react";
 import ListPage from "./ListPage";
+import { Link } from "react-router-dom";
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 
 interface LiveSearchProps {
   results: any[];
@@ -12,6 +16,8 @@ const LiveSearch: FC<LiveSearchProps> = ({
   setSearchResults,
   searchResults,
 }) => {
+  const [userInput, setUserInput] = useState<string>("");
+  let link = `/searchResults/${userInput}`;
   const [focus, setFocus] = useState(false);
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -27,6 +33,9 @@ const LiveSearch: FC<LiveSearchProps> = ({
     const resultsArray = results.filter((result) =>
       result.name.toLowerCase().includes(serachValue)
     );
+    setUserInput(e.target.value);
+    link = `/searchResults/${userInput}`;
+    console.log("link", link);
 
     console.log("resultsArray", resultsArray);
     setSearchResults(resultsArray);
@@ -47,6 +56,18 @@ const LiveSearch: FC<LiveSearchProps> = ({
             setFocus(false);
           }}
         />
+        <Link to={link}>
+          <button
+            type="submit"
+            className="text-white absolute right-2.5 bottom-5 bg-transparent hover:bg-transparent hover:cursor-pointer4 focus:ring-1 focus:outline-none focus:ring-softerPurple font-medium rounded-lg text-sm px-4 py-2"
+          >
+            <FontAwesomeIcon
+              icon={faMagnifyingGlass}
+              size="2xl"
+              style={{ color: "#310d20" }}
+            />
+          </button>
+        </Link>
       </form>
       {focus ? (
         <div className="absolute mt-20 w-1/3 p-2 bg-white shadow-lg rounded-bl rounded-br max-h-56 overflow-y-auto">

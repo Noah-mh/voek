@@ -41,8 +41,16 @@ export default function (app: Express, router: Router) {
   router.post("/seller/auth/verify/OTP", sellerController.processVerifyOTP);
   router.post("/seller/signup/link", sellerController.processSendEmailLink);
   router.post("/seller/signup/verify/link", sellerController.processSignUpLink);
-  router.get("/refresh/seller", authController.processRefreshTokenCustomer);
-  // router.post('/seller/forget/password', sellerController.processForgetPassword);
+  router.get("/refresh/seller", authController.processRefreshSeller);
+  router.post(
+    "/seller/forget/password",
+    sellerController.processForgetPassword
+  );
+  router.post(
+    "/seller/verify/reset/password",
+    sellerController.processForgetPasswordLink
+  );
+  router.post("/seller/reset/password", sellerController.processResetPassword);
 
   // NOAH ENDPOINTS - reviews
   router.get(
@@ -80,7 +88,7 @@ export default function (app: Express, router: Router) {
     "/searchBarPredictions",
     productController.getSearchBarPredictions
   );
-  router.get("/searchResult", productController.getSearchResult);
+  router.post("/searchResult", productController.getSearchResult);
   router.get(
     "/productsBasedOnCategory",
     productController.getProductsBasedOnCategory

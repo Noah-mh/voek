@@ -1,10 +1,9 @@
-import "./VerifySignupCustomer.css"
 import '../LoginBanner/OTP.css';
 import axios from '../../api/axios.js'
 import { useEffect, useState } from "react";
 
 
-const Signup = (): JSX.Element => {
+const SignupCustomer = (): JSX.Element => {
 
   const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -24,7 +23,7 @@ const Signup = (): JSX.Element => {
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const result = await axios.post("/customer/signup/link", JSON.stringify({ username, email, phone_number: phoneNumber, password }), {
+       await axios.post("/customer/signup/link", JSON.stringify({ username, email, phone_number: phoneNumber, password }), {
         headers: { 'Content-Type': 'application/json' },
         withCredentials: true
       });
@@ -98,4 +97,4 @@ const Signup = (): JSX.Element => {
     </div>
   );
 };
-export default Signup;
+export default SignupCustomer;

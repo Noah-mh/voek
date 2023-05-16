@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import loginPhoto from "../../img/login/loginVec.png";
 import axios from '../../api/axios';
 
-const ForgetPasswordCustomer = () => {
+const ForgetPasswordSeller = () => {
 
     const [disabled, setDisabled] = useState<boolean>(true);
     const [email, setEmail] = useState<string>("");
@@ -21,7 +21,7 @@ const ForgetPasswordCustomer = () => {
     const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
-            await axios.post('/customer/forget/password', JSON.stringify({ email }), {
+            await axios.post('/seller/forget/password', JSON.stringify({ email }), {
                 headers: { 'Content-Type': 'application/json' },
                 withCredentials: true
             })
@@ -59,4 +59,4 @@ const ForgetPasswordCustomer = () => {
     )
 }
 
-export default ForgetPasswordCustomer
+export default ForgetPasswordSeller

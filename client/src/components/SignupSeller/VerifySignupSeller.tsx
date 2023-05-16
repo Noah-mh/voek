@@ -1,9 +1,9 @@
 import { useEffect } from "react";
-import "./VerifySignupCustomer.css"
+import "./VerifySignupSeller.css"
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import axios from '../../api/axios.js';
 
-const VerifySignupCustomer = () => {
+const VerifySignupSeller = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
@@ -12,7 +12,7 @@ const VerifySignupCustomer = () => {
     useEffect(() => {
         const checkSignUpToken = async () => {
             try {
-                 await axios.post('/customer/signup/verify/link', JSON.stringify({ signUpToken: signupToken }), {
+                 await axios.post('/seller/signup/verify/link', JSON.stringify({ signUpToken: signupToken }), {
                     headers: { 'Content-Type': 'application/json' },
                     withCredentials: true
                 });
@@ -26,9 +26,9 @@ const VerifySignupCustomer = () => {
 
     return (
         <div>
-            <Link to="/login">Login</Link>
+            <Link to="/seller/login">Login</Link>
         </div>
     )
 }
 
-export default VerifySignupCustomer
+export default VerifySignupSeller

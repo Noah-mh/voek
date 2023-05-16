@@ -3,24 +3,25 @@ import { useNavigate, useLocation } from "react-router-dom";
 import OtpInput from "react-otp-input";
 import axios from "../../api/axios.js";
 import "./OTP.css";
-import useCustomer from "../../hooks/UseCustomer.js";
+import useSeller from "../../hooks/useSeller.js";
 interface props {
   userDetails: object;
 }
 
 export default function OTP({ userDetails }: props): JSX.Element {
-  const { setCustomer } = useCustomer();
+  const { setSeller } = useSeller();
 
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
 
-  const { customer_id, username, phone_number, email } = userDetails as {
-    customer_id: number;
-    username: string;
+  const { seller_id, shopeName, phone_number, email } = userDetails as {
+    seller_id: number;
+    shopeName: string;
     phone_number: number;
     email: string;
   };
+
 
   const [otp, setOtp] = useState("");
   const [disabled, setDisabled] = useState<boolean>(true);
@@ -36,8 +37,8 @@ export default function OTP({ userDetails }: props): JSX.Element {
     e.preventDefault();
     try {
        await axios.post(
-        "/customer/auth/email/OTP",
-        JSON.stringify({ customer_id, email }),
+        "/seller/auth/email/OTP",
+        JSON.stringify({ seller_id, email }),
         {
           headers: { "Content-Type": "application/json" },
           withCredentials: true,
@@ -58,16 +59,16 @@ export default function OTP({ userDetails }: props): JSX.Element {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "/customer/auth/verify/OTP",
-        JSON.stringify({ customer_id, OTP: otp }),
+        "/seller/auth/verify/OTP",
+        JSON.stringify({ seller_id, OTP: otp }),
         {
           headers: { "Content-Type": "application/json" },
           withCredentials: true,
         }
       );
       const { accessToken } = response.data;
-      setCustomer({ customer_id, username, accessToken, cart: [] });
-      navigate(from);
+      setSeller({ seller_id, shopeName, accessToken });
+      navigate('/seller/home');
     } catch (err: any) {
       if (!err?.response) {
         setErrMsg("No Server Response");
@@ -83,8 +84,8 @@ export default function OTP({ userDetails }: props): JSX.Element {
     e.preventDefault();
     try {
        await axios.post(
-        "/customer/auth/SMS/OTP",
-        JSON.stringify({ phoneNumber: phone_number, customer_id }),
+        "/seller/auth/SMS/OTP",
+        JSON.stringify({ phoneNumber: phone_number, seller_id }),
         {
           headers: { "Content-Type": "application/json" },
           withCredentials: true,

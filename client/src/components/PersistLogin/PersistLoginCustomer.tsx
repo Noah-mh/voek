@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
-import useCustomer from '../../hooks/useCustomer';
 import useRefreshTokenCustomer from '../../hooks/useRefreshTokenCustomer';
-
+import useCustomer from '../../hooks/UseCustomer';
 
 const PersistLoginCustomer = () => {
 
@@ -14,7 +13,7 @@ const PersistLoginCustomer = () => {
     let isMounted = true;
     const verifyRefreshToken = async () => {
       try {
-        const response = await refresh();
+       await refresh();
       } catch (err) {
         console.log(err);
       } finally {

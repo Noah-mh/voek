@@ -19,7 +19,7 @@ const RequireAuthSeller = () => {
             ? <Outlet />
             : seller?.accessToken
                 ? <Navigate to='unauthorized' state={{ from: location }} replace />
-                : <Navigate to='/login' state={{ from: location }} replace />
+                : <Navigate to='/seller/login' state={{ from: location }} replace />
     )
 }
 
