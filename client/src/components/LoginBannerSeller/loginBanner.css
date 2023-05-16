@@ -1,0 +1,32 @@
+.containerZ {
+  background-image: linear-gradient(to right, #310d20, #ffb696);
+}
+.cardZ {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(5.1px);
+}
+
+.left {
+  background-image: url("../../img/login/loginBG.jpg");
+  background-position: 1%;
+}
+.left h1 {
+  font-family: "Barlow", sans-serif;
+  font-weight: lighter;
+}
+
+.left img {
+  filter: drop-shadow(5px 5px 5px rgba(0, 0, 0, 0.3));
+}
+
+.right h1 {
+  font-size: 1.6em;
+  color: white;
+  letter-spacing: 1px;
+  font-family: Arial;
+}
+.right {
+  filter: drop-shadow(5px 5px 5px rgba(0, 0, 0, 0.3));
+}
