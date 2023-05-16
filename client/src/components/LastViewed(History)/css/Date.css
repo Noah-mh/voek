@@ -28,3 +28,7 @@
   font-weight: bold;
   font-size: 24px;
 }
+
+.dateCardStlyeSelected {
+  background-color: #6146c6 !important;
+}
