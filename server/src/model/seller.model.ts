@@ -181,12 +181,12 @@ export const handleSendEmailLink = async (
 export const handleSignUp = async (shopName: string, password: string, email: string, phoneNumber: number) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `UPDATE seller SET shope_name = ?, password = ?, phone_number = ?, date_created = NULL WHERE email = ? AND active = 0`;
+  const sql = `UPDATE seller SET shop_name = ?, password = ?, phone_number = ?, date_created = NULL WHERE email = ? AND active = 0`;
   try {
     const encryptedPassword = await bcrypt.hash(password, 10)
     const result = await connection.query(sql, [shopName, encryptedPassword, phoneNumber, email]);
     if ((result[0] as any).affectedRows as number === 0) {
-      const sql2 = `INSERT INTO seller (shope_name, password, email, phone_number, date_created) VALUES (?, ?, ?, ?, NULL)`;
+      const sql2 = `INSERT INTO seller (shop_name, password, email, phone_number, date_created) VALUES (?, ?, ?, ?, NULL)`;
       const result2 = await connection.query(sql2, [shopName, encryptedPassword, email, phoneNumber]);
       return (result2[0] as any).insertId as number
     } else {
@@ -211,7 +211,7 @@ export const handleActiveAccount = async (seller_id: string): Promise<number> =>
   const sql = `UPDATE seller SET active = 1 WHERE seller_id = ?`;
   try {
     const result = await connection.query(sql, [seller_id]);
-    const sql2 = `UPDATE seller SET date_created = utc_timestamp()()`;
+    const sql2 = `UPDATE seller SET date_created = utc_timestamp()`;
     const result2 = await connection.query(sql2, null);
     const sql3 = `INSERT INTO seller_otp (seller_id) VALUES (?)`;
     const result3 = await connection.query(sql3, [seller_id]);

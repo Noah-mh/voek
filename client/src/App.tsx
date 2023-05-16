@@ -3,11 +3,13 @@ import { Route, Routes } from "react-router-dom";
 import Missing from "./components/Missing/Missing";
 import LoginBannerSeller from "./components/LoginBannerSeller/LoginBannerSeller.js";
 import LoginBanner from "./components/LoginBanner/LoginBanner.js";
-import SignupBanner from "./components/SignupBannerCustomer/SignupBanner.js";
+import SignupBannerCustomer from "./components/SignupBannerCustomer/SignupBannerCustomer.js";
 import Layout from "./components/Layout/Layout";
 import Homepage from "./components/Homepage/Homepage.js";
 import RequireAuthCustomer from "./components/RequireAuth/RequireAuthCustomer";
 import CartPage from "./components/Cart/UserCart.js";
+import VerifySignupSeller from "./components/SignupSeller/VerifySignupSeller.js";
+import SignupBannerSeller from "./components/SignupSeller/SignupBannerSeller.js";
 import ResetPasswordSeller from "./components/ResetPasswordSeller/ResetPasswordSeller.js";
 import PersistLoginCustomer from "./components/PersistLogin/PersistLoginCustomer";
 import PersistLoginSeller from "./components/PersistLogin/PersistLoginSeller.js";
@@ -38,7 +40,7 @@ function App() {
 
           <Route path="/" element={<Homepage />} />
           <Route path="login" element={<LoginBanner />} />
-          <Route path="signup" element={<SignupBanner />} />
+          <Route path="signup" element={<SignupBannerCustomer />} />
           <Route
             path="productDetailsWithReviews/:product_id"
             element={<ProductDetailWithReview />}
@@ -66,14 +68,14 @@ function App() {
       {/* Seller Routes */}
       <Route path="/" element={<LayoutSeller />}>
 
-        {/* <Route path="seller/signup/verify" element={<VerifySignupSeller />} /> */}
+        <Route path="seller/signup/verify" element={<VerifySignupSeller />} />
         <Route path="seller/forgetPassword/verify" element={<ResetPasswordSeller />} />
         <Route path="seller/forgetPassword" element={<ForgetPasswordSeller />} />
 
         {/* Protected Routes for seller only*/}
         <Route element={<PersistLoginSeller />}>
           <Route path="seller/login" element={<LoginBannerSeller />} />
-          <Route path="seller/signup" element={<SignupBanner />} />
+          <Route path="seller/signup" element={<SignupBannerSeller />} />
           <Route element={<RequireAuthSeller />}>
             <Route path="seller/home" element={<HomepageSeller />} />
 
