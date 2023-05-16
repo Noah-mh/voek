@@ -24,6 +24,7 @@ import ResetPasswordCustomer from "./components/ResetPasswordCustomer/ResetPassw
 import ForgetPasswordSeller from "./components/ForgetPasswordSeller/ForgetPasswordSeller.js";
 import HomepageSeller from "./components/HomepageSeller/HomepageSeller.js";
 import ViewMyOrders from "./components/ViewMyOrders/ViewMyOrders.js";
+import LastViewed from "./components/LastViewed(History)/LastViewed.js";
 
 function App() {
   return (
@@ -49,6 +50,15 @@ function App() {
           />
           <Route path="searchResults/:userInput" element={<SearchResults />} />
           <Route path="customer/cart" element={<CartPage />} />
+          <Route
+            path="productDetailsWithReviews/:product_id"
+            element={<ProductDetailWithReview />}
+          />
+          <Route
+            path="productDetailsWithReviews/:product_id"
+            element={<ProductDetailWithReview />}
+          />
+          <Route path="lastViewed" element={<LastViewed />} />
 
           <Route element={<RequireAuthCustomer />}>
             {/* Prtoected Routes with persist login */}
