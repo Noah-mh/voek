@@ -19,16 +19,18 @@ export default function (app: Express, router: Router) {
   router.post('/customer/forget/password', customerController.processForgetPassword);
   router.post('/customer/verify/reset/password', customerController.processForgetPasswordLink);
   router.post('/customer/reset/password', customerController.processResetPassword);
-  
+
   router.post('/login/seller', sellerController.processLogin);
   router.post('/seller/auth/SMS/OTP', sellerController.processSendSMSOTP);
   router.post('/seller/auth/email/OTP', sellerController.processSendEmailOTP);
   router.post('/seller/auth/verify/OTP', sellerController.processVerifyOTP);
   router.post('/seller/signup/link', sellerController.processSendEmailLink);
   router.post('/seller/signup/verify/link', sellerController.processSignUpLink);
-  router.get('/refresh/seller', authController.processRefreshTokenCustomer);
-  // router.post('/seller/forget/password', sellerController.processForgetPassword);
- 
+  router.get('/refresh/seller', authController.processRefreshSeller);
+  router.post('/seller/forget/password', sellerController.processForgetPassword);
+  router.post('/seller/verify/reset/password', sellerController.processForgetPasswordLink);
+  router.post('/seller/reset/password', sellerController.processResetPassword);
+
 
   // NOAH ENDPOINTS - reviews
   router.get(
