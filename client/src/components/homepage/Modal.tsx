@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Backdrop from "./Backdrop";
-import Loader from "./Loader";
+import Loader from "../Loader/Loader";
 import "./css/Modal.css";
 
 import axios from "../../api/axios";
