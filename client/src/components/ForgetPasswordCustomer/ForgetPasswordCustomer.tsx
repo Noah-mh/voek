@@ -21,7 +21,7 @@ const ForgetPasswordCustomer = () => {
     const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
-            const result = await axios.post('/customer/forget/password', JSON.stringify({ email }), {
+            await axios.post('/customer/forget/password', JSON.stringify({ email }), {
                 headers: { 'Content-Type': 'application/json' },
                 withCredentials: true
             })

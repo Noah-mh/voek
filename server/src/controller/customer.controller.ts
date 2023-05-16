@@ -95,7 +95,6 @@ export const processSendEmailLink = async (req: Request, res: Response, next: Ne
         if (result === 1062) {
             return res.sendStatus(409);
         }
-        console.log(result)
         const signUpToken = jwt.sign({ customer_id: result },
             config.signUpCustomerTokenSecret!,
             { expiresIn: '300s' }
@@ -164,7 +163,7 @@ export const processForgetPassword = async (req: Request, res: Response, next: N
         const { email } = req.body;
         if (!email) return res.sendStatus(400);
         const result: any = await customerModel.handleForgetPassword(email);
-        if (result) {
+        if (result.length) {
             const forgetPasswordToken = jwt.sign({ customer_id: result[0].customer_id },
                 config.forgetPasswordCustomerTokenSecret!,
                 { expiresIn: '300s' }
@@ -194,7 +193,6 @@ export const processForgetPasswordLink = async (req: Request, res: Response, nex
 export const processResetPassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { password, customer_id } = req.body;
-        console.log(password, customer_id)
         if (!password || !customer_id) return res.sendStatus(400);
         const result = await customerModel.handleResetPassword(password, customer_id);
         return res.sendStatus(200);

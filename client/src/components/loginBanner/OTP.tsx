@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import OtpInput from "react-otp-input";
-import axios from "../../api/axios";
+import axios from "../../api/axios.js";
 import "./OTP.css";
 import useCustomer from "../../hooks/UseCustomer.js";
 interface props {
@@ -36,7 +36,8 @@ export default function OTP({ userDetails }: props): JSX.Element {
   const emailSentHandler = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     try {
-      const response = await axios.post("/customer/auth/email/OTP",
+       await axios.post(
+        "/customer/auth/email/OTP",
         JSON.stringify({ customer_id, email }),
         {
           headers: { 'Content-Type': 'application/json' },
@@ -79,7 +80,8 @@ export default function OTP({ userDetails }: props): JSX.Element {
   const smsSentHandler = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     try {
-      const response = await axios.post("/customer/auth/SMS/OTP",
+       await axios.post(
+        "/customer/auth/SMS/OTP",
         JSON.stringify({ phoneNumber: phone_number, customer_id }),
         {
           headers: { 'Content-Type': 'application/json' },
@@ -102,17 +104,19 @@ export default function OTP({ userDetails }: props): JSX.Element {
         <h1 className="text-center font-bold text-3xl">Enter OTP</h1>
         <div className="text-center mb-3  ">
           Receive OTP through{" "}
+
           <span
             onClick={emailSentHandler}
-            className="underline text-white"
+            className="underline text-white hover:cursor-pointer"
           >
             Email
           </span>{" "}
           or{" "}
           <span
             onClick={smsSentHandler}
-            className="underline text-white"
+            className="underline text-white hover:cursor-pointer"
           >
+
             SMS
           </span>
         </div>

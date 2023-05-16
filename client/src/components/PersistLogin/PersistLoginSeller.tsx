@@ -13,7 +13,7 @@ const PersistLoginSeller = () => {
     let isMounted = true;
     const verifyRefreshToken = async () => {
       try {
-        const response = await refresh();
+         await refresh();
       } catch (err) {
         console.log(err);
       } finally {
