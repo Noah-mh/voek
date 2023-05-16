@@ -43,15 +43,15 @@ const ProductDetailWithReview: React.FC = () => {
             withCredentials: true,
         })
             .then((response) => {
-                console.log('Product Details:', response.data);
-                setProductData(response.data);
+                console.log('Product Details:', response.data.products);
+                setProductData(response.data.products);
                 return axios.get(`/productReviews/${product_id}`, {
                     headers: { "Content-Type": "application/json" },
                     withCredentials: true,
                 });
             })
             .then((response) => {
-                setProductReview(response.data);
+                setProductReview(response.data.reviews);
             })
             .then(() => {
                 setIsLoading(false);

@@ -184,7 +184,7 @@ export const getProductDetailsWithoutReviews = async (
         product_id
       );
     if (!response?.length) return res.sendStatus(404);
-    return res.json({ response });
+    return res.json({ products : response });
   } catch (err: any) {
     return next(err);
   }
@@ -201,7 +201,7 @@ export const getProductReviews = async (
     const response: Array<object> =
       await productModel.handleProductReviews(product_id);
     if (!response?.length) return res.sendStatus(404);
-    return res.json({ response });
+    return res.json({ reviews: response });
   } catch (err: any) {
     return next(err);
   }
