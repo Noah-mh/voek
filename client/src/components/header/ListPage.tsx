@@ -2,11 +2,12 @@ import Product from "./Product";
 
 interface ListPageProps {
   searchResults: Array<object>;
+  fnMouseClick?: () => void;
 }
 
-const ListPage = ({ searchResults }: ListPageProps) => {
+const ListPage = ({ searchResults, fnMouseClick }: ListPageProps) => {
   const results = searchResults.map((result: any) => {
-    return <Product result={result} />;
+    return <Product result={result} fnMouseClick={fnMouseClick} />;
   });
 
   const content = searchResults.length ? (

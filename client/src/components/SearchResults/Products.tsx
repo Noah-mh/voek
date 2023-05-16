@@ -28,7 +28,7 @@ const Products = ({ userInput }: ProductsProps) => {
         console.log(err);
         setStatus(false);
       });
-  }, []);
+  }, [userInput]);
 
   return (
     <div>
