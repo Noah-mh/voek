@@ -6,6 +6,7 @@ import * as productController from "./controller/product.controller";
 import * as authController from "./controller/auth.controller";
 import * as sellerController from "./controller/seller.controller";
 import * as cartController from "./controller/cart.controller";
+import * as orderController from "./controller/order.controller";
 
 export default function (app: Express, router: Router) {
   // KANG RUI ENDPOINTS - user management system
@@ -51,6 +52,7 @@ export default function (app: Express, router: Router) {
     sellerController.processForgetPasswordLink
   );
   router.post("/seller/reset/password", sellerController.processResetPassword);
+  router.get('/customer/orders/:customer_id', orderController.processHandleGetCustomerOrders)
 
   // NOAH ENDPOINTS - reviews
   router.get(
@@ -109,7 +111,7 @@ export default function (app: Express, router: Router) {
     "/checkWishlistProductExistence",
     productController.checkWishListProductExistence
   );
-  // router.get("/getAllListedProducts", productController.getAllListedProducts);
+  router.get("/getAllListedProducts", productController.getAllListedProducts);
 
   router.post(
     "/getCart",

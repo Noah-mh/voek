@@ -23,6 +23,7 @@ import ForgetPasswordCustomer from "./components/ForgetPasswordCustomer/ForgetPa
 import ResetPasswordCustomer from "./components/ResetPasswordCustomer/ResetPasswordCustomer.js";
 import ForgetPasswordSeller from "./components/ForgetPasswordSeller/ForgetPasswordSeller.js";
 import HomepageSeller from "./components/HomepageSeller/HomepageSeller.js";
+import ViewMyOrders from "./components/ViewMyOrders/ViewMyOrders.js";
 
 function App() {
   return (
@@ -62,6 +63,7 @@ function App() {
             <Route path="cart" element={<CartPage />} />
             <Route path="wishlist" element={<Wishlist />} />
             <Route path="customer/cart" element={<CartPage />} />
+            <Route path="orders" element={<ViewMyOrders />} />
           </Route>
         </Route>
       </Route>
