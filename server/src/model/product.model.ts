@@ -88,14 +88,14 @@ export const handlesGetLastViewed = async (
 ): Promise<Product[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `SELECT products.product_id, products.name, products.description
+  const sql = `SELECT products.product_id, products.name, products.description, products.price
   FROM last_viewed
   JOIN customer ON last_viewed.customer_id = customer.customer_id
   JOIN products ON last_viewed.product_id = products.product_id
-  WHERE last_viewed.customer_id = ? and last_viewed.date_viewed LIKE "2023-05-09%";`;
+  WHERE last_viewed.customer_id = ? and last_viewed.date_viewed LIKE ?;`;
   const params = [customer_id, `${date_viewed}%`];
   try {
-    const result = await connection.query(sql, [customer_id, date_viewed]);
+    const result = await connection.query(sql, params);
     console.log(result[0]);
     return result[0] as Product[];
   } catch (err: any) {

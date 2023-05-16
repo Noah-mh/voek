@@ -26,7 +26,7 @@ const Calendar: React.FC<CalendarProps> = ({ onSelectDate, selected }) => {
 
   const getDates = () => {
     let _dates: string[] = [];
-    for (let i = 6; i >= 0; i--) {
+    for (let i = 30; i >= 0; i--) {
       const date = moment()
         .add(i * -1, "days")
         .format("YYYY-MM-DD");
@@ -49,15 +49,15 @@ const Calendar: React.FC<CalendarProps> = ({ onSelectDate, selected }) => {
     <>
       <div className="calendarCentered">
         <motion.h2
-          className=".calendarTitle"
+          className="calendarTitle"
           animate={{ rotate: [0, 20, 20, 0] }}
-          transition={{ type: "tween", duration: 2 }}
+          transition={{ type: "tween", duration: 1 }}
         >
           {currentMonth}
         </motion.h2>
       </div>
-      <div className=".calendarDateSection">
-        <div className="calendarScroll">
+      <div className="calendarDateSection">
+        <div className="calendarScroll scroll-smooth">
           {dates.map((date, index) => (
             <DateComponent
               key={index}
@@ -70,7 +70,7 @@ const Calendar: React.FC<CalendarProps> = ({ onSelectDate, selected }) => {
         </div>
       </div>
 
-      <div className="flex justify-center items-center">
+      {/* <div className="flex justify-center items-center">
         <FontAwesomeIcon
           icon={faArrowDown}
           beat
@@ -83,7 +83,7 @@ const Calendar: React.FC<CalendarProps> = ({ onSelectDate, selected }) => {
         />
       </div>
 
-      {/* {openDropDownCalendar && (
+      {openDropDownCalendar && (
         <>
           <div className="flex flex-col justify-center items-center dropDownCalendar mt-1">
             <div className="dropDownCalendarSquare"></div>

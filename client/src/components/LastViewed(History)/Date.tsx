@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import moment from "moment";
 import "./css/Date.css";
 
@@ -30,7 +30,7 @@ export const Date: React.FC<DateProps> = ({
 
   return (
     <motion.div
-      className="dateCardStyle hover:cursor-pointer"
+      className="dateCardStyle hover:cursor-pointer focus:bg-softerPurple"
       animate={{ rotate: [0, 3, 0] }}
       whileHover={{
         scale: 1.2,
@@ -39,7 +39,6 @@ export const Date: React.FC<DateProps> = ({
       whileTap={{ scale: 0.9 }}
       onClick={() => {
         onSelectDate(fullDate);
-        console.log("selected: ", selected);
       }}
     >
       <div className="dateBigStyle">{day}</div>

@@ -58,13 +58,14 @@ export const getLastViewed = async (
   next: NextFunction
 ) => {
   try {
-    const { customer_id, date_viewed } = req.body;
+    const { customerId, dateViewed } = req.body;
     const response: Array<object> = await productModel.handlesGetLastViewed(
-      customer_id,
-      date_viewed
+      customerId,
+      dateViewed
     );
-    if (!response?.length) return res.sendStatus(404);
-    return res.sendStatus(200);
+    // if (!response?.length) return res.sendStatus(404);
+    // return res.sendStatus(200);
+    return res.send(response);
   } catch (err: any) {
     return next(err);
   }
