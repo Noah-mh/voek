@@ -31,7 +31,9 @@ export interface CartItemUpdate {
   product_id?: number;
 }
 
-export const handlesGetCartDetails = async (customerId: number): Promise<CartItem[]> => {
+export const handlesGetCartDetails = async (
+  customerId: number
+): Promise<CartItem[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   console.log(customerId);
