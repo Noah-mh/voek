@@ -15,7 +15,7 @@ import PersistLoginCustomer from "./components/PersistLogin/PersistLoginCustomer
 import PersistLoginSeller from "./components/PersistLogin/PersistLoginSeller.js";
 import RequireAuthSeller from "./components/RequireAuth/RequireAuthSeller.js";
 import VerifySignupCustomer from "./components/SignupBannerCustomer/VerifySignupCustomer.js";
-import LayoutSeller from "./components/Layout/LayouSeller.js";
+import LayoutSeller from "./components/Layout/LayoutSeller.js";
 import Wishlist from "./components/Wishlist/Wishlist.js";
 import ProductDetailWithReview from "./components/Product/ProductDetailsWithReviews.js";
 import SearchResults from "./components/SearchResults/SearchResults.js";
@@ -23,6 +23,9 @@ import ForgetPasswordCustomer from "./components/ForgetPasswordCustomer/ForgetPa
 import ResetPasswordCustomer from "./components/ResetPasswordCustomer/ResetPasswordCustomer.js";
 import ForgetPasswordSeller from "./components/ForgetPasswordSeller/ForgetPasswordSeller.js";
 import HomepageSeller from "./components/HomepageSeller/HomepageSeller.js";
+import ManageProducts from "./components/SellerSidebar/ManageProducts.js";
+import AddProduct from "./components/SellerSidebar/AddProduct.js";
+import ManageOrders from "./components/SellerSidebar/ManageOrders.js";
 
 function App() {
   return (
@@ -84,6 +87,9 @@ function App() {
           <Route path="seller/signup" element={<SignupBannerSeller />} />
           <Route element={<RequireAuthSeller />}>
             <Route path="seller/home" element={<HomepageSeller />} />
+            <Route path="seller/manageProducts" element={<ManageProducts />} />
+            <Route path="seller/addProduct" element={<AddProduct />} />
+            <Route path="seller/manageOrders" element={<ManageOrders />} />
           </Route>
         </Route>
       </Route>
