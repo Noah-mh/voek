@@ -2,8 +2,8 @@ import React from 'react';
 import { AdvancedImage } from '@cloudinary/react';
 import { Carousel } from 'react-responsive-carousel';
 import "react-responsive-carousel/lib/styles/carousel.min.css";
-import { Product, ProductVariation, Review, Customer } from './ProductDetailsWithReviews'; // make sure the path is correct
-import { cld } from '../../cloudinary';
+import { Product, ProductVariation, Review, Customer } from './ProductDetailsWithReviews'; 
+import {cld} from "../../Cloudinary/Cloudinary";
 
 interface ProductDetailProps {
     productData: Product[];
