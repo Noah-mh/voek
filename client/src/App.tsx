@@ -28,11 +28,12 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
-
         <Route path="signup/verify" element={<VerifySignupCustomer />} />
-        <Route path="forgetPassword/verify" element={<ResetPasswordCustomer />} />
+        <Route
+          path="forgetPassword/verify"
+          element={<ResetPasswordCustomer />}
+        />
         <Route path="forgetPassword" element={<ForgetPasswordCustomer />} />
-
 
         {/* Customer Routes */}
         <Route element={<PersistLoginCustomer />}>
@@ -67,10 +68,15 @@ function App() {
 
       {/* Seller Routes */}
       <Route path="/" element={<LayoutSeller />}>
-
         <Route path="seller/signup/verify" element={<VerifySignupSeller />} />
-        <Route path="seller/forgetPassword/verify" element={<ResetPasswordSeller />} />
-        <Route path="seller/forgetPassword" element={<ForgetPasswordSeller />} />
+        <Route
+          path="seller/forgetPassword/verify"
+          element={<ResetPasswordSeller />}
+        />
+        <Route
+          path="seller/forgetPassword"
+          element={<ForgetPasswordSeller />}
+        />
 
         {/* Protected Routes for seller only*/}
         <Route element={<PersistLoginSeller />}>
@@ -78,7 +84,6 @@ function App() {
           <Route path="seller/signup" element={<SignupBannerSeller />} />
           <Route element={<RequireAuthSeller />}>
             <Route path="seller/home" element={<HomepageSeller />} />
-
           </Route>
         </Route>
       </Route>
