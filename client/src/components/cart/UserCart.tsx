@@ -17,6 +17,7 @@ export default function cartPage(): JSX.Element {
     cartItems: Array<cartItem>;
   }
   interface cartItem {
+    sku: string;
     product_id: number;
     name: string;
     quantity: number;
@@ -29,6 +30,10 @@ export default function cartPage(): JSX.Element {
   const [errMsg, setErrMsg] = useState<string>("");
   const [userCart, setUserCart] = useState<cartItem[]>([]);
   const [prodQuantity, setProdQuantity] = useState<number>(0);
+  const [changedSKU, setChangedSKU] = useState<string>("");
+  const [changedProdID, setChangedProdID] = useState<number>(0);
+  const [changedQuantState, setChangedQuantState] = useState<boolean>(false);
+  const [changedSKUtate, setChangedSKUState] = useState<boolean>(false);
 
   useEffect(() => {
     const getUserCart = async () => {
@@ -39,7 +44,6 @@ export default function cartPage(): JSX.Element {
         })
         .then((response) => {
           setUserCart(response.data);
-          console.log(userCart);
         })
         .catch((err) => {
           if (!err?.response) {
@@ -52,29 +56,46 @@ export default function cartPage(): JSX.Element {
         });
     };
     getUserCart();
+    console.log(userCart[1].stock);
   }, []);
-  const handleQuantityChange = (item: cartItem, newQuantity: number) => {
+  const handleQuantityChange = (item: cartItem, change: number) => {
     const updatedCart = userCart.map((cartItem) => {
       if (cartItem.product_id === item.product_id) {
-        return {
+        const newItem: cartItem = {
           ...cartItem,
-          quantity: Math.max(0, Math.min(newQuantity, cartItem.stock)),
+          quantity: cartItem.quantity + change,
         };
+        setChangedSKU(newItem.sku);
+        setChangedQuantState(true);
+        setChangedSKUState(false);
+        setProdQuantity(newItem.quantity);
+        return newItem;
       }
+
       return cartItem;
     });
 
     setUserCart(updatedCart);
   };
+
   useEffect(() => {
+    if (changedQuantState === false) return;
+
     axiosPrivateCustomer
-      .post("/alterCart", JSON.stringify({ customer_id }), {
-        headers: { "Content-Type": "application/json" },
-        withCredentials: true,
-      })
+      .post(
+        "/alterQuantCart",
+        JSON.stringify({
+          customer_id,
+          sku: changedSKU,
+          quantity: prodQuantity,
+        }),
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        }
+      )
       .then((response) => {
-        setUserCart(response.data);
-        console.log(userCart);
+        console.log(response.data);
       })
       .catch((err) => {
         if (!err?.response) {
@@ -84,23 +105,25 @@ export default function cartPage(): JSX.Element {
           setErrMsg("Server Error");
           console.log("server error");
         }
+      })
+      .finally(() => {
+        setChangedQuantState(false);
       });
-  }, [userCart]);
+  }, [changedQuantState]);
 
   return (
     <div className="container flex">
       <div className="w-2/3 bg-white rounded-lg shadow-lg p-2">
-        <div className="grid grid-cols-6 gap-2">
+        <div className="grid grid-cols-5 gap-2">
           <div className="col-span-2 sm:col-span-1"></div>
           <div className="col-span-2 sm:col-span-1">Name</div>
           <div className="col-span-2 sm:col-span-1">Price</div>
           <div className="col-span-2 sm:col-span-1">Variations</div>
-          <div className="col-span-4 sm:col-span-1">Quantity</div>
+          <div className="col-span-3 sm:col-span-1">Quantity</div>
         </div>
 
         {userCart.map((item: cartItem) => (
-
-          <div className="grid grid-cols-6 gap-4 py-4" key={item.product_id}>
+          <div className="grid grid-cols-5 gap-4 py-4" key={item.product_id}>
             <div className="col-span-2 sm:col-span-1">
               <img src={noImage} className="productImage" />
             </div>
@@ -110,12 +133,12 @@ export default function cartPage(): JSX.Element {
               <div className="mr-4">
                 {item.variation_1 ? item.variation_1 : "-"}
               </div>
-              <div>{item.variation_2 ? item.variation_2 : null}</div>
+              <div>{item.variation_2 ? item.variation_2 : "-"}</div>
             </div>
-            <div className="col-span-4 sm:col-span-1">
+            <div className="col-span-3 sm:col-span-1">
               <button
                 className="text-sm border px-2 py-1 mx-2"
-                onClick={() => handleQuantityChange(item, - 1)}
+                onClick={() => handleQuantityChange(item, -1)}
                 disabled={item.quantity <= 0}
               >
                 -
@@ -123,7 +146,7 @@ export default function cartPage(): JSX.Element {
               {item.quantity}
               <button
                 className="text-sm border  px-2 py-1 mx-2"
-                onClick={() => handleQuantityChange(item, item.quantity + 1)}
+                onClick={() => handleQuantityChange(item, 1)}
                 disabled={item.quantity >= item.stock}
               >
                 {" "}
@@ -137,23 +160,3 @@ export default function cartPage(): JSX.Element {
     </div>
   );
 }
-
-// const smsSentHandler = async (e: React.MouseEvent<HTMLAnchorElement>) => {
-//     e.preventDefault();
-//     try {
-//       const response = await axios.post("/customer/auth/SMS/OTP",
-//         JSON.stringify({ phoneNumber: phone_number, customer_id }),
-//         {
-//           headers: { 'Content-Type': 'application/json' },
-//           withCredentials: true
-//         })
-//       setModalEmail(false);
-//       setModalSMS(true);
-//     } catch (err: any) {
-//       if (!err?.response) {
-//         setErrMsg('No Server Response');
-//       } else {
-//         setErrMsg("Server Error");
-//       }
-//     }
-//   }

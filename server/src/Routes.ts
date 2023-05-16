@@ -109,7 +109,7 @@ export default function (app: Express, router: Router) {
     "/checkWishlistProductExistence",
     productController.checkWishListProductExistence
   );
-  // router.get("/getAllListedProducts", productController.getAllListedProducts);
+  router.get("/getAllListedProducts", productController.getAllListedProducts);
 
   router.post(
     "/getCart",
@@ -118,9 +118,15 @@ export default function (app: Express, router: Router) {
     cartController.retrieveCartDetails
   );
   router.post(
-    "/alterCart",
+    "/alterQuantCart",
     verifyJWT,
     verifyRoles("customer"),
-    cartController.alterCartDetails
+    cartController.alterQuantCartDetails
+  );
+  router.post(
+    "/alterSKUCart",
+    verifyJWT,
+    verifyRoles("customer"),
+    cartController.alterSKUCartDetails
   );
 }
