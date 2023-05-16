@@ -18,7 +18,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
         </a>
         <div className="px-5 pb-5">
           <a href="#">
-            <h5 className="text-xl font-semibold tracking-tight text-greyAccent">
+            <h5 className="text-xl text-ellipsis overflow-hidden whitespace-nowrap w-full font-semibold tracking-tight text-greyAccent">
               {product.name}
             </h5>
           </a>
