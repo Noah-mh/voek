@@ -21,6 +21,7 @@ const WishlistCard = () => {
         setWishlistItems(data);
       })
       .catch((err: any) => {
+        console.log(err);
         setStatus(false);
       });
   }, []);
