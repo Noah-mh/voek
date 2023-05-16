@@ -112,7 +112,9 @@ export default function cartPage(): JSX.Element {
           </div>
         ))}
       </div>
-      <div className="right w-1/3 bg-softerPurple"></div>
+      <div className="right w-1/3 bg-softerPurple">
+        
+      </div>
     </div>
   );
 }
