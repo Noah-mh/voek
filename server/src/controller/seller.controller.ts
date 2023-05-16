@@ -110,20 +110,20 @@ export const processVerifyOTP = async (req: Request, res: Response, next: NextFu
 
 export const processSendEmailLink = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { email, shopName, phone_number } = req.body;
-        if (!email || !shopName || !phone_number) return res.sendStatus(400);
+        const { email, shopName, phone_number, password } = req.body;
+        if (!email || !shopName || !phone_number || !password) return res.sendStatus(400);
+        const result = await sellerModel.handleSignUp(shopName, password, email, phone_number);
+        if (result === 1062) {
+            return res.sendStatus(409);
+        }
         const signUpToken = jwt.sign(
             {
-                UserInfo: {
-                    email, 
-                    shopName,
-                    phone_number
-                }
+                seller_id: result
             },
             config.signUpSellerTokenSecret!,
             { expiresIn: '300s' }
         );
-        const result = await sellerModel.handleSendEmailLink(signUpToken, email);
+        const resul2 = await sellerModel.handleSendEmailLink(signUpToken, email);
         return res.sendStatus(200);
     } catch (err: any) {
         return next(err);
@@ -136,19 +136,9 @@ export const processSignUpLink = async (req: Request, res: Response, next: NextF
         if (!signUpToken) return res.sendStatus(400);
         jwt.verify(signUpToken, config.signUpSellerTokenSecret as any, (err: any, decoded: any) => {
             if (err) return res.sendStatus(403);
-            return res.status(200).json({email: decoded.UserInfo.email, phone_number: decoded.UserInfo.phone_number});
+            const { seller_id } = decoded;
+            const result = sellerModel.handleActiveAccount(seller_id)
         });
-    } catch (err: any) {
-        return next(err);
-    }
-}
-
-export const processSignUp = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const { shopName, password, email, phone_number } = req.body;
-        if (!shopName || !password || !email || !phone_number) return res.sendStatus(400);
-        const response = await sellerModel.handleSignUp(shopName, password, email, phone_number);
-        return res.sendStatus(200);
     } catch (err: any) {
         return next(err);
     }
@@ -165,4 +155,47 @@ export const processLogout = async (req: Request, res: Response, next: NextFunct
         secure: true
     });
     res.sendStatus(204);
+}
+
+export const processForgetPassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { email } = req.body;
+        if (!email) return res.sendStatus(400);
+        const result: any = await sellerModel.handleForgetPassword(email);
+        if (result.length) {
+            const forgetPaasswordToken = jwt.sign({ seller_id: result[0].seller_id }
+                , config.forgetPasswordSellerTokenSecret!,
+                { expiresIn: '300s' }
+            );
+            await sellerModel.handleSendEmailForgetPassword(forgetPaasswordToken, email);
+        }
+        return res.sendStatus(200);
+    } catch (err: any) {
+        return next(err);
+    } 
+}
+
+export const processForgetPasswordLink = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { forgetPasswordToken } = req.body;
+        if (!forgetPasswordToken) return res.sendStatus(400);
+        jwt.verify(forgetPasswordToken, config.forgetPasswordSellerTokenSecret as any, (err: any, decoded: any) => {
+            if (err) return res.sendStatus(403);
+            const { seller_id } = decoded;
+            return res.json({ seller_id });
+        });
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processResetPassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { password, seller_id } = req.body;
+        if (!password || !seller_id) return res.sendStatus(400);
+        const result = await sellerModel.handleResetPassword(password, seller_id);
+        return res.sendStatus(200);
+    } catch (err: any) {
+        return next(err);
+    }
 }
