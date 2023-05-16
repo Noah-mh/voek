@@ -107,7 +107,7 @@ export default function (app: Express, router: Router) {
     "/getWishlistItems",
     productController.getWishlistItems
   );
-  router.get("/getLastViewed", productController.getLastViewed);
+  router.post("/getLastViewed", productController.getLastViewed);
   router.post(
     "/productDetails",
     productController.processPublicProductDetails
