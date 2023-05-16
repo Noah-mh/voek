@@ -23,16 +23,18 @@ import ForgetPasswordCustomer from "./components/ForgetPasswordCustomer/ForgetPa
 import ResetPasswordCustomer from "./components/ResetPasswordCustomer/ResetPasswordCustomer.js";
 import ForgetPasswordSeller from "./components/ForgetPasswordSeller/ForgetPasswordSeller.js";
 import HomepageSeller from "./components/HomepageSeller/HomepageSeller.js";
+import ViewMyOrders from "./components/ViewMyOrders/ViewMyOrders.js";
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
-
         <Route path="signup/verify" element={<VerifySignupCustomer />} />
-        <Route path="forgetPassword/verify" element={<ResetPasswordCustomer />} />
+        <Route
+          path="forgetPassword/verify"
+          element={<ResetPasswordCustomer />}
+        />
         <Route path="forgetPassword" element={<ForgetPasswordCustomer />} />
-
 
         {/* Customer Routes */}
         <Route element={<PersistLoginCustomer />}>
@@ -47,30 +49,28 @@ function App() {
           />
           <Route path="searchResults/:userInput" element={<SearchResults />} />
           <Route path="customer/cart" element={<CartPage />} />
-          <Route
-            path="productDetailsWithReviews/:product_id"
-            element={<ProductDetailWithReview />}
-          />
-          <Route
-            path="productDetailsWithReviews/:product_id"
-            element={<ProductDetailWithReview />}
-          />
 
           <Route element={<RequireAuthCustomer />}>
             {/* Prtoected Routes with persist login */}
             <Route path="cart" element={<CartPage />} />
             <Route path="wishlist" element={<Wishlist />} />
             <Route path="customer/cart" element={<CartPage />} />
+            <Route path="orders" element={<ViewMyOrders />} />
           </Route>
         </Route>
       </Route>
 
       {/* Seller Routes */}
       <Route path="/" element={<LayoutSeller />}>
-
         <Route path="seller/signup/verify" element={<VerifySignupSeller />} />
-        <Route path="seller/forgetPassword/verify" element={<ResetPasswordSeller />} />
-        <Route path="seller/forgetPassword" element={<ForgetPasswordSeller />} />
+        <Route
+          path="seller/forgetPassword/verify"
+          element={<ResetPasswordSeller />}
+        />
+        <Route
+          path="seller/forgetPassword"
+          element={<ForgetPasswordSeller />}
+        />
 
         {/* Protected Routes for seller only*/}
         <Route element={<PersistLoginSeller />}>
@@ -78,7 +78,6 @@ function App() {
           <Route path="seller/signup" element={<SignupBannerSeller />} />
           <Route element={<RequireAuthSeller />}>
             <Route path="seller/home" element={<HomepageSeller />} />
-
           </Route>
         </Route>
       </Route>
