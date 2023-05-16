@@ -9,7 +9,6 @@ const Loading: React.FC = () => {
       <div className="loader"></div>
     </div>
   );
-}
+};
 
 export default Loading;
-
