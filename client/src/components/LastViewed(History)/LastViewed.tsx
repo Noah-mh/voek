@@ -1,8 +1,13 @@
+import { useState } from "react";
+import Calendar from "./Calendar";
+
 const LastViewed = () => {
+  const [selectedDate, setSelectedDate] = useState<string>("");
+
   return (
-    <div>
-      <div></div>
-    </div>
+    <>
+      <Calendar onSelectDate={setSelectedDate} selected={selectedDate} />
+    </>
   );
 };
 
