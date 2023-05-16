@@ -8,17 +8,41 @@ export const handleGetAllProducts = async (sellerId: number): Promise<Product[]>
     const promisePool = pool.promise();
     const connection = await promisePool.getConnection();
     const sql = 
-    `SELECT p.name, p.description, p.price, p.image_url FROM products p 
+    `SELECT p.name, p.description, p.price FROM products p 
     RIGHT OUTER JOIN listed_products lp ON lp.product_id = p.product_id 
     WHERE lp.seller_id = ?;`
     try {
-        const result = await connection.query(sql, [sellerId]);
+        const result: any = await connection.query(sql, [sellerId]);
         return result[0] as Product[];
     } catch (err: any) {
         console.log(err);
         throw new Error(err);
     } finally {
         await connection.release();
+    }
+}
+
+// GET order details
+export const handleGetOrderDetails = async (ordersId: number): Promise<Orders> => {
+    const promisePool = pool.promise();
+    const connection = await promisePool.getConnection();
+    const sql = 
+    `SELECT c.username, c.email, op.total_price, o.orders_date, s.shipment_created, s.shipment_delivered FROM orders o
+    INNER JOIN customer c 
+    ON o.customer_id = c.customer_id
+    INNER JOIN orders_product op
+    ON o.orders_id = op.orders_id
+    LEFT JOIN shipment s
+    ON o.shipment_id = s.shipment_id
+    WHERE o.orders_id = ?;`
+    try {
+        const result: any = await connection.query(sql, [ordersId]);
+        return result[0] as Orders;
+    } catch (err: any) {
+        console.log(err);
+        throw new Error(err);
+    } finally {
+        await connection.release()
     }
 }
 
@@ -228,13 +252,21 @@ interface Product {
     name: string;
     description: string;
     price: number;
-    image_url: string;
-  }
+}
   
-  interface Seller {
+interface Orders {
+    customer_username: string;
+    customer_email: string;
+    total_price: number;
+    orders_date: Date;
+    shipment_created: Date;
+    shipment_delivered: Date;
+}
+
+interface Seller {
     seller_id: number;
     phone_number: number;
     email: string;
     shopName: string;
-  }
+}
   
