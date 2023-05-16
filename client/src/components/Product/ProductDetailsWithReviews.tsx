@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from "../../api/axios";
-import Loading from "../Loading/Loading";
+import Loader from '../Loader/Loader';
 import './ProductDetailsWithReviews.css';
 import ProductDetail from './ProductDetails'; // make sure the path is correct
 
@@ -43,15 +43,15 @@ const ProductDetailWithReview: React.FC = () => {
             withCredentials: true,
         })
             .then((response) => {
-                console.log('Product Details:', response.data);
-                setProductData(response.data);
+                console.log('Product Details:', response.data.products);
+                setProductData(response.data.products);
                 return axios.get(`/productReviews/${product_id}`, {
                     headers: { "Content-Type": "application/json" },
                     withCredentials: true,
                 });
             })
             .then((response) => {
-                setProductReview(response.data);
+                setProductReview(response.data.reviews);
             })
             .then(() => {
                 setIsLoading(false);
@@ -62,7 +62,7 @@ const ProductDetailWithReview: React.FC = () => {
     }, [product_id]);
 
     if (isLoading || !productData || !productReview) {
-        return <Loading />;
+        return <Loader />;
     } else {
         return <ProductDetail productData={productData} productReview={productReview} />;
     }
