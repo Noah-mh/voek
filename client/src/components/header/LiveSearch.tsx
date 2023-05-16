@@ -23,7 +23,12 @@ const LiveSearch: FC<LiveSearchProps> = ({
     e.preventDefault();
   };
 
+  const fnMouseClick = () => {
+    setFocus(false);
+  };
+
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (!focus) setFocus(true);
     if (!e.target.value) {
       setSearchResults(results);
       return;
@@ -52,7 +57,7 @@ const LiveSearch: FC<LiveSearchProps> = ({
           onFocus={() => {
             setFocus(true);
           }}
-          onBlur={() => {
+          onBlur={(e) => {
             setFocus(false);
           }}
         />
@@ -71,7 +76,7 @@ const LiveSearch: FC<LiveSearchProps> = ({
       </form>
       {focus ? (
         <div className="absolute mt-20 w-1/3 p-2 bg-white shadow-lg rounded-bl rounded-br max-h-56 overflow-y-auto">
-          <ListPage searchResults={searchResults} />
+          <ListPage searchResults={searchResults} fnMouseClick={fnMouseClick} />
         </div>
       ) : null}
     </div>
