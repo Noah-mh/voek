@@ -1,27 +1,27 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import OtpInput from "react-otp-input";
-import axios from "../../api/axios";
+import axios from "../../api/axios.js";
 import "./OTP.css";
-import useCustomer from "../../hooks/UseCustomer.js";
+import useSeller from "../../hooks/useSeller.js";
 interface props {
-  userDetails: object
+  userDetails: object;
 }
 
 export default function OTP({ userDetails }: props): JSX.Element {
-
-  const { setCustomer } = useCustomer();
+  const { setSeller } = useSeller();
 
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || '/';
+  const from = location.state?.from?.pathname || "/";
 
-  const { customer_id, username, phone_number, email } = userDetails as {
-    customer_id: number;
-    username: string;
+  const { seller_id, shopeName, phone_number, email } = userDetails as {
+    seller_id: number;
+    shopeName: string;
     phone_number: number;
     email: string;
   };
+
 
   const [otp, setOtp] = useState("");
   const [disabled, setDisabled] = useState<boolean>(true);
@@ -30,71 +30,77 @@ export default function OTP({ userDetails }: props): JSX.Element {
   const [errMsg, setErrMsg] = useState<string>("");
 
   useEffect(() => {
-    setDisabled(otp.length === 6 ? false : true)
-  }, [otp])
+    setDisabled(otp.length === 6 ? false : true);
+  }, [otp]);
 
   const emailSentHandler = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     try {
-      const response = await axios.post("/customer/auth/email/OTP",
-        JSON.stringify({ customer_id, email }),
+       await axios.post(
+        "/seller/auth/email/OTP",
+        JSON.stringify({ seller_id, email }),
         {
-          headers: { 'Content-Type': 'application/json' },
-          withCredentials: true
-        })
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        }
+      );
       setModalEmail(true);
       setModalSMS(false);
     } catch (err: any) {
       if (!err?.response) {
-        setErrMsg('No Server Response');
+        setErrMsg("No Server Response");
       } else {
         setErrMsg("Server Error");
       }
     }
-  }
+  };
 
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const response = await axios.post("/customer/auth/verify/OTP",
-        JSON.stringify({ customer_id, OTP: otp }),
+      const response = await axios.post(
+        "/seller/auth/verify/OTP",
+        JSON.stringify({ seller_id, OTP: otp }),
         {
-          headers: { 'Content-Type': 'application/json' },
-          withCredentials: true
-        })
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        }
+      );
       const { accessToken } = response.data;
-      setCustomer({ customer_id, username, accessToken, cart: [] })
-      navigate(from);
+      setSeller({ seller_id, shopeName, accessToken });
+      navigate('/seller/home');
     } catch (err: any) {
       if (!err?.response) {
-        setErrMsg('No Server Response');
+        setErrMsg("No Server Response");
       } else if (err.response.status === 400) {
         setErrMsg("OTP Is Incorrect");
       } else {
         setErrMsg("Server Error");
       }
     }
-  }
+  };
 
   const smsSentHandler = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     try {
-      const response = await axios.post("/customer/auth/SMS/OTP",
-        JSON.stringify({ phoneNumber: phone_number, customer_id }),
+       await axios.post(
+        "/seller/auth/SMS/OTP",
+        JSON.stringify({ phoneNumber: phone_number, seller_id }),
         {
-          headers: { 'Content-Type': 'application/json' },
-          withCredentials: true
-        })
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        }
+      );
       setModalEmail(false);
       setModalSMS(true);
     } catch (err: any) {
       if (!err?.response) {
-        setErrMsg('No Server Response');
+        setErrMsg("No Server Response");
       } else {
         setErrMsg("Server Error");
       }
     }
-  }
+  };
 
   return (
     <div className="w-1/2 flex-col justify-center pt-20">
@@ -102,17 +108,19 @@ export default function OTP({ userDetails }: props): JSX.Element {
         <h1 className="text-center font-bold text-3xl">Enter OTP</h1>
         <div className="text-center mb-3  ">
           Receive OTP through{" "}
+
           <span
             onClick={emailSentHandler}
-            className="underline text-white"
+            className="underline text-white hover:cursor-pointer"
           >
             Email
           </span>{" "}
           or{" "}
           <span
             onClick={smsSentHandler}
-            className="underline text-white"
+            className="underline text-white hover:cursor-pointer"
           >
+
             SMS
           </span>
         </div>
@@ -150,7 +158,10 @@ export default function OTP({ userDetails }: props): JSX.Element {
             }}
           />
         </div>
-        <form className="wrapper flex-col justify-center" onSubmit={submitHandler}>
+        <form
+          className="wrapper flex-col justify-center"
+          onSubmit={submitHandler}
+        >
           <input
             disabled={disabled}
             type="submit"
