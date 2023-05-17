@@ -126,9 +126,10 @@ export default function (app: Express, router: Router) {
     sellerController.processGetAllProductsOfSeller
   );
   router.get(
-    "/getRecommendedProductsBasedOnCat",
-    productController.getRecommendedProductsBasedOnCat
-  );
+    "/orders/:ordersId",
+    sellerController.processGetOrderDetails
+  )
+  
 
   // NHAT TIEN ENDPOINTS - Homepage, Last Viewed, Wishlist, Product Details
   router.post(
@@ -139,6 +140,11 @@ export default function (app: Express, router: Router) {
   router.post(
     "/productDetails",
     productController.processPublicProductDetails
+  );
+
+  router.get(
+    "/getRecommendedProductsBasedOnCat",
+    productController.getRecommendedProductsBasedOnCat
   );
 
   router.get(
