@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.handleLogOut = exports.handleSignUp = exports.handleSendEmailLink = exports.handleVerifyOTP = exports.updateOTP = exports.handleSendEmailOTP = exports.handleSendSMSOTP = exports.handleStoreRefreshToken = exports.handleLogin = exports.handleGetAllProducts = void 0;
+exports.handleResetPassword = exports.handleSendEmailForgetPassword = exports.handleForgetPassword = exports.handleLogOut = exports.handleActiveAccount = exports.handleSignUp = exports.handleSendEmailLink = exports.handleVerifyOTP = exports.updateOTP = exports.handleSendEmailOTP = exports.handleSendSMSOTP = exports.handleStoreRefreshToken = exports.handleLogin = exports.handleGetAllProducts = void 0;
 const database_1 = __importDefault(require("../../config/database"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const sendInBlue_1 = __importDefault(require("../../config/sendInBlue"));
@@ -31,7 +31,7 @@ exports.handleGetAllProducts = handleGetAllProducts;
 const handleLogin = async (email, password) => {
     const promisePool = database_1.default.promise();
     const connection = await promisePool.getConnection();
-    const sql = `SELECT password, seller_id, phone_number, shop_name email FROM seller WHERE email = ?`;
+    const sql = `SELECT password, seller_id, phone_number, shop_name, email FROM seller WHERE email = ?`;
     try {
         const result = await connection.query(sql, [email]);
         const encryptrdPassword = result[0].length ? result[0][0].password : '';
@@ -159,22 +159,25 @@ const handleSendEmailLink = async (signUpToken, email) => {
     try {
         const tranEmailApi = new sendInBlue_1.default.TransactionalEmailsApi();
         const sender = {
-            email: 'voek.help.centre@gmail.com'
+            email: "voek.help.centre@gmail.com",
         };
         const receivers = [
             {
-                email: email
-            }
+                email: email,
+            },
         ];
-        tranEmailApi.sendTransacEmail({
+        tranEmailApi
+            .sendTransacEmail({
             sender,
             to: receivers,
-            subject: 'Verification Link For VOEK Seller Sign Up',
-            textContent: `http://localhost:5173/signUp/${signUpToken}`
-        }).then((response) => {
+            subject: "Verification Link For VOEK Sign Up",
+            textContent: `http://localhost:5173/seller/signup/verify?signupToken=${signUpToken}`,
+        })
+            .then((response) => {
             console.log(response);
             return;
-        }).catch((err) => {
+        })
+            .catch((err) => {
             throw new Error(err);
         });
     }
@@ -186,13 +189,45 @@ exports.handleSendEmailLink = handleSendEmailLink;
 const handleSignUp = async (shopName, password, email, phoneNumber) => {
     const promisePool = database_1.default.promise();
     const connection = await promisePool.getConnection();
-    const sql = `INSERT INTO seller (shop_name, password, email, phone_number) VALUES (?, ?, ?, ?)`;
+    const sql = `UPDATE seller SET shop_name = ?, password = ?, phone_number = ?, date_created = NULL WHERE email = ? AND active = 0`;
     try {
         const encryptedPassword = await bcrypt_1.default.hash(password, 10);
-        const result = await connection.query(sql, [shopName, encryptedPassword, email, phoneNumber]);
-        const sql2 = `INSERT INTO seller_otp (seller_id) VALUES(?)`;
-        const result2 = await connection.query(sql2, [result[0].insertId]);
-        return result2[0].affectedRows;
+        const result = await connection.query(sql, [shopName, encryptedPassword, phoneNumber, email]);
+        if (result[0].affectedRows === 0) {
+            const sql2 = `INSERT INTO seller (shop_name, password, email, phone_number, date_created) VALUES (?, ?, ?, ?, NULL)`;
+            const result2 = await connection.query(sql2, [shopName, encryptedPassword, email, phoneNumber]);
+            return result2[0].insertId;
+        }
+        else {
+            const sql2 = `SELECT seller_id FROM seller WHERE email =  ?`;
+            const result2 = await connection.query(sql2, [email]);
+            return result2[0][0].seller_id;
+        }
+    }
+    catch (err) {
+        if (err.errno === 1062) {
+            return 1062;
+        }
+        else {
+            throw new Error(err);
+        }
+    }
+    finally {
+        await connection.release();
+    }
+};
+exports.handleSignUp = handleSignUp;
+const handleActiveAccount = async (seller_id) => {
+    const promisePool = database_1.default.promise();
+    const connection = await promisePool.getConnection();
+    const sql = `UPDATE seller SET active = 1 WHERE seller_id = ?`;
+    try {
+        const result = await connection.query(sql, [seller_id]);
+        const sql2 = `UPDATE seller SET date_created = utc_timestamp()`;
+        const result2 = await connection.query(sql2, null);
+        const sql3 = `INSERT INTO seller_otp (seller_id) VALUES (?)`;
+        const result3 = await connection.query(sql3, [seller_id]);
+        return result3[0].affectedRows;
     }
     catch (err) {
         throw new Error(err);
@@ -201,7 +236,7 @@ const handleSignUp = async (shopName, password, email, phoneNumber) => {
         await connection.release();
     }
 };
-exports.handleSignUp = handleSignUp;
+exports.handleActiveAccount = handleActiveAccount;
 const handleLogOut = async (refreshToken) => {
     const promisePool = database_1.default.promise();
     const connection = await promisePool.getConnection();
@@ -218,6 +253,67 @@ const handleLogOut = async (refreshToken) => {
     }
 };
 exports.handleLogOut = handleLogOut;
+const handleForgetPassword = async (email) => {
+    const promisePool = database_1.default.promise();
+    const connection = await promisePool.getConnection();
+    const sql = `SELECT * FROM seller WHERE email = ? AND active = 1`;
+    try {
+        const result = await connection.query(sql, [email]);
+        return result[0];
+    }
+    catch (err) {
+        throw new Error(err);
+    }
+    finally {
+        await connection.release();
+    }
+};
+exports.handleForgetPassword = handleForgetPassword;
+const handleSendEmailForgetPassword = async (forgetPasswordToken, email) => {
+    try {
+        const tranEmailApi = new sendInBlue_1.default.TransactionalEmailsApi();
+        const sender = {
+            email: "voek.help.centre@gmail.com",
+        };
+        const receivers = [
+            {
+                email: email,
+            },
+        ];
+        tranEmailApi
+            .sendTransacEmail({
+            sender,
+            to: receivers,
+            subject: "Verification Link For VOEK Sign Up",
+            textContent: `http://localhost:5173/seller/forgetPassword/verify?forgetPasswordToken=${forgetPasswordToken}`,
+        })
+            .then((response) => {
+            console.log(response);
+            return;
+        })
+            .catch((err) => {
+            throw new Error(err);
+        });
+    }
+    catch (err) {
+        throw new Error(err);
+    }
+};
+exports.handleSendEmailForgetPassword = handleSendEmailForgetPassword;
+const handleResetPassword = async (password, seller_id) => {
+    const promisePool = database_1.default.promise();
+    const connection = await promisePool.getConnection();
+    const sql = `UPDATE seller SET password = ? WHERE seller_id = ? AND active = 1`;
+    try {
+        const encryptedPassword = await bcrypt_1.default.hash(password, 10);
+        const result = await connection.query(sql, [encryptedPassword, seller_id]);
+        return result[0].affectedRows;
+    }
+    catch (err) {
+        throw new Error(err);
+    }
+};
+exports.handleResetPassword = handleResetPassword;
 const convertLocalTimeToUTC = () => {
     const now = new Date();
     const utcYear = now.getUTCFullYear();

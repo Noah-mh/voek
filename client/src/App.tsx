@@ -15,7 +15,7 @@ import PersistLoginCustomer from "./components/PersistLogin/PersistLoginCustomer
 import PersistLoginSeller from "./components/PersistLogin/PersistLoginSeller.js";
 import RequireAuthSeller from "./components/RequireAuth/RequireAuthSeller.js";
 import VerifySignupCustomer from "./components/SignupBannerCustomer/VerifySignupCustomer.js";
-import LayoutSeller from "./components/Layout/LayouSeller.js";
+import LayoutSeller from "./components/Layout/LayoutSeller.js";
 import Wishlist from "./components/Wishlist/Wishlist.js";
 import ProductDetailWithReview from "./components/Product/ProductDetailsWithReviews.js";
 import SearchResults from "./components/SearchResults/SearchResults.js";
@@ -23,13 +23,20 @@ import ForgetPasswordCustomer from "./components/ForgetPasswordCustomer/ForgetPa
 import ResetPasswordCustomer from "./components/ResetPasswordCustomer/ResetPasswordCustomer.js";
 import ForgetPasswordSeller from "./components/ForgetPasswordSeller/ForgetPasswordSeller.js";
 import HomepageSeller from "./components/HomepageSeller/HomepageSeller.js";
+import ManageProducts from "./components/SellerSidebar/ManageProducts.js";
+import AddProduct from "./components/SellerSidebar/AddProduct.js";
+import ManageOrders from "./components/SellerSidebar/ManageOrders.js";
+
 import ViewMyOrders from "./components/ViewMyOrders/ViewMyOrders.js";
 import LastViewed from "./components/LastViewed(History)/LastViewed.js";
 import SomeComponent from "./components/Test/cloudinaryTest.js";
+import ReferralLink from "./components/ReferralLink/ReferralLink.js";
+
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
+
         <Route path="signup/verify" element={<VerifySignupCustomer />} />
         <Route
           path="forgetPassword/verify"
@@ -40,7 +47,7 @@ function App() {
         {/* Customer Routes */}
         <Route element={<PersistLoginCustomer />}>
           {/* Public Routes with persist login */}
-
+          <Route path="test" element={<ReferralLink />} />
           <Route path="/" element={<Homepage />} />
           <Route path="login" element={<LoginBanner />} />
           <Route path="signup" element={<SignupBannerCustomer />} />
@@ -48,7 +55,7 @@ function App() {
             path="productDetailsWithReviews/:product_id"
             element={<ProductDetailWithReview />}
           />
-          <Route path="test" element={<SomeComponent/>}/>
+          <Route path="test" element={<SomeComponent />} />
           <Route path="searchResults/:userInput" element={<SearchResults />} />
           <Route path="customer/cart" element={<CartPage />} />
 
@@ -82,6 +89,9 @@ function App() {
           <Route path="seller/signup" element={<SignupBannerSeller />} />
           <Route element={<RequireAuthSeller />}>
             <Route path="seller/home" element={<HomepageSeller />} />
+            <Route path="seller/manageProducts" element={<ManageProducts />} />
+            <Route path="seller/addProduct" element={<AddProduct />} />
+            <Route path="seller/manageOrders" element={<ManageOrders />} />
           </Route>
         </Route>
       </Route>

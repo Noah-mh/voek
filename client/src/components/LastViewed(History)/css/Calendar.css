@@ -30,13 +30,13 @@
 
 .calendarScroll::-webkit-scrollbar-track {
   border-radius: 8px;
-  background-color: #e7e7e7;
+  background-color: #dbdce0;
   border: 1px solid #cacaca;
 }
 
-#scrollbar1::-webkit-scrollbar-thumb {
+.calendarScroll::-webkit-scrollbar-thumb {
   border-radius: 8px;
-  background-color: #d55959;
+  background-color: #310d20;
 }
 
 .calendarScroll > * {

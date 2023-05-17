@@ -12,6 +12,7 @@ export declare const handlesCustLastViewdCat: (cat_id: number, customer_id: numb
 export declare const handleForgetPassword: (email: string) => Promise<Object[]>;
 export declare const handleSendEmailForgetPassword: (forgetPasswordToken: string, email: string) => Promise<void>;
 export declare const handleResetPassword: (password: string, customer_id: string) => Promise<number>;
+export declare const handleGetReferralId: (customer_id: string) => Promise<string>;
 interface LoginResult {
     customer_id: number;
     username: string;

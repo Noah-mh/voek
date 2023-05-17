@@ -8,12 +8,9 @@ const database_1 = __importDefault(require("../../config/database"));
 const handlesGetCartDetails = async (customerId) => {
     const promisePool = database_1.default.promise();
     const connection = await promisePool.getConnection();
-    const sql = `SELECT p.product_id, p.name, c.quantity, p.price, p.image_url, pv.variation_1, pv.variation_2, pv.quantity AS stock
-    FROM cart c
-    INNER JOIN  product_variations pv ON  c.sku = pv.sku
-    LEFT JOIN products p ON p.product_id = pv.product_id 
-    WHERE c.customer_id = ?
-      `;
+    console.log(customerId);
+    const sql = `SELECT DISTINCT cart.product_id, cart.customer_id, cart.quantity, products.price, product_variations.sku, products.name, product_variations.variation_1, product_variations.variation_1 FROM cart JOIN products ON cart.product_id = products.product_id JOIN product_variations ON products.product_id = product_variations.product_id 
+  WHERE customer_id = ?`;
     try {
         const result = await connection.query(sql, [customerId]);
         console.log("Results received:");
@@ -81,8 +78,4 @@ const handleAlterCart = async (customer_id, sku, quantity, new_sku, product_id) 
     }
 };
 exports.handleAlterCart = handleAlterCart;
-// export const handleAlterSKUCart = async (cart_id: number, sku: string, new_sku: string, product_id: number ) => {
-//     const promisePool = pool.promise();
-//     const connection = await promisePool.getConnection();
-// }
 //# sourceMappingURL=cart.model.js.map

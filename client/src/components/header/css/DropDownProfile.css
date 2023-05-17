@@ -1,0 +1,28 @@
+.dropDownProfile {
+  position: absolute;
+  top: 6rem;
+  right: 4.5rem;
+  width: 120px;
+  padding: 15px;
+  border-radius: 15px;
+  background-color: white;
+  border: 1px solid var(--purpleAccent);
+}
+
+.dropDownProfile::before {
+  content: "";
+  position: absolute;
+  top: -0.8rem;
+  right: 2rem;
+  width: 25px;
+  height: 25px;
+  transform: rotate(45deg);
+  background-color: white;
+  border-top: 1px solid var(--purpleAccent);
+  border-left: 1px solid var(--purpleAccent);
+  /* z-index: -1; */
+}
+
+.dropDownProfileText:hover {
+  color: #a84a4a;
+}
