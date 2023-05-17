@@ -30,12 +30,13 @@ import ManageOrders from "./components/SellerSidebar/ManageOrders.js";
 import ViewMyOrders from "./components/ViewMyOrders/ViewMyOrders.js";
 import LastViewed from "./components/LastViewed(History)/LastViewed.js";
 import SomeComponent from "./components/Test/cloudinaryTest.js";
-import PayPal from "./components/PayPal/PayPal.js";
+import ReferralLink from "./components/ReferralLink/ReferralLink.js";
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
+
         <Route path="signup/verify" element={<VerifySignupCustomer />} />
         <Route
           path="forgetPassword/verify"
@@ -46,7 +47,7 @@ function App() {
         {/* Customer Routes */}
         <Route element={<PersistLoginCustomer />}>
           {/* Public Routes with persist login */}
-
+          <Route path="test" element={<ReferralLink />} />
           <Route path="/" element={<Homepage />} />
           <Route path="login" element={<LoginBanner />} />
           <Route path="signup" element={<SignupBannerCustomer />} />
@@ -54,7 +55,7 @@ function App() {
             path="productDetailsWithReviews/:product_id"
             element={<ProductDetailWithReview />}
           />
-          <Route path="test" element={<SomeComponent/>}/>
+          <Route path="test" element={<SomeComponent />} />
           <Route path="searchResults/:userInput" element={<SearchResults />} />
           <Route path="customer/cart" element={<CartPage />} />
 

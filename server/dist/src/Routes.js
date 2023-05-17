@@ -34,6 +34,8 @@ const authController = __importStar(require("./controller/auth.controller"));
 const sellerController = __importStar(require("./controller/seller.controller"));
 const cartController = __importStar(require("./controller/cart.controller"));
 const orderController = __importStar(require("./controller/order.controller"));
+const paypalController = __importStar(require("./controller/paypal.controller"));
+const reviewController = __importStar(require("./controller/review.controller"));
 function default_1(app, router) {
     // KANG RUI ENDPOINTS - user management system
     router.post("/login", customerController.processLogin);
@@ -56,13 +58,18 @@ function default_1(app, router) {
     router.post("/seller/forget/password", sellerController.processForgetPassword);
     router.post("/seller/verify/reset/password", sellerController.processForgetPasswordLink);
     router.post("/seller/reset/password", sellerController.processResetPassword);
-    router.get('/customer/orders/:customer_id', orderController.processHandleGetCustomerOrders);
-    router.get('/customer/delivered/orders/:customer_id', orderController.processhandleGetCustomerDeliveredOrders);
-    router.get('/customer/received/orders/:customer_id', orderController.processGetCustomerReceivedOrders);
+    router.get("/customer/orders/:customer_id", orderController.processHandleGetCustomerOrders);
+    router.get("/customer/delivered/orders/:customer_id", orderController.processhandleGetCustomerDeliveredOrders);
+    router.get("/customer/received/orders/:customer_id", orderController.processGetCustomerReceivedOrders);
     router.get('/customer/received/:orders_product_id', orderController.processOrderReceived);
+    router.post('/create-paypal-order', paypalController.processCreatePaypalOrder);
+    router.post('/capture-paypal-order', paypalController.processCapturePaypalOrder);
+    router.get('/customer/referral-id/:customer_id', customerController.processGetReferralId);
     // NOAH ENDPOINTS - reviews
     router.get("/productDetailsWithoutReviews/:product_id", productController.getProductDetailsWithoutReviews);
     router.get("/productReviews/:product_id", productController.getProductReviews);
+    router.get("/addReview", reviewController.addingReview);
+    router.get("/addReviewImages", reviewController.addingReviewImages);
     // ASHLEY ENDPOINTS - seller platform
     router.get("/products/:sellerId", sellerController.processGetAllProductsOfSeller);
     router.get("/getRecommendedProductsBasedOnCat", productController.getRecommendedProductsBasedOnCat);

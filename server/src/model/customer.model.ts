@@ -2,6 +2,7 @@ import pool from "../../config/database";
 import bcrypt from "bcrypt";
 import Sib from "../../config/sendInBlue";
 import client from "../../config/teleSign";
+import { connect } from "http2";
 
 export const handleLogin = async (email: string, password: string): Promise<LoginResult | null> => {
   const promisePool = pool.promise();
@@ -181,17 +182,18 @@ export const handleSendEmailLink = async (
   }
 };
 
-export const handleSignUp = async (username: string, password: string, email: string, phoneNumber: number): Promise<number> => {
+export const handleSignUp = async (username: string, password: string, email: string, phoneNumber: number, referral_id: string): Promise<number> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `UPDATE customer SET username = ?, password = ?, phone_number = ?, date_created = NULL WHERE email = ? AND active = 0`;
+  const sql = `UPDATE customer SET username = ?, password = ?, phone_number = ?, referred_by = ?, date_created = NULL WHERE email = ? AND active = 0`;
   try {
+    const customer_id = referral_id != 'null' ? await handleGetCustomerIdByRefId(referral_id) : null;
     const encryptedPassword = await bcrypt.hash(password, 10)
-    const result = await connection.query(sql, [username, encryptedPassword, phoneNumber, email]);
+    const result = await connection.query(sql, [username, encryptedPassword, phoneNumber, customer_id, email]);
     if ((result[0] as any).affectedRows as number === 0) {
-      const sql2 = `INSERT INTO customer (username, password, email, phone_number, date_created) VALUES (?, ?, ?, ?, NULL)`;
-      const result2 = await connection.query(sql2, [username, encryptedPassword, email, phoneNumber]);
-      return (result2[0] as any).insertId as  number
+      const sql2 = `INSERT INTO customer (username, password, email, phone_number, date_created, referred_by) VALUES (?, ?, ?, ?, NULL, ?)`;
+      const result2 = await connection.query(sql2, [username, encryptedPassword, email, phoneNumber, customer_id]);
+      return (result2[0] as any).insertId as number
     } else {
       const sql2 = `SELECT customer_id FROM customer WHERE email =  ?`;
       const result2 = await connection.query(sql2, [email]);
@@ -208,16 +210,34 @@ export const handleSignUp = async (username: string, password: string, email: st
   }
 }
 
-export const handleActiveAccount = async (customer_id: string): Promise<number> => {
+export const handleGetCustomerIdByRefId = async (referral_id: string): Promise<number> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `UPDATE customer SET active = 1 WHERE customer_id = ?`;
+  const sql = `SELECT customer_id FROM customer WHERE referral_id = ?`;
+  try {
+    const result: any = await connection.query(sql, [referral_id]);
+    return result[0][0]?.customer_id ? result[0][0].customer_id : null;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+}
+
+export const handleActiveAccount = async (customer_id: string, referral_id: string | null): Promise<number> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `UPDATE customer SET active = 1, referral_id = UUID() WHERE customer_id = ?`;
   try {
     const result = await connection.query(sql, [customer_id]);
     const sql2 = `UPDATE customer SET date_created = utc_timestamp()`;
     const result2 = await connection.query(sql2, null);
     const sql3 = `INSERT INTO customer_otp (customer_id) VALUES (?)`;
     const result3 = await connection.query(sql3, [customer_id]);
+    if (referral_id) {
+      const sql4 = `UPDATE customer SET coins = coins + 5 WHERE referral_id = ?`;
+      await connection.query(sql4, [referral_id]);
+    }
     return (result3[0] as any).affectedRows as number;
   } catch (err: any) {
     throw new Error(err);
@@ -311,6 +331,18 @@ export const handleResetPassword = async (password: string, customer_id: string)
     const encryptedPassword = await bcrypt.hash(password, 10)
     const result = await connection.query(sql, [encryptedPassword, customer_id]);
     return (result[0] as any).affectedRows as number;
+  } catch (err: any) {
+    throw new Error(err);
+  }
+}
+
+export const handleGetReferralId = async (customer_id: string): Promise<string> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT referral_id FROM customer WHERE customer_id = ?`;
+  try {
+    const result: any = await connection.query(sql, [customer_id]);
+    return result[0][0].referral_id as string;
   } catch (err: any) {
     throw new Error(err);
   }
