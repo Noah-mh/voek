@@ -69,7 +69,7 @@ export const processVerifyOTP = async (req: Request, res: Response, next: NextFu
                     }
                 },
                 config.refreshTokenSecret!,
-                { expiresIn: '3600s' }
+                { expiresIn: '1d' }
             );
             await customerModel.handleStoreRefreshToken(refreshToken, response[0].customer_id);
             res.cookie('jwt', refreshToken, {
