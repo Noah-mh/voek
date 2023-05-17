@@ -14,6 +14,8 @@ declare const config: {
     signUpSellerTokenSecret: string | undefined;
     forgetPasswordCustomerTokenSecret: string | undefined;
     forgetPasswordSellerTokenSecret: string | undefined;
+    paypalClientId: string | undefined;
+    paypalClientSecret: string | undefined;
     ssl: {
         rejectUnauthorized: boolean;
     };

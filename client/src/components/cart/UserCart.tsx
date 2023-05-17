@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-import axios from "../../api/axios";
 import useCustomer from "../../hooks/UseCustomer";
 import noImage from "../../img/product/No_Image_Available.jpg";
-import useAxiosPrivateCustomer from "../../hooks/UseAxiosPrivateCustomer";
+import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import "./UserCart.css";
 
 export default function cartPage(): JSX.Element {
