@@ -2,8 +2,11 @@ import '../LoginBanner/OTP.css';
 import axios from '../../api/axios.js'
 import { useEffect, useState } from "react";
 
+interface Props {
+  referral_id: string | null
+}
 
-const SignupCustomer = (): JSX.Element => {
+const SignupCustomer = ({ referral_id }: Props): JSX.Element => {
 
   const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -23,7 +26,7 @@ const SignupCustomer = (): JSX.Element => {
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-       await axios.post("/customer/signup/link", JSON.stringify({ username, email, phone_number: phoneNumber, password }), {
+      await axios.post(`/customer/signup/link/${referral_id}`, JSON.stringify({ username, email, phone_number: phoneNumber, password }), {
         headers: { 'Content-Type': 'application/json' },
         withCredentials: true
       });

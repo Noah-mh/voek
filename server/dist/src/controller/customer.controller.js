@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.processResetPassword = exports.processForgetPasswordLink = exports.processForgetPassword = exports.processLogout = exports.updateCustLastViewedCat = exports.processSignUpLink = exports.processSendEmailLink = exports.processVerifyOTP = exports.processSendEmailOTP = exports.processSendSMSOTP = exports.processLogin = void 0;
+exports.processGetReferralId = exports.processResetPassword = exports.processForgetPasswordLink = exports.processForgetPassword = exports.processLogout = exports.updateCustLastViewedCat = exports.processSignUpLink = exports.processSendEmailLink = exports.processVerifyOTP = exports.processSendEmailOTP = exports.processSendSMSOTP = exports.processLogin = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = __importDefault(require("../../config/config"));
 const customerModel = __importStar(require("../model/customer.model"));
@@ -231,4 +231,17 @@ const processResetPassword = async (req, res, next) => {
     }
 };
 exports.processResetPassword = processResetPassword;
+const processGetReferralId = async (req, res, next) => {
+    try {
+        const { customer_id } = req.params;
+        if (!customer_id)
+            return res.sendStatus(400);
+        const result = await customerModel.handleGetReferralId(customer_id);
+        return res.json({ referral_id: result });
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.processGetReferralId = processGetReferralId;
 //# sourceMappingURL=customer.controller.js.map

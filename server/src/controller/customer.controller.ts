@@ -49,7 +49,7 @@ export const processVerifyOTP = async (req: Request, res: Response, next: NextFu
     try {
         const { customer_id, OTP } = req.body;
         if (!customer_id || !OTP) return res.sendStatus(400);
-        const response: any= await customerModel.handleVerifyOTP(customer_id, OTP);
+        const response: any = await customerModel.handleVerifyOTP(customer_id, OTP);
         if (response.length) {
             const accessToken = jwt.sign(
                 {
@@ -90,12 +90,13 @@ export const processVerifyOTP = async (req: Request, res: Response, next: NextFu
 export const processSendEmailLink = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email, username, phone_number, password } = req.body;
+        const { referral_id } = req.params;
         if (!email || !username || !phone_number || !password) return res.sendStatus(400);
-        const result = await customerModel.handleSignUp(username, password, email, phone_number);
+        const result = await customerModel.handleSignUp(username, password, email, phone_number, referral_id);
         if (result === 1062) {
             return res.sendStatus(409);
         }
-        const signUpToken = jwt.sign({ customer_id: result },
+        const signUpToken = jwt.sign({ customer_id: result, referral_id },
             config.signUpCustomerTokenSecret!,
             { expiresIn: '300s' }
         );
@@ -112,8 +113,8 @@ export const processSignUpLink = async (req: Request, res: Response, next: NextF
         if (!signUpToken) return res.sendStatus(400);
         jwt.verify(signUpToken, config.signUpCustomerTokenSecret as any, (err: any, decoded: any) => {
             if (err) return res.sendStatus(403);
-            const { customer_id } = decoded;
-            const result = customerModel.handleActiveAccount(customer_id);
+            const { customer_id, referral_id } = decoded;
+            const result = customerModel.handleActiveAccount(customer_id, referral_id);
             return res.status(200)
         });
     } catch (err: any) {
@@ -196,6 +197,17 @@ export const processResetPassword = async (req: Request, res: Response, next: Ne
         if (!password || !customer_id) return res.sendStatus(400);
         const result = await customerModel.handleResetPassword(password, customer_id);
         return res.sendStatus(200);
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processGetReferralId = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { customer_id } = req.params;
+        if (!customer_id) return res.sendStatus(400);
+        const result = await customerModel.handleGetReferralId(customer_id);
+        return res.json({ referral_id: result })
     } catch (err: any) {
         return next(err);
     }
