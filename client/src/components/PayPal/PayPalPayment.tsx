@@ -1,31 +1,36 @@
 import { PayPalButtons } from '@paypal/react-paypal-js';
 import useAxiosPrivateCustomer from '../../hooks/useAxiosPrivateCustomer';
 
-const PayPalPayment = () => {
+interface Props {
+    amount: number
+}
+
+const PayPalPayment = ({ amount }: Props) => {
 
     const axiosPrivateCustomer = useAxiosPrivateCustomer();
 
     const createOrder = async (data: any) => {
-
-        return axiosPrivateCustomer.post(`$/my-server/create-paypal-order`, {
-            cart: [
-                {
-                    product_id: 1,
-                    name: "product 1",
-                    quantity: 1,
-                }
-            ]
+        
+        return axiosPrivateCustomer.post(`/create-paypal-order`, {
+            amount
+        }).then(async (response: any) => {
+            const temp = response.data.id
+            return temp
         })
+    };
 
-
-            .then(async (response: any) => {
-                const temp = response.data.id
-                return temp
-            })
+    const onApprove = async (data: any) => {
+        return axiosPrivateCustomer.post(`/capture-paypal-order`, {
+            orderID: data.orderID
+        })
+            .then((response: any) => response);
     };
 
     return (
-        <div>PayPalPayment</div>
+        <PayPalButtons
+            createOrder={(data, actions) => createOrder(data)}
+            onApprove={(data, actions) => onApprove(data)}
+        />
     )
 }
 

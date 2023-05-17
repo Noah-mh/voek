@@ -12,6 +12,7 @@ export declare const handlesDeletingWishlistedProduct: (customer_id: number, pro
 export declare const handleProductDetailsWithoutReviews: (product_id: number) => Promise<ProductWithImages[]>;
 export declare const handleProductReviews: (product_id: number) => Promise<Review[]>;
 export declare const handlesCheckWishlistProductExistence: (customer_id: number, product_id: number) => Promise<Object[]>;
+export declare const handlesGetAllListedProducts: () => Promise<Object[]>;
 interface Product {
     product_id: number;
     name: string;

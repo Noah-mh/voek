@@ -3,7 +3,7 @@ import ViewOrders from "./ViewOrders";
 import ViewReceived from "./ViewReceived";
 import ViewDelivered from "./ViewDelivered";
 import useCustomer from "../../hooks/UseCustomer";
-import useAxiosPrivateCustomer from "../../hooks/UseAxiosPrivateCustomer";
+import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 
 interface Product {
   description: string;

@@ -12,3 +12,4 @@ export declare const deleteWishlistedProduct: (req: Request, res: Response, next
 export declare const getProductDetailsWithoutReviews: (req: Request, res: Response, next: NextFunction) => Promise<void | Response<any, Record<string, any>>>;
 export declare const getProductReviews: (req: Request, res: Response, next: NextFunction) => Promise<void | Response<any, Record<string, any>>>;
 export declare const checkWishListProductExistence: (req: Request, res: Response, next: NextFunction) => Promise<void | Response<any, Record<string, any>>>;
+export declare const getAllListedProducts: (req: Request, res: Response, next: NextFunction) => Promise<void | Response<any, Record<string, any>>>;

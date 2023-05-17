@@ -61,7 +61,6 @@ function App() {
             <Route path="wishlist" element={<Wishlist />} />
             <Route path="customer/cart" element={<CartPage />} />
             <Route path="orders" element={<ViewMyOrders />} />
-            <Route path="paypal" element={<PayPal />} />
           </Route>
         </Route>
       </Route>

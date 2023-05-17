@@ -7,6 +7,7 @@ import * as authController from "./controller/auth.controller";
 import * as sellerController from "./controller/seller.controller";
 import * as cartController from "./controller/cart.controller";
 import * as orderController from "./controller/order.controller";
+import * as paypalController from "./controller/paypal.controller";
 
 export default function (app: Express, router: Router) {
   // KANG RUI ENDPOINTS - user management system
@@ -83,6 +84,8 @@ export default function (app: Express, router: Router) {
   router.get('/customer/delivered/orders/:customer_id', orderController.processhandleGetCustomerDeliveredOrders)
   router.get('/customer/received/orders/:customer_id', orderController.processGetCustomerReceivedOrders)
   router.get('/customer/received/:orders_product_id', orderController.processOrderReceived);
+  router.post('/create-paypal-order', paypalController.processCreatePaypalOrder)
+  router.post('/capture-paypal-order', paypalController.processCapturePaypalOrder)
 
   // NOAH ENDPOINTS - reviews
   router.get(

@@ -1,15 +1,11 @@
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import PayPalPayment from './PayPalPayment';
 
-interface CartItem {
-
-}
-
 interface Props {
-    cart: CartItem[]
+    amount: number
 }
 
-const PayPal = () => {
+const PayPal = ({ amount }: Props) => {
 
     const initialOptions = {
         "client-id": "ARw2wYulFy7lbbqLNXXLUlJw3yJFkaY7Y4g3yr10Hlq4WpSCpj10JfloLeDeBTN2nL7GibnMJWbrc6Pi",
@@ -21,7 +17,7 @@ const PayPal = () => {
     return (
         <div>
             <PayPalScriptProvider options={initialOptions}>
-                <PayPalPayment />
+                <PayPalPayment amount={amount} />
             </PayPalScriptProvider>
         </div>
     )
