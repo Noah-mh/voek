@@ -213,7 +213,10 @@ export const handlesDeletingWishlistedProduct = async (
   const connection = await promisePool.getConnection();
   const sql = `DELETE FROM wishlist WHERE wishlist.customer_id = ? and wishlist.product_id = ?;`;
   try {
-    const result = await connection.query(sql, [customer_id, product_id]);
+    const result = await connection.query(sql, [
+      customer_id,
+      product_id,
+    ]);
     console.log(result[0]);
     return (result[0] as any).affectedRows as number;
   } catch (err: any) {
@@ -272,9 +275,10 @@ export const handleProductReviews = async (
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT p.name,
-  (SELECT JSON_ARRAYAGG(COALESCE(image_url, 'test/1_cksdtz'))
-   FROM product_images pi
-   WHERE pi.product_id = p.product_id) AS image_urls,
+  (SELECT JSON_ARRAYAGG(COALESCE(ri.image_url, 'test/1_cksdtz'))
+   FROM review_images ri
+   INNER JOIN review r ON ri.review_id = r.review_id
+   WHERE r.product_id = p.product_id) AS image_urls,
   ROUND(AVG(r.rating), 2) AS rating,
   (SELECT JSON_ARRAYAGG(JSON_OBJECT(
             'customerName', c.username,
