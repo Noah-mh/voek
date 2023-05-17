@@ -37,7 +37,6 @@ export const alterQuantCartDetails = async (
       sku,
       quantity
     );
-    if (!response?.length) return res.sendStatus(404);
     return res.sendStatus(200);
   } catch (err: any) {
     return next(err);

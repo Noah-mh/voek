@@ -5,3 +5,7 @@ img {
 .prodCont:hover {
   background-color: #f5f5f5;
 }
+
+.right p {
+  color: white !important;
+}

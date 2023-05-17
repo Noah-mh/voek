@@ -3,13 +3,15 @@ import axios from "../../api/axios";
 import useCustomer from "../../hooks/UseCustomer";
 import noImage from "../../img/product/No_Image_Available.jpg";
 import useAxiosPrivateCustomer from "../../hooks/UseAxiosPrivateCustomer";
-import ConfirmModal from "./ConfirmModal";
+import { ToggleSlider } from "react-toggle-slider";
+// import ConfirmModal from "./ConfirmModal";
 import "./UserCart.css";
 import { Link } from "react-router-dom";
 
 export default function cartPage(): JSX.Element {
   const { customer } = useCustomer();
   const customer_id = customer.customer_id;
+  //const coins = customer.coins;
 
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
 
@@ -23,11 +25,17 @@ export default function cartPage(): JSX.Element {
     product_id: number;
     name: string;
     quantity: number;
-    price: string;
+    price: number;
     image_url: string;
     variation_1: string;
     variation_2: string;
     stock: number;
+  }
+  interface totalCart {
+    subTotal: number;
+    shippingFee: number;
+    coins: number;
+    total: number;
   }
 
   const [errMsg, setErrMsg] = useState<string>("");
@@ -35,6 +43,20 @@ export default function cartPage(): JSX.Element {
   const [prodQuantity, setProdQuantity] = useState<number>(0);
   const [changedSKU, setChangedSKU] = useState<string>("");
   const [changedQuantState, setChangedQuantState] = useState<boolean>(false);
+  const [totalAmt, setTotalAmt] = useState<totalCart>({
+    subTotal: 0,
+    shippingFee: 0,
+    coins: 0,
+    total: 0,
+  });
+  // const [toggle, setToggle] = useState<boolean>(false);
+
+  // const useCoins = async () => {
+  //   console.log(coins);
+  //   if (coins <= 10) {
+  //     setToggle(false);
+  //   }
+  // };
 
   const getUserCart = async () => {
     return axiosPrivateCustomer
@@ -44,7 +66,26 @@ export default function cartPage(): JSX.Element {
       })
       .then((response) => {
         setUserCart(response.data);
+        const sum = response.data
+          .reduce((acc: number, item: cartItem) => {
+            return acc + item.price * item.quantity;
+          }, 0)
+          .toFixed(2);
+        setTotalAmt({
+          subTotal: Math.round(Number(sum) * 100) / 100,
+          shippingFee: Math.round((8.95 + sum * 0.1) * 100) / 100,
+
+          total:
+            Math.round(Number(sum) * 100) / 100 +
+            Math.round((8.95 + sum * 0.1) * 100) / 100,
+          coins: Math.ceil(
+            (Math.round(Number(sum) * 100) / 100 +
+              Math.round((8.95 + sum * 0.1) * 100) / 100) *
+              0.1
+          ),
+        });
       })
+      .then(() => {})
       .catch((err) => {
         if (!err?.response) {
           setErrMsg("No Server Response");
@@ -63,22 +104,16 @@ export default function cartPage(): JSX.Element {
           ...cartItem,
           quantity: cartItem.quantity + change,
         };
-        if (newItem.quantity != 0) {
-          setChangedSKU(newItem.sku);
-          setChangedQuantState(true);
-          setProdQuantity(newItem.quantity);
-        }
+        setChangedSKU(newItem.sku);
+        setChangedQuantState(true);
+        setProdQuantity(newItem.quantity);
+
         return newItem;
       }
       return cartItem;
     });
     setUserCart(updatedCart);
   };
-
-  // page onload
-  useEffect(() => {
-    getUserCart();
-  }, []);
 
   // page onload
   useEffect(() => {
@@ -106,6 +141,7 @@ export default function cartPage(): JSX.Element {
         console.log(response.data);
       })
       .catch((err) => {
+        console.log(err);
         if (!err?.response) {
           setErrMsg("No Server Response");
           console.log("no resp");
@@ -133,7 +169,7 @@ export default function cartPage(): JSX.Element {
 
         {userCart.map((item: cartItem) => (
           <Link
-            to={"/productDetails/" + item.product_id}
+            to={"/productDetailsWithReviews/" + item.product_id}
             className="grid grid-cols-5 gap-4 py-4 prodCont"
             key={item.sku}
           >
@@ -151,7 +187,11 @@ export default function cartPage(): JSX.Element {
             <div className="col-span-3 sm:col-span-1">
               <button
                 className="text-sm border px-2 py-1 mx-2"
-                onClick={() => handleQuantityChange(item, -1)}
+                onClick={(event) => {
+                  setErrMsg("");
+                  event.preventDefault();
+                  handleQuantityChange(item, -1);
+                }}
                 disabled={item.quantity <= 0}
               >
                 -
@@ -159,17 +199,59 @@ export default function cartPage(): JSX.Element {
               {item.quantity}
               <button
                 className="text-sm border  px-2 py-1 mx-2"
-                onClick={() => handleQuantityChange(item, 1)}
-                disabled={item.quantity >= item.stock}
+                onClick={(event) => {
+                  setErrMsg("");
+                  event.preventDefault();
+                  if (item.quantity >= item.stock) {
+                    setErrMsg("Max stock reached");
+                  } else {
+                    handleQuantityChange(item, 1);
+                  }
+                }}
+                // disabled={item.quantity >= item.stock}
               >
-                {" "}
-                +{" "}
+                +
               </button>
+              {errMsg.length != 0 && (
+                <div className="errorMessage text-red-600 text-sm">
+                  {errMsg}
+                </div>
+              )}
             </div>
           </Link>
         ))}
       </div>
-      <div className="right w-1/3 bg-softerPurple"></div>
+      <div className="right w-1/3 p-5 bg-softerPurple">
+        <div className="text-xl font-bold text-white mb-7">Order Summary</div>
+
+        <div className=" text-sm summary">
+          <div className="subTotal flex justify-between">
+            <div className=" text-white">Subtotal</div>
+            <div className="text-white">${totalAmt.subTotal}</div>
+          </div>
+          <div className="total flex justify-between">
+            <div className=" text-white">Shipping</div>
+            <div className="text-white">${totalAmt.shippingFee}</div>
+          </div>
+          <div className="points flex justify-between">
+            <div className=" text-white">Coins To Earn</div>
+            <div className="text-white">{totalAmt.coins}</div>
+          </div>
+          <div className="total flex text-base font-bold justify-between mb-5">
+            <div className=" text-white">Total</div>
+            <div className="text-white">${totalAmt.total}</div>
+          </div>
+          {/* <ToggleSlider
+            barHeight={18}
+            draggable={false}
+            active={toggle}
+            onToggle={useCoins}
+          /> */}
+          <button className="bg-white text-softerPurple text-sm font-bold px-4 py-2 rounded-lg mt-4 w-full">
+            Checkout
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
