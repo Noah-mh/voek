@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.processResetPassword = exports.processForgetPasswordLink = exports.processForgetPassword = exports.processLogout = exports.updateCustLastViewedCat = exports.processSignUpLink = exports.processSendEmailLink = exports.processVerifyOTP = exports.processSendEmailOTP = exports.processSendSMSOTP = exports.processLogin = void 0;
+exports.processGetReferralId = exports.processResetPassword = exports.processForgetPasswordLink = exports.processForgetPassword = exports.processLogout = exports.updateCustLastViewedCat = exports.processSignUpLink = exports.processSendEmailLink = exports.processVerifyOTP = exports.processSendEmailOTP = exports.processSendSMSOTP = exports.processLogin = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = __importDefault(require("../../config/config"));
 const customerModel = __importStar(require("../model/customer.model"));
@@ -89,7 +89,7 @@ const processVerifyOTP = async (req, res, next) => {
                     customer_id: response[0].customer_id,
                     role: "customer"
                 }
-            }, config_1.default.accessTokenSecret, { expiresIn: '60s' });
+            }, config_1.default.accessTokenSecret, { expiresIn: '300s' });
             const refreshToken = jsonwebtoken_1.default.sign({
                 UserInfo: {
                     customer_id: response[0].customer_id,
@@ -123,7 +123,6 @@ const processSendEmailLink = async (req, res, next) => {
         if (result === 1062) {
             return res.sendStatus(409);
         }
-        console.log(result);
         const signUpToken = jsonwebtoken_1.default.sign({ customer_id: result }, config_1.default.signUpCustomerTokenSecret, { expiresIn: '300s' });
         const result2 = await customerModel.handleSendEmailLink(signUpToken, email);
         return res.sendStatus(200);
@@ -191,7 +190,7 @@ const processForgetPassword = async (req, res, next) => {
         if (!email)
             return res.sendStatus(400);
         const result = await customerModel.handleForgetPassword(email);
-        if (result) {
+        if (result.length) {
             const forgetPasswordToken = jsonwebtoken_1.default.sign({ customer_id: result[0].customer_id }, config_1.default.forgetPasswordCustomerTokenSecret, { expiresIn: '300s' });
             await customerModel.handleSendEmailForgetPassword(forgetPasswordToken, email);
         }
@@ -222,7 +221,6 @@ exports.processForgetPasswordLink = processForgetPasswordLink;
 const processResetPassword = async (req, res, next) => {
     try {
         const { password, customer_id } = req.body;
-        console.log(password, customer_id);
         if (!password || !customer_id)
             return res.sendStatus(400);
         const result = await customerModel.handleResetPassword(password, customer_id);
@@ -233,4 +231,17 @@ const processResetPassword = async (req, res, next) => {
     }
 };
 exports.processResetPassword = processResetPassword;
+const processGetReferralId = async (req, res, next) => {
+    try {
+        const { customer_id } = req.params;
+        if (!customer_id)
+            return res.sendStatus(400);
+        const result = await customerModel.handleGetReferralId(customer_id);
+        return res.json({ referral_id: result });
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.processGetReferralId = processGetReferralId;
 //# sourceMappingURL=customer.controller.js.map

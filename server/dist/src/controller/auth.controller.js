@@ -47,7 +47,7 @@ const processRefreshTokenCustomer = async (req, res, next) => {
                     customer_id: result[0].customer_id,
                     role: "customer"
                 }
-            }, config_1.default.accessTokenSecret, { expiresIn: '60s' });
+            }, config_1.default.accessTokenSecret, { expiresIn: '300s' });
             return res.json({ accessToken, customer_id: result[0].customer_id, username: result[0].username });
         });
     }
@@ -73,7 +73,7 @@ const processRefreshSeller = async (req, res, next) => {
                     customer_id: result[0].seller_id,
                     role: "seller"
                 }
-            }, config_1.default.accessTokenSecret, { expiresIn: '60s' });
+            }, config_1.default.accessTokenSecret, { expiresIn: '300s' });
             return res.json({ accessToken, seller_id: result[0].seller_id, shop_name: result[0].shop_name });
         });
     }

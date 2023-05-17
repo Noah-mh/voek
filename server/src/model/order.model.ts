@@ -28,7 +28,7 @@ export const handleGetCustomerDeliveredOrders = async (customer_id: number): Pro
     const connection = await promisePool.getConnection();
     const sql = `
     SELECT products.description, products.name, products.price, products.product_id, product_variations.variation_1, product_variations.variation_2, orders_product.quantity, orders_product.sku,
-    shipment.shipment_created FROM orders
+    shipment.shipment_created, orders_product.orders_product_id FROM orders
         JOIN orders_product ON orders.orders_id = orders_product.orders_id
         JOIN products ON orders_product.product_id = products.product_id
         JOIN product_variations ON orders_product.sku = product_variations.sku
@@ -75,4 +75,19 @@ export const handleGetCustomerReceivedOrders = async (customer_id: number): Prom
     } finally {
         await connection.release();
     }
+}
+
+export const handleOrderReceived = async (orders_product_id: number): Promise<number> => {
+    const promisePool = pool.promise();
+    const connection = await promisePool.getConnection();
+    const sql = `UPDATE shipment SET shipment_delivered = utc_timestamp() WHERE orders_product_id = ?`;
+    try {
+        const result = await connection.query(sql, [orders_product_id]);
+        return (result[0] as any).insertId as number;
+    } catch (err: any) {
+        throw new Error(err);
+    } finally {
+        await connection.release();
+    }
+
 }

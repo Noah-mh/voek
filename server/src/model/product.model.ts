@@ -123,9 +123,7 @@ export const handlesTopProducts = async (): Promise<Product[]> => {
   }
 };
 
-export const handlesSearchBarPredictions = async (): Promise<
-  Product[]
-> => {
+export const handlesSearchBarPredictions = async (): Promise<Product[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT products.product_id, products.name 
@@ -193,10 +191,7 @@ export const handlesInsertingWishlistedProduct = async (
   const connection = await promisePool.getConnection();
   const sql = `INSERT INTO wishlist (customer_id, product_id) VALUES (?, ?);`;
   try {
-    const result = await connection.query(sql, [
-      customer_id,
-      product_id,
-    ]);
+    const result = await connection.query(sql, [customer_id, product_id]);
     return (result[0] as any).affectedRows as number;
   } catch (err: any) {
     throw new Error(err);
@@ -312,10 +307,7 @@ export const handlesCheckWishlistProductExistence = async (
   const connection = await promisePool.getConnection();
   const sql = `SELECT * FROM wishlist WHERE wishlist.customer_id = ? and wishlist.product_id = ?;`;
   try {
-    const result = await connection.query(sql, [
-      customer_id,
-      product_id,
-    ]);
+    const result = await connection.query(sql, [customer_id, product_id]);
     console.log(result[0]);
     return result[0] as Array<Object>;
   } catch (err: any) {
@@ -333,6 +325,20 @@ export const handlesGetAllListedProducts = async () => {
   JOIN products ON  listed_products.product_id = products.product_id;`;
   try {
     const result = await connection.query(sql, []);
+    return result[0] as Array<Object>;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handlesGetProductVariations = async (productId: number) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT * FROM product_variations WHERE product_variations.product_id = ?;`;
+  try {
+    const result = await connection.query(sql, [productId]);
     return result[0] as Array<Object>;
   } catch (err: any) {
     throw new Error(err);

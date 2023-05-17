@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import axios from "../../api/axios";
 import useCustomer from "../../hooks/UseCustomer";
 import noImage from "../../img/product/No_Image_Available.jpg";
-import useAxiosPrivateCustomer from "../../hooks/UseAxiosPrivateCustomer";
+import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import { ToggleSlider } from "react-toggle-slider";
 // import ConfirmModal from "./ConfirmModal";
+
 import "./UserCart.css";
 import { Link } from "react-router-dom";
 

@@ -1,7 +1,7 @@
 /* eslint-disable max-classes-per-file */
 
 export const TABLE_ALREADY_EXISTS_ERROR = class TABLE_ALREADY_EXISTS_ERROR extends Error {
-    constructor(tableName: any) {
+    constructor(tableName) {
         super(`Table ${tableName} already exists!`);
     }
 };

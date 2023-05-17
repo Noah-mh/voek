@@ -1,8 +1,13 @@
 import loginPhoto from "../../img/login/loginVec.png";
 import "./signupBanner.css";
 import SignupCustomer from "./SignupCustomer.js";
+import { useLocation } from "react-router-dom";
 
-const SignupBannerCustomer = () => {  
+const SignupBannerCustomer = () => {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const referral_id: string | null = searchParams.get('referral_id');
+
   return (
     <div className="containerZ main w-screen h-screen flex">
       <div className="cardZ bg-white flex w-2/3 h-3/5 justify-between mx-auto my-20 rounded-md overflow-hidden">
@@ -12,7 +17,7 @@ const SignupBannerCustomer = () => {
             Explore a new world with VOEK.
           </h1>
         </div>
-        <SignupCustomer />
+        <SignupCustomer referral_id={referral_id} />
       </div>
     </div>
   );
