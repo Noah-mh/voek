@@ -22,3 +22,7 @@
   border-left: 1px solid var(--purpleAccent);
   /* z-index: -1; */
 }
+
+.dropDownProfileText:hover {
+  color: #a84a4a;
+}

@@ -336,7 +336,7 @@ export const handlesGetAllListedProducts = async () => {
 export const handlesGetProductVariations = async (productId: number) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `  SELECT * FROM product_variations WHERE product_variations.product_id = ?;`;
+  const sql = `SELECT * FROM product_variations WHERE product_variations.product_id = ?;`;
   try {
     const result = await connection.query(sql, [productId]);
     return result[0] as Array<Object>;

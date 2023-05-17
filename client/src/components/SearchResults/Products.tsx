@@ -19,7 +19,6 @@ const Products = ({ userInput }: ProductsProps) => {
       })
       .then((response: any) => response.data)
       .then((data: Array<object>) => {
-        console.log("data: ", data);
         setStatus(true);
         setProducts(data);
       })
@@ -36,9 +35,9 @@ const Products = ({ userInput }: ProductsProps) => {
           <div>
             {products.length > 0 ? (
               <div className="flex flex-wrap">
-                {products.map((product: any) => {
+                {products.map((product: any, index: number) => {
                   return (
-                    <div>
+                    <div key={index}>
                       <ProductCard product={product} />
                     </div>
                   );

@@ -127,6 +127,7 @@ export default function (app: Express, router: Router) {
     "/getProductVariations/:product_Id",
     productController.getProductVariations
   );
+  router.post("/insertCart", cartController.insertCart);
 
   router.post(
     "/getCart",
