@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.handleResetPassword = exports.handleSendEmailForgetPassword = exports.handleForgetPassword = exports.handlesCustLastViewdCat = exports.handleLogOut = exports.handleActiveAccount = exports.handleSignUp = exports.handleSendEmailLink = exports.handleVerifyOTP = exports.updateOTP = exports.handleSendEmailOTP = exports.handleSendSMSOTP = exports.handleStoreRefreshToken = exports.handleLogin = void 0;
+exports.handleGetReferralId = exports.handleResetPassword = exports.handleSendEmailForgetPassword = exports.handleForgetPassword = exports.handlesCustLastViewdCat = exports.handleLogOut = exports.handleActiveAccount = exports.handleSignUp = exports.handleSendEmailLink = exports.handleVerifyOTP = exports.updateOTP = exports.handleSendEmailOTP = exports.handleSendSMSOTP = exports.handleStoreRefreshToken = exports.handleLogin = void 0;
 const database_1 = __importDefault(require("../../config/database"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const sendInBlue_1 = __importDefault(require("../../config/sendInBlue"));
@@ -317,6 +317,19 @@ const handleResetPassword = async (password, customer_id) => {
     }
 };
 exports.handleResetPassword = handleResetPassword;
+const handleGetReferralId = async (customer_id) => {
+    const promisePool = database_1.default.promise();
+    const connection = await promisePool.getConnection();
+    const sql = `SELECT referral_id FROM customer WHERE customer_id = ?`;
+    try {
+        const result = await connection.query(sql, [customer_id]);
+        return result[0][0].referral_id;
+    }
+    catch (err) {
+        throw new Error(err);
+    }
+};
+exports.handleGetReferralId = handleGetReferralId;
 const convertLocalTimeToUTC = () => {
     const now = new Date();
     const utcYear = now.getUTCFullYear();

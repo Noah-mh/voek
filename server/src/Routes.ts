@@ -27,7 +27,7 @@ export default function (app: Express, router: Router) {
     customerController.processVerifyOTP
   );
   router.post(
-    "/customer/signup/link",
+    "/customer/signup/link/:referral_id",
     customerController.processSendEmailLink
   );
   router.post(
@@ -87,19 +87,26 @@ export default function (app: Express, router: Router) {
   );
   router.get(
     "/customer/orders/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
     orderController.processHandleGetCustomerOrders
   );
   router.get(
     "/customer/delivered/orders/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
     orderController.processhandleGetCustomerDeliveredOrders
   );
   router.get(
     "/customer/received/orders/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
     orderController.processGetCustomerReceivedOrders
   );
-  router.get('/customer/received/:orders_product_id', orderController.processOrderReceived);
-  router.post('/create-paypal-order', paypalController.processCreatePaypalOrder)
-  router.post('/capture-paypal-order', paypalController.processCapturePaypalOrder)
+  router.get('/customer/received/:orders_product_id', verifyJWT, verifyRoles('customer'), orderController.processOrderReceived);
+  router.post('/create-paypal-order', verifyJWT, verifyRoles('customer'), paypalController.processCreatePaypalOrder)
+  router.post('/capture-paypal-order', verifyJWT, verifyRoles('customer'), paypalController.processCapturePaypalOrder)
+  router.get('/customer/referral-id/:customer_id', verifyJWT, verifyRoles('customer'), customerController.processGetReferralId)
 
   // NOAH ENDPOINTS - reviews
   router.get(

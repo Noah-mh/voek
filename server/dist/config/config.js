@@ -19,7 +19,7 @@ const config = {
     forgetPasswordCustomerTokenSecret: process.env.FORGETPASSWORD_CUSTOMER_TOKEN_SECRET,
     forgetPasswordSellerTokenSecret: process.env.FORGETPASSWORD_SELLER_TOKEN_SECRET,
     paypalClientId: process.env.PAYPAL_CLIENT_ID,
-    paypalClientSecret: process.env.PAYPAL_CLIENT_SECRET,
+    paypalClientSecret: process.env.PAYPAL_APP_SECRET,
     ssl: {
         rejectUnauthorized: false,
     },

@@ -10,3 +10,4 @@ export declare const processLogout: (req: Request, res: Response, next: NextFunc
 export declare const processForgetPassword: (req: Request, res: Response, next: NextFunction) => Promise<void | Response<any, Record<string, any>>>;
 export declare const processForgetPasswordLink: (req: Request, res: Response, next: NextFunction) => Promise<void | Response<any, Record<string, any>>>;
 export declare const processResetPassword: (req: Request, res: Response, next: NextFunction) => Promise<void | Response<any, Record<string, any>>>;
+export declare const processGetReferralId: (req: Request, res: Response, next: NextFunction) => Promise<void | Response<any, Record<string, any>>>;
