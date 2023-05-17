@@ -1,4 +1,6 @@
 import { Link } from 'react-router-dom';
+import useAxiosPrivateCustomer from '../../hooks/UseAxiosPrivateCustomer';
+
 
 interface Product {
   description: string;
@@ -12,14 +14,28 @@ interface Product {
   orders_date?: string;
   shipment_created?: string;
   shipment_delivered?: string
+  orders_product_id?: number;
 }
+
 
 interface Props {
-  deliveredOrders: Product[]
+  deliveredOrders: Product[];
+  getAll: () => void;
 }
 
 
-const ViewDelivered = ({ deliveredOrders }: Props) => {
+const ViewDelivered = ({ deliveredOrders, getAll }: Props) => {
+
+  const axiosPrivateCustomer = useAxiosPrivateCustomer();
+
+  const buttonHandler = async (orders_product_id: number) => {
+    try { 
+      const result = await axiosPrivateCustomer.get(`/customer/received/${orders_product_id}`)
+      getAll();
+    } catch (err: any) {
+      console.log(err);
+    }
+  }
 
   return (
     <div className="flex flex-col items-center justify-center p-8">
@@ -45,6 +61,7 @@ const ViewDelivered = ({ deliveredOrders }: Props) => {
                     : "No Variation"}
             </p>
             <h3 className="mt-2 text-lg">Shipment was received on {convertUtcToLocal(order.shipment_created!)}</h3>
+            <button color="primary" onClick={() => { buttonHandler(order.orders_product_id!) }}>Order Received</button>
           </div>
         </div>
       ))}

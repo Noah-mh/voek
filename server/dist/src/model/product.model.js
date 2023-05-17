@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.handlesCheckWishlistProductExistence = exports.handleProductReviews = exports.handleProductDetailsWithoutReviews = exports.handlesDeletingWishlistedProduct = exports.handlesInsertingWishlistedProduct = exports.handlesProductsBasedOnCategory = exports.handlesSearchResult = exports.handlesSearchBarPredictions = exports.handlesTopProducts = exports.handlesGetLastViewed = exports.handlesGetWishlistItems = exports.handlesGetRecommendedProductsBasedOnCat = exports.handlesGetCartDetails = exports.handlesGetProductDetails = void 0;
+exports.handlesGetAllListedProducts = exports.handlesCheckWishlistProductExistence = exports.handleProductReviews = exports.handleProductDetailsWithoutReviews = exports.handlesDeletingWishlistedProduct = exports.handlesInsertingWishlistedProduct = exports.handlesProductsBasedOnCategory = exports.handlesSearchResult = exports.handlesSearchBarPredictions = exports.handlesTopProducts = exports.handlesGetLastViewed = exports.handlesGetWishlistItems = exports.handlesGetRecommendedProductsBasedOnCat = exports.handlesGetCartDetails = exports.handlesGetProductDetails = void 0;
 const database_1 = __importDefault(require("../../config/database"));
 const handlesGetProductDetails = async (productId) => {
     const promisePool = database_1.default.promise();
@@ -90,17 +90,14 @@ exports.handlesGetWishlistItems = handlesGetWishlistItems;
 const handlesGetLastViewed = async (customer_id, date_viewed) => {
     const promisePool = database_1.default.promise();
     const connection = await promisePool.getConnection();
-    const sql = `SELECT products.product_id, products.name, products.description
+    const sql = `SELECT products.product_id, products.name, products.description, products.price
   FROM last_viewed
   JOIN customer ON last_viewed.customer_id = customer.customer_id
   JOIN products ON last_viewed.product_id = products.product_id
-  WHERE last_viewed.customer_id = ? and last_viewed.date_viewed LIKE "2023-05-09%";`;
+  WHERE last_viewed.customer_id = ? and last_viewed.date_viewed LIKE ?;`;
     const params = [customer_id, `${date_viewed}%`];
     try {
-        const result = await connection.query(sql, [
-            customer_id,
-            date_viewed,
-        ]);
+        const result = await connection.query(sql, params);
         console.log(result[0]);
         return result[0];
     }
@@ -154,10 +151,11 @@ exports.handlesSearchBarPredictions = handlesSearchBarPredictions;
 const handlesSearchResult = async (input) => {
     const promisePool = database_1.default.promise();
     const connection = await promisePool.getConnection();
-    const sql = `SELECT products.product_id, products.name 
+    const sql = `SELECT products.product_id, products.name, products.price, products.description
   FROM listed_products
   JOIN products ON  listed_products.product_id = products.product_id
   WHERE products.name LIKE ?;`;
+    console.log("input", input);
     const params = [`%${input}%`];
     try {
         const result = await connection.query(sql, params);
@@ -217,10 +215,7 @@ const handlesDeletingWishlistedProduct = async (customer_id, product_id) => {
     const connection = await promisePool.getConnection();
     const sql = `DELETE FROM wishlist WHERE wishlist.customer_id = ? and wishlist.product_id = ?;`;
     try {
-        const result = await connection.query(sql, [
-            customer_id,
-            product_id,
-        ]);
+        const result = await connection.query(sql, [customer_id, product_id]);
         console.log(result[0]);
         return result[0].affectedRows;
     }
@@ -236,22 +231,31 @@ const handleProductDetailsWithoutReviews = async (product_id) => {
     const promisePool = database_1.default.promise();
     const connection = await promisePool.getConnection();
     const sql = `SELECT 
-  JSON_ARRAYAGG(COALESCE(pi.image_url, 'test/1_cksdtz')) AS image_urls,
   p.name,
   p.description,
-  GROUP_CONCAT(
-    DISTINCT JSON_OBJECT(
-      'variation_1',  pv.variation_1,
-      'variation_2', pv.variation_2
-    )
-  ) AS variations
+  img.image_urls,
+  var.variations
 FROM products p
-INNER JOIN product_variations pv ON p.product_id = pv.product_id
-LEFT JOIN product_images pi ON p.product_id = pi.product_id
-WHERE p.product_id = ?
-GROUP BY
-  p.name,
-  p.description
+LEFT JOIN (
+  SELECT 
+    product_id,
+    JSON_ARRAYAGG(image_url) AS image_urls
+  FROM product_images
+  GROUP BY product_id
+) AS img ON p.product_id = img.product_id
+LEFT JOIN (
+  SELECT 
+    product_id,
+    JSON_ARRAYAGG(
+      JSON_OBJECT(
+        'variation_1', variation_1,
+        'variation_2', variation_2
+      )
+    ) AS variations
+  FROM product_variations
+  GROUP BY product_id
+) AS var ON p.product_id = var.product_id
+WHERE p.product_id = ?;
     `;
     try {
         const result = await connection.query(sql, product_id);
@@ -270,7 +274,7 @@ const handleProductReviews = async (product_id) => {
     const promisePool = database_1.default.promise();
     const connection = await promisePool.getConnection();
     const sql = `SELECT p.name,
-  (SELECT JSON_ARRAYAGG(image_url)
+  (SELECT JSON_ARRAYAGG(COALESCE(image_url, 'test/1_cksdtz'))
    FROM product_images pi
    WHERE pi.product_id = p.product_id) AS image_urls,
   ROUND(AVG(r.rating), 2) AS rating,
@@ -308,7 +312,6 @@ const handlesCheckWishlistProductExistence = async (customer_id, product_id) => 
     const connection = await promisePool.getConnection();
     const sql = `SELECT * FROM wishlist WHERE wishlist.customer_id = ? and wishlist.product_id = ?;`;
     try {
-        console.log(sql);
         const result = await connection.query(sql, [
             customer_id,
             product_id,
@@ -324,4 +327,22 @@ const handlesCheckWishlistProductExistence = async (customer_id, product_id) => 
     }
 };
 exports.handlesCheckWishlistProductExistence = handlesCheckWishlistProductExistence;
+const handlesGetAllListedProducts = async () => {
+    const promisePool = database_1.default.promise();
+    const connection = await promisePool.getConnection();
+    const sql = `SELECT products.product_id, products.name 
+  FROM listed_products
+  JOIN products ON  listed_products.product_id = products.product_id;`;
+    try {
+        const result = await connection.query(sql, []);
+        return result[0];
+    }
+    catch (err) {
+        throw new Error(err);
+    }
+    finally {
+        await connection.release();
+    }
+};
+exports.handlesGetAllListedProducts = handlesGetAllListedProducts;
 //# sourceMappingURL=product.model.js.map

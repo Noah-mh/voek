@@ -26,6 +26,7 @@ import HomepageSeller from "./components/HomepageSeller/HomepageSeller.js";
 import ViewMyOrders from "./components/ViewMyOrders/ViewMyOrders.js";
 import LastViewed from "./components/LastViewed(History)/LastViewed.js";
 import SomeComponent from "./components/Test/cloudinaryTest.js";
+import PayPal from "./components/PayPal/PayPal.js";
 function App() {
   return (
     <Routes>

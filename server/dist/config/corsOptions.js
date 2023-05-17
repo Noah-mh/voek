@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const allowedOrigin_1 = __importDefault(require("./allowedOrigin"));
 const corsOptions = {
     origin: (origin, callback) => {
-        console.log("hit cors", origin);
         if (allowedOrigin_1.default.indexOf(origin) !== -1 || !origin) {
             callback(null, true);
         }
