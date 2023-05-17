@@ -1,8 +1,6 @@
 import React from 'react'
 import SellerSidebar from "../SellerSidebar/SellerSidebar.js";
 
-import axios from "../../api/axios.js";
-
 import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller.js";
 
 type Props = {}

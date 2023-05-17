@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.processLogout = exports.processSignUp = exports.processSignUpLink = exports.processSendEmailLink = exports.processVerifyOTP = exports.processSendEmailOTP = exports.processSendSMSOTP = exports.processLogin = exports.processGetAllProductsOfSeller = void 0;
+exports.processResetPassword = exports.processForgetPasswordLink = exports.processForgetPassword = exports.processLogout = exports.processSignUpLink = exports.processSendEmailLink = exports.processVerifyOTP = exports.processSendEmailOTP = exports.processSendSMSOTP = exports.processLogin = exports.processGetAllProductsOfSeller = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = __importDefault(require("../../config/config"));
 const sellerModel = __importStar(require("../model/seller.model"));
@@ -102,13 +102,13 @@ const processVerifyOTP = async (req, res, next) => {
                     seller_id: response[0].seller_id,
                     role: "seller"
                 }
-            }, config_1.default.accessTokenSecret, { expiresIn: '60s' });
+            }, config_1.default.accessTokenSecret, { expiresIn: '300s' });
             const refreshToken = jsonwebtoken_1.default.sign({
                 UserInfo: {
                     seller_id: response[0].seller_id,
                     role: "seller"
                 }
-            }, config_1.default.refreshTokenSecret, { expiresIn: '3600s' });
+            }, config_1.default.refreshTokenSecret, { expiresIn: '1d' });
             await sellerModel.handleStoreRefreshToken(refreshToken, response[0].seller_id);
             res.cookie('jwt', refreshToken, {
                 httpOnly: true,
@@ -129,17 +129,17 @@ const processVerifyOTP = async (req, res, next) => {
 exports.processVerifyOTP = processVerifyOTP;
 const processSendEmailLink = async (req, res, next) => {
     try {
-        const { email, shopName, phone_number } = req.body;
-        if (!email || !shopName || !phone_number)
+        const { email, shopName, phone_number, password } = req.body;
+        if (!email || !shopName || !phone_number || !password)
             return res.sendStatus(400);
+        const result = await sellerModel.handleSignUp(shopName, password, email, phone_number);
+        if (result === 1062) {
+            return res.sendStatus(409);
+        }
         const signUpToken = jsonwebtoken_1.default.sign({
-            UserInfo: {
-                email,
-                shopName,
-                phone_number
-            }
+            seller_id: result
         }, config_1.default.signUpSellerTokenSecret, { expiresIn: '300s' });
-        const result = await sellerModel.handleSendEmailLink(signUpToken, email);
+        const resul2 = await sellerModel.handleSendEmailLink(signUpToken, email);
         return res.sendStatus(200);
     }
     catch (err) {
@@ -155,7 +155,8 @@ const processSignUpLink = async (req, res, next) => {
         jsonwebtoken_1.default.verify(signUpToken, config_1.default.signUpSellerTokenSecret, (err, decoded) => {
             if (err)
                 return res.sendStatus(403);
-            return res.status(200).json({ email: decoded.UserInfo.email, phone_number: decoded.UserInfo.phone_number });
+            const { seller_id } = decoded;
+            const result = sellerModel.handleActiveAccount(seller_id);
         });
     }
     catch (err) {
@@ -163,19 +164,6 @@ const processSignUpLink = async (req, res, next) => {
     }
 };
 exports.processSignUpLink = processSignUpLink;
-const processSignUp = async (req, res, next) => {
-    try {
-        const { shopName, password, email, phone_number } = req.body;
-        if (!shopName || !password || !email || !phone_number)
-            return res.sendStatus(400);
-        const response = await sellerModel.handleSignUp(shopName, password, email, phone_number);
-        return res.sendStatus(200);
-    }
-    catch (err) {
-        return next(err);
-    }
-};
-exports.processSignUp = processSignUp;
 const processLogout = async (req, res, next) => {
     const cookies = req.cookies;
     if (!cookies?.jwt)
@@ -190,4 +178,51 @@ const processLogout = async (req, res, next) => {
     res.sendStatus(204);
 };
 exports.processLogout = processLogout;
+const processForgetPassword = async (req, res, next) => {
+    try {
+        const { email } = req.body;
+        if (!email)
+            return res.sendStatus(400);
+        const result = await sellerModel.handleForgetPassword(email);
+        if (result.length) {
+            const forgetPaasswordToken = jsonwebtoken_1.default.sign({ seller_id: result[0].seller_id }, config_1.default.forgetPasswordSellerTokenSecret, { expiresIn: '300s' });
+            await sellerModel.handleSendEmailForgetPassword(forgetPaasswordToken, email);
+        }
+        return res.sendStatus(200);
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.processForgetPassword = processForgetPassword;
+const processForgetPasswordLink = async (req, res, next) => {
+    try {
+        const { forgetPasswordToken } = req.body;
+        if (!forgetPasswordToken)
+            return res.sendStatus(400);
+        jsonwebtoken_1.default.verify(forgetPasswordToken, config_1.default.forgetPasswordSellerTokenSecret, (err, decoded) => {
+            if (err)
+                return res.sendStatus(403);
+            const { seller_id } = decoded;
+            return res.json({ seller_id });
+        });
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.processForgetPasswordLink = processForgetPasswordLink;
+const processResetPassword = async (req, res, next) => {
+    try {
+        const { password, seller_id } = req.body;
+        if (!password || !seller_id)
+            return res.sendStatus(400);
+        const result = await sellerModel.handleResetPassword(password, seller_id);
+        return res.sendStatus(200);
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.processResetPassword = processResetPassword;
 //# sourceMappingURL=seller.controller.js.map

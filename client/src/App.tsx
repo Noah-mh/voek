@@ -27,6 +27,11 @@ import ManageProducts from "./components/SellerSidebar/ManageProducts.js";
 import AddProduct from "./components/SellerSidebar/AddProduct.js";
 import ManageOrders from "./components/SellerSidebar/ManageOrders.js";
 
+import ViewMyOrders from "./components/ViewMyOrders/ViewMyOrders.js";
+import LastViewed from "./components/LastViewed(History)/LastViewed.js";
+import SomeComponent from "./components/Test/cloudinaryTest.js";
+import PayPal from "./components/PayPal/PayPal.js";
+
 function App() {
   return (
     <Routes>
@@ -49,22 +54,18 @@ function App() {
             path="productDetailsWithReviews/:product_id"
             element={<ProductDetailWithReview />}
           />
+          <Route path="test" element={<SomeComponent/>}/>
           <Route path="searchResults/:userInput" element={<SearchResults />} />
           <Route path="customer/cart" element={<CartPage />} />
-          <Route
-            path="productDetailsWithReviews/:product_id"
-            element={<ProductDetailWithReview />}
-          />
-          <Route
-            path="productDetailsWithReviews/:product_id"
-            element={<ProductDetailWithReview />}
-          />
+
+          <Route path="lastViewed" element={<LastViewed />} />
 
           <Route element={<RequireAuthCustomer />}>
             {/* Prtoected Routes with persist login */}
             <Route path="cart" element={<CartPage />} />
             <Route path="wishlist" element={<Wishlist />} />
             <Route path="customer/cart" element={<CartPage />} />
+            <Route path="orders" element={<ViewMyOrders />} />
           </Route>
         </Route>
       </Route>

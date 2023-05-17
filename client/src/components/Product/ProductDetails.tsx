@@ -1,10 +1,9 @@
-// ProductDetail.tsx
 import React from 'react';
 import { AdvancedImage } from '@cloudinary/react';
 import { Carousel } from 'react-responsive-carousel';
 import "react-responsive-carousel/lib/styles/carousel.min.css";
-import { Product, ProductVariation, Review, Customer } from './ProductDetailsWithReviews'; // make sure the path is correct
-import { cld } from '../../cloudinary';
+import { Product, ProductVariation, Review, Customer } from './ProductDetailsWithReviews'; 
+import {cld} from "../../Cloudinary/Cloudinary";
 
 interface ProductDetailProps {
     productData: Product[];
@@ -20,7 +19,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productData, productRevie
                 <div key={index}>
                     <h1>{pData.name}</h1>
                     {pData.image_urls && (
-                        <Carousel>
+                        <Carousel showThumbs={false}>
                             {pData.image_urls.map(
                                 (imageUrl: string | undefined, index: React.Key | null | undefined) => (
                                     <div className="image-container" key={index}>
@@ -32,7 +31,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productData, productRevie
                     )}
                     <h3>Description: {pData.description}</h3>
                     <div className="variation">
-                        <h3>Variation:</h3>
                         {pData.variations && pData.variations.map((variation: ProductVariation, index: number) => {
                             return (
                                 <div className="variation" key={index}>
@@ -52,7 +50,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productData, productRevie
 
                     <h3>Reviews:</h3>
                     {pReview.image_urls && (
-                        <Carousel>
+                        <Carousel showThumbs={false}>
                             {pReview.image_urls.map(
                                 (imageUrl: string | undefined, index: React.Key | null | undefined) => (
                                     <div className="image-container" key={index}>

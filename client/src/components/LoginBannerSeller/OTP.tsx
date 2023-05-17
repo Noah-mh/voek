@@ -12,8 +12,8 @@ export default function OTP({ userDetails }: props): JSX.Element {
   const { setSeller } = useSeller();
 
   const navigate = useNavigate();
-  const location = useLocation();
-  const from = location.state?.from?.pathname || "/";
+
+
 
   const { seller_id, shopeName, phone_number, email } = userDetails as {
     seller_id: number;

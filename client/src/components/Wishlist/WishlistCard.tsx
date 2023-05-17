@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { macbook } from "./images";
-import Loader from "./Loader";
+import Loader from "../Loader/Loader";
 import "./css/WishlistCard.css";
 import axios from "../../api/axios";
 
@@ -21,6 +21,7 @@ const WishlistCard = () => {
         setWishlistItems(data);
       })
       .catch((err: any) => {
+        console.log(err);
         setStatus(false);
       });
   }, []);

@@ -153,7 +153,6 @@ const handleSendEmailLink = async (signUpToken, email) => {
                 email: email,
             },
         ];
-        console.log(signUpToken);
         tranEmailApi
             .sendTransacEmail({
             sender,
@@ -211,7 +210,7 @@ const handleActiveAccount = async (customer_id) => {
     const sql = `UPDATE customer SET active = 1 WHERE customer_id = ?`;
     try {
         const result = await connection.query(sql, [customer_id]);
-        const sql2 = `UPDATE customer SET date_created = CURRENT_TIMESTAMP()`;
+        const sql2 = `UPDATE customer SET date_created = utc_timestamp()`;
         const result2 = await connection.query(sql2, null);
         const sql3 = `INSERT INTO customer_otp (customer_id) VALUES (?)`;
         const result3 = await connection.query(sql3, [customer_id]);

@@ -6,7 +6,7 @@ import SellerSidebar from "../SellerSidebar/SellerSidebar.js";
 const LayoutSeller = () => {
     return (
         <main className='App'>
-            <Header isSeller={true}/>
+            <Header isSeller={true} />
             <Outlet />
             <Footer />
         </main>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Loader from "./Loader";
+import Loader from "../Loader/Loader";
 import ProductCard from "./ProductCard";
 import axios from "../../api/axios";
 
@@ -28,7 +28,7 @@ const Products = ({ userInput }: ProductsProps) => {
         console.log(err);
         setStatus(false);
       });
-  }, []);
+  }, [userInput]);
 
   return (
     <div>

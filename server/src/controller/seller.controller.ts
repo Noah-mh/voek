@@ -80,7 +80,7 @@ export const processVerifyOTP = async (req: Request, res: Response, next: NextFu
                     }
                 },
                 config.accessTokenSecret!,
-                { expiresIn: '60s' }
+                { expiresIn: '300s' }
             );
             const refreshToken = jwt.sign(
                 {
@@ -90,7 +90,7 @@ export const processVerifyOTP = async (req: Request, res: Response, next: NextFu
                     }
                 },
                 config.refreshTokenSecret!,
-                { expiresIn: '3600s' }
+                { expiresIn: '1d' }
             );
             await sellerModel.handleStoreRefreshToken(refreshToken, response[0].seller_id);
             res.cookie('jwt', refreshToken, {
