@@ -40,6 +40,7 @@ const retrieveCartDetails = async (req, res, next) => {
 };
 exports.retrieveCartDetails = retrieveCartDetails;
 const alterCartDetails = async (req, res, next) => {
+    console.log("Connected to alter Controller");
     try {
         const { customer_id, sku, quantity, new_sku, product_id } = req.body;
         const response = await cartModel.handleAlterCart(customer_id, sku, quantity, new_sku, product_id);

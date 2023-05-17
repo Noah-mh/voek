@@ -7,9 +7,19 @@ import * as sellerModel from "../model/seller.model";
 // GET all products from 1 seller
 export const processGetAllProductsOfSeller = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        console.log("yes")
         const sellerId: number = parseInt(req.params.sellerId);
         const response: any = await sellerModel.handleGetAllProducts(sellerId);
+        return res.json(response);
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+// GET order details
+export const processGetOrderDetails = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const ordersId: number = parseInt(req.params.ordersId);
+        const response: any = await sellerModel.handleGetOrderDetails(ordersId);
         return res.json(response);
     } catch (err: any) {
         return next(err);
