@@ -12,7 +12,6 @@ const Products = ({ userInput }: ProductsProps) => {
   const [status, setStatus] = useState<boolean>(false);
 
   useEffect(() => {
-    console.log("userinput products:", userInput);
     axios
       .post(`/searchResult`, JSON.stringify({ input: userInput }), {
         headers: { "Content-Type": "application/json" },
