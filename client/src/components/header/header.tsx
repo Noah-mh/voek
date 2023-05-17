@@ -1,8 +1,9 @@
-import "./header.css";
+import "./css/header.css";
 import { useRef, useState, useEffect } from "react";
 import useCustomer from "../../hooks/UseCustomer";
 import useSeller from "../../hooks/useSeller";
 import LiveSearch from "./LiveSearch";
+import DropDownProfile from "./DropDownProfile";
 import { Link } from "react-router-dom";
 import axios from "../../api/axios";
 
@@ -18,6 +19,7 @@ interface Product {
 const Header = ({ isCustomer, isSeller }: Props) => {
   const [results, setResults] = useState<Array<object>>([]);
   const [searchResults, setSearchResults] = useState<Product[]>([]);
+  const [openProfile, setOpenProfile] = useState<boolean>(false);
 
   const ref: any = useRef();
 
@@ -72,9 +74,14 @@ const Header = ({ isCustomer, isSeller }: Props) => {
                   setSearchResults={setSearchResults}
                 />
                 <div className="ml-5 flex flex-row">
-                  <Link to="/profile" className="mx-2">
-                    <p className="text-purpleAccent">Profile</p>
-                  </Link>
+                  <div className="mx-2">
+                    <p
+                      className="text-purpleAccent hover:cursor-pointer"
+                      onClick={() => setOpenProfile(!openProfile)}
+                    >
+                      Profile
+                    </p>
+                  </div>
                   <Link to="/cart" className="mx-2">
                     <p className="text-purpleAccent">Cart</p>
                   </Link>
@@ -110,6 +117,7 @@ const Header = ({ isCustomer, isSeller }: Props) => {
           ) : null}
         </div>
       </div>
+      {openProfile && <DropDownProfile />}
     </nav>
   );
 };
