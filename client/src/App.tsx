@@ -25,7 +25,7 @@ import ForgetPasswordSeller from "./components/ForgetPasswordSeller/ForgetPasswo
 import HomepageSeller from "./components/HomepageSeller/HomepageSeller.js";
 import ViewMyOrders from "./components/ViewMyOrders/ViewMyOrders.js";
 import LastViewed from "./components/LastViewed(History)/LastViewed.js";
-
+import SomeComponent from "./components/Test/cloudinaryTest.js";
 function App() {
   return (
     <Routes>
@@ -48,6 +48,7 @@ function App() {
             path="productDetailsWithReviews/:product_id"
             element={<ProductDetailWithReview />}
           />
+          <Route path="test" element={<SomeComponent/>}/>
           <Route path="searchResults/:userInput" element={<SearchResults />} />
           <Route path="customer/cart" element={<CartPage />} />
 
