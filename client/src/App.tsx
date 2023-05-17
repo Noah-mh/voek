@@ -26,6 +26,7 @@ import HomepageSeller from "./components/HomepageSeller/HomepageSeller.js";
 import ViewMyOrders from "./components/ViewMyOrders/ViewMyOrders.js";
 import LastViewed from "./components/LastViewed(History)/LastViewed.js";
 import SomeComponent from "./components/Test/cloudinaryTest.js";
+import PayPal from "./components/PayPal/PayPal.js";
 function App() {
   return (
     <Routes>
@@ -60,6 +61,7 @@ function App() {
             <Route path="wishlist" element={<Wishlist />} />
             <Route path="customer/cart" element={<CartPage />} />
             <Route path="orders" element={<ViewMyOrders />} />
+            <Route path="paypal" element={<PayPal />} />
           </Route>
         </Route>
       </Route>

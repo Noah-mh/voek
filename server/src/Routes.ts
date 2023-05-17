@@ -82,6 +82,7 @@ export default function (app: Express, router: Router) {
   router.get('/customer/orders/:customer_id', orderController.processHandleGetCustomerOrders)
   router.get('/customer/delivered/orders/:customer_id', orderController.processhandleGetCustomerDeliveredOrders)
   router.get('/customer/received/orders/:customer_id', orderController.processGetCustomerReceivedOrders)
+  router.get('/customer/received/:orders_product_id', orderController.processOrderReceived);
 
   // NOAH ENDPOINTS - reviews
   router.get(

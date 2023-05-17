@@ -53,23 +53,24 @@ const ViewMyOrders = () => {
   }
 
   useEffect(() => {
-    const getAll = async () => {
-      try {
-        const result: any = await Promise.all([getOrders(), getDeliveredOrders(), getReceivedOrders()])
-        setOrders(result[0].data.listedOrders)
-        setDeliveredOrders(result[1].data.listedOrdersDelivered)
-        setReceivedOrders(result[2].data.listedOrdersReceived)
-      } catch (err: any) {
-        console.log(err);
-      }
-    }
     getAll()
   }, [])
+
+  const getAll = async () => {
+    try {
+      const result: any = await Promise.all([getOrders(), getDeliveredOrders(), getReceivedOrders()])
+      setOrders(result[0].data.listedOrders)
+      setDeliveredOrders(result[1].data.listedOrdersDelivered)
+      setReceivedOrders(result[2].data.listedOrdersReceived)
+    } catch (err: any) {
+      console.log(err);
+    }
+  }
 
   return (
     <div>
       <ViewOrders orders={orders} />
-      <ViewDelivered deliveredOrders={deliveredOrders} />
+      <ViewDelivered deliveredOrders={deliveredOrders} getAll={getAll} />
       <ViewReceived receivedOrders={receivedOrders} />
     </div>
   )
