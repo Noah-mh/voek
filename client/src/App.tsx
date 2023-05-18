@@ -27,11 +27,11 @@ import ManageProducts from "./components/SellerSidebar/ManageProducts.js";
 import AddProduct from "./components/SellerSidebar/AddProduct.js";
 import ManageOrders from "./components/SellerSidebar/ManageOrders.js";
 import Checkout from "./components/Checkout/Checkout.js";
-
 import ViewMyOrders from "./components/ViewMyOrders/ViewMyOrders.js";
 import LastViewed from "./components/LastViewed(History)/LastViewed.js";
 import SomeComponent from "./components/Test/cloudinaryTest.js";
 import ReferralLink from "./components/ReferralLink/ReferralLink.js";
+import ViewCustomerOrders from "./components/SellerSidebar/ViewCustomerOrders.js";
 
 function App() {
   return (
@@ -92,6 +92,7 @@ function App() {
             <Route path="seller/manageProducts" element={<ManageProducts />} />
             <Route path="seller/addProduct" element={<AddProduct />} />
             <Route path="seller/manageOrders" element={<ManageOrders />} />
+            <Route path="seller/orders" element={<ViewCustomerOrders />} />
           </Route>
         </Route>
       </Route>

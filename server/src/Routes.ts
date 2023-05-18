@@ -100,6 +100,36 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     customerController.processGetReferralId
   );
+  router.get(
+    "/seller/orders/:seller_id",
+    verifyJWT,
+    verifyRoles("seller"),
+    sellerController.processGetSellerOrders
+  );
+  router.get(
+    "/seller/orders/shipped/:seller_id",
+    verifyJWT,
+    verifyRoles("seller"),
+    sellerController.processGetSellerShipped
+  );
+  router.get(
+    "/seller/orders/delivered/:seller_id",
+    verifyJWT,
+    verifyRoles("seller"),
+    sellerController.processGetSellerDelivered
+  );
+  router.put(
+    "/seller/orders/shipped",
+    verifyJWT,
+    verifyRoles("seller"),
+    sellerController.processPackedAndShipped
+  )
+  router.get(
+    "/seller/customer/:orders_id/:seller_id",
+    verifyJWT,
+    verifyRoles("seller"),
+    sellerController.processGetCustomerOrders
+  )
 
   // NOAH ENDPOINTS - reviews
   router.get(

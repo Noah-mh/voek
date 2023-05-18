@@ -3,6 +3,7 @@ import config from '../../config/config';
 import { UserInfo } from '../interfaces/interfaces';
 import { Request, Response, NextFunction } from "express";
 import * as sellerModel from "../model/seller.model";
+import { parse } from 'path';
 
 // GET all products from 1 seller
 export const processGetAllProductsOfSeller = async (req: Request, res: Response, next: NextFunction) => {
@@ -228,6 +229,28 @@ export const processGetSellerDelivered = async (req: Request, res: Response, nex
         if (!seller_id) return res.sendStatus(400);
         const result = await sellerModel.handleGetSellerDelivered(seller_id);
         return res.json({ delivered: result });
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processPackedAndShipped = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { orders_product_id, customer_id } = req.body;
+        if (!orders_product_id || !customer_id) return res.sendStatus(400);
+        await sellerModel.handlePackedAndShipped(orders_product_id, customer_id);
+        return res.sendStatus(201);
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processGetCustomerOrders = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { seller_id, orders_id } = req.params;
+        if (!seller_id || !orders_id) return res.sendStatus(400);
+        const result = await sellerModel.handleGetCustomerOrders(parseInt(seller_id), parseInt(orders_id));
+        return res.json({ orders: result });
     } catch (err: any) {
         return next(err);
     }
