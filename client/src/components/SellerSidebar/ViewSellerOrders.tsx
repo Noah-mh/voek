@@ -19,6 +19,7 @@ interface Props {
 }
 
 const ViewSellerOrders = ({ orders }: Props) => {
+  console.log(orders)
   return (
     <div>ViewSellerOrders</div>
   )
