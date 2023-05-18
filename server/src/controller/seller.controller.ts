@@ -32,7 +32,7 @@ export const processLogin = async (req: Request, res: Response, next: NextFuncti
         return res.sendStatus(400);
     } else {
         try {
-            const response: UserInfo | null = await sellerModel.handleLogin(email, password);
+            const response: any = await sellerModel.handleLogin(email, password);
             if (response) {
                 return res.json(response);
             } else {

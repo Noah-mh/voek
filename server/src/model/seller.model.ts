@@ -325,10 +325,11 @@ export const handleGetSellerOrders = async (seller_id: string): Promise<Object[]
   const connection = await promisePool.getConnection();
   const sql = `
   SELECT orders.orders_id, orders.customer_id, orders_product.quantity, orders_product.total_price, orders.orders_date, orders_product.product_id, orders_product.orders_product_id,
-  product_variations.variation_1, product_variations.variation_2
+  product_variations.variation_1, product_variations.variation_2, customer.username, customer.email
       FROM orders_product
       JOIN orders ON orders_product.orders_id = orders.orders_id
       JOIN product_variations ON orders_product.sku = product_variations.sku
+      JOIN customer ON orders.customer_id = customer.customer_id
   WHERE orders_product.product_id in (
       SELECT listed_products.product_id FROM listed_products WHERE seller_id = ?
   ) AND orders_product.shipment_id IS NULL
@@ -346,11 +347,12 @@ export const handleGetSellerShipped = async (seller_id: string): Promise<Object[
   const connection = await promisePool.getConnection();
   const sql = `
   SELECT orders.orders_id, orders.customer_id, orders_product.quantity, orders_product.total_price, shipment.shipment_created, orders_product.product_id, orders_product.orders_product_id,
-  product_variations.variation_1, product_variations.variation_2
+  product_variations.variation_1, product_variations.variation_2, customer.username, customer.email
       FROM orders_product
       JOIN orders ON orders_product.orders_id = orders.orders_id
       JOIN product_variations ON orders_product.sku = product_variations.sku
       JOIN shipment on orders_product.shipment_id = shipment.shipment_id
+    JOIN customer ON orders.customer_id = customer.customer_id
   WHERE orders_product.product_id in (
       SELECT listed_products.product_id FROM listed_products WHERE seller_id = ?
   ) AND orders_product.shipment_id IS NOT NULL AND shipment.shipment_delivered IS NULL
@@ -368,11 +370,12 @@ export const handleGetSellerDelivered = async (seller_id: string): Promise<Objec
   const connection = await promisePool.getConnection();
   const sql = `
   SELECT orders.orders_id, orders.customer_id, orders_product.quantity, orders_product.total_price, shipment.shipment_delivered, orders_product.product_id, orders_product.orders_product_id,
-  product_variations.variation_1, product_variations.variation_2
+  product_variations.variation_1, product_variations.variation_2, customer.username, customer.email
       FROM orders_product
       JOIN orders ON orders_product.orders_id = orders.orders_id
       JOIN product_variations ON orders_product.sku = product_variations.sku
       JOIN shipment on orders_product.shipment_id = shipment.shipment_id
+    JOIN customer ON orders.customer_id = customer.customer_id
   WHERE orders_product.product_id in (
       SELECT listed_products.product_id FROM listed_products WHERE seller_id = ?
   ) AND orders_product.shipment_id IS NOT NULL AND shipment.shipment_delivered IS NOT NULL
