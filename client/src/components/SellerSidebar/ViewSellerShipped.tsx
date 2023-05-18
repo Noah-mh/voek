@@ -13,6 +13,7 @@ interface Order {
   shipment_created?: string;
   shipment_delivered?: string;
   total_price: number;
+  name: string;
 }
 
 interface Props {

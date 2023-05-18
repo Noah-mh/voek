@@ -317,6 +317,8 @@ export const handleResetPassword = async (password: string, seller_id: string): 
     return (result[0] as any).affectedRows as number;
   } catch (err: any) {
     throw new Error(err);
+  } finally {
+    await connection.release();
   }
 }
 
@@ -324,12 +326,13 @@ export const handleGetSellerOrders = async (seller_id: string): Promise<Object[]
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `
-  SELECT orders.orders_id, orders.customer_id, orders_product.quantity, orders_product.total_price, orders.orders_date, orders_product.product_id, orders_product.orders_product_id,
+  SELECT products.name, orders.orders_id, orders.customer_id, orders_product.quantity, orders_product.total_price, orders.orders_date, orders_product.product_id, orders_product.orders_product_id,
   product_variations.variation_1, product_variations.variation_2, customer.username, customer.email
       FROM orders_product
       JOIN orders ON orders_product.orders_id = orders.orders_id
       JOIN product_variations ON orders_product.sku = product_variations.sku
       JOIN customer ON orders.customer_id = customer.customer_id
+      JOIN products ON orders_product.product_id = products.product_id
   WHERE orders_product.product_id in (
       SELECT listed_products.product_id FROM listed_products WHERE seller_id = ?
   ) AND orders_product.shipment_id IS NULL
@@ -339,6 +342,8 @@ export const handleGetSellerOrders = async (seller_id: string): Promise<Object[]
     return result[0] as Object[];
   } catch (err: any) {
     throw new Error(err);
+  } finally {
+    await connection.release();
   }
 }
 
@@ -346,12 +351,13 @@ export const handleGetSellerShipped = async (seller_id: string): Promise<Object[
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `
-  SELECT orders.orders_id, orders.customer_id, orders_product.quantity, orders_product.total_price, shipment.shipment_created, orders_product.product_id, orders_product.orders_product_id,
+  SELECT products.name, orders.orders_id, orders.customer_id, orders_product.quantity, orders_product.total_price, shipment.shipment_created, orders_product.product_id, orders_product.orders_product_id,
   product_variations.variation_1, product_variations.variation_2, customer.username, customer.email
       FROM orders_product
       JOIN orders ON orders_product.orders_id = orders.orders_id
       JOIN product_variations ON orders_product.sku = product_variations.sku
       JOIN shipment on orders_product.shipment_id = shipment.shipment_id
+      JOIN products ON orders_product.product_id = products.product_id
     JOIN customer ON orders.customer_id = customer.customer_id
   WHERE orders_product.product_id in (
       SELECT listed_products.product_id FROM listed_products WHERE seller_id = ?
@@ -362,6 +368,8 @@ export const handleGetSellerShipped = async (seller_id: string): Promise<Object[
     return result[0] as Object[];
   } catch (err: any) {
     throw new Error(err);
+  } finally {
+    await connection.release()
   }
 }
 
@@ -369,12 +377,13 @@ export const handleGetSellerDelivered = async (seller_id: string): Promise<Objec
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `
-  SELECT orders.orders_id, orders.customer_id, orders_product.quantity, orders_product.total_price, shipment.shipment_delivered, orders_product.product_id, orders_product.orders_product_id,
+  SELECT products.name, orders.orders_id, orders.customer_id, orders_product.quantity, orders_product.total_price, shipment.shipment_delivered, orders_product.product_id, orders_product.orders_product_id,
   product_variations.variation_1, product_variations.variation_2, customer.username, customer.email
       FROM orders_product
       JOIN orders ON orders_product.orders_id = orders.orders_id
       JOIN product_variations ON orders_product.sku = product_variations.sku
       JOIN shipment on orders_product.shipment_id = shipment.shipment_id
+      JOIN products ON orders_product.product_id = products.product_id
     JOIN customer ON orders.customer_id = customer.customer_id
   WHERE orders_product.product_id in (
       SELECT listed_products.product_id FROM listed_products WHERE seller_id = ?
@@ -385,6 +394,8 @@ export const handleGetSellerDelivered = async (seller_id: string): Promise<Objec
     return result[0] as Object[];
   } catch (err: any) {
     throw new Error(err);
+  } finally {
+    await connection.release()
   }
 }
 
