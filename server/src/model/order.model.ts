@@ -4,11 +4,12 @@ export const handleGetCustomerOrders = async (customer_id: number): Promise<Obje
     const promisePool = pool.promise();
     const connection = await promisePool.getConnection();
     const sql = `
-    SELECT products.description, products.name, products.price, products.product_id, product_variations.variation_1, product_variations.variation_2, orders_product.quantity, orders_product.sku,
-    orders.orders_date FROM orders
+    SELECT products.description, products.name, product_variations.price, products.product_id, product_variations.variation_1, product_variations.variation_2, orders_product.quantity, orders_product.sku,
+    orders.orders_date, product_images.image_url FROM orders
         JOIN orders_product ON orders.orders_id = orders_product.orders_id
         JOIN products ON orders_product.product_id = products.product_id
         JOIN product_variations ON orders_product.sku = product_variations.sku
+        JOIN product_images ON orders_product.sku = product_images.sku
         WHERE orders_product.orders_id in (
             SELECT orders.orders_id FROM orders WHERE orders.customer_id = ?
         ) AND orders_product.shipment_id IS NULL
@@ -27,7 +28,7 @@ export const handleGetCustomerDeliveredOrders = async (customer_id: number): Pro
     const promisePool = pool.promise();
     const connection = await promisePool.getConnection();
     const sql = `
-    SELECT products.description, products.name, products.price, products.product_id, product_variations.variation_1, product_variations.variation_2, orders_product.quantity, orders_product.sku,
+    SELECT products.description, products.name, product_variations.price, products.product_id, product_variations.variation_1, product_variations.variation_2, orders_product.quantity, orders_product.sku,
     shipment.shipment_created, orders_product.orders_product_id, product_images.image_url FROM orders
         JOIN orders_product ON orders.orders_id = orders_product.orders_id
         JOIN products ON orders_product.product_id = products.product_id
@@ -55,7 +56,7 @@ export const handleGetCustomerReceivedOrders = async (customer_id: number): Prom
     const promisePool = pool.promise();
     const connection = await promisePool.getConnection();
     const sql = `
-    SELECT products.description, products.name, products.price, products.product_id, product_variations.variation_1, product_variations.variation_2, orders_product.quantity, orders_product.sku,
+    SELECT products.description, products.name, product_variations.price, products.product_id, product_variations.variation_1, product_variations.variation_2, orders_product.quantity, orders_product.sku,
     shipment.shipment_delivered, product_images.image_url FROM orders
         JOIN orders_product ON orders.orders_id = orders_product.orders_id
         JOIN products ON orders_product.product_id = products.product_id

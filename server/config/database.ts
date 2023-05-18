@@ -12,7 +12,8 @@ const pool = mysql2.createPool({
     connectionLimit: process.env.DB_CONNECTION_LIMIT as unknown as number,
     ssl: {
         rejectUnauthorized: false,
-    }
+    },
+    dateStrings: true
 })
 
 export default pool

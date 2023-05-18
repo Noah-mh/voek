@@ -3,9 +3,11 @@ import useCustomer from "../../hooks/UseCustomer";
 import noImage from "../../img/product/No_Image_Available.jpg";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 // import ConfirmModal from "./ConfirmModal";
+import "flowbite";
 
 import "./UserCart.css";
 import { Link } from "react-router-dom";
+import PayPal from "../PayPal/PayPal";
 
 export default function cartPage(): JSX.Element {
   const { customer } = useCustomer();
@@ -36,7 +38,7 @@ export default function cartPage(): JSX.Element {
     coins: number;
     total: number;
   }
-
+  const [isChecked, setIsChecked] = useState<boolean>(false);
   const [isInputDisabled, setIsInputDisabled] = useState<boolean>(false);
   const [userCoins, setUserCoins] = useState<number>(0);
   const [checkCoinsRedeem, setCheckCoinsRedeem] = useState<boolean>(false);
@@ -51,16 +53,6 @@ export default function cartPage(): JSX.Element {
     coins: 0,
     total: 0,
   });
-  // const [toggle, setToggle] = useState<boolean>(false);
-
-  const redeemCoins = () => {
-    // setCheckCoinsRedeem(true);
-    // const newTotalAmt: totalCart = {
-    //   ...totalAmt,
-    //   coins: 0,
-    // };
-    // setTotalAmt(newTotalAmt);
-  };
 
   const getCoins = async () => {
     axiosPrivateCustomer
@@ -126,7 +118,6 @@ export default function cartPage(): JSX.Element {
         }
       });
   };
-
   const handleQuantityChange = (item: cartItem, change: number) => {
     const updatedCart = userCart.map((cartItem) => {
       if (cartItem.sku === item.sku) {
@@ -187,6 +178,21 @@ export default function cartPage(): JSX.Element {
       });
   }, [changedQuantState]);
 
+  useEffect(() => {
+    const discAmt = Math.floor(totalAmt.coins / 10);
+    if (isChecked) {
+      setTotalAmt({
+        ...totalAmt,
+        total: Number((totalAmt.total - discAmt).toFixed(2)),
+      });
+    } else {
+      setTotalAmt({
+        ...totalAmt,
+        total: Number((totalAmt.total + discAmt).toFixed(2)),
+      });
+    }
+  }, [isChecked]);
+
   return (
     <div className="container flex">
       <div className="w-2/3 bg-white rounded-lg shadow-lg p-2">
@@ -239,7 +245,6 @@ export default function cartPage(): JSX.Element {
                     handleQuantityChange(item, 1);
                   }
                 }}
-                // disabled={item.quantity >= item.stock}
               >
                 +
               </button>
@@ -282,16 +287,16 @@ export default function cartPage(): JSX.Element {
                 value=""
                 className="sr-only peer"
                 disabled={isInputDisabled}
-                onClick={redeemCoins}
-                checked={checkCoinsRedeem}
+                onClick={() => setCheckCoinsRedeem(true)}
+                onChange={() => {
+                  isChecked ? setIsChecked(false) : setIsChecked(true);
+                }}
               />
               <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
             </label>
           </div>
 
-          <button className="bg-white text-softerPurple text-sm font-bold px-4 py-2 rounded-lg mt-4 w-full">
-            Checkout
-          </button>
+          <PayPal amount={totalAmt.total} />
         </div>
       </div>
     </div>

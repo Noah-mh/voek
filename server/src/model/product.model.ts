@@ -244,7 +244,8 @@ LEFT JOIN (
     JSON_ARRAYAGG(
       JSON_OBJECT(
         'variation_1', variation_1,
-        'variation_2', variation_2
+        'variation_2', variation_2,
+        'price', price
       )
     ) AS variations
   FROM product_variations
