@@ -36,7 +36,8 @@ const ViewReceived = ({ receivedOrders }: Props) => {
   };
 
   const handleSubmit = (rating: number, comment: string) => {
-    // handle submit action
+    console.log(rating, comment);
+    setIsModalOpen(false);
   };
 
   return (
