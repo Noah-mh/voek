@@ -196,7 +196,7 @@ export default function (app: Express, router: Router) {
     "/getRecommendedProductBasedOnCat/:category_id",
     verifyJWT,
     verifyRoles("customer"),
-    productController.getRecommendedProductBasedOnCat
+    productController.getRecommendedProductBasedOnCatWishlist
   );
 
   router.get(

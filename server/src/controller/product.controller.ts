@@ -36,7 +36,7 @@ export const getRecommendedProductsBasedOnCat = async (
   }
 };
 
-export const getRecommendedProductBasedOnCat = async (
+export const getRecommendedProductBasedOnCatWishlist = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -44,9 +44,8 @@ export const getRecommendedProductBasedOnCat = async (
   try {
     const { category_id } = req.params;
     const categoryId = parseInt(category_id);
-    console.log("categoryId", categoryId);
     const response: Array<object> =
-      await productModel.handlesGetRecommendedProductBasedOnCat(categoryId);
+      await productModel.handlesGetRecommendedProductBasedOnCatWishlist(categoryId);
     return res.send(response);
   } catch (err: any) {
     return next(err);
