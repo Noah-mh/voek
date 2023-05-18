@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import useAxiosPrivateCustomer from '../../hooks/UseAxiosPrivateCustomer';
+import useAxiosPrivateCustomer from '../../hooks/useAxiosPrivateCustomer';
 
 
 interface Product {
@@ -15,6 +15,7 @@ interface Product {
   shipment_created?: string;
   shipment_delivered?: string
   orders_product_id?: number;
+  image_url?: string;
 }
 
 
@@ -29,7 +30,7 @@ const ViewDelivered = ({ deliveredOrders, getAll }: Props) => {
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
 
   const buttonHandler = async (orders_product_id: number) => {
-    try { 
+    try {
       const result = await axiosPrivateCustomer.get(`/customer/received/${orders_product_id}`)
       getAll();
     } catch (err: any) {
