@@ -25,29 +25,26 @@ const ViewSellerOrders = ({ orders }: Props) => {
 
   const [orderedOrders, setOrderedOrders] = useState<any>()
 
-  const orderOrders = () => {
-    const updatedOrders: any = {}
-
-    orders.forEach(order => {
-      const { orders_id } = order;
-
-      if (updatedOrders[orders_id]) {
-        updatedOrders[orders_id].push(order);
-      } else {
-        updatedOrders[orders_id] = [order];
-      }
-    });
-
-    const orderedOrdersArray = Object.values(updatedOrders);
-    setOrderedOrders(orderedOrdersArray)
-  };
-
 
   useEffect(() => {
+    const orderOrders = () => {
+      const updatedOrders: any = {}
+
+      orders.forEach(order => {
+        const { orders_id } = order;
+
+        if (updatedOrders[orders_id]) {
+          updatedOrders[orders_id].push(order);
+        } else {
+          updatedOrders[orders_id] = [order];
+        }
+      });
+
+      const orderedOrdersArray = Object.values(updatedOrders);
+      setOrderedOrders(orderedOrdersArray)
+    };
     orderOrders()
-    console.log(orders)
-    console.log(orderedOrders)
-  }, [])
+  }, [orders])
 
   return (
     <section className="container mx-auto p-6 font-mono">

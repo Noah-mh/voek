@@ -19,7 +19,7 @@ interface Order {
   orders_date?: string;
   shipment_created?: string;
   shipment_delivered?: string;
-  total_price: number; 
+  total_price: number;
 }
 
 const ManageOrders = () => {
@@ -56,6 +56,10 @@ const ManageOrders = () => {
     }
   }
 
+  useEffect(() => {
+    getAll()
+  }, [])
+
   const getAll = async () => {
     try {
       const result: any = await Promise.all([getOrders(), getShippedOrders(), getDeliveredOrders()])
@@ -66,10 +70,6 @@ const ManageOrders = () => {
       console.log(err);
     }
   }
-
-  useEffect(() => {
-    getAll()
-  }, [])
 
 
   return (
