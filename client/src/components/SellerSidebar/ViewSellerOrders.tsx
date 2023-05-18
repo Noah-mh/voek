@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller";
 
 interface Order {
   orders_id: number;
@@ -20,12 +21,15 @@ interface Order {
 
 interface Props {
   orders: Order[];
+  getAll: () => void;
 }
 
 
 const ViewSellerOrders = ({ orders }: Props) => {
 
-  const [orderedOrders, setOrderedOrders] = useState<any>()
+  const [orderedOrders, setOrderedOrders] = useState<any>();
+
+  const axiosPrivateSeller = useAxiosPrivateSeller();
 
 
   useEffect(() => {
@@ -56,7 +60,7 @@ const ViewSellerOrders = ({ orders }: Props) => {
     return totalAmt
   }
 
-  const onClickHandler = async (orders_id: number) => {
+  const onClickHandler = async (orders_id: number, customer_id: number) => {
     const orders_product_id: number[] = [];
     orderedOrders.forEach((orders: any) => {
       orders.forEach((order: Order) => {
@@ -65,7 +69,7 @@ const ViewSellerOrders = ({ orders }: Props) => {
         }
       })
     })
-    console.log(orders_product_id)
+    await axiosPrivateSeller.put('/seller/orders/shipped', { orders_product_id, customer_id });
   }
 
   return (
@@ -117,7 +121,7 @@ const ViewSellerOrders = ({ orders }: Props) => {
                             View Order Detail
                           </button>
                         </Link>
-                        <button className="ms-7 font-bold text-sm bg-cyan" onClick={() => { onClickHandler(order[0].orders_id) }}>Pack And Ship</button>
+                        <button className="ms-7 font-bold text-sm bg-cyan" onClick={() => { onClickHandler(order[0].orders_id, order[0].customer_id) }}>Pack And Ship</button>
                       </td>
                     </tr>
                   ))

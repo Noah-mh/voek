@@ -30,7 +30,7 @@ import ViewMyOrders from "./components/ViewMyOrders/ViewMyOrders.js";
 import LastViewed from "./components/LastViewed(History)/LastViewed.js";
 import SomeComponent from "./components/Test/cloudinaryTest.js";
 import ReferralLink from "./components/ReferralLink/ReferralLink.js";
-import ViewCustomerOrders from "./components/ViewMyOrders/ViewCustomerOrders.js";
+import ViewCustomerOrders from "./components/SellerSidebar/ViewCustomerOrders.js";
 
 function App() {
   return (

@@ -59,7 +59,7 @@ const ManageOrders = () => {
 
   useEffect(() => {
     getAll()
-  }, [])
+  }, [orders, shippedOrders, deliveredOrders])
 
   const getAll = async () => {
     try {
@@ -78,7 +78,7 @@ const ManageOrders = () => {
       <SellerSidebar />
       <div>
         <div>
-          <ViewSellerOrders orders={orders} />
+          <ViewSellerOrders orders={orders} getAll={getAll} />
           <ViewSellerShipped shippedOrders={shippedOrders} />
           <ViewSellerDelivered deliveredOrders={deliveredOrders} />
         </div>
