@@ -1,23 +1,29 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import ProductCard from "./ProductCard";
 import Loader from "../Loader/Loader";
-import axios from "../../api/axios";
+import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
+import CustomerContext from "../../context/CustomerProvider";
 
 interface HistoryProductsProps {
   selected: string;
 }
 
 const HistoryProducts = ({ selected }: HistoryProductsProps) => {
+  const axiosPrivateCustomer = useAxiosPrivateCustomer();
+
   const [products, setProducts] = useState<Array<object>>([]);
   const [status, setStatus] = useState<boolean>(false);
+
+  const { customer } = useContext(CustomerContext);
+  const customerId = customer.customer_id;
 
   useEffect(() => {
     // fetch products from selected date
     console.log("selected: ", selected);
-    axios
+    axiosPrivateCustomer
       .post(
         `/getLastViewed`,
-        JSON.stringify({ customerId: 1, dateViewed: selected }),
+        JSON.stringify({ customerId, dateViewed: selected }),
         {
           headers: { "Content-Type": "application/json" },
           withCredentials: true,

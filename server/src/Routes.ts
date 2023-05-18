@@ -19,10 +19,7 @@ export default function (app: Express, router: Router) {
     "/customer/auth/email/OTP",
     customerController.processSendEmailOTP
   );
-  router.post(
-    "/customer/auth/verify/OTP",
-    customerController.processVerifyOTP
-  );
+  router.post("/customer/auth/verify/OTP", customerController.processVerifyOTP);
   router.post(
     "/customer/signup/link/:referral_id",
     customerController.processSendEmailLink
@@ -60,10 +57,7 @@ export default function (app: Express, router: Router) {
     "/seller/verify/reset/password",
     sellerController.processForgetPasswordLink
   );
-  router.post(
-    "/seller/reset/password",
-    sellerController.processResetPassword
-  );
+  router.post("/seller/reset/password", sellerController.processResetPassword);
   router.get(
     "/customer/orders/:customer_id",
     verifyJWT,
@@ -82,10 +76,30 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     orderController.processGetCustomerReceivedOrders
   );
-  router.get('/customer/received/:orders_product_id', verifyJWT, verifyRoles('customer'), orderController.processOrderReceived);
-  router.post('/create-paypal-order', verifyJWT, verifyRoles('customer'), paypalController.processCreatePaypalOrder)
-  router.post('/capture-paypal-order', verifyJWT, verifyRoles('customer'), paypalController.processCapturePaypalOrder)
-  router.get('/customer/referral-id/:customer_id', verifyJWT, verifyRoles('customer'), customerController.processGetReferralId)
+  router.get(
+    "/customer/received/:orders_product_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    orderController.processOrderReceived
+  );
+  router.post(
+    "/create-paypal-order",
+    verifyJWT,
+    verifyRoles("customer"),
+    paypalController.processCreatePaypalOrder
+  );
+  router.post(
+    "/capture-paypal-order",
+    verifyJWT,
+    verifyRoles("customer"),
+    paypalController.processCapturePaypalOrder
+  );
+  router.get(
+    "/customer/referral-id/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processGetReferralId
+  );
 
   // NOAH ENDPOINTS - reviews
   router.get(
@@ -104,15 +118,21 @@ export default function (app: Express, router: Router) {
     "/products/:sellerId",
     sellerController.processGetAllProductsOfSeller
   );
-  router.get(
-    "/orders/:ordersId",
-    sellerController.processGetOrderDetails
-  )
-  
+  router.get("/orders/:ordersId", sellerController.processGetOrderDetails);
 
   // NHAT TIEN ENDPOINTS - Homepage, Last Viewed, Wishlist, Product Details
-  router.post("/getWishlistItems", productController.getWishlistItems);
-  router.post("/getLastViewed", productController.getLastViewed);
+  router.post(
+    "/getWishlistItems",
+    verifyJWT,
+    verifyRoles("customer"),
+    productController.getWishlistItems
+  );
+  router.post(
+    "/getLastViewed",
+    verifyJWT,
+    verifyRoles("customer"),
+    productController.getLastViewed
+  );
   router.post("/productDetails", productController.processPublicProductDetails);
 
   router.get(
@@ -150,6 +170,8 @@ export default function (app: Express, router: Router) {
   );
   router.post(
     "/checkWishlistProductExistence",
+    verifyJWT,
+    verifyRoles("customer"),
     productController.checkWishListProductExistence
   );
   router.get("/getAllListedProducts", productController.getAllListedProducts);

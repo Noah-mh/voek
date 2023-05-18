@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
-import axios from "../../api/axios";
+import { useEffect, useState, useContext } from "react";
+import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import { macbook } from "./images";
 import Loader from "../Loader/Loader";
+import CustomerContext from "../../context/CustomerProvider";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
@@ -20,18 +21,30 @@ interface ModalProps {
   };
 }
 
+interface variation {
+  active: number;
+  product_id: number;
+  quantity: number;
+  sku: string;
+  variation_1: string | null;
+  variation_2: string | null;
+}
+
 const Modal = ({ setModalOpen, product }: ModalProps) => {
+  const axiosPrivateCustomer = useAxiosPrivateCustomer();
+
   const [status, setStatus] = useState<boolean>(false);
-  const [variations, setVariations] = useState<Array<object>>([]);
+  const [variations, setVariations] = useState<Array<variation>>([]);
   const [quantity, setQuantity] = useState<number>(1);
   const [stock, setStock] = useState<number>(0);
   const [chosenSKU, setChosenSKU] = useState<string>("");
   const [notificationStatus, setNotificationStatus] = useState<boolean>(false);
 
-  const [customerId, setCustomerId] = useState<number>(1);
+  const { customer } = useContext(CustomerContext);
+  const customerId = customer.customer_id;
 
   const addToCart = () => {
-    axios
+    axiosPrivateCustomer
       .post(
         `/insertCart`,
         JSON.stringify({
@@ -77,10 +90,11 @@ const Modal = ({ setModalOpen, product }: ModalProps) => {
   };
 
   useEffect(() => {
-    axios
+    axiosPrivateCustomer
       .get(`/getProductVariations/${product.product_id}`)
       .then((response: any) => response.data)
-      .then((data: Array<object>) => {
+      .then((data: Array<variation>) => {
+        console.log("data: ", data);
         setStatus(true);
         setVariations(data);
       })
@@ -89,6 +103,17 @@ const Modal = ({ setModalOpen, product }: ModalProps) => {
         setStatus(false);
       });
   }, []);
+
+  useEffect(() => {
+    if (
+      variations.length === 1 &&
+      variations[0].variation_1 == null &&
+      variations[0].variation_2 == null
+    ) {
+      setChosenSKU(variations[0].sku);
+      setStock(variations[0].quantity);
+    }
+  }, [variations]);
 
   useEffect(() => {
     setQuantity(1);

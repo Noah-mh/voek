@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Modal from "./Modal";
 import { macbook } from "./images";
+import { Link } from "react-router-dom";
 
 interface ProductCardProps {
   product: {
@@ -17,16 +18,20 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
   return (
     <div>
-      <div className="w-full max-w-sm bg-gray-50 hover:bg-lighterGreyAccent border rounded-lg shadow-xl p-2 m-2 hover:cursor-pointer">
-        <a href="#">
-          <img className="p-8 rounded-t-lg" src={macbook} alt="product image" />
-        </a>
+      <div className="w-full max-w-sm bg-gray-50 border rounded-lg shadow-xl p-2 m-2">
+        <Link to={`/productDetailsWithReviews/${product.product_id}`}>
+          <img
+            className="p-8 rounded-t-lg hover:cursor-pointer"
+            src={macbook}
+            alt="product image"
+          />
+        </Link>
         <div className="px-5 pb-5">
-          <a href="#">
-            <h5 className="text-xl text-ellipsis overflow-hidden whitespace-nowrap w-full font-semibold tracking-tight text-greyAccent">
+          <Link to={`/productDetailsWithReviews/${product.product_id}`}>
+            <h5 className="text-xl text-ellipsis overflow-hidden whitespace-nowrap w-full font-semibold tracking-tight text-greyAccent hover:text-gray-800 hover:cursor-pointer">
               {product.name}
             </h5>
-          </a>
+          </Link>
           <div className="flex items-center mt-2.5 mb-5">
             <span className="bg-softerPurple text-lighterGreyAccent text-xs font-semibold mr-2 px-2.5 py-0.5 rounded ml-3">
               5.0

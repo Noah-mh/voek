@@ -93,6 +93,7 @@ export const handlesGetLastViewed = async (
   JOIN customer ON last_viewed.customer_id = customer.customer_id
   JOIN products ON last_viewed.product_id = products.product_id
   WHERE last_viewed.customer_id = ? and last_viewed.date_viewed LIKE ?;`;
+  console.log("customerId", customer_id);
   const params = [customer_id, `${date_viewed}%`];
   try {
     const result = await connection.query(sql, params);
@@ -208,10 +209,7 @@ export const handlesDeletingWishlistedProduct = async (
   const connection = await promisePool.getConnection();
   const sql = `DELETE FROM wishlist WHERE wishlist.customer_id = ? and wishlist.product_id = ?;`;
   try {
-    const result = await connection.query(sql, [
-      customer_id,
-      product_id,
-    ]);
+    const result = await connection.query(sql, [customer_id, product_id]);
     console.log(result[0]);
     return (result[0] as any).affectedRows as number;
   } catch (err: any) {
