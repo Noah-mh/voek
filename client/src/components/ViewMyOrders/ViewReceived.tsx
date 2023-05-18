@@ -3,7 +3,8 @@ import { AdvancedImage } from "@cloudinary/react";
 import { Link } from 'react-router-dom';
 import { useState } from "react";
 import ModalComponent from "./ModelForRating";
-
+import useCustomer from "../../hooks/UseCustomer";
+import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 interface Product {
   description: string;
   name: string;
@@ -24,7 +25,13 @@ interface Props {
 }
 
 const ViewReceived = ({ receivedOrders }: Props) => {
+  const axiosPrivateCustomer = useAxiosPrivateCustomer();
+  const { customer } = useCustomer();
+  const customer_id = customer.customer_id;
+
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [order, setOrder] = useState<Product>({} as Product);
+
   // ...
 
   const handleOpenModal = () => {
@@ -35,9 +42,24 @@ const ViewReceived = ({ receivedOrders }: Props) => {
     setIsModalOpen(false);
   };
 
-  const handleSubmit = (rating: number, comment: string) => {
-    console.log(rating, comment);
-    setIsModalOpen(false);
+  const handleSubmit = (rating: number, comment: string, image_url: string) => {
+
+    axiosPrivateCustomer.post("/addReview", JSON.stringify({ customer_id, product_id: order.product_id, sku: order.sku, rating, comment }),
+      {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true,
+      }).then((response) => {
+        axiosPrivateCustomer.post("/addReviewImages", JSON.stringify({ review_id: response.data.response, image_url }),
+          {
+            headers: { "Content-Type": "application/json" },
+            withCredentials: true,
+          })
+      }).catch((err) => {
+        console.log(err);
+      }).finally(() => {
+        setIsModalOpen(false);
+      })
+
   };
 
   return (
@@ -67,7 +89,10 @@ const ViewReceived = ({ receivedOrders }: Props) => {
             <h3 className="mt-2 text-lg">Shipment was received on {convertUtcToLocal(order.shipment_delivered!)}</h3>
           </div>
           <button
-            onClick={handleOpenModal}
+            onClick={() => {
+              handleOpenModal()
+              setOrder(order)
+            }}
             className="flex items-center justify-center space-x-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
           >
             Rate

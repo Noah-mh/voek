@@ -1,4 +1,5 @@
 import pool from "../../config/database";
+import { OkPacket } from "mysql2";
 
 export const handlesGetProductDetails = async (
   productId: number
@@ -123,7 +124,9 @@ export const handlesTopProducts = async (): Promise<Product[]> => {
   }
 };
 
-export const handlesSearchBarPredictions = async (): Promise<Product[]> => {
+export const handlesSearchBarPredictions = async (): Promise<
+  Product[]
+> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT products.product_id, products.name 
@@ -191,7 +194,10 @@ export const handlesInsertingWishlistedProduct = async (
   const connection = await promisePool.getConnection();
   const sql = `INSERT INTO wishlist (customer_id, product_id) VALUES (?, ?);`;
   try {
-    const result = await connection.query(sql, [customer_id, product_id]);
+    const result = await connection.query(sql, [
+      customer_id,
+      product_id,
+    ]);
     return (result[0] as any).affectedRows as number;
   } catch (err: any) {
     throw new Error(err);
@@ -226,6 +232,7 @@ export const handleProductDetailsWithoutReviews = async (
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT 
+  p.product_id,
   p.name,
   p.description,
   img.image_urls,
@@ -245,7 +252,9 @@ LEFT JOIN (
       JSON_OBJECT(
         'variation_1', variation_1,
         'variation_2', variation_2,
-        'price', price
+        'price', price,
+        'sku', sku,
+        'quantity', quantity
       )
     ) AS variations
   FROM product_variations
@@ -270,27 +279,45 @@ export const handleProductReviews = async (
 ): Promise<Review[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `SELECT p.name,
-  (SELECT JSON_ARRAYAGG(COALESCE(ri.image_url, 'test/1_cksdtz'))
-   FROM review_images ri
-   INNER JOIN review r ON ri.review_id = r.review_id
-   WHERE r.product_id = p.product_id) AS image_urls,
+  const sql = `SELECT 
+  p.name,
   ROUND(AVG(r.rating), 2) AS rating,
-  (SELECT JSON_ARRAYAGG(JSON_OBJECT(
-            'customerName', c.username,
-            'comment', r.comment
-          ))
-   FROM review r
-   INNER JOIN customer c ON r.customer_id = c.customer_id
-   WHERE r.sku IN (
-     SELECT pv.sku
-     FROM product_variations pv
-     WHERE pv.product_id = p.product_id
-   )) AS reviews
-FROM products p
-LEFT JOIN review r ON p.product_id = r.product_id
-WHERE p.product_id = ?
-GROUP BY p.product_id, p.name;
+  (SELECT 
+      JSON_ARRAYAGG(
+          JSON_OBJECT(
+              'customerName', c.username,
+              'comment', r.comment,
+              'image_urls', (SELECT 
+                                  JSON_ARRAYAGG(
+                                      COALESCE(ri.image_url, 'test/1_cksdtz')
+                                  ) 
+                              FROM 
+                                  review_images ri
+                              WHERE 
+                                  ri.review_id = r.review_id)
+          )
+      )
+  FROM 
+      review r
+      INNER JOIN customer c ON r.customer_id = c.customer_id
+  WHERE 
+      r.sku IN (
+          SELECT 
+              pv.sku
+          FROM 
+              product_variations pv
+          WHERE 
+              pv.product_id = p.product_id
+      )
+  ) AS reviews
+FROM 
+  products p
+  LEFT JOIN review r ON p.product_id = r.product_id
+WHERE 
+  p.product_id = ?
+GROUP BY 
+  p.product_id, 
+  p.name;
     `;
 
   try {
@@ -312,7 +339,10 @@ export const handlesCheckWishlistProductExistence = async (
   const connection = await promisePool.getConnection();
   const sql = `SELECT * FROM wishlist WHERE wishlist.customer_id = ? and wishlist.product_id = ?;`;
   try {
-    const result = await connection.query(sql, [customer_id, product_id]);
+    const result = await connection.query(sql, [
+      customer_id,
+      product_id,
+    ]);
     console.log(result[0]);
     return result[0] as Array<Object>;
   } catch (err: any) {
@@ -338,7 +368,9 @@ export const handlesGetAllListedProducts = async () => {
   }
 };
 
-export const handlesGetProductVariations = async (productId: number) => {
+export const handlesGetProductVariations = async (
+  productId: number
+) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT * FROM product_variations WHERE product_variations.product_id = ?;`;
@@ -350,6 +382,52 @@ export const handlesGetProductVariations = async (productId: number) => {
   } finally {
     await connection.release();
   }
+};
+
+export const handleAddToCart = async (
+  quantity: number,
+  customer_id: number,
+  product_id: number,
+  sku: string
+): Promise<number> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  let insertId: number | undefined;
+
+  try {
+    const sql = `INSERT INTO cart (quantity, customer_id, product_id, sku) VALUES (?, ?, ?, ?);`;
+    const [result] = await connection.query(sql, [
+      quantity,
+      customer_id,
+      product_id,
+      sku,
+    ]);
+    insertId = (result as OkPacket).insertId;
+  } catch (err: any) {
+    console.error(err);
+    if (err.errno === 1062) {
+      console.error("entered update");
+      const sql = `UPDATE cart SET quantity = quantity + ? WHERE customer_id = ? AND product_id = ? AND sku = ?;`;
+      try {
+        const [result] = await connection.query(sql, [
+          quantity,
+          customer_id,
+          product_id,
+          sku,
+        ]);
+        insertId =
+          (result as OkPacket).affectedRows > 0 ? product_id : 0;
+      } catch (err: any) {
+        console.error(err);
+        throw new Error(err);
+      }
+    }
+  } finally {
+    await connection.release();
+  }
+
+  // Check if insertId is undefined, if so return a default value
+  return insertId ?? 0;
 };
 
 interface Product {
