@@ -1,7 +1,11 @@
 .whislistPrice {
-  color: #7D4764;
+  color: #7d4764;
 }
 
-/* .whislistDescription {
-  color: var(--greyAccent);
-} */
+.wishlistCardRecommendedProducts h1 {
+  color: white !important;
+}
+
+.whislistCardDescription {
+  color: #666;
+}

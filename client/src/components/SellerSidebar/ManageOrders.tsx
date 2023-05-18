@@ -20,6 +20,7 @@ interface Order {
   shipment_created?: string;
   shipment_delivered?: string;
   total_price: number;
+  name: string;
 }
 
 const ManageOrders = () => {
@@ -58,7 +59,7 @@ const ManageOrders = () => {
 
   useEffect(() => {
     getAll()
-  }, [])
+  }, [orders, shippedOrders, deliveredOrders])
 
   const getAll = async () => {
     try {
@@ -75,10 +76,9 @@ const ManageOrders = () => {
   return (
     <div className="flex flex-row">
       <SellerSidebar />
-      <div>ManageOrders</div>
       <div>
         <div>
-          <ViewSellerOrders orders={orders} />
+          <ViewSellerOrders orders={orders} getAll={getAll} />
           <ViewSellerShipped shippedOrders={shippedOrders} />
           <ViewSellerDelivered deliveredOrders={deliveredOrders} />
         </div>
