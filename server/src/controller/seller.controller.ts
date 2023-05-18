@@ -32,7 +32,7 @@ export const processLogin = async (req: Request, res: Response, next: NextFuncti
         return res.sendStatus(400);
     } else {
         try {
-            const response: UserInfo | null = await sellerModel.handleLogin(email, password);
+            const response: any = await sellerModel.handleLogin(email, password);
             if (response) {
                 return res.json(response);
             } else {
@@ -172,7 +172,7 @@ export const processForgetPassword = async (req: Request, res: Response, next: N
         return res.sendStatus(200);
     } catch (err: any) {
         return next(err);
-    } 
+    }
 }
 
 export const processForgetPasswordLink = async (req: Request, res: Response, next: NextFunction) => {
@@ -195,6 +195,39 @@ export const processResetPassword = async (req: Request, res: Response, next: Ne
         if (!password || !seller_id) return res.sendStatus(400);
         const result = await sellerModel.handleResetPassword(password, seller_id);
         return res.sendStatus(200);
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processGetSellerOrders = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { seller_id } = req.params;
+        if (!seller_id) return res.sendStatus(400);
+        const result = await sellerModel.handleGetSellerOrders(seller_id);
+        return res.json({ orders: result });
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processGetSellerShipped = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { seller_id } = req.params;
+        if (!seller_id) return res.sendStatus(400);
+        const result = await sellerModel.handleGetSellerShipped(seller_id);
+        return res.json({ shipped: result });
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processGetSellerDelivered = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { seller_id } = req.params;
+        if (!seller_id) return res.sendStatus(400);
+        const result = await sellerModel.handleGetSellerDelivered(seller_id);
+        return res.json({ delivered: result });
     } catch (err: any) {
         return next(err);
     }
