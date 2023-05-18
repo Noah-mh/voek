@@ -24,18 +24,35 @@ export const retrieveCartDetails = async (
   }
 };
 
-export const alterCartDetails = async (
+export const alterQuantCartDetails = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  console.log("Connected to alter Controller");
+  console.log("Connected to alterQuant Controller");
   try {
-    const { customer_id, sku, quantity, new_sku, product_id } = req.body;
-    const response: Array<object> = await cartModel.handleAlterCart(
+    const { customer_id, sku, quantity } = req.body;
+    const response: Array<object> = await cartModel.handleAlterQuantCart(
       customer_id,
       sku,
-      quantity,
+      quantity
+    );
+    return res.sendStatus(200);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+export const alterSKUCartDetails = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  console.log("Connected to alterSKU Controller");
+  try {
+    const { customer_id, sku, new_sku, product_id } = req.body;
+    const response: Array<object> = await cartModel.handleAlterSKUCart(
+      customer_id,
+      sku,
       new_sku,
       product_id
     );

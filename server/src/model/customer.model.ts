@@ -333,6 +333,8 @@ export const handleResetPassword = async (password: string, customer_id: string)
     return (result[0] as any).affectedRows as number;
   } catch (err: any) {
     throw new Error(err);
+  } finally {
+    await connection.release()
   }
 }
 
@@ -345,6 +347,8 @@ export const handleGetReferralId = async (customer_id: string): Promise<string> 
     return result[0][0].referral_id as string;
   } catch (err: any) {
     throw new Error(err);
+  } finally {
+    await connection.release()
   }
 }
 

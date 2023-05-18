@@ -12,7 +12,8 @@ interface Product {
   sku: string,
   orders_date?: string;
   shipment_created?: string;
-  shipment_delivered?: string
+  shipment_delivered?: string;
+  image_url?: string;
 }
 
 interface Props {

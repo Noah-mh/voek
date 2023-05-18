@@ -86,6 +86,9 @@ export default function (app: Express, router: Router) {
   router.post('/create-paypal-order', verifyJWT, verifyRoles('customer'), paypalController.processCreatePaypalOrder)
   router.post('/capture-paypal-order', verifyJWT, verifyRoles('customer'), paypalController.processCapturePaypalOrder)
   router.get('/customer/referral-id/:customer_id', verifyJWT, verifyRoles('customer'), customerController.processGetReferralId)
+  router.get('/seller/orders/:seller_id', verifyJWT, verifyRoles('seller'), sellerController.processGetSellerOrders)
+  router.get('/seller/orders/shipped/:seller_id', verifyJWT, verifyRoles('seller'), sellerController.processGetSellerShipped)
+  router.get('/seller/orders/delivered/:seller_id', verifyJWT, verifyRoles('seller'), sellerController.processGetSellerDelivered)
 
   // NOAH ENDPOINTS - reviews
   router.get(
@@ -108,7 +111,7 @@ export default function (app: Express, router: Router) {
     "/orders/:ordersId",
     sellerController.processGetOrderDetails
   )
-  
+
 
   // NHAT TIEN ENDPOINTS - Homepage, Last Viewed, Wishlist, Product Details
   router.post("/getWishlistItems", productController.getWishlistItems);
@@ -166,9 +169,15 @@ export default function (app: Express, router: Router) {
     cartController.retrieveCartDetails
   );
   router.post(
-    "/alterCart",
+    "/alterQuantCart",
     verifyJWT,
     verifyRoles("customer"),
-    cartController.alterCartDetails
+    cartController.alterQuantCartDetails
+  );
+  router.post(
+    "/alterSKUCart",
+    verifyJWT,
+    verifyRoles("customer"),
+    cartController.alterSKUCartDetails
   );
 }
