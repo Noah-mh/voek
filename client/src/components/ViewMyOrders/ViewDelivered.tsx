@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
-import useAxiosPrivateCustomer from '../../hooks/UseAxiosPrivateCustomer';
-
+import useAxiosPrivateCustomer from '../../hooks/useAxiosPrivateCustomer';
+import { cld } from "../../Cloudinary/Cloudinary";
+import { AdvancedImage } from "@cloudinary/react";
 
 interface Product {
   description: string;
@@ -15,6 +16,7 @@ interface Product {
   shipment_created?: string;
   shipment_delivered?: string
   orders_product_id?: number;
+  image_url?: string;
 }
 
 
@@ -29,7 +31,7 @@ const ViewDelivered = ({ deliveredOrders, getAll }: Props) => {
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
 
   const buttonHandler = async (orders_product_id: number) => {
-    try { 
+    try {
       const result = await axiosPrivateCustomer.get(`/customer/received/${orders_product_id}`)
       getAll();
     } catch (err: any) {
@@ -41,7 +43,9 @@ const ViewDelivered = ({ deliveredOrders, getAll }: Props) => {
     <div className="flex flex-col items-center justify-center p-8">
       <h1 className="mb-8 text-4xl font-bold">Delivered Orders</h1>
       {deliveredOrders.map((order: Product) => (
+
         <div key={order.sku} className="mb-8 border border-gray-300 rounded p-4 w-4/5">
+          <AdvancedImage cldImg={cld.image(order.image_url)} />
           <Link to={`/productDetailsWithReviews/${order.product_id}`} className="text-blue-500 hover:underline">
             {order.name}
           </Link>

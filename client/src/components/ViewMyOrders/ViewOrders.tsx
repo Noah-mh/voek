@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-
+import { cld } from "../../Cloudinary/Cloudinary";
+import { AdvancedImage } from "@cloudinary/react";
 interface Product {
     description: string;
     name: string;
@@ -11,7 +12,8 @@ interface Product {
     sku: string,
     orders_date?: string;
     shipment_created?: string;
-    shipment_delivered?: string
+    shipment_delivered?: string;
+    image_url?: string;
 }
 
 interface Props {
@@ -20,12 +22,15 @@ interface Props {
 
 
 const ViewOrders = ({ orders }: Props) => {
-
+console.log(orders)
     return (
         <div className="flex flex-col items-center justify-center p-8">
             <h1 className="mb-8 text-4xl font-bold">Orders</h1>
             {orders.map((order: Product) => (
+
                 <div key={order.sku} className="mb-8 border border-gray-300 rounded p-4 w-4/5">
+                    
+                     <AdvancedImage cldImg={cld.image(order.image_url)}/>
                     <Link to={`/productDetailsWithReviews/${order.product_id}`} className="text-blue-500 hover:underline">
                         {order.name}
                     </Link>
@@ -49,6 +54,7 @@ const ViewOrders = ({ orders }: Props) => {
                 </div>
             ))}
         </div>
+        
     )
 }
 
