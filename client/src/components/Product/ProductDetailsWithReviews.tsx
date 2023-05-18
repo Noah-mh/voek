@@ -9,6 +9,7 @@ import ProductDetail from './ProductDetails'; // make sure the path is correct
 export interface ProductVariation {
     variation_1: string | null;
     variation_2: string | null;
+    price: number | null;
 }
 
 export interface Review {

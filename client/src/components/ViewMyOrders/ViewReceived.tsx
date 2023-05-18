@@ -1,5 +1,8 @@
-
+import { cld } from "../../Cloudinary/Cloudinary";
+import { AdvancedImage } from "@cloudinary/react";
 import { Link } from 'react-router-dom';
+import { useState } from "react";
+import ModalComponent from "./ModelForRating";
 
 interface Product {
   description: string;
@@ -21,12 +24,27 @@ interface Props {
 }
 
 const ViewReceived = ({ receivedOrders }: Props) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  // ...
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleSubmit = (rating: number, comment: string) => {
+    // handle submit action
+  };
 
   return (
     <div className="flex flex-col items-center justify-center p-8">
       <h1 className="mb-8 text-4xl font-bold">Received Orders</h1>
       {receivedOrders.map((order: Product) => (
         <div key={order.sku} className="mb-8 border border-gray-300 rounded p-4 w-4/5">
+          <AdvancedImage cldImg={cld.image(order.image_url)} />
           <Link to={`/productDetailsWithReviews/${order.product_id}`} className="text-blue-500 hover:underline">
             {order.name}
           </Link>
@@ -47,6 +65,13 @@ const ViewReceived = ({ receivedOrders }: Props) => {
             </p>
             <h3 className="mt-2 text-lg">Shipment was received on {convertUtcToLocal(order.shipment_delivered!)}</h3>
           </div>
+          <button
+            onClick={handleOpenModal}
+            className="flex items-center justify-center space-x-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Rate
+          </button>
+          <ModalComponent isOpen={isModalOpen} onClose={handleCloseModal} onSubmit={handleSubmit} />
         </div>
       ))}
     </div>
