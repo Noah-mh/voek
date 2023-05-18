@@ -2,22 +2,21 @@ import { useEffect, useState } from "react";
 import useCustomer from "../../hooks/UseCustomer";
 import noImage from "../../img/product/No_Image_Available.jpg";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
-import { ToggleSlider } from "react-toggle-slider";
 // import ConfirmModal from "./ConfirmModal";
-
 import "./UserCart.css";
 import { Link } from "react-router-dom";
+import PayPal from "../PayPal/PayPal";
 
 export default function cartPage(): JSX.Element {
   const { customer } = useCustomer();
   const customer_id = customer.customer_id;
-  //const coins = customer.coins;
 
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
 
   interface userCart {
     customer_id: number;
     role: string;
+    coins: number;
     cartItems: Array<cartItem>;
   }
   interface cartItem {
@@ -37,7 +36,10 @@ export default function cartPage(): JSX.Element {
     coins: number;
     total: number;
   }
-
+  const [isChecked, setIsChecked] = useState<boolean>(false);
+  const [isInputDisabled, setIsInputDisabled] = useState<boolean>(false);
+  const [userCoins, setUserCoins] = useState<number>(0);
+  const [checkCoinsRedeem, setCheckCoinsRedeem] = useState<boolean>(false);
   const [errMsg, setErrMsg] = useState<string>("");
   const [userCart, setUserCart] = useState<cartItem[]>([]);
   const [prodQuantity, setProdQuantity] = useState<number>(0);
@@ -49,18 +51,35 @@ export default function cartPage(): JSX.Element {
     coins: 0,
     total: 0,
   });
-  // const [toggle, setToggle] = useState<boolean>(false);
 
-  // const useCoins = async () => {
-  //   console.log(coins);
-  //   if (coins <= 10) {
-  //     setToggle(false);
-  //   }
-  // };
+  const getCoins = async () => {
+    axiosPrivateCustomer
+      .get("/customer/getUserCoins/" + customer_id, {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true,
+      })
+      .then((response) => {
+        setUserCoins(response.data.result);
+        if (response.data.result < 10) {
+          setIsInputDisabled(true);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
 
+        if (!err?.response) {
+          setErrMsg("No Server Response");
+          console.log("no resp");
+        } else {
+          setErrMsg("Server Error");
+          console.log("server error");
+        }
+      });
+    return 0;
+  };
   const getUserCart = async () => {
     return axiosPrivateCustomer
-      .post("/getCart", JSON.stringify({ customer_id }), {
+      .post("/customer/getCart", JSON.stringify({ customer_id }), {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
       })
@@ -71,21 +90,22 @@ export default function cartPage(): JSX.Element {
             return acc + item.price * item.quantity;
           }, 0)
           .toFixed(2);
+        console.log(sum);
         setTotalAmt({
-          subTotal: Math.round(Number(sum) * 100) / 100,
-          shippingFee: Math.round((8.95 + sum * 0.1) * 100) / 100,
-
-          total:
-            Math.round(Number(sum) * 100) / 100 +
-            Math.round((8.95 + sum * 0.1) * 100) / 100,
-          coins: Math.ceil(
-            (Math.round(Number(sum) * 100) / 100 +
-              Math.round((8.95 + sum * 0.1) * 100) / 100) *
-              0.1
+          subTotal: Number(sum),
+          shippingFee: Number(
+            (Math.round((8.95 + sum * 0.1) * 100) / 100).toFixed(2)
           ),
+
+          total: Number(
+            (
+              Math.round(Number(sum) * 100) / 100 +
+              Math.round((8.95 + sum * 0.1) * 100) / 100
+            ).toFixed(2)
+          ),
+          coins: Number(Math.ceil(sum * 0.1)),
         });
       })
-      .then(() => {})
       .catch((err) => {
         if (!err?.response) {
           setErrMsg("No Server Response");
@@ -96,10 +116,9 @@ export default function cartPage(): JSX.Element {
         }
       });
   };
-
   const handleQuantityChange = (item: cartItem, change: number) => {
     const updatedCart = userCart.map((cartItem) => {
-      if (cartItem.product_id === item.product_id) {
+      if (cartItem.sku === item.sku) {
         const newItem: cartItem = {
           ...cartItem,
           quantity: cartItem.quantity + change,
@@ -118,6 +137,7 @@ export default function cartPage(): JSX.Element {
   // page onload
   useEffect(() => {
     getUserCart();
+    getCoins();
   }, []);
 
   //when cartQuant state changes
@@ -155,6 +175,21 @@ export default function cartPage(): JSX.Element {
         getUserCart();
       });
   }, [changedQuantState]);
+
+  useEffect(() => {
+    const discAmt = Math.floor(totalAmt.coins / 10);
+    if (isChecked) {
+      setTotalAmt({
+        ...totalAmt,
+        total: Number((totalAmt.total - discAmt).toFixed(2)),
+      });
+    } else {
+      setTotalAmt({
+        ...totalAmt,
+        total: Number((totalAmt.total + discAmt).toFixed(2)),
+      });
+    }
+  }, [isChecked]);
 
   return (
     <div className="container flex">
@@ -208,7 +243,6 @@ export default function cartPage(): JSX.Element {
                     handleQuantityChange(item, 1);
                   }
                 }}
-                // disabled={item.quantity >= item.stock}
               >
                 +
               </button>
@@ -241,15 +275,26 @@ export default function cartPage(): JSX.Element {
             <div className=" text-white">Total</div>
             <div className="text-white">${totalAmt.total}</div>
           </div>
-          {/* <ToggleSlider
-            barHeight={18}
-            draggable={false}
-            active={toggle}
-            onToggle={useCoins}
-          /> */}
-          <button className="bg-white text-softerPurple text-sm font-bold px-4 py-2 rounded-lg mt-4 w-full">
-            Checkout
-          </button>
+          <div className="activateCoins flex justify-between border-t-2 pt-3">
+            <div className="showCoins text-xs text-white">
+              Coins Available: <span className="font-bold">{userCoins}</span>
+            </div>
+            <label className="relative inline-flex items-center mb-5 cursor-pointer">
+              <input
+                type="checkbox"
+                value=""
+                className="sr-only peer"
+                disabled={isInputDisabled}
+                onClick={() => setCheckCoinsRedeem(true)}
+                onChange={() => {
+                  isChecked ? setIsChecked(false) : setIsChecked(true);
+                }}
+              />
+              <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+
+          <PayPal amount={totalAmt.total} />
         </div>
       </div>
     </div>

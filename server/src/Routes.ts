@@ -14,10 +14,7 @@ import * as reviewController from "./controller/review.controller";
 export default function (app: Express, router: Router) {
   // KANG RUI ENDPOINTS - user management system
   router.post("/login", customerController.processLogin);
-  router.post(
-    "/customer/auth/SMS/OTP",
-    customerController.processSendSMSOTP
-  );
+  router.post("/customer/auth/SMS/OTP", customerController.processSendSMSOTP);
   router.post(
     "/customer/auth/email/OTP",
     customerController.processSendEmailOTP
@@ -31,10 +28,7 @@ export default function (app: Express, router: Router) {
     "/customer/signup/verify/link",
     customerController.processSignUpLink
   );
-  router.get(
-    "/refresh/customer",
-    authController.processRefreshTokenCustomer
-  );
+  router.get("/refresh/customer", authController.processRefreshTokenCustomer);
   router.post(
     "/customer/forget/password",
     customerController.processForgetPassword
@@ -49,26 +43,11 @@ export default function (app: Express, router: Router) {
   );
 
   router.post("/login/seller", sellerController.processLogin);
-  router.post(
-    "/seller/auth/SMS/OTP",
-    sellerController.processSendSMSOTP
-  );
-  router.post(
-    "/seller/auth/email/OTP",
-    sellerController.processSendEmailOTP
-  );
-  router.post(
-    "/seller/auth/verify/OTP",
-    sellerController.processVerifyOTP
-  );
-  router.post(
-    "/seller/signup/link",
-    sellerController.processSendEmailLink
-  );
-  router.post(
-    "/seller/signup/verify/link",
-    sellerController.processSignUpLink
-  );
+  router.post("/seller/auth/SMS/OTP", sellerController.processSendSMSOTP);
+  router.post("/seller/auth/email/OTP", sellerController.processSendEmailOTP);
+  router.post("/seller/auth/verify/OTP", sellerController.processVerifyOTP);
+  router.post("/seller/signup/link", sellerController.processSendEmailLink);
+  router.post("/seller/signup/verify/link", sellerController.processSignUpLink);
   router.get("/refresh/seller", authController.processRefreshSeller);
   router.post(
     "/seller/forget/password",
@@ -121,24 +100,6 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     customerController.processGetReferralId
   );
-  router.get(
-    "/seller/orders/:seller_id",
-    verifyJWT,
-    verifyRoles("seller"),
-    sellerController.processGetSellerOrders
-  );
-  router.get(
-    "/seller/orders/shipped/:seller_id",
-    verifyJWT,
-    verifyRoles("seller"),
-    sellerController.processGetSellerShipped
-  );
-  router.get(
-    "/seller/orders/delivered/:seller_id",
-    verifyJWT,
-    verifyRoles("seller"),
-    sellerController.processGetSellerDelivered
-  );
 
   // NOAH ENDPOINTS - reviews
   router.get(
@@ -167,10 +128,7 @@ export default function (app: Express, router: Router) {
     "/products/:sellerId",
     sellerController.processGetAllProductsOfSeller
   );
-  router.get(
-    "/orders/:ordersId",
-    sellerController.processGetOrderDetails
-  );
+  router.get("/orders/:ordersId", sellerController.processGetOrderDetails);
 
   // NHAT TIEN ENDPOINTS - Homepage, Last Viewed, Wishlist, Product Details
   router.post(
@@ -217,14 +175,20 @@ export default function (app: Express, router: Router) {
   );
   router.post(
     "/insertWishlistedProduct",
+    verifyJWT,
+    verifyRoles("customer"),
     productController.insertWishlistedProduct
   );
   router.put(
     "/updateCustLastViewedCat",
+    verifyJWT,
+    verifyRoles("customer"),
     customerController.updateCustLastViewedCat
   );
   router.delete(
     "/deleteWishlistedProduct",
+    verifyJWT,
+    verifyRoles("customer"),
     productController.deleteWishlistedProduct
   );
   router.post(
@@ -233,10 +197,7 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     productController.checkWishListProductExistence
   );
-  router.get(
-    "/getAllListedProducts",
-    productController.getAllListedProducts
-  );
+  router.get("/getAllListedProducts", productController.getAllListedProducts);
   router.get(
     "/getProductVariations/:product_Id",
     productController.getProductVariations
@@ -246,33 +207,60 @@ export default function (app: Express, router: Router) {
     "/getProductVariationsPricing/:product_Id",
     productController.getProductVariationsPricing
   );
-  
+
+  router.get("/getProductImage/:product_Id", productController.getProductImage);
+
   router.get(
-    "/getProductImage/:product_Id",
-    productController.getProductImage
+    "/getProductVariationImage/:sku",
+    productController.getProductVariationImage
   );
 
-  router.get("/getProductVariationImage/:sku", productController.getProductVariationImage);
-
-  
   router.post("/insertCart", cartController.insertCart);
 
   router.post(
-    "/getCart",
+    "/customer/getCart",
     verifyJWT,
     verifyRoles("customer"),
     cartController.retrieveCartDetails
   );
   router.post(
-    "/alterQuantCart",
+    "/customer/alterQuantCart",
     verifyJWT,
     verifyRoles("customer"),
     cartController.alterQuantCartDetails
   );
   router.post(
-    "/alterSKUCart",
+    "/customer/insertOrder",
     verifyJWT,
     verifyRoles("customer"),
-    cartController.alterSKUCartDetails
+    cartController.insertOrder
+  );
+  router.post(
+    "/customer/insertOrderProduct",
+    verifyJWT,
+    verifyRoles("customer"),
+    cartController.insertOrderProduct
+  );
+  router.post(
+    "/customer/updateProductStock",
+    verifyJWT,
+    verifyRoles("customer"),
+    cartController.updateProductStock
+  );
+  router.post(
+    "/customer/updateCustomerCoins",
+    verifyJWT,
+    verifyRoles("customer"),
+    cartController.updateCustomerCoins
+  );
+  router.post(
+    "/customer/insertShipment",
+    verifyJWT,
+    verifyRoles("customer"),
+    cartController.insertShipment
+  );
+  router.get(
+    "/customer/getUserCoins/:customer_id",
+    customerController.processGetCoins
   );
 }

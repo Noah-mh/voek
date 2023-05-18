@@ -82,7 +82,7 @@ const Header = ({ isCustomer, isSeller }: Props) => {
                       Profile
                     </p>
                   </div>
-                  <Link to="/cart" className="mx-2">
+                  <Link to="/customer/cart" className="mx-2">
                     <p className="text-purpleAccent">Cart</p>
                   </Link>
                 </div>
@@ -98,7 +98,7 @@ const Header = ({ isCustomer, isSeller }: Props) => {
                   <Link to="/login" className="mx-2">
                     <p className="text-purpleAccent">Login</p>
                   </Link>
-                  <Link to="/cart" className="mx-2">
+                  <Link to="/customer/cart" className="mx-2">
                     <p className="text-purpleAccent">Cart</p>
                   </Link>
                 </div>
