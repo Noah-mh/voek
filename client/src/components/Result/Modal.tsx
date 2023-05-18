@@ -2,12 +2,7 @@ import { useEffect, useState, useContext } from "react";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import axios from "../../api/axios";
 import Loader from "../Loader/Loader";
-<<<<<<< HEAD:client/src/components/SearchResults/Modal.tsx
-import useCustomer from "../../hooks/UseCustomer";
-import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
-=======
 import CustomerContext from "../../context/CustomerProvider";
->>>>>>> 38f45a63e7b8c241a2882160ae9177c851d7e7a9:client/src/components/Result/Modal.tsx
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
@@ -29,13 +24,6 @@ interface ModalProps {
   pricingRange: Pricing | undefined;
 }
 
-<<<<<<< HEAD:client/src/components/SearchResults/Modal.tsx
-const Modal = ({ setModalOpen, product }: ModalProps) => {
-  const { customer } = useCustomer();
-  const customerId = customer.customer_id;
-  //const coins = customer.coins;
-
-=======
 interface Pricing {
   lowestPrice: number;
   highestPrice: number;
@@ -53,7 +41,6 @@ interface Variation {
 }
 
 const Modal = ({ setModalOpen, product, pricingRange }: ModalProps) => {
->>>>>>> 38f45a63e7b8c241a2882160ae9177c851d7e7a9:client/src/components/Result/Modal.tsx
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
 
   const [status, setStatus] = useState<boolean>(false);
@@ -64,12 +51,8 @@ const Modal = ({ setModalOpen, product, pricingRange }: ModalProps) => {
   const [price, setPrice] = useState<number>(0);
   const [imageUrl, setImageUrl] = useState<string>("");
 
-<<<<<<< HEAD:client/src/components/SearchResults/Modal.tsx
-  // const [customerId, setCustomerId] = useState<number>(1);
-=======
   const { customer } = useContext(CustomerContext);
   const customerId = customer.customer_id;
->>>>>>> 38f45a63e7b8c241a2882160ae9177c851d7e7a9:client/src/components/Result/Modal.tsx
 
   const addToCart = () => {
     axiosPrivateCustomer

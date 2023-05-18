@@ -131,11 +131,6 @@ export default function (app: Express, router: Router) {
   router.get("/orders/:ordersId", sellerController.processGetOrderDetails);
 
   // NHAT TIEN ENDPOINTS - Homepage, Last Viewed, Wishlist, Product Details
-<<<<<<< HEAD
-  router.post("/getWishlistItems", productController.getWishlistItems);
-  router.post("/getLastViewed", productController.getLastViewed);
-  router.post("/productDetails", productController.processPublicProductDetails);
-=======
   router.post(
     "/getWishlistItems",
     verifyJWT,
@@ -154,7 +149,6 @@ export default function (app: Express, router: Router) {
     "/getRecommendedProductsBasedOnCat/:category_id",
     productController.getRecommendedProductsBasedOnCat
   );
->>>>>>> 38f45a63e7b8c241a2882160ae9177c851d7e7a9
 
   router.get(
     "/getRecommendedProductBasedOnCat/:category_id",
@@ -208,30 +202,20 @@ export default function (app: Express, router: Router) {
     "/getProductVariations/:product_Id",
     productController.getProductVariations
   );
-<<<<<<< HEAD
-  router.post(
-    "/insertCart",
-    verifyJWT,
-    verifyRoles("customer"),
-    cartController.insertCart
-  );
-=======
 
   router.get(
     "/getProductVariationsPricing/:product_Id",
     productController.getProductVariationsPricing
   );
-  
+
+  router.get("/getProductImage/:product_Id", productController.getProductImage);
+
   router.get(
-    "/getProductImage/:product_Id",
-    productController.getProductImage
+    "/getProductVariationImage/:sku",
+    productController.getProductVariationImage
   );
 
-  router.get("/getProductVariationImage/:sku", productController.getProductVariationImage);
-
-  
   router.post("/insertCart", cartController.insertCart);
->>>>>>> 38f45a63e7b8c241a2882160ae9177c851d7e7a9
 
   router.post(
     "/customer/getCart",
