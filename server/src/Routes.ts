@@ -166,9 +166,15 @@ export default function (app: Express, router: Router) {
     cartController.retrieveCartDetails
   );
   router.post(
-    "/alterCart",
+    "/alterQuantCart",
     verifyJWT,
     verifyRoles("customer"),
-    cartController.alterCartDetails
+    cartController.alterQuantCartDetails
+  );
+  router.post(
+    "/alterSKUCart",
+    verifyJWT,
+    verifyRoles("customer"),
+    cartController.alterSKUCartDetails
   );
 }
