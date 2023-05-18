@@ -45,3 +45,18 @@ export const alterCartDetails = async (
     return next(err);
   }
 };
+
+export const insertCart = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { quantity, customerId, productId, sku  } = req.body;
+    const response: number | undefined =
+      await cartModel.handlesInsertCart(quantity, customerId, productId, sku);
+    return res.sendStatus(200);
+  } catch (err: any) {
+    return next(err);
+  }
+};
