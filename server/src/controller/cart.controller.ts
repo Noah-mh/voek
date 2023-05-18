@@ -42,26 +42,6 @@ export const alterQuantCartDetails = async (
     return next(err);
   }
 };
-export const alterSKUCartDetails = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  console.log("Connected to alterSKU Controller");
-  try {
-    const { customer_id, sku, new_sku, product_id } = req.body;
-    const response: Array<object> = await cartModel.handleAlterSKUCart(
-      customer_id,
-      sku,
-      new_sku,
-      product_id
-    );
-    if (!response?.length) return res.sendStatus(404);
-    return res.sendStatus(200);
-  } catch (err: any) {
-    return next(err);
-  }
-};
 
 export const insertCart = async (
   req: Request,
@@ -69,11 +49,133 @@ export const insertCart = async (
   next: NextFunction
 ) => {
   try {
-    const { quantity, customerId, productId, sku  } = req.body;
-    const response: number | undefined =
-      await cartModel.handlesInsertCart(quantity, customerId, productId, sku);
-    return res.sendStatus(200);
+    const { quantity, customerId, productId, sku } = req.body;
+    const response: number | undefined = await cartModel.handlesInsertCart(
+      quantity,
+      customerId,
+      productId,
+      sku
+    );
+    return res.sendStatus(201);
   } catch (err: any) {
     return next(err);
   }
 };
+
+export const insertOrder = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const {
+      customer_id,
+      payment_id,
+      discount_applied,
+      coins_redeemed,
+      address_id,
+    } = req.body;
+    const response: number | undefined = await cartModel.handleInsertOrder(
+      customer_id,
+      payment_id,
+      discount_applied,
+      coins_redeemed,
+      address_id
+    );
+    return res.status(201).json(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+export const insertOrderProduct = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { sku, orders_id, product_id, totalPrice, quantity, shipment_id } =
+      req.body;
+    const response: number | undefined =
+      await cartModel.handleInsertOrderProduct(
+        sku,
+        orders_id,
+        product_id,
+        totalPrice,
+        quantity,
+        shipment_id
+      );
+    return res.status(201).json(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+export const updateProductStock = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { quantityDeduct, sku } = req.body;
+    const response: Array<object> = await cartModel.handleUpdateProductStock(
+      quantityDeduct,
+      sku
+    );
+    return res.status(200).json(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const updateCustomerCoins = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id, coins } = req.body;
+    const response: Array<object> = await cartModel.handleAlterCustomerCoins(
+      customer_id,
+      coins
+    );
+    return res.status(200).json(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+export const insertShipment = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { orders_product_id, customer_id } = req.body;
+    const response: Array<object> = await cartModel.handleInsertShipment(
+      orders_product_id,
+      customer_id
+    );
+    return res.status(201).json(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+// export const alterSKUCartDetails = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   console.log("Connected to alterSKU Controller");
+//   try {
+//     const { customer_id, sku, new_sku, product_id } = req.body;
+//     const response: Array<object> = await cartModel.handleAlterSKUCart(
+//       customer_id,
+//       sku,
+//       new_sku,
+//       product_id
+//     );
+//     if (!response?.length) return res.sendStatus(404);
+//     return res.sendStatus(200);
+//   } catch (err: any) {
+//     return next(err);
+//   }
+// };
