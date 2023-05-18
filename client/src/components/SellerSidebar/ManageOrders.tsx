@@ -76,7 +76,6 @@ const ManageOrders = () => {
   return (
     <div className="flex flex-row">
       <SellerSidebar />
-      <div>ManageOrders</div>
       <div>
         <div>
           <ViewSellerOrders orders={orders} />
