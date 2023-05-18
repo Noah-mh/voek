@@ -1,7 +1,7 @@
-.price {
-  color: #c8f0c7;
+.whislistPrice {
+  color: #7D4764;
 }
 
-.description {
-  color: #fbfefe;
-}
+/* .whislistDescription {
+  color: var(--greyAccent);
+} */

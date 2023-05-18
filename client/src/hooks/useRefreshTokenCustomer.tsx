@@ -1,5 +1,5 @@
 import axios from '../api/axios.js';
-import useCustomer from './useCustomer.js';
+import useCustomer from './UseCustomer.js';
 
 interface CustomerType {
     customer_id: string;

@@ -22,12 +22,13 @@ const verifyJWT = (
 ) => {
     const authHeader: string | undefined =
         req.headers.authorization ?? req.headers.Authorization as string;
-
+    
     if (!authHeader?.startsWith('Bearer ')) {
         return res.status(401).json({ message: 'Unauthorized' });
     }
 
     const token = authHeader.split(' ')[1];
+
 
     jwt.verify(token, config.accessTokenSecret!, (err, decoded) => {
         if (err) {

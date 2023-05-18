@@ -1,5 +1,5 @@
-import Header from "../header/header";
-import Footer from "../footer/footer";
+import Header from "../header/Header";
+import Footer from "../Footer/Footer";
 import { Link } from "react-router-dom";
 import loginPhoto from "../../img/login/loginVec.png";
 
@@ -17,13 +17,15 @@ const Missing = () => {
           </div>
           <div className="right w-1/2  h-full flex-wrap justify-center p-12">
             <h1 className="mb-5">Page You Were Looking For Is Invalid</h1>
-            <Link to='/'><h2>Go Home</h2></Link>
+            <Link to="/">
+              <h2>Go Home</h2>
+            </Link>
           </div>
         </div>
       </div>
       <Footer />
     </>
-  )
-}
+  );
+};
 
-export default Missing
+export default Missing;

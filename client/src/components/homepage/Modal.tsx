@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Backdrop from "./Backdrop";
-import Loader from "./Loader";
+import Loader from "../Loader/Loader";
 import "./css/Modal.css";
 
 import axios from "../../api/axios";
@@ -152,10 +152,10 @@ const Modal: React.FC<Props> = ({ handleClose, productImg, viewProduct }) => {
             <div className="pl-7">
               <h1 className="font-extrabold text-3xl">{data[0].name}</h1>
               <h1 className="">{data[0].rating} stars | Ratings</h1>
-              <h1 className="price mt-8 text-2xl font-bold">
+              <h1 className="modalPrice mt-8 text-2xl font-bold">
                 ${data[0].price}
               </h1>
-              <h1 className="description">{data[0].description}</h1>
+              <h1 className="modalDescription">{data[0].description}</h1>
 
               <div className="variation1 mt-5 flex items-center">
                 {/* <h1>Color: &emsp;</h1> */}

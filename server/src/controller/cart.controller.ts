@@ -24,21 +24,54 @@ export const retrieveCartDetails = async (
   }
 };
 
-export const alterCartDetails = async (
+export const alterQuantCartDetails = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  console.log("Connected to alterQuant Controller");
+  try {
+    const { customer_id, sku, quantity } = req.body;
+    const response: Array<object> = await cartModel.handleAlterQuantCart(
+      customer_id,
+      sku,
+      quantity
+    );
+    return res.sendStatus(200);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+export const alterSKUCartDetails = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  console.log("Connected to alterSKU Controller");
+  try {
+    const { customer_id, sku, new_sku, product_id } = req.body;
+    const response: Array<object> = await cartModel.handleAlterSKUCart(
+      customer_id,
+      sku,
+      new_sku,
+      product_id
+    );
+    if (!response?.length) return res.sendStatus(404);
+    return res.sendStatus(200);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const insertCart = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const { customer_id, sku, quantity, new_sku, product_id } = req.body;
-    const response: Array<object> = await cartModel.handleAlterCart(
-      customer_id,
-      sku,
-      quantity,
-      new_sku,
-      product_id
-    );
-    if (!response?.length) return res.sendStatus(404);
+    const { quantity, customerId, productId, sku  } = req.body;
+    const response: number | undefined =
+      await cartModel.handlesInsertCart(quantity, customerId, productId, sku);
     return res.sendStatus(200);
   } catch (err: any) {
     return next(err);

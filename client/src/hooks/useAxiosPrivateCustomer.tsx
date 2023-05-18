@@ -1,7 +1,7 @@
 import { axiosPrivateCustomer } from '../api/axios.js';
 import { useEffect } from 'react';
 import useRefreshTokenCustomer from './useRefreshTokenCustomer.js';
-import useCustomer from './useCustomer.js';
+import useCustomer from './UseCustomer.js';
 
 const useAxiosPrivateCustomer = () => {
     const refresh = useRefreshTokenCustomer();

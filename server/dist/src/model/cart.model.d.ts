@@ -1,3 +1,5 @@
+export declare const handlesGetCartDetails: (customerId: number) => Promise<CartItem[]>;
+export declare const handleAlterCart: (customer_id: number, sku: string, quantity: number, new_sku: string, product_id: number) => Promise<any>;
 interface Product {
     product_id: number;
     name: string;
@@ -24,6 +26,4 @@ export interface CartItemUpdate {
     new_sku?: string;
     product_id?: number;
 }
-export declare const handlesGetCartDetails: (customerId: number) => Promise<CartItem[]>;
-export declare const handleAlterCart: (customer_id: number, sku: string, quantity: number, new_sku: string, product_id: number) => Promise<any>;
 export {};

@@ -1,0 +1,44 @@
+.calendarCentered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.calendarTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.calendarDateSection {
+  width: 100%;
+}
+
+.calendarScroll {
+  height: 150px;
+  width: 100%;
+  white-space: nowrap;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  overflow-x: scroll;
+}
+
+.calendarScroll::-webkit-scrollbar {
+  width: 10px;
+}
+
+.calendarScroll::-webkit-scrollbar-track {
+  border-radius: 8px;
+  background-color: #dbdce0;
+  border: 1px solid #cacaca;
+}
+
+.calendarScroll::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  background-color: #310d20;
+}
+
+.calendarScroll > * {
+  flex: 0 0 250px;
+}
