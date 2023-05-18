@@ -30,42 +30,27 @@ const WishlistCard = () => {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
       })
-      .then((response) => response.data)
-      .then((data) => {
-        const promises = data.map((product: any) => {
-          return axios
-            .get(`/getProductImage/${product.product_id}`)
-            .then((response: any) => {
-              return { product: product, data: response.data };
-            });
+      .then((response) => {
+        const products = response.data.map((product: any) => {
+          const image = axios.get(`/getProductImage/${product.product_id}`);
+          const pricing = axios.get(
+            `/getProductVariationsPricing/${product.product_id}`
+          );
+          return Promise.all([image, pricing]).then((responses) => {
+            product.image = responses[0].data[0].imageURL;
+            product.lowestPrice = responses[1].data[0].lowestPrice;
+            product.highestPrice = responses[1].data[0].highestPrice;
+            return product;
+          });
         });
-        return Promise.all(promises);
+        console.log("products", products);
+        return products;
       })
-      .then((responses: any) => {
-        const wishlistItems = responses.map((response: any) => {
-          response.product.image = response.data[0].imageURL;
-          return response.product;
+      .then((products) => {
+        return Promise.all(products).then((products) => {
+          setWishlistItems(products);
+          return products;
         });
-        return wishlistItems;
-      })
-      .then((wishlistItems: any) => {
-        const promises = wishlistItems.map((product: any) => {
-          return axios
-            .get(`/getProductVariationsPricing/${product.product_id}`)
-            .then((response: any) => {
-              return { product: product, data: response.data };
-            });
-        });
-        return Promise.all(promises);
-      })
-      .then((responses: any) => {
-        const wishlistItems = responses.map((response: any) => {
-          response.product.lowestPrice = response.data[0].lowestPrice;
-          response.product.highestPrice = response.data[0].highestPrice;
-          return response.product;
-        });
-        setWishlistItems(wishlistItems);
-        return wishlistItems;
       })
       .then((wishlistItems: any) => {
         const randomNum: number = Math.floor(
@@ -77,10 +62,9 @@ const WishlistCard = () => {
           `/getRecommendedProductBasedOnCat/${randomProduct.category_id}`
         );
       })
-      .then((response: any) => response.data)
-      .then((data) => {
+      .then((response) => {
         setStatus(true);
-        const products = data.map((product: any) => {
+        const products = response.data.map((product: any) => {
           const image = axios.get(`/getProductImage/${product.product_id}`);
           const pricing = axios.get(
             `/getProductVariationsPricing/${product.product_id}`
