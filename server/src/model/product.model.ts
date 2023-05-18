@@ -49,8 +49,27 @@ export const handlesGetRecommendedProductsBasedOnCat = async (
   const connection = await promisePool.getConnection();
   const sql = `SELECT products.product_id , products.name, products.description
   FROM category, products 
-  WHERE category.category_id = 1 and category.category_id = products.category_id 
+  WHERE category.category_id = ? and category.category_id = products.category_id 
   LIMIT 6;`;
+  try {
+    const result = await connection.query(sql, [category_id]);
+    return result[0] as Product[];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handlesGetRecommendedProductBasedOnCat = async (
+  category_id: number
+): Promise<Product[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT products.product_id , products.name, products.description
+  FROM category, products 
+  WHERE category.category_id = ? and category.category_id = products.category_id 
+  LIMIT 1;`;
   try {
     const result = await connection.query(sql, [category_id]);
     return result[0] as Product[];
@@ -66,7 +85,7 @@ export const handlesGetWishlistItems = async (
 ): Promise<Product[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `SELECT products.product_id, products.name, products.description
+  const sql = `SELECT products.product_id, products.name, products.description, products.category_id
   FROM wishlist
   JOIN customer ON wishlist.customer_id = customer.customer_id
   JOIN products ON wishlist.product_id = products.product_id

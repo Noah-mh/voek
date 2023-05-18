@@ -6,7 +6,9 @@ const Wishlist = () => {
   return (
     <div className="wishlist flex flex-col justify-center items-center">
       <Header />
-      <WishlistCard />
+      <div>
+        <WishlistCard />
+      </div>
     </div>
   );
 };

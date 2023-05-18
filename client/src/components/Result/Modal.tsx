@@ -201,7 +201,7 @@ const Modal = ({ setModalOpen, product, pricingRange }: ModalProps) => {
                     ? pricingRange?.lowestPrice === pricingRange?.highestPrice
                       ? pricingRange?.lowestPrice
                       : pricingRange?.lowestPrice +
-                        " - " +
+                        " - $" +
                         pricingRange?.highestPrice
                     : price}
                 </h1>

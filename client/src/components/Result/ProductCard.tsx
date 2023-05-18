@@ -70,7 +70,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
               {pricingRange?.lowestPrice === pricingRange?.highestPrice
                 ? pricingRange?.lowestPrice
                 : pricingRange?.lowestPrice +
-                  " - " +
+                  " - $" +
                   pricingRange?.highestPrice}
             </span>
             <div

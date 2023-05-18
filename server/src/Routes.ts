@@ -136,8 +136,15 @@ export default function (app: Express, router: Router) {
   router.post("/productDetails", productController.processPublicProductDetails);
 
   router.get(
-    "/getRecommendedProductsBasedOnCat",
+    "/getRecommendedProductsBasedOnCat/:category_id",
     productController.getRecommendedProductsBasedOnCat
+  );
+
+  router.get(
+    "/getRecommendedProductBasedOnCat/:category_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    productController.getRecommendedProductBasedOnCat
   );
 
   router.get(
