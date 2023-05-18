@@ -22,10 +22,7 @@ export default function (app: Express, router: Router) {
     "/customer/auth/email/OTP",
     customerController.processSendEmailOTP
   );
-  router.post(
-    "/customer/auth/verify/OTP",
-    customerController.processVerifyOTP
-  );
+  router.post("/customer/auth/verify/OTP", customerController.processVerifyOTP);
   router.post(
     "/customer/signup/link/:referral_id",
     customerController.processSendEmailLink
@@ -81,10 +78,7 @@ export default function (app: Express, router: Router) {
     "/seller/verify/reset/password",
     sellerController.processForgetPasswordLink
   );
-  router.post(
-    "/seller/reset/password",
-    sellerController.processResetPassword
-  );
+  router.post("/seller/reset/password", sellerController.processResetPassword);
   router.get(
     "/customer/orders/:customer_id",
     verifyJWT,
@@ -181,17 +175,28 @@ export default function (app: Express, router: Router) {
   // NHAT TIEN ENDPOINTS - Homepage, Last Viewed, Wishlist, Product Details
   router.post(
     "/getWishlistItems",
+    verifyJWT,
+    verifyRoles("customer"),
     productController.getWishlistItems
   );
-  router.post("/getLastViewed", productController.getLastViewed);
   router.post(
-    "/productDetails",
-    productController.processPublicProductDetails
+    "/getLastViewed",
+    verifyJWT,
+    verifyRoles("customer"),
+    productController.getLastViewed
+  );
+  router.post("/productDetails", productController.processPublicProductDetails);
+
+  router.get(
+    "/getRecommendedProductsBasedOnCat/:category_id",
+    productController.getRecommendedProductsBasedOnCat
   );
 
   router.get(
-    "/getRecommendedProductsBasedOnCat",
-    productController.getRecommendedProductsBasedOnCat
+    "/getRecommendedProductBasedOnCat/:category_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    productController.getRecommendedProductBasedOnCat
   );
 
   router.get(
@@ -224,6 +229,8 @@ export default function (app: Express, router: Router) {
   );
   router.post(
     "/checkWishlistProductExistence",
+    verifyJWT,
+    verifyRoles("customer"),
     productController.checkWishListProductExistence
   );
   router.get(
@@ -234,6 +241,20 @@ export default function (app: Express, router: Router) {
     "/getProductVariations/:product_Id",
     productController.getProductVariations
   );
+
+  router.get(
+    "/getProductVariationsPricing/:product_Id",
+    productController.getProductVariationsPricing
+  );
+  
+  router.get(
+    "/getProductImage/:product_Id",
+    productController.getProductImage
+  );
+
+  router.get("/getProductVariationImage/:sku", productController.getProductVariationImage);
+
+  
   router.post("/insertCart", cartController.insertCart);
 
   router.post(
