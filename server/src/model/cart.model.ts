@@ -42,7 +42,7 @@ export const handleAlterQuantCart = async (
       await connection.release();
     }
   } else {
-    //no new sku is provided, so only quantity has changed.
+    //only update quanitity
     const sql = `UPDATE cart SET quantity = ? WHERE customer_id = ? AND sku = ?`;
     try {
       const result = await connection.query(sql, [quantity, customer_id, sku]);
@@ -84,22 +84,37 @@ export const handleAlterSKUCart = async (
 };
 
 // NHAT TIEN :D
-export const handlesInsertCart = async (quantity: number, customerId: number , productId: number, SKU: string) => {
+export const handlesInsertCart = async (
+  quantity: number,
+  customerId: number,
+  productId: number,
+  SKU: string
+) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `INSERT INTO cart (quantity, customer_id, product_id, SKU) VALUES (?, ?, ?, ?);`;
   try {
-    const [result] = await connection.query(sql, [quantity, customerId, productId, SKU]);
+    const [result] = await connection.query(sql, [
+      quantity,
+      customerId,
+      productId,
+      SKU,
+    ]);
     return (result as OkPacket).insertId as number;
   } catch (err: any) {
     if (err.code === "ER_DUP_ENTRY") {
       console.log("entered update");
       const sql = `UPDATE cart SET quantity = quantity + ? WHERE customer_id = ? AND product_id = ? AND SKU = ?;`;
       try {
-        const [result] = await connection.query(sql, [quantity, customerId, productId, SKU]);
+        const [result] = await connection.query(sql, [
+          quantity,
+          customerId,
+          productId,
+          SKU,
+        ]);
         return (result as OkPacket).insertId as number;
       } catch (err: any) {
-    throw new Error(err);
+        throw new Error(err);
       }
     }
   } finally {

@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import axios from "../../api/axios";
 import { macbook } from "./images";
 import Loader from "../Loader/Loader";
+import useCustomer from "../../hooks/UseCustomer";
+import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
@@ -21,6 +23,12 @@ interface ModalProps {
 }
 
 const Modal = ({ setModalOpen, product }: ModalProps) => {
+  const { customer } = useCustomer();
+  const customerId = customer.customer_id;
+  //const coins = customer.coins;
+
+  const axiosPrivateCustomer = useAxiosPrivateCustomer();
+
   const [status, setStatus] = useState<boolean>(false);
   const [variations, setVariations] = useState<Array<object>>([]);
   const [quantity, setQuantity] = useState<number>(1);
@@ -28,7 +36,7 @@ const Modal = ({ setModalOpen, product }: ModalProps) => {
   const [chosenSKU, setChosenSKU] = useState<string>("");
   const [notificationStatus, setNotificationStatus] = useState<boolean>(false);
 
-  const [customerId, setCustomerId] = useState<number>(1);
+  // const [customerId, setCustomerId] = useState<number>(1);
 
   const addToCart = () => {
     axios
