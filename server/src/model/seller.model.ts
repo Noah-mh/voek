@@ -5,28 +5,28 @@ import client from '../../config/teleSign';
 
 // GET all products from 1 seller
 export const handleGetAllProducts = async (sellerId: number): Promise<Product[]> => {
-    const promisePool = pool.promise();
-    const connection = await promisePool.getConnection();
-    const sql = 
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql =
     `SELECT p.name, p.description, p.price FROM products p 
     RIGHT OUTER JOIN listed_products lp ON lp.product_id = p.product_id 
     WHERE lp.seller_id = ?;`
-    try {
-        const result: any = await connection.query(sql, [sellerId]);
-        return result[0] as Product[];
-    } catch (err: any) {
-        console.log(err);
-        throw new Error(err);
-    } finally {
-        await connection.release();
-    }
+  try {
+    const result: any = await connection.query(sql, [sellerId]);
+    return result[0] as Product[];
+  } catch (err: any) {
+    console.log(err);
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
 }
 
 // GET order details
 export const handleGetOrderDetails = async (ordersId: number): Promise<Orders> => {
-    const promisePool = pool.promise();
-    const connection = await promisePool.getConnection();
-    const sql = 
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql =
     `SELECT c.username, c.email, op.total_price, o.orders_date, s.shipment_created, s.shipment_delivered FROM orders o
     INNER JOIN customer c 
     ON o.customer_id = c.customer_id
@@ -35,15 +35,15 @@ export const handleGetOrderDetails = async (ordersId: number): Promise<Orders> =
     LEFT JOIN shipment s
     ON o.shipment_id = s.shipment_id
     WHERE o.orders_id = ?;`
-    try {
-        const result: any = await connection.query(sql, [ordersId]);
-        return result[0] as Orders;
-    } catch (err: any) {
-        console.log(err);
-        throw new Error(err);
-    } finally {
-        await connection.release()
-    }
+  try {
+    const result: any = await connection.query(sql, [ordersId]);
+    return result[0] as Orders;
+  } catch (err: any) {
+    console.log(err);
+    throw new Error(err);
+  } finally {
+    await connection.release()
+  }
 }
 
 
@@ -320,6 +320,74 @@ export const handleResetPassword = async (password: string, seller_id: string): 
   }
 }
 
+export const handleGetSellerOrders = async (seller_id: string): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `
+  SELECT orders.orders_id, orders.customer_id, orders_product.quantity, orders_product.total_price, orders.orders_date, orders_product.product_id, orders_product.orders_product_id,
+  product_variations.variation_1, product_variations.variation_2, customer.username, customer.email
+      FROM orders_product
+      JOIN orders ON orders_product.orders_id = orders.orders_id
+      JOIN product_variations ON orders_product.sku = product_variations.sku
+      JOIN customer ON orders.customer_id = customer.customer_id
+  WHERE orders_product.product_id in (
+      SELECT listed_products.product_id FROM listed_products WHERE seller_id = ?
+  ) AND orders_product.shipment_id IS NULL
+  `
+  try {
+    const result = await connection.query(sql, [seller_id]);
+    return result[0] as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  }
+}
+
+export const handleGetSellerShipped = async (seller_id: string): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `
+  SELECT orders.orders_id, orders.customer_id, orders_product.quantity, orders_product.total_price, shipment.shipment_created, orders_product.product_id, orders_product.orders_product_id,
+  product_variations.variation_1, product_variations.variation_2, customer.username, customer.email
+      FROM orders_product
+      JOIN orders ON orders_product.orders_id = orders.orders_id
+      JOIN product_variations ON orders_product.sku = product_variations.sku
+      JOIN shipment on orders_product.shipment_id = shipment.shipment_id
+    JOIN customer ON orders.customer_id = customer.customer_id
+  WHERE orders_product.product_id in (
+      SELECT listed_products.product_id FROM listed_products WHERE seller_id = ?
+  ) AND orders_product.shipment_id IS NOT NULL AND shipment.shipment_delivered IS NULL
+  `
+  try {
+    const result = await connection.query(sql, [seller_id]);
+    return result[0] as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  }
+}
+
+export const handleGetSellerDelivered = async (seller_id: string): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `
+  SELECT orders.orders_id, orders.customer_id, orders_product.quantity, orders_product.total_price, shipment.shipment_delivered, orders_product.product_id, orders_product.orders_product_id,
+  product_variations.variation_1, product_variations.variation_2, customer.username, customer.email
+      FROM orders_product
+      JOIN orders ON orders_product.orders_id = orders.orders_id
+      JOIN product_variations ON orders_product.sku = product_variations.sku
+      JOIN shipment on orders_product.shipment_id = shipment.shipment_id
+    JOIN customer ON orders.customer_id = customer.customer_id
+  WHERE orders_product.product_id in (
+      SELECT listed_products.product_id FROM listed_products WHERE seller_id = ?
+  ) AND orders_product.shipment_id IS NOT NULL AND shipment.shipment_delivered IS NOT NULL
+  `
+  try {
+    const result = await connection.query(sql, [seller_id]);
+    return result[0] as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  }
+}
+
 
 
 
@@ -342,24 +410,24 @@ const padZero = (value: number): string => {
 
 
 interface Product {
-    name: string;
-    description: string;
-    price: number;
+  name: string;
+  description: string;
+  price: number;
 }
-  
+
 interface Orders {
-    customer_username: string;
-    customer_email: string;
-    total_price: number;
-    orders_date: Date;
-    shipment_created: Date;
-    shipment_delivered: Date;
+  customer_username: string;
+  customer_email: string;
+  total_price: number;
+  orders_date: Date;
+  shipment_created: Date;
+  shipment_delivered: Date;
 }
 
 interface Seller {
-    seller_id: number;
-    phone_number: number;
-    email: string;
-    shopName: string;
+  seller_id: number;
+  phone_number: number;
+  email: string;
+  shopName: string;
 }
-  
+

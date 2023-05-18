@@ -15,9 +15,9 @@ export default function OTP({ userDetails }: props): JSX.Element {
 
 
 
-  const { seller_id, shopeName, phone_number, email } = userDetails as {
+  const { seller_id, shopName, phone_number, email } = userDetails as {
     seller_id: number;
-    shopeName: string;
+    shopName: string;
     phone_number: number;
     email: string;
   };
@@ -67,7 +67,7 @@ export default function OTP({ userDetails }: props): JSX.Element {
         }
       );
       const { accessToken } = response.data;
-      setSeller({ seller_id, shopeName, accessToken });
+      setSeller({ seller_id, shopName, accessToken });
       navigate('/seller/home');
     } catch (err: any) {
       if (!err?.response) {
