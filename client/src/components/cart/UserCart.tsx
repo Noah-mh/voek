@@ -3,8 +3,6 @@ import useCustomer from "../../hooks/UseCustomer";
 import noImage from "../../img/product/No_Image_Available.jpg";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 // import ConfirmModal from "./ConfirmModal";
-import "flowbite";
-
 import "./UserCart.css";
 import { Link } from "react-router-dom";
 import PayPal from "../PayPal/PayPal";
@@ -56,7 +54,7 @@ export default function cartPage(): JSX.Element {
 
   const getCoins = async () => {
     axiosPrivateCustomer
-      .get("/getUserCoins/" + customer_id, {
+      .get("/customer/getUserCoins/" + customer_id, {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
       })
@@ -81,7 +79,7 @@ export default function cartPage(): JSX.Element {
   };
   const getUserCart = async () => {
     return axiosPrivateCustomer
-      .post("/getCart", JSON.stringify({ customer_id }), {
+      .post("/customer/getCart", JSON.stringify({ customer_id }), {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
       })

@@ -420,6 +420,8 @@ interface LoginResult {
   email: string;
 }
 
+//ALLISON :D
+
 export const handleGetCoins = async (customer_id: string): Promise<number> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
