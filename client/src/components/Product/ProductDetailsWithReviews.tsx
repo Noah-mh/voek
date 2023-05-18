@@ -10,20 +10,23 @@ export interface ProductVariation {
     variation_1: string | null;
     variation_2: string | null;
     price: number | null;
+    sku: string;
+    quantity: number | null;
 }
 
 export interface Review {
     rating: number;
-    image_urls: string[];
     reviews: Customer[];
 }
 
 export interface Customer {
     customerName: string;
     comment: string;
+    image_urls: string[];
 }
 
 export interface Product {
+    product_id: number;
     image_urls: string[] | null;
     name: string;
     description: string | null;
