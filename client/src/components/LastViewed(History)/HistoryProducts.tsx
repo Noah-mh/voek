@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from "react";
-import ProductCard from "./ProductCard";
+import ProductCard from "../Result/ProductCard";
 import Loader from "../Loader/Loader";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import CustomerContext from "../../context/CustomerProvider";

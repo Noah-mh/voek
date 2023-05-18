@@ -1,28 +1,55 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Modal from "./Modal";
-import { macbook } from "./images";
 import { Link } from "react-router-dom";
+import { AdvancedImage } from "@cloudinary/react";
+import { cld } from "../../Cloudinary/Cloudinary";
+import axios from "../../api/axios";
 
 interface ProductCardProps {
   product: {
     product_id: number;
     name: string;
-    price: number;
     description: string;
     image: string;
   };
 }
 
+interface Pricing {
+  lowestPrice: number;
+  highestPrice: number;
+}
+
 const ProductCard = ({ product }: ProductCardProps) => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [pricingRange, setPricingRange] = useState<Pricing>();
+  const [imageUrl, setImageUrl] = useState<string>("");
+
+  const getPricingAndImage = () => {
+    const pricingRange = axios.get(
+      `/getProductVariationsPricing/${product.product_id}`
+    );
+    const image = axios.get(`/getProductImage/${product.product_id}`);
+    Promise.all([pricingRange, image]).then((responses) => {
+      setPricingRange(responses[0].data[0]);
+      setImageUrl(responses[1].data[0].imageURL);
+    });
+  };
+
+  useEffect(() => {
+    getPricingAndImage();
+  }, []);
+
+  useEffect(() => {
+    getPricingAndImage();
+  }, [product]);
 
   return (
     <div>
       <div className="w-full max-w-sm bg-gray-50 border rounded-lg shadow-xl p-2 m-2">
         <Link to={`/productDetailsWithReviews/${product.product_id}`}>
-          <img
-            className="p-8 rounded-t-lg hover:cursor-pointer"
-            src={macbook}
+          <AdvancedImage
+            className="p-8 rounded-t-lg hover:cursor-pointer w-full h-80 object-contain"
+            cldImg={cld.image(imageUrl)}
             alt="product image"
           />
         </Link>
@@ -38,8 +65,13 @@ const ProductCard = ({ product }: ProductCardProps) => {
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-3xl font-bold text-greyAccent">
-              ${product.price}
+            <span className="text-2xl font-bold text-greyAccent">
+              $
+              {pricingRange?.lowestPrice === pricingRange?.highestPrice
+                ? pricingRange?.lowestPrice
+                : pricingRange?.lowestPrice +
+                  " - " +
+                  pricingRange?.highestPrice}
             </span>
             <div
               className="text-white bg-purpleAccent hover:bg-softerPurple focus:ring-4 focus:outline-none focus:ring-softerPurple font-medium rounded-lg text-sm px-5 py-2.5 text-center hover:cursor-pointer"
@@ -52,7 +84,13 @@ const ProductCard = ({ product }: ProductCardProps) => {
           </div>
         </div>
       </div>
-      {modalOpen && <Modal setModalOpen={setModalOpen} product={product} />}
+      {modalOpen && (
+        <Modal
+          setModalOpen={setModalOpen}
+          product={product}
+          pricingRange={pricingRange}
+        />
+      )}
     </div>
   );
 };
