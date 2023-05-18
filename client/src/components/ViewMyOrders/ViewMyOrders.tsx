@@ -29,7 +29,7 @@ const ViewMyOrders = () => {
   const [orders, setOrders] = useState<Product[]>([])
   const [deliveredOrders, setDeliveredOrders] = useState<Product[]>([])
   const [receivedOrders, setReceivedOrders] = useState<Product[]>([])
-
+  const [activeTab, setActiveTab] = useState('orders');
   const getOrders = async () => {
     try {
       return await axiosPrivateCustomer.get(`/customer/orders/${customer.customer_id}`)
@@ -71,9 +71,27 @@ const ViewMyOrders = () => {
 
   return (
     <div>
-      <ViewOrders orders={orders} />
-      <ViewDelivered deliveredOrders={deliveredOrders} getAll={getAll} />
-      <ViewReceived receivedOrders={receivedOrders} />
+      <button
+        onClick={() => setActiveTab('orders')}
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+      >
+        Orders
+      </button>
+      <button
+        onClick={() => setActiveTab('delivered')}
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+      >
+        Delivered Orders
+      </button>
+      <button
+        onClick={() => setActiveTab('received')}
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+      >
+        Received Orders
+      </button>
+      {activeTab === 'orders' && <ViewOrders orders={orders} />}
+      {activeTab === 'delivered' && <ViewDelivered deliveredOrders={deliveredOrders} getAll={getAll} />}
+      {activeTab === 'received' && <ViewReceived receivedOrders={receivedOrders} />}
     </div>
   )
 }
