@@ -25,11 +25,29 @@ export const getRecommendedProductsBasedOnCat = async (
   next: NextFunction
 ) => {
   try {
-    const { category_id } = req.body;
+    const { category_id } = req.params;
+    const categoryId = parseInt(category_id);
     const response: Array<object> =
-      await productModel.handlesGetRecommendedProductsBasedOnCat(category_id);
+      await productModel.handlesGetRecommendedProductsBasedOnCat(categoryId);
     if (!response?.length) return res.sendStatus(404);
     return res.sendStatus(200);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const getRecommendedProductBasedOnCat = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { category_id } = req.params;
+    const categoryId = parseInt(category_id);
+    console.log("categoryId", categoryId);
+    const response: Array<object> =
+      await productModel.handlesGetRecommendedProductBasedOnCat(categoryId);
+    return res.send(response);
   } catch (err: any) {
     return next(err);
   }
@@ -250,6 +268,54 @@ export const getProductVariations = async (
     const productId: number = parseInt(product_Id);
     const response: Array<object> =
       await productModel.handlesGetProductVariations(productId);
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const getProductVariationsPricing = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { product_Id } = req.params;
+    const productId: number = parseInt(product_Id);
+    const response: Array<object> =
+      await productModel.handlesGetProductVariationsPricing(productId);
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const getProductImage = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { product_Id } = req.params;
+    const productId: number = parseInt(product_Id);
+    const response: Array<object> =
+      await productModel.handlesGetProductImage(productId);
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const getProductVariationImage = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { sku } = req.params;
+    const productId: number = parseInt(sku);
+    const response: Array<object> =
+      await productModel.handlesGetProductVariationImage(sku);
     return res.send(response);
   } catch (err: any) {
     return next(err);
