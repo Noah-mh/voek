@@ -176,6 +176,7 @@ export default function cartPage(): JSX.Element {
       });
   }, [changedQuantState]);
 
+  //when redeemcoins is checked
   useEffect(() => {
     const discAmt = Math.floor(totalAmt.coins / 10);
     if (isChecked) {
@@ -190,6 +191,8 @@ export default function cartPage(): JSX.Element {
       });
     }
   }, [isChecked]);
+
+  //I need to pass total amount, coins used, and cart items to next page
 
   return (
     <div className="container flex">
