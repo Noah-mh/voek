@@ -268,6 +268,10 @@ export default function (app: Express, router: Router) {
     customerController.updateCustomerLastViewedCat
   );
 
+  router.get(
+    "/getCustomerLastViewedCat/:customer_id",
+    customerController.getCustomerLastViewedCat
+  );
   router.post(
     "/customer/getCart",
     verifyJWT,
