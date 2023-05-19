@@ -55,49 +55,62 @@ const Modal = ({ setModalOpen, product, pricingRange }: ModalProps) => {
   const customerId = customer.customer_id;
 
   const addToCart = () => {
-    axiosPrivateCustomer
-      .post(
-        `/insertCart`,
-        JSON.stringify({
-          quantity,
-          customerId,
-          productId: product.product_id,
-          sku: chosenSKU,
-        }),
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        }
-      )
-      .then((response) => response.status)
-      .then((data) => {
-        if (data === 200) {
-          toast.success("Item Added to Cart! 😊", {
-            position: "top-center",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-          });
-        } else {
-          toast.error("Uh-oh! Error! 😔", {
-            position: "top-center",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-          });
-        }
-      })
-      .catch((err: any) => {
-        console.log(err);
+    if (customerId != undefined) {
+      axiosPrivateCustomer
+        .post(
+          `/insertCart`,
+          JSON.stringify({
+            quantity,
+            customerId,
+            productId: product.product_id,
+            sku: chosenSKU,
+          }),
+          {
+            headers: { "Content-Type": "application/json" },
+            withCredentials: true,
+          }
+        )
+        .then((response) => response.status)
+        .then((data) => {
+          if (data === 200) {
+            toast.success("Item Added to Cart! 😊", {
+              position: "top-center",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "light",
+            });
+          } else {
+            toast.error("Uh-oh! Error! 😔", {
+              position: "top-center",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "light",
+            });
+          }
+        })
+        .catch((err: any) => {
+          console.log(err);
+        });
+    } else {
+      toast.warn("Please Login to Add to Cart!", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
       });
+    }
   };
 
   useEffect(() => {

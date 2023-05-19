@@ -32,6 +32,7 @@ import LastViewed from "./components/LastViewed(History)/LastViewed.js";
 import SomeComponent from "./components/Test/cloudinaryTest.js";
 import ReferralLink from "./components/ReferralLink/ReferralLink.js";
 import ViewCustomerOrders from "./components/SellerSidebar/ViewCustomerOrders.js";
+import CategoryResults from "./components/CategoryResults/CategoryResults.js";
 
 function App() {
   return (
@@ -47,9 +48,10 @@ function App() {
         {/* Customer Routes */}
         <Route element={<PersistLoginCustomer />}>
           {/* Public Routes with persist login */}
-          <Route path="test" element={<ReferralLink />} />
-          <Route path="/customer/checkout" element={<Checkout />} />
+
           <Route path="/" element={<Homepage />} />
+          <Route path="test" element={<ReferralLink />} />
+          <Route path="customer/checkout" element={<Checkout />} />
           <Route path="login" element={<LoginBanner />} />
           <Route path="signup" element={<SignupBannerCustomer />} />
           <Route
@@ -58,15 +60,19 @@ function App() {
           />
           <Route path="test" element={<SomeComponent />} />
           <Route path="searchResults/:userInput" element={<SearchResults />} />
+          <Route
+            path="categoryResults/:categoryId"
+            element={<CategoryResults />}
+          />
           <Route path="/customer/cart" element={<CartPage />} />
 
-          <Route path="lastViewed" element={<LastViewed />} />
 
           <Route element={<RequireAuthCustomer />}>
             {/* Protected Routes with persist login */}
             <Route path="wishlist" element={<Wishlist />} />
-            <Route path="/customer/cart" element={<CartPage />} />
+            <Route path="customer/cart" element={<CartPage />} />
             <Route path="orders" element={<ViewMyOrders />} />
+            <Route path="lastViewed" element={<LastViewed />} />
           </Route>
         </Route>
       </Route>

@@ -1,5 +1,7 @@
 import pool from "../../config/database";
+import { OkPacket } from "mysql2";
 
+//Noah
 export const handlesGetProductDetails = async (
   productId: number
 ): Promise<ProductDetails[]> => {
@@ -42,6 +44,52 @@ export const handlesGetCartDetails = async (
   }
 };
 
+export const handleAddToCart = async (
+  quantity: number,
+  customer_id: number,
+  product_id: number,
+  sku: string
+): Promise<number> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  let insertId: number | undefined;
+
+  try {
+    const sql = `INSERT INTO cart (quantity, customer_id, product_id, sku) VALUES (?, ?, ?, ?);`;
+    const [result] = await connection.query(sql, [
+      quantity,
+      customer_id,
+      product_id,
+      sku,
+    ]);
+    insertId = (result as OkPacket).insertId;
+  } catch (err: any) {
+    console.error(err);
+    if (err.errno === 1062) {
+      console.error("entered update");
+      const sql = `UPDATE cart SET quantity = quantity + ? WHERE customer_id = ? AND product_id = ? AND sku = ?;`;
+      try {
+        const [result] = await connection.query(sql, [
+          quantity,
+          customer_id,
+          product_id,
+          sku,
+        ]);
+        insertId = (result as OkPacket).affectedRows > 0 ? product_id : 0;
+      } catch (err: any) {
+        console.error(err);
+        throw new Error(err);
+      }
+    }
+  } finally {
+    await connection.release();
+  }
+
+  // Check if insertId is undefined, if so return a default value
+  return insertId ?? 0;
+};
+
+// NHAT TIEN :D
 export const handlesGetRecommendedProductsBasedOnCat = async (
   category_id: number
 ): Promise<Product[]> => {
@@ -61,7 +109,7 @@ export const handlesGetRecommendedProductsBasedOnCat = async (
   }
 };
 
-export const handlesGetRecommendedProductBasedOnCat = async (
+export const handlesGetRecommendedProductsBasedOnCatWishlist = async (
   category_id: number
 ): Promise<Product[]> => {
   const promisePool = pool.promise();
@@ -69,7 +117,7 @@ export const handlesGetRecommendedProductBasedOnCat = async (
   const sql = `SELECT products.product_id , products.name, products.description
   FROM category, products 
   WHERE category.category_id = ? and category.category_id = products.category_id 
-  LIMIT 1;`;
+  LIMIT 3;`;
   try {
     const result = await connection.query(sql, [category_id]);
     return result[0] as Product[];
@@ -237,12 +285,15 @@ export const handlesDeletingWishlistedProduct = async (
     await connection.release();
   }
 };
+
+//Noah
 export const handleProductDetailsWithoutReviews = async (
   product_id: number
 ): Promise<ProductWithImages[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT 
+  p.product_id,
   p.name,
   p.description,
   img.image_urls,
@@ -262,7 +313,9 @@ LEFT JOIN (
       JSON_OBJECT(
         'variation_1', variation_1,
         'variation_2', variation_2,
-        'price', price
+        'price', price,
+        'sku', sku,
+        'quantity', quantity
       )
     ) AS variations
   FROM product_variations
@@ -282,32 +335,51 @@ WHERE p.product_id = ?;
   }
 };
 
+//Noah
 export const handleProductReviews = async (
   product_id: number
 ): Promise<Review[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `SELECT p.name,
-  (SELECT JSON_ARRAYAGG(COALESCE(ri.image_url, 'test/1_cksdtz'))
-   FROM review_images ri
-   INNER JOIN review r ON ri.review_id = r.review_id
-   WHERE r.product_id = p.product_id) AS image_urls,
+  const sql = `SELECT 
+  p.name,
   ROUND(AVG(r.rating), 2) AS rating,
-  (SELECT JSON_ARRAYAGG(JSON_OBJECT(
-            'customerName', c.username,
-            'comment', r.comment
-          ))
-   FROM review r
-   INNER JOIN customer c ON r.customer_id = c.customer_id
-   WHERE r.sku IN (
-     SELECT pv.sku
-     FROM product_variations pv
-     WHERE pv.product_id = p.product_id
-   )) AS reviews
-FROM products p
-LEFT JOIN review r ON p.product_id = r.product_id
-WHERE p.product_id = ?
-GROUP BY p.product_id, p.name;
+  (SELECT 
+      JSON_ARRAYAGG(
+          JSON_OBJECT(
+              'customerName', c.username,
+              'comment', r.comment,
+              'image_urls', (SELECT 
+                                  JSON_ARRAYAGG(
+                                      COALESCE(ri.image_url, 'test/1_cksdtz')
+                                  ) 
+                              FROM 
+                                  review_images ri
+                              WHERE 
+                                  ri.review_id = r.review_id)
+          )
+      )
+  FROM 
+      review r
+      INNER JOIN customer c ON r.customer_id = c.customer_id
+  WHERE 
+      r.sku IN (
+          SELECT 
+              pv.sku
+          FROM 
+              product_variations pv
+          WHERE 
+              pv.product_id = p.product_id
+      )
+  ) AS reviews
+FROM 
+  products p
+  LEFT JOIN review r ON p.product_id = r.product_id
+WHERE 
+  p.product_id = ?
+GROUP BY 
+  p.product_id, 
+  p.name;
     `;
 
   try {
@@ -321,6 +393,7 @@ GROUP BY p.product_id, p.name;
   }
 };
 
+// Nhat Tien :D
 export const handlesCheckWishlistProductExistence = async (
   customer_id: number,
   product_id: number
@@ -411,7 +484,55 @@ export const handlesGetProductVariationImage = async (sku: string) => {
   }
 };
 
+export const handlesGetProductCat = async (productId: number) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT category_id as categoryId FROM products WHERE product_id = ?;`;
+  try {
+    const result = await connection.query(sql, [productId]);
+    return result[0] as Array<Object>;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
 
+export const handlesInsertLastViewedProduct = async (
+  productId: number,
+  categoryId: number,
+  customerId: number
+) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `INSERT INTO last_viewed (product_id, category_id, customer_id) VALUES (?, ?, ?);`;
+  try {
+    const result = await connection.query(sql, [
+      productId,
+      categoryId,
+      customerId,
+    ]);
+    return result[0] as Array<Object>;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handlesGetProductsUsingCategory = async (categoryId: number) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT products.product_id, products.name, products.description FROM products WHERE category_id = ?;`;
+  try {
+    const result = await connection.query(sql, [categoryId]);
+    return result[0] as Array<Object>;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
 
 interface Product {
   product_id: number;

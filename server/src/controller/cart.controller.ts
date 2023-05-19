@@ -56,7 +56,7 @@ export const insertCart = async (
       productId,
       sku
     );
-    return res.sendStatus(201);
+    return res.sendStatus(200);
   } catch (err: any) {
     return next(err);
   }

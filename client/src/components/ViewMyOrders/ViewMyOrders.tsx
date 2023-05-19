@@ -4,6 +4,7 @@ import ViewReceived from "./ViewReceived";
 import ViewDelivered from "./ViewDelivered";
 import useCustomer from "../../hooks/UseCustomer";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
+import { v4 as uuidv4 } from 'uuid'
 
 interface Product {
   description: string;
@@ -19,6 +20,8 @@ interface Product {
   shipment_delivered?: string;
   image_url?: string;
   orders_product_id?: number;
+  seller_id: string;
+  orders_id: string;
 }
 
 const ViewMyOrders = () => {
