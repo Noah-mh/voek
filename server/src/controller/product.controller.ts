@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import * as productModel from "../model/product.model";
-
+//Noah
 export const processPublicProductDetails = async (
   req: Request,
   res: Response,
@@ -25,11 +25,29 @@ export const getRecommendedProductsBasedOnCat = async (
   next: NextFunction
 ) => {
   try {
-    const { category_id } = req.body;
+    const { category_id } = req.params;
+    const categoryId = parseInt(category_id);
     const response: Array<object> =
-      await productModel.handlesGetRecommendedProductsBasedOnCat(category_id);
-    if (!response?.length) return res.sendStatus(404);
-    return res.sendStatus(200);
+      await productModel.handlesGetRecommendedProductsBasedOnCat(categoryId);
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const getRecommendedProductsBasedOnCatWishlist = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { category_id } = req.params;
+    const categoryId = parseInt(category_id);
+    const response: Array<object> =
+      await productModel.handlesGetRecommendedProductsBasedOnCatWishlist(
+        categoryId
+      );
+    return res.send(response);
   } catch (err: any) {
     return next(err);
   }
@@ -78,8 +96,8 @@ export const getTopProducts = async (
 ) => {
   try {
     const response: Array<object> = await productModel.handlesTopProducts();
-    if (!response?.length) return res.sendStatus(404);
-    return res.sendStatus(200);
+    // if (!response?.length) return res.sendStatus(404);
+    return res.send(response);
   } catch (err: any) {
     return next(err);
   }
@@ -252,6 +270,129 @@ export const getProductVariations = async (
       await productModel.handlesGetProductVariations(productId);
     return res.send(response);
   } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const getProductVariationsPricing = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { product_Id } = req.params;
+    const productId: number = parseInt(product_Id);
+    const response: Array<object> =
+      await productModel.handlesGetProductVariationsPricing(productId);
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const getProductImage = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { product_Id } = req.params;
+    const productId: number = parseInt(product_Id);
+    const response: Array<object> = await productModel.handlesGetProductImage(
+      productId
+    );
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const getProductVariationImage = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { sku } = req.params;
+    const productId: number = parseInt(sku);
+    const response: Array<object> =
+      await productModel.handlesGetProductVariationImage(sku);
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const insertLastViewedProduct = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { productId, categoryId, customerId } = req.body;
+    const response: Array<object> =
+      await productModel.handlesInsertLastViewedProduct(
+        productId,
+        categoryId,
+        customerId
+      );
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const getProductsUsingCategory = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { category_id } = req.params;
+    const categoryId: number = parseInt(category_id);
+    const response: Array<object> =
+      await productModel.handlesGetProductsUsingCategory(categoryId);
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const getProductCat = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { product_id } = req.params;
+    const productId: number = parseInt(product_id);
+    const response: Array<object> = await productModel.handlesGetProductCat(
+      productId
+    );
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+//Noah
+export const addToCart = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { quantity, customer_id, product_id, sku } = req.body;
+    const response: number = await productModel.handleAddToCart(
+      quantity,
+      customer_id,
+      product_id,
+      sku
+    );
+    if (!response) return res.sendStatus(404);
+    return res.sendStatus(200);
+  } catch (err: any) {
+    console.error(err);
     return next(err);
   }
 };

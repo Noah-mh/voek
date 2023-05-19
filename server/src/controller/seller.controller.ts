@@ -3,6 +3,7 @@ import config from '../../config/config';
 import { UserInfo } from '../interfaces/interfaces';
 import { Request, Response, NextFunction } from "express";
 import * as sellerModel from "../model/seller.model";
+import { parse } from 'path';
 
 // GET all products from 1 seller
 export const processGetAllProductsOfSeller = async (req: Request, res: Response, next: NextFunction) => {
@@ -56,7 +57,7 @@ export const processLogin = async (req: Request, res: Response, next: NextFuncti
         return res.sendStatus(400);
     } else {
         try {
-            const response: UserInfo | null = await sellerModel.handleLogin(email, password);
+            const response: any = await sellerModel.handleLogin(email, password);
             if (response) {
                 return res.json(response);
             } else {
@@ -196,7 +197,7 @@ export const processForgetPassword = async (req: Request, res: Response, next: N
         return res.sendStatus(200);
     } catch (err: any) {
         return next(err);
-    } 
+    }
 }
 
 export const processForgetPasswordLink = async (req: Request, res: Response, next: NextFunction) => {
@@ -219,6 +220,61 @@ export const processResetPassword = async (req: Request, res: Response, next: Ne
         if (!password || !seller_id) return res.sendStatus(400);
         const result = await sellerModel.handleResetPassword(password, seller_id);
         return res.sendStatus(200);
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processGetSellerOrders = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { seller_id } = req.params;
+        if (!seller_id) return res.sendStatus(400);
+        const result = await sellerModel.handleGetSellerOrders(seller_id);
+        return res.json({ orders: result });
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processGetSellerShipped = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { seller_id } = req.params;
+        if (!seller_id) return res.sendStatus(400);
+        const result = await sellerModel.handleGetSellerShipped(seller_id);
+        return res.json({ shipped: result });
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processGetSellerDelivered = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { seller_id } = req.params;
+        if (!seller_id) return res.sendStatus(400);
+        const result = await sellerModel.handleGetSellerDelivered(seller_id);
+        return res.json({ delivered: result });
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processPackedAndShipped = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { orders_product_id, customer_id } = req.body;
+        if (!orders_product_id || !customer_id) return res.sendStatus(400);
+        await sellerModel.handlePackedAndShipped(orders_product_id, customer_id);
+        return res.sendStatus(201);
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processGetCustomerOrders = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { seller_id, orders_id } = req.params;
+        if (!seller_id || !orders_id) return res.sendStatus(400);
+        const result = await sellerModel.handleGetCustomerOrders(parseInt(seller_id), parseInt(orders_id));
+        return res.json({ orders: result });
     } catch (err: any) {
         return next(err);
     }

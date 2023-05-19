@@ -7,8 +7,6 @@ interface CloudinaryUploaderProps {
 const CloudinaryUploader: React.FC<CloudinaryUploaderProps> = ({ onSuccess }) => {
     const [myWidget, setMyWidget] = useState<any>(null);
     useEffect(() => {
-        // We make sure that Cloudinary is loaded in window
-        // Cloudinary widget is usually added in the index.html or via script tag
         if ((window as any).cloudinary) {
             setMyWidget((window as any).cloudinary.createUploadWidget({
                 cloudName: "dgheg6ml5",
@@ -30,7 +28,7 @@ const CloudinaryUploader: React.FC<CloudinaryUploaderProps> = ({ onSuccess }) =>
     return (
         <div>
             <button className="cloudinary-button" onClick={handleUploadClick}>
-                Upload
+                Add Photo
             </button>
 
         </div>

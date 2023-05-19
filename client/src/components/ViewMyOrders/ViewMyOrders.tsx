@@ -4,6 +4,7 @@ import ViewReceived from "./ViewReceived";
 import ViewDelivered from "./ViewDelivered";
 import useCustomer from "../../hooks/UseCustomer";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
+import { v4 as uuidv4 } from 'uuid'
 
 interface Product {
   description: string;
@@ -16,7 +17,11 @@ interface Product {
   sku: string,
   orders_date?: string;
   shipment_created?: string;
-  shipment_delivered?: string
+  shipment_delivered?: string;
+  image_url?: string;
+  orders_product_id?: number;
+  seller_id: string;
+  orders_id: string;
 }
 
 const ViewMyOrders = () => {
@@ -27,7 +32,7 @@ const ViewMyOrders = () => {
   const [orders, setOrders] = useState<Product[]>([])
   const [deliveredOrders, setDeliveredOrders] = useState<Product[]>([])
   const [receivedOrders, setReceivedOrders] = useState<Product[]>([])
-
+  const [activeTab, setActiveTab] = useState('orders');
   const getOrders = async () => {
     try {
       return await axiosPrivateCustomer.get(`/customer/orders/${customer.customer_id}`)
@@ -69,9 +74,27 @@ const ViewMyOrders = () => {
 
   return (
     <div>
-      <ViewOrders orders={orders} />
-      <ViewDelivered deliveredOrders={deliveredOrders} getAll={getAll} />
-      <ViewReceived receivedOrders={receivedOrders} />
+      <button
+        onClick={() => setActiveTab('orders')}
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+      >
+        Orders
+      </button>
+      <button
+        onClick={() => setActiveTab('delivered')}
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+      >
+        Delivered Orders
+      </button>
+      <button
+        onClick={() => setActiveTab('received')}
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+      >
+        Received Orders
+      </button>
+      {activeTab === 'orders' && <ViewOrders orders={orders} />}
+      {activeTab === 'delivered' && <ViewDelivered deliveredOrders={deliveredOrders} getAll={getAll} />}
+      {activeTab === 'received' && <ViewReceived receivedOrders={receivedOrders} />}
     </div>
   )
 }

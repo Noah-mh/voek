@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
+import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import axios from "../../api/axios";
-import { macbook } from "./images";
 import Loader from "../Loader/Loader";
+import CustomerContext from "../../context/CustomerProvider";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
@@ -9,80 +10,146 @@ import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+import { AdvancedImage } from "@cloudinary/react";
+import { cld } from "../../Cloudinary/Cloudinary";
+
 interface ModalProps {
   setModalOpen: (modalOpen: boolean) => void;
   product: {
     product_id: number;
     name: string;
-    price: number;
     description: string;
     image: string;
   };
+  pricingRange: Pricing | undefined;
 }
 
-const Modal = ({ setModalOpen, product }: ModalProps) => {
+interface Pricing {
+  lowestPrice: number;
+  highestPrice: number;
+}
+
+interface Variation {
+  active: number;
+  product_id: number;
+  quantity: number;
+  sku: string;
+  price: number;
+  variation_1: string | null;
+  variation_2: string | null;
+  image: string;
+}
+
+const Modal = ({ setModalOpen, product, pricingRange }: ModalProps) => {
+  const axiosPrivateCustomer = useAxiosPrivateCustomer();
+
   const [status, setStatus] = useState<boolean>(false);
-  const [variations, setVariations] = useState<Array<object>>([]);
+  const [variations, setVariations] = useState<Array<Variation>>([]);
   const [quantity, setQuantity] = useState<number>(1);
   const [stock, setStock] = useState<number>(0);
   const [chosenSKU, setChosenSKU] = useState<string>("");
-  const [notificationStatus, setNotificationStatus] = useState<boolean>(false);
+  const [price, setPrice] = useState<number>(0);
+  const [imageUrl, setImageUrl] = useState<string>("");
 
-  const [customerId, setCustomerId] = useState<number>(1);
+  const { customer } = useContext(CustomerContext);
+  const customerId = customer.customer_id;
 
   const addToCart = () => {
-    axios
-      .post(
-        `/insertCart`,
-        JSON.stringify({
-          quantity,
-          customerId,
-          productId: product.product_id,
-          sku: chosenSKU,
-        }),
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        }
-      )
-      .then((response) => response.status)
-      .then((data) => {
-        if (data === 200) {
-          toast.success("Item Added to Cart! 😊", {
-            position: "top-center",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-          });
-        } else {
-          toast.error("Uh-oh! Error! 😔", {
-            position: "top-center",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-          });
-        }
-      })
-      .catch((err: any) => {
-        console.log(err);
+    if (customerId != undefined) {
+      axiosPrivateCustomer
+        .post(
+          `/insertCart`,
+          JSON.stringify({
+            quantity,
+            customerId,
+            productId: product.product_id,
+            sku: chosenSKU,
+          }),
+          {
+            headers: { "Content-Type": "application/json" },
+            withCredentials: true,
+          }
+        )
+        .then((response) => response.status)
+        .then((data) => {
+          if (data === 200) {
+            toast.success("Item Added to Cart! 😊", {
+              position: "top-center",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "light",
+            });
+          } else {
+            toast.error("Uh-oh! Error! 😔", {
+              position: "top-center",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "light",
+            });
+          }
+        })
+        .catch((err: any) => {
+          console.log(err);
+        });
+    } else {
+      toast.warn("Please Login to Add to Cart!", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
       });
+    }
   };
 
   useEffect(() => {
     axios
       .get(`/getProductVariations/${product.product_id}`)
       .then((response: any) => response.data)
-      .then((data: Array<object>) => {
+      .then((data: Array<Variation>) => {
+        const promises = data.map((variation) => {
+          return axios
+            .get(`/getProductVariationImage/${variation.sku}`)
+            .then((response: any) => {
+              return { variation: variation, data: response.data };
+            });
+        });
+        return Promise.all(promises);
+      })
+      .then((responses: Array<any>) => {
+        const variations = responses.map((response) => {
+          response.variation.image = response.data[0].imageURL;
+          return response.variation;
+        });
+        setVariations(variations);
+
+        if (
+          variations.length === 1 &&
+          variations[0].variation_1 == null &&
+          variations[0].variation_2 == null
+        ) {
+          setChosenSKU(variations[0].sku);
+          setStock(variations[0].quantity);
+        }
+
+        let totalStock = 0;
+        variations.forEach((variation: any) => {
+          totalStock += variation.quantity;
+        });
+        setStock(totalStock);
+        setImageUrl(variations[0].image);
         setStatus(true);
-        setVariations(data);
       })
       .catch((err: any) => {
         console.log(err);
@@ -90,14 +157,26 @@ const Modal = ({ setModalOpen, product }: ModalProps) => {
       });
   }, []);
 
-  useEffect(() => {
+  const updateSKU = (chosenSKU: string) => {
+    setChosenSKU(chosenSKU);
     setQuantity(1);
-    variations.map((variation: any) => {
-      if (variation.sku === chosenSKU) {
+
+    if (chosenSKU === "") {
+      const totalStock = variations
+        .map((variation) => variation.quantity)
+        .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+      setStock(totalStock);
+    } else {
+      const variation = variations.find(
+        (variation) => variation.sku === chosenSKU
+      );
+      if (variation) {
         setStock(variation.quantity);
+        setPrice(variation.price);
+        setImageUrl(variation.image);
       }
-    });
-  }, [chosenSKU]);
+    }
+  };
 
   return (
     <div>
@@ -121,11 +200,24 @@ const Modal = ({ setModalOpen, product }: ModalProps) => {
             </div>
             <div className="flex justify-center my-1">
               <div className="w-1/2 mx-2 flex justify-center items-center">
-                <img src={macbook} className="rounded-sm" />
+                <AdvancedImage
+                  cldImg={cld.image(imageUrl)}
+                  alt="product image"
+                  className="rounded-sm"
+                />
               </div>
               <div className="text-greyAccent font-semibold text-2xl mx-2">
                 <h1>{product.name}</h1>
-                <h1 className="text-purpleAccent mt-3">${product.price}</h1>
+                <h1 className="text-purpleAccent mt-3">
+                  $
+                  {chosenSKU === ""
+                    ? pricingRange?.lowestPrice === pricingRange?.highestPrice
+                      ? pricingRange?.lowestPrice
+                      : pricingRange?.lowestPrice +
+                        " - $" +
+                        pricingRange?.highestPrice
+                    : price}
+                </h1>
                 <h1 className="text-lg">Stock: {stock}</h1>
               </div>
             </div>
@@ -141,9 +233,9 @@ const Modal = ({ setModalOpen, product }: ModalProps) => {
                     }
                     onClick={() => {
                       if (chosenSKU === variation.sku) {
-                        setChosenSKU("");
+                        updateSKU("");
                       } else {
-                        setChosenSKU(variation.sku);
+                        updateSKU(variation.sku);
                       }
                     }}
                     key={index}

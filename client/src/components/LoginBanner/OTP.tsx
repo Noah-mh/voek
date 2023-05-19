@@ -64,7 +64,7 @@ export default function OTP({ userDetails }: props): JSX.Element {
           withCredentials: true
         })
       const { accessToken } = response.data;
-      setCustomer({ customer_id, username, accessToken, cart: [] })
+      setCustomer({ customer_id, username, accessToken, checkOut: {} })
       navigate(from);
     } catch (err: any) {
       if (!err?.response) {

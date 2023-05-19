@@ -26,17 +26,18 @@ import HomepageSeller from "./components/HomepageSeller/HomepageSeller.js";
 import ManageProducts from "./components/SellerSidebar/ManageProducts.js";
 import AddProduct from "./components/SellerSidebar/AddProduct.js";
 import ManageOrders from "./components/SellerSidebar/ManageOrders.js";
-
+import Checkout from "./components/Checkout/Checkout.js";
 import ViewMyOrders from "./components/ViewMyOrders/ViewMyOrders.js";
 import LastViewed from "./components/LastViewed(History)/LastViewed.js";
 import SomeComponent from "./components/Test/cloudinaryTest.js";
 import ReferralLink from "./components/ReferralLink/ReferralLink.js";
+import ViewCustomerOrders from "./components/SellerSidebar/ViewCustomerOrders.js";
+import CategoryResults from "./components/CategoryResults/CategoryResults.js";
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
-
         <Route path="signup/verify" element={<VerifySignupCustomer />} />
         <Route
           path="forgetPassword/verify"
@@ -47,8 +48,10 @@ function App() {
         {/* Customer Routes */}
         <Route element={<PersistLoginCustomer />}>
           {/* Public Routes with persist login */}
-          <Route path="test" element={<ReferralLink />} />
+
           <Route path="/" element={<Homepage />} />
+          <Route path="test" element={<ReferralLink />} />
+          <Route path="customer/checkout" element={<Checkout />} />
           <Route path="login" element={<LoginBanner />} />
           <Route path="signup" element={<SignupBannerCustomer />} />
           <Route
@@ -57,16 +60,19 @@ function App() {
           />
           <Route path="test" element={<SomeComponent />} />
           <Route path="searchResults/:userInput" element={<SearchResults />} />
-          <Route path="customer/cart" element={<CartPage />} />
+          <Route
+            path="categoryResults/:categoryId"
+            element={<CategoryResults />}
+          />
+          <Route path="/customer/cart" element={<CartPage />} />
 
-          <Route path="lastViewed" element={<LastViewed />} />
 
           <Route element={<RequireAuthCustomer />}>
-            {/* Prtoected Routes with persist login */}
-            <Route path="cart" element={<CartPage />} />
+            {/* Protected Routes with persist login */}
             <Route path="wishlist" element={<Wishlist />} />
             <Route path="customer/cart" element={<CartPage />} />
             <Route path="orders" element={<ViewMyOrders />} />
+            <Route path="lastViewed" element={<LastViewed />} />
           </Route>
         </Route>
       </Route>
@@ -92,6 +98,7 @@ function App() {
             <Route path="seller/manageProducts" element={<ManageProducts />} />
             <Route path="seller/addProduct" element={<AddProduct />} />
             <Route path="seller/manageOrders" element={<ManageOrders />} />
+            <Route path="seller/orders" element={<ViewCustomerOrders />} />
           </Route>
         </Route>
       </Route>

@@ -4,21 +4,29 @@ import ProductCard from "../Result/ProductCard";
 import axios from "../../api/axios";
 
 interface ProductsProps {
-  userInput: string | undefined;
+  categoryId: string | undefined;
 }
 
-const Products = ({ userInput }: ProductsProps) => {
-  const [products, setProducts] = useState<Array<object>>([]);
+interface Product {
+  product_id: number;
+  name: string;
+  description: string;
+  image: string;
+}
+
+const Products = ({ categoryId }: ProductsProps) => {
+  const [products, setProducts] = useState<Array<Product>>([]);
   const [status, setStatus] = useState<boolean>(false);
 
   useEffect(() => {
+    console.log("categoryId", categoryId);
     axios
-      .post(`/searchResult`, JSON.stringify({ input: userInput }), {
+      .get(`/getProductsUsingCategory/${categoryId}`, {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
       })
       .then((response: any) => response.data)
-      .then((data: Array<object>) => {
+      .then((data: Array<Product>) => {
         setStatus(true);
         setProducts(data);
       })
@@ -26,7 +34,7 @@ const Products = ({ userInput }: ProductsProps) => {
         console.log(err);
         setStatus(false);
       });
-  }, [userInput]);
+  }, [categoryId]);
 
   return (
     <div>
@@ -45,7 +53,7 @@ const Products = ({ userInput }: ProductsProps) => {
               </div>
             ) : (
               <div className="flex justify-center items-center">
-                no products found for "{userInput}"
+                No products are currently sold for this category
               </div>
             )}
           </div>

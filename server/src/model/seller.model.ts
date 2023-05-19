@@ -2,6 +2,7 @@ import pool from '../../config/database';
 import bcrypt from 'bcrypt';
 import Sib from '../../config/sendInBlue';
 import client from '../../config/teleSign';
+import c from 'config';
 
 // GET all products from 1 seller
 export const handleGetAllProducts = async (sellerId: number): Promise<any[]> => {
@@ -101,9 +102,9 @@ export const handleAddProduct = async (sellerId: number, name: string, descripti
 
 // GET order details
 export const handleGetOrderDetails = async (ordersId: number): Promise<Orders> => {
-    const promisePool = pool.promise();
-    const connection = await promisePool.getConnection();
-    const sql = 
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql =
     `SELECT c.username, c.email, op.total_price, o.orders_date, s.shipment_created, s.shipment_delivered FROM orders o
     INNER JOIN customer c 
     ON o.customer_id = c.customer_id
@@ -112,15 +113,15 @@ export const handleGetOrderDetails = async (ordersId: number): Promise<Orders> =
     LEFT JOIN shipment s
     ON o.shipment_id = s.shipment_id
     WHERE o.orders_id = ?;`
-    try {
-        const result: any = await connection.query(sql, [ordersId]);
-        return result[0] as Orders;
-    } catch (err: any) {
-        console.log(err);
-        throw new Error(err);
-    } finally {
-        await connection.release()
-    }
+  try {
+    const result: any = await connection.query(sql, [ordersId]);
+    return result[0] as Orders;
+  } catch (err: any) {
+    console.log(err);
+    throw new Error(err);
+  } finally {
+    await connection.release()
+  }
 }
 
 
@@ -394,9 +395,126 @@ export const handleResetPassword = async (password: string, seller_id: string): 
     return (result[0] as any).affectedRows as number;
   } catch (err: any) {
     throw new Error(err);
+  } finally {
+    await connection.release();
   }
 }
 
+export const handleGetSellerOrders = async (seller_id: string): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `
+  SELECT products.name, orders.orders_id, orders.customer_id, orders_product.quantity, orders_product.total_price, orders.orders_date, orders_product.product_id, orders_product.orders_product_id,
+  product_variations.variation_1, product_variations.variation_2, customer.username, customer.email
+      FROM orders_product
+      JOIN orders ON orders_product.orders_id = orders.orders_id
+      JOIN product_variations ON orders_product.sku = product_variations.sku
+      JOIN customer ON orders.customer_id = customer.customer_id
+      JOIN products ON orders_product.product_id = products.product_id
+  WHERE orders_product.product_id in (
+      SELECT listed_products.product_id FROM listed_products WHERE seller_id = ?
+  ) AND orders_product.shipment_id IS NULL
+  `
+  try {
+    const result = await connection.query(sql, [seller_id]);
+    return result[0] as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+}
+
+export const handleGetSellerShipped = async (seller_id: string): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `
+  SELECT products.name, orders.orders_id, orders.customer_id, orders_product.quantity, orders_product.total_price, shipment.shipment_created, orders_product.product_id, orders_product.orders_product_id,
+  product_variations.variation_1, product_variations.variation_2, customer.username, customer.email
+      FROM orders_product
+      JOIN orders ON orders_product.orders_id = orders.orders_id
+      JOIN product_variations ON orders_product.sku = product_variations.sku
+      JOIN shipment on orders_product.shipment_id = shipment.shipment_id
+      JOIN products ON orders_product.product_id = products.product_id
+    JOIN customer ON orders.customer_id = customer.customer_id
+  WHERE orders_product.product_id in (
+      SELECT listed_products.product_id FROM listed_products WHERE seller_id = ?
+  ) AND orders_product.shipment_id IS NOT NULL AND shipment.shipment_delivered IS NULL
+  `
+  try {
+    const result = await connection.query(sql, [seller_id]);
+    return result[0] as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release()
+  }
+}
+
+export const handleGetSellerDelivered = async (seller_id: string): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `
+  SELECT products.name, orders.orders_id, orders.customer_id, orders_product.quantity, orders_product.total_price, shipment.shipment_delivered, orders_product.product_id, orders_product.orders_product_id,
+  product_variations.variation_1, product_variations.variation_2, customer.username, customer.email
+      FROM orders_product
+      JOIN orders ON orders_product.orders_id = orders.orders_id
+      JOIN product_variations ON orders_product.sku = product_variations.sku
+      JOIN shipment on orders_product.shipment_id = shipment.shipment_id
+      JOIN products ON orders_product.product_id = products.product_id
+    JOIN customer ON orders.customer_id = customer.customer_id
+  WHERE orders_product.product_id in (
+      SELECT listed_products.product_id FROM listed_products WHERE seller_id = ?
+  ) AND orders_product.shipment_id IS NOT NULL AND shipment.shipment_delivered IS NOT NULL
+  `
+  try {
+    const result = await connection.query(sql, [seller_id]);
+    return result[0] as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release()
+  }
+}
+
+export const handlePackedAndShipped = async (orders_product_id: Array<string>, customer_id: string) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `INSERT INTO shipment (orders_product_id, customer_id) VALUES(?, ?)`;
+  try {
+    orders_product_id.forEach(async (orders_product_id) => {
+      const result = await connection.query(sql, [orders_product_id, customer_id]);
+      const sql2 = `UPDATE orders_product SET shipment_id = ? WHERE orders_product_id = ?`;
+      const result2 = await connection.query(sql2, [(result[0] as any).insertId, orders_product_id]);
+    })
+    return;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+}
+
+export const handleGetCustomerOrders = async (seller_id: number, orders_id: number): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT orders.orders_id, orders.orders_date, product_variations.sku, product_variations.variation_1, product_variations.variation_2, orders_product.product_id, orders.customer_id, orders_product.orders_product_id, orders_product.total_price, orders_product.quantity, 
+  orders_product.shipment_id, shipment.shipment_created, shipment.shipment_delivered FROM orders 
+    JOIN orders_product ON orders.orders_id = orders_product.orders_id 
+      JOIN product_variations ON orders_product.sku = product_variations.sku
+    LEFT JOIN shipment ON orders_product.shipment_id = shipment.shipment_id
+      WHERE orders.orders_id = ? AND orders_product.product_id IN (
+       SELECT listed_products.product_id FROM listed_products WHERE seller_id = ?
+    )`;
+  try {
+    const result = await connection.query(sql, [orders_id, seller_id]);
+    return result[0] as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+}
 
 
 
@@ -419,18 +537,18 @@ const padZero = (value: number): string => {
 
   
 interface Orders {
-    customer_username: string;
-    customer_email: string;
-    total_price: number;
-    orders_date: Date;
-    shipment_created: Date;
-    shipment_delivered: Date;
+  customer_username: string;
+  customer_email: string;
+  total_price: number;
+  orders_date: Date;
+  shipment_created: Date;
+  shipment_delivered: Date;
 }
 
 interface Seller {
-    seller_id: number;
-    phone_number: number;
-    email: string;
-    shopName: string;
+  seller_id: number;
+  phone_number: number;
+  email: string;
+  shopName: string;
 }
-  
+
