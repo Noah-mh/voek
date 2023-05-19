@@ -10,7 +10,34 @@ export default function cartPage(): JSX.Element {
   const customer_id = customer.customer_id;
 
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
+  const payment_id = 6;
+  const address_id = 4;
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+
+  useEffect(() => {
+    //first insert order (sequential) after payment id is received
+    axiosPrivateCustomer
+      .post(
+        `/customer/insertOrder`,
+        JSON.stringify({
+          customer_id: customer_id,
+          payment_id: payment_id,
+          discount_applied: 0,
+          coins_redeemed: 0,
+          address_id: 1,
+        }),
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        }
+      ) // receives order_id
+      .then((res) => {
+        console.log(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  });
 
   return (
     <div>

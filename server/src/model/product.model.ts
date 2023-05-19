@@ -1,6 +1,7 @@
 import pool from "../../config/database";
 import { OkPacket } from "mysql2";
 
+//Noah
 export const handlesGetProductDetails = async (
   productId: number
 ): Promise<ProductDetails[]> => {
@@ -144,9 +145,7 @@ export const handlesTopProducts = async (): Promise<Product[]> => {
   }
 };
 
-export const handlesSearchBarPredictions = async (): Promise<
-  Product[]
-> => {
+export const handlesSearchBarPredictions = async (): Promise<Product[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT products.product_id, products.name 
@@ -214,10 +213,7 @@ export const handlesInsertingWishlistedProduct = async (
   const connection = await promisePool.getConnection();
   const sql = `INSERT INTO wishlist (customer_id, product_id) VALUES (?, ?);`;
   try {
-    const result = await connection.query(sql, [
-      customer_id,
-      product_id,
-    ]);
+    const result = await connection.query(sql, [customer_id, product_id]);
     return (result[0] as any).affectedRows as number;
   } catch (err: any) {
     throw new Error(err);
@@ -243,6 +239,8 @@ export const handlesDeletingWishlistedProduct = async (
     await connection.release();
   }
 };
+
+//Noah
 export const handleProductDetailsWithoutReviews = async (
   product_id: number
 ): Promise<ProductWithImages[]> => {
@@ -291,6 +289,7 @@ WHERE p.product_id = ?;
   }
 };
 
+//Noah
 export const handleProductReviews = async (
   product_id: number
 ): Promise<Review[]> => {
@@ -356,10 +355,7 @@ export const handlesCheckWishlistProductExistence = async (
   const connection = await promisePool.getConnection();
   const sql = `SELECT * FROM wishlist WHERE wishlist.customer_id = ? and wishlist.product_id = ?;`;
   try {
-    const result = await connection.query(sql, [
-      customer_id,
-      product_id,
-    ]);
+    const result = await connection.query(sql, [customer_id, product_id]);
     console.log(result[0]);
     return result[0] as Array<Object>;
   } catch (err: any) {
@@ -385,9 +381,7 @@ export const handlesGetAllListedProducts = async () => {
   }
 };
 
-export const handlesGetProductVariations = async (
-  productId: number
-) => {
+export const handlesGetProductVariations = async (productId: number) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT * FROM product_variations WHERE product_variations.product_id = ?;`;
@@ -400,7 +394,6 @@ export const handlesGetProductVariations = async (
     await connection.release();
   }
 };
-
 
 export const handlesGetProductVariationsPricing = async (productId: number) => {
   const promisePool = pool.promise();
@@ -444,6 +437,7 @@ export const handlesGetProductVariationImage = async (sku: string) => {
   }
 };
 
+//Noah
 export const handleAddToCart = async (
   quantity: number,
   customer_id: number,
@@ -475,8 +469,7 @@ export const handleAddToCart = async (
           product_id,
           sku,
         ]);
-        insertId =
-          (result as OkPacket).affectedRows > 0 ? product_id : 0;
+        insertId = (result as OkPacket).affectedRows > 0 ? product_id : 0;
       } catch (err: any) {
         console.error(err);
         throw new Error(err);
@@ -489,7 +482,6 @@ export const handleAddToCart = async (
   // Check if insertId is undefined, if so return a default value
   return insertId ?? 0;
 };
-
 
 interface Product {
   product_id: number;
