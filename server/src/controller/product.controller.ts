@@ -35,7 +35,7 @@ export const getRecommendedProductsBasedOnCat = async (
   }
 };
 
-export const getRecommendedProductBasedOnCatWishlist = async (
+export const getRecommendedProductsBasedOnCatWishlist = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -44,7 +44,7 @@ export const getRecommendedProductBasedOnCatWishlist = async (
     const { category_id } = req.params;
     const categoryId = parseInt(category_id);
     const response: Array<object> =
-      await productModel.handlesGetRecommendedProductBasedOnCatWishlist(
+      await productModel.handlesGetRecommendedProductsBasedOnCatWishlist(
         categoryId
       );
     return res.send(response);
@@ -317,6 +317,58 @@ export const getProductVariationImage = async (
     const productId: number = parseInt(sku);
     const response: Array<object> =
       await productModel.handlesGetProductVariationImage(sku);
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const insertLastViewedProduct = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { productId, categoryId, customerId } = req.body;
+    const response: Array<object> =
+      await productModel.handlesInsertLastViewedProduct(
+        productId,
+        categoryId,
+        customerId
+      );
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const getProductsUsingCategory = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { category_id } = req.params;
+    const categoryId: number = parseInt(category_id);
+    const response: Array<object> =
+      await productModel.handlesGetProductsUsingCategory(categoryId);
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const getProductCat = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { product_id } = req.params;
+    const productId: number = parseInt(product_id);
+    const response: Array<object> = await productModel.handlesGetProductCat(
+      productId
+    );
     return res.send(response);
   } catch (err: any) {
     return next(err);

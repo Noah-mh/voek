@@ -169,30 +169,6 @@ export const processSignUpLink = async (
   }
 };
 
-export const updateCustLastViewedCat = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { cat_id, customer_id } = req.body;
-    try {
-      const response: number = await customerModel.handlesCustLastViewdCat(
-        cat_id,
-        customer_id
-      );
-      console.log(response);
-      if (response === 0) return res.sendStatus(404);
-      return res.sendStatus(200);
-    } catch (err: any) {
-      return next(err);
-    }
-    return res.sendStatus(200);
-  } catch (err: any) {
-    return next(err);
-  }
-};
-
 export const processLogout = async (
   req: Request,
   res: Response,
@@ -317,7 +293,7 @@ export const processGetAddress = async (
     const { customer_id } = req.params;
     const result = await customerModel.handleGetCustomerAddresses(customer_id);
     console.log("Successfully got address");
-    return res.json(result);
+    return res.json({ result });
   } catch (err: any) {
     return next(err);
   }

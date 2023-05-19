@@ -187,10 +187,15 @@ export default function (app: Express, router: Router) {
   );
 
   router.get(
-    "/getRecommendedProductBasedOnCat/:category_id",
+    "/getRecommendedProductsBasedOnCatWishlist/:category_id",
     verifyJWT,
     verifyRoles("customer"),
-    productController.getRecommendedProductBasedOnCatWishlist
+    productController.getRecommendedProductsBasedOnCatWishlist
+  );
+
+  router.get(
+    "/getProductsUsingCategory/:category_id",
+    productController.getProductsUsingCategory
   );
 
   router.get(
@@ -214,12 +219,6 @@ export default function (app: Express, router: Router) {
     verifyJWT,
     verifyRoles("customer"),
     productController.insertWishlistedProduct
-  );
-  router.put(
-    "/updateCustLastViewedCat",
-    verifyJWT,
-    verifyRoles("customer"),
-    customerController.updateCustLastViewedCat
   );
   router.delete(
     "/deleteWishlistedProduct",
@@ -258,6 +257,14 @@ export default function (app: Express, router: Router) {
     verifyJWT,
     verifyRoles("customer"),
     cartController.retrieveCartDetails
+  );
+  router.get("/getProductCat/:product_id", productController.getProductCat);
+
+  router.put(
+    "/updateCustomerLastViewedCat",
+    // verifyJWT,
+    // verifyRoles("customer"),
+    customerController.updateCustomerLastViewedCat
   );
   router.post(
     "/customer/alterQuantCart",

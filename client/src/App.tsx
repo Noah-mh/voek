@@ -32,6 +32,7 @@ import LastViewed from "./components/LastViewed(History)/LastViewed.js";
 import SomeComponent from "./components/Test/cloudinaryTest.js";
 import ReferralLink from "./components/ReferralLink/ReferralLink.js";
 import ViewCustomerOrders from "./components/SellerSidebar/ViewCustomerOrders.js";
+import CategoryResults from "./components/CategoryResults/CategoryResults.js";
 
 function App() {
   return (
@@ -57,6 +58,11 @@ function App() {
           />
           <Route path="test" element={<SomeComponent />} />
           <Route path="searchResults/:userInput" element={<SearchResults />} />
+          <Route
+            path="categoryResults/:categoryId"
+            element={<CategoryResults />}
+          />
+          <Route path="/customer/cart" element={<CartPage />} />
 
           <Route path="lastViewed" element={<LastViewed />} />
 
