@@ -105,8 +105,12 @@ export default function (app: Express, router: Router) {
     sellerController.processGetAllProductsOfSeller
   );
   router.get(
-    "/orders/:ordersId",
-    sellerController.processGetOrderDetails
+    "/categories",
+    sellerController.processGetAllCategories
+  )
+  router.post(
+    "/addProduct/:sellerId",
+    sellerController.processAddProduct
   )
   
 

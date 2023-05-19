@@ -15,6 +15,30 @@ export const processGetAllProductsOfSeller = async (req: Request, res: Response,
     }
 }
 
+// GET all categories
+export const processGetAllCategories = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const response: any = await sellerModel.handleGetAllCategories();
+        return res.json(response);
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+// POST insert a new product
+export const processAddProduct = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const sellerId: number = parseInt(req.params.sellerId);
+        const { name, description, category_id, variation_1, variation_2, quantity, price } = req.body;
+        if (!name || !category_id || !quantity || !price) return res.sendStatus(400);
+        const response: any = await sellerModel.handleAddProduct(sellerId, name, description, category_id, variation_1, variation_2, quantity, price);
+        return response.insertId;
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+
 // GET order details
 export const processGetOrderDetails = async (req: Request, res: Response, next: NextFunction) => {
     try {

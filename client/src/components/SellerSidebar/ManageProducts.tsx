@@ -288,7 +288,7 @@ const ManageProducts = () => {
 
         setTableData1(sellerProducts);
 
-      } catch(error)  {
+      } catch(error) {
         console.error('Error fetching data:', error);
       }
     };
