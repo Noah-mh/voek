@@ -5,7 +5,7 @@ export const handleGetCustomerOrders = async (customer_id: number): Promise<Obje
     const connection = await promisePool.getConnection();
     const sql = `
     SELECT products.description, products.name, product_variations.price, products.product_id, product_variations.variation_1, product_variations.variation_2, orders_product.quantity, orders_product.sku,
-    orders.orders_date, product_images.sku FROM orders
+    orders.orders_date, product_images.image_url FROM orders
         JOIN orders_product ON orders.orders_id = orders_product.orders_id
         JOIN products ON orders_product.product_id = products.product_id
         JOIN product_variations ON orders_product.sku = product_variations.sku

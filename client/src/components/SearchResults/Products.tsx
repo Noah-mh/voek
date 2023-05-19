@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Loader from "../Loader/Loader";
-import ProductCard from "./ProductCard";
+import ProductCard from "../Result/ProductCard";
 import axios from "../../api/axios";
 
 interface ProductsProps {
