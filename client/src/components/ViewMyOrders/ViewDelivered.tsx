@@ -64,7 +64,7 @@ const ViewDelivered = ({ deliveredOrders, getAll }: Props) => {
                     ? order.variation_2
                     : "No Variation"}
             </p>
-            <h3 className="mt-2 text-lg">Shipment was received on {convertUtcToLocal(order.shipment_created!)}</h3>
+            <h3 className="mt-2 text-lg">Order has been shipped on the {convertUtcToLocal(order.shipment_created!)}</h3>
             <button color="primary" onClick={() => { buttonHandler(order.orders_product_id!) }}>Order Received</button>
           </div>
         </div>

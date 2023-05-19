@@ -74,7 +74,7 @@ const ViewSellerOrders = ({ orders }: Props) => {
 
   return (
     <div>
-      <h1>View All Orders</h1>
+      <h1>View Orders</h1>
       <section className="container mx-auto p-6 font-mono">
         <div className="w-full mb-8 overflow-hidden rounded-lg shadow-lg">
           <div className="w-full overflow-x-auto">

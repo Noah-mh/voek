@@ -49,7 +49,7 @@ console.log(orders)
                                         ? order.variation_2
                                         : "No Variation"}
                         </p>
-                        <h3 className="mt-2 text-lg">Shipment was received on {convertUtcToLocal(order.orders_date!)}</h3>
+                        <h3 className="mt-2 text-lg">Order was made on {convertUtcToLocal(order.orders_date!)}</h3>
                     </div>
                 </div>
             ))}

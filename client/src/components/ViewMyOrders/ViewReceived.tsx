@@ -86,7 +86,7 @@ const ViewReceived = ({ receivedOrders }: Props) => {
                     ? order.variation_2
                     : "No Variation"}
             </p>
-            <h3 className="mt-2 text-lg">Shipment was received on {convertUtcToLocal(order.shipment_delivered!)}</h3>
+            <h3 className="mt-2 text-lg">Order was received on {convertUtcToLocal(order.shipment_delivered!)}</h3>
           </div>
           <button
             onClick={() => {
