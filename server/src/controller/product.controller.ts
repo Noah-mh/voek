@@ -36,6 +36,22 @@ export const getRecommendedProductsBasedOnCat = async (
   }
 };
 
+export const getRecommendedProductBasedOnCatWishlist = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { category_id } = req.params;
+    const categoryId = parseInt(category_id);
+    const response: Array<object> =
+      await productModel.handlesGetRecommendedProductBasedOnCatWishlist(categoryId);
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
 export const getWishlistItems = async (
   req: Request,
   res: Response,
