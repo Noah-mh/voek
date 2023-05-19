@@ -63,7 +63,7 @@ export const handlesGetRecommendedProductsBasedOnCat = async (
   }
 };
 
-export const handlesGetRecommendedProductBasedOnCat = async (
+export const handlesGetRecommendedProductBasedOnCatWishlist = async (
   category_id: number
 ): Promise<Product[]> => {
   const promisePool = pool.promise();
@@ -71,7 +71,7 @@ export const handlesGetRecommendedProductBasedOnCat = async (
   const sql = `SELECT products.product_id , products.name, products.description
   FROM category, products 
   WHERE category.category_id = ? and category.category_id = products.category_id 
-  LIMIT 1;`;
+  LIMIT 3;`;
   try {
     const result = await connection.query(sql, [category_id]);
     return result[0] as Product[];
