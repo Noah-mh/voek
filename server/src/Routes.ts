@@ -187,10 +187,15 @@ export default function (app: Express, router: Router) {
   );
 
   router.get(
-    "/getRecommendedProductBasedOnCat/:category_id",
+    "/getRecommendedProductsBasedOnCatWishlist/:category_id",
     verifyJWT,
     verifyRoles("customer"),
-    productController.getRecommendedProductBasedOnCatWishlist
+    productController.getRecommendedProductsBasedOnCatWishlist
+  );
+
+  router.get(
+    "/getProductsUsingCategory/:category_id",
+    productController.getProductsUsingCategory
   );
 
   router.get(

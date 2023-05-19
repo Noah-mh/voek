@@ -44,6 +44,52 @@ export const handlesGetCartDetails = async (
   }
 };
 
+export const handleAddToCart = async (
+  quantity: number,
+  customer_id: number,
+  product_id: number,
+  sku: string
+): Promise<number> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  let insertId: number | undefined;
+
+  try {
+    const sql = `INSERT INTO cart (quantity, customer_id, product_id, sku) VALUES (?, ?, ?, ?);`;
+    const [result] = await connection.query(sql, [
+      quantity,
+      customer_id,
+      product_id,
+      sku,
+    ]);
+    insertId = (result as OkPacket).insertId;
+  } catch (err: any) {
+    console.error(err);
+    if (err.errno === 1062) {
+      console.error("entered update");
+      const sql = `UPDATE cart SET quantity = quantity + ? WHERE customer_id = ? AND product_id = ? AND sku = ?;`;
+      try {
+        const [result] = await connection.query(sql, [
+          quantity,
+          customer_id,
+          product_id,
+          sku,
+        ]);
+        insertId = (result as OkPacket).affectedRows > 0 ? product_id : 0;
+      } catch (err: any) {
+        console.error(err);
+        throw new Error(err);
+      }
+    }
+  } finally {
+    await connection.release();
+  }
+
+  // Check if insertId is undefined, if so return a default value
+  return insertId ?? 0;
+};
+
+// NHAT TIEN :D
 export const handlesGetRecommendedProductsBasedOnCat = async (
   category_id: number
 ): Promise<Product[]> => {
@@ -63,7 +109,7 @@ export const handlesGetRecommendedProductsBasedOnCat = async (
   }
 };
 
-export const handlesGetRecommendedProductBasedOnCatWishlist = async (
+export const handlesGetRecommendedProductsBasedOnCatWishlist = async (
   category_id: number
 ): Promise<Product[]> => {
   const promisePool = pool.promise();
@@ -145,9 +191,7 @@ export const handlesTopProducts = async (): Promise<Product[]> => {
   }
 };
 
-export const handlesSearchBarPredictions = async (): Promise<
-  Product[]
-> => {
+export const handlesSearchBarPredictions = async (): Promise<Product[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT products.product_id, products.name 
@@ -215,10 +259,7 @@ export const handlesInsertingWishlistedProduct = async (
   const connection = await promisePool.getConnection();
   const sql = `INSERT INTO wishlist (customer_id, product_id) VALUES (?, ?);`;
   try {
-    const result = await connection.query(sql, [
-      customer_id,
-      product_id,
-    ]);
+    const result = await connection.query(sql, [customer_id, product_id]);
     return (result[0] as any).affectedRows as number;
   } catch (err: any) {
     throw new Error(err);
@@ -352,6 +393,7 @@ GROUP BY
   }
 };
 
+// Nhat Tien :D
 export const handlesCheckWishlistProductExistence = async (
   customer_id: number,
   product_id: number
@@ -360,10 +402,7 @@ export const handlesCheckWishlistProductExistence = async (
   const connection = await promisePool.getConnection();
   const sql = `SELECT * FROM wishlist WHERE wishlist.customer_id = ? and wishlist.product_id = ?;`;
   try {
-    const result = await connection.query(sql, [
-      customer_id,
-      product_id,
-    ]);
+    const result = await connection.query(sql, [customer_id, product_id]);
     console.log(result[0]);
     return result[0] as Array<Object>;
   } catch (err: any) {
@@ -389,9 +428,7 @@ export const handlesGetAllListedProducts = async () => {
   }
 };
 
-export const handlesGetProductVariations = async (
-  productId: number
-) => {
+export const handlesGetProductVariations = async (productId: number) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT * FROM product_variations WHERE product_variations.product_id = ?;`;
@@ -404,7 +441,6 @@ export const handlesGetProductVariations = async (
     await connection.release();
   }
 };
-
 
 export const handlesGetProductVariationsPricing = async (productId: number) => {
   const promisePool = pool.promise();
@@ -462,12 +498,20 @@ export const handlesGetProductCat = async (productId: number) => {
   }
 };
 
-export const handlesInsertLastViewedProduct = async (productId: number, categoryId: number, customerId: number) => {
+export const handlesInsertLastViewedProduct = async (
+  productId: number,
+  categoryId: number,
+  customerId: number
+) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `INSERT INTO last_viewed (product_id, category_id, customer_id) VALUES (?, ?, ?);`;
   try {
-    const result = await connection.query(sql, [productId, categoryId, customerId]);
+    const result = await connection.query(sql, [
+      productId,
+      categoryId,
+      customerId,
+    ]);
     return result[0] as Array<Object>;
   } catch (err: any) {
     throw new Error(err);
@@ -476,57 +520,19 @@ export const handlesInsertLastViewedProduct = async (productId: number, category
   }
 };
 
-
-
-//Noah
-export const handleAddToCart = async (
-  quantity: number,
-  customer_id: number,
-  product_id: number,
-  sku: string
-): Promise<number> => {
+export const handlesGetProductsUsingCategory = async (categoryId: number) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  let insertId: number | undefined;
-
+  const sql = `SELECT products.product_id, products.name, products.description FROM products WHERE category_id = ?;`;
   try {
-    const sql = `INSERT INTO cart (quantity, customer_id, product_id, sku) VALUES (?, ?, ?, ?);`;
-    const [result] = await connection.query(sql, [
-      quantity,
-      customer_id,
-      product_id,
-      sku,
-    ]);
-    insertId = (result as OkPacket).insertId;
+    const result = await connection.query(sql, [categoryId]);
+    return result[0] as Array<Object>;
   } catch (err: any) {
-    console.error(err);
-    if (err.errno === 1062) {
-      console.error("entered update");
-      const sql = `UPDATE cart SET quantity = quantity + ? WHERE customer_id = ? AND product_id = ? AND sku = ?;`;
-      try {
-        const [result] = await connection.query(sql, [
-          quantity,
-          customer_id,
-          product_id,
-          sku,
-        ]);
-        insertId =
-          (result as OkPacket).affectedRows > 0 ? product_id : 0;
-      } catch (err: any) {
-        console.error(err);
-        throw new Error(err);
-      }
-    }
+    throw new Error(err);
   } finally {
     await connection.release();
   }
-
-  // Check if insertId is undefined, if so return a default value
-  return insertId ?? 0;
 };
-
-
-
 
 interface Product {
   product_id: number;

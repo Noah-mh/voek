@@ -59,7 +59,7 @@ const WishlistCard = () => {
         const randomProduct: any = wishlistItems[randomNum];
         console.log("randomProduct", randomProduct);
         return axiosPrivateCustomer.get(
-          `/getRecommendedProductBasedOnCat/${randomProduct.category_id}`
+          `/getRecommendedProductsBasedOnCatWishlist/${randomProduct.category_id}`
         );
       })
       .then((response) => {
