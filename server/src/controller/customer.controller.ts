@@ -299,3 +299,19 @@ export const updateCustomerLastViewedCat = async (
     return next(err);
   }
 };
+
+export const getCustomerLastViewedCat = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.params;
+    const customerId = parseInt(customer_id);
+    const response: Array<object> =
+      await customerModel.handlesGetCustomerLastViewedCat(customerId);
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
