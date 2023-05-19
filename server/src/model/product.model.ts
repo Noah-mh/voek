@@ -1,6 +1,7 @@
 import pool from "../../config/database";
 import { OkPacket } from "mysql2";
 
+//Noah
 export const handlesGetProductDetails = async (
   productId: number
 ): Promise<ProductDetails[]> => {
@@ -243,6 +244,8 @@ export const handlesDeletingWishlistedProduct = async (
     await connection.release();
   }
 };
+
+//Noah
 export const handleProductDetailsWithoutReviews = async (
   product_id: number
 ): Promise<ProductWithImages[]> => {
@@ -291,6 +294,7 @@ WHERE p.product_id = ?;
   }
 };
 
+//Noah
 export const handleProductReviews = async (
   product_id: number
 ): Promise<Review[]> => {
@@ -444,6 +448,7 @@ export const handlesGetProductVariationImage = async (sku: string) => {
   }
 };
 
+//Noah
 export const handleAddToCart = async (
   quantity: number,
   customer_id: number,
