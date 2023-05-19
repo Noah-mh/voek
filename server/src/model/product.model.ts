@@ -448,6 +448,36 @@ export const handlesGetProductVariationImage = async (sku: string) => {
   }
 };
 
+export const handlesGetProductCat = async (productId: number) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT category_id as categoryId FROM products WHERE product_id = ?;`;
+  try {
+    const result = await connection.query(sql, [productId]);
+    return result[0] as Array<Object>;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handlesInsertLastViewedProduct = async (productId: number, categoryId: number, customerId: number) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `INSERT INTO last_viewed (product_id, category_id, customer_id) VALUES (?, ?, ?);`;
+  try {
+    const result = await connection.query(sql, [productId, categoryId, customerId]);
+    return result[0] as Array<Object>;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+
+
 //Noah
 export const handleAddToCart = async (
   quantity: number,
@@ -494,6 +524,8 @@ export const handleAddToCart = async (
   // Check if insertId is undefined, if so return a default value
   return insertId ?? 0;
 };
+
+
 
 
 interface Product {

@@ -319,6 +319,37 @@ export const getProductVariationImage = async (
   }
 };
 
+export const insertLastViewedProduct = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { productId, categoryId, customerId } = req.body;
+    const response: Array<object> =
+      await productModel.handlesInsertLastViewedProduct(productId, categoryId, customerId);
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+}; 
+
+export const getProductCat = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { product_id } = req.params;
+    const productId: number = parseInt(product_id);
+    const response: Array<object> =
+      await productModel.handlesGetProductCat(productId);
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+}; 
+
 //Noah
 export const addToCart = async (
   req: Request,

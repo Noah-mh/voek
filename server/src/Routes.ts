@@ -123,13 +123,13 @@ export default function (app: Express, router: Router) {
     verifyJWT,
     verifyRoles("seller"),
     sellerController.processPackedAndShipped
-  )
+  );
   router.get(
     "/seller/customer/:orders_id/:seller_id",
     verifyJWT,
     verifyRoles("seller"),
     sellerController.processGetCustomerOrders
-  )
+  );
 
   // NOAH ENDPOINTS - reviews
   router.get(
@@ -215,12 +215,6 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     productController.insertWishlistedProduct
   );
-  router.put(
-    "/updateCustLastViewedCat",
-    verifyJWT,
-    verifyRoles("customer"),
-    customerController.updateCustLastViewedCat
-  );
   router.delete(
     "/deleteWishlistedProduct",
     verifyJWT,
@@ -252,6 +246,22 @@ export default function (app: Express, router: Router) {
   );
 
   router.post("/insertCart", cartController.insertCart);
+
+  router.post(
+    "/insertLastViewedProduct",
+    // verifyJWT,
+    // verifyRoles("customer"),
+    productController.insertLastViewedProduct
+  );
+
+  router.get("/getProductCat/:product_id", productController.getProductCat);
+
+  router.put(
+    "/updateCustomerLastViewedCat",
+    // verifyJWT,
+    // verifyRoles("customer"),
+    customerController.updateCustomerLastViewedCat
+  );
 
   router.post(
     "/customer/getCart",

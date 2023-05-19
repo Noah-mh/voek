@@ -90,10 +90,6 @@ const WishlistCard = () => {
       });
   }, []);
 
-  // useEffect(() => {
-  //   console.log("categoryProducts", categoryProducts);
-  // }, [categoryProducts]);
-
   return (
     <div>
       {status ? (
