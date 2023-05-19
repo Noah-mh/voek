@@ -141,6 +141,12 @@ export default function (app: Express, router: Router) {
     productController.getProductReviews
   );
   router.post(
+    "/addToCart",
+    // verifyJWT,
+    // verifyRoles("customer"),
+    productController.addToCart
+  );
+  router.post(
     "/addReview",
     verifyJWT,
     verifyRoles("customer"),
