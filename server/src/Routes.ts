@@ -123,13 +123,13 @@ export default function (app: Express, router: Router) {
     verifyJWT,
     verifyRoles("seller"),
     sellerController.processPackedAndShipped
-  )
+  );
   router.get(
     "/seller/customer/:orders_id/:seller_id",
     verifyJWT,
     verifyRoles("seller"),
     sellerController.processGetCustomerOrders
-  )
+  );
 
   // NOAH ENDPOINTS - reviews
   router.get(
@@ -142,8 +142,8 @@ export default function (app: Express, router: Router) {
   );
   router.post(
     "/addToCart",
-    // verifyJWT,
-    // verifyRoles("customer"),
+    verifyJWT,
+    verifyRoles("customer"),
     productController.addToCart
   );
   router.post(
@@ -182,10 +182,20 @@ export default function (app: Express, router: Router) {
   router.post("/productDetails", productController.processPublicProductDetails);
 
   router.get(
-    "/getRecommendedProductBasedOnCat/:category_id",
+    "/getRecommendedProductsBasedOnCat/:category_id",
+    productController.getRecommendedProductsBasedOnCat
+  );
+
+  router.get(
+    "/getRecommendedProductsBasedOnCatWishlist/:category_id",
     verifyJWT,
     verifyRoles("customer"),
-    productController.getRecommendedProductBasedOnCatWishlist
+    productController.getRecommendedProductsBasedOnCatWishlist
+  );
+
+  router.get(
+    "/getProductsUsingCategory/:category_id",
+    productController.getProductsUsingCategory
   );
 
   router.get(
@@ -209,12 +219,6 @@ export default function (app: Express, router: Router) {
     verifyJWT,
     verifyRoles("customer"),
     productController.insertWishlistedProduct
-  );
-  router.put(
-    "/updateCustLastViewedCat",
-    verifyJWT,
-    verifyRoles("customer"),
-    customerController.updateCustLastViewedCat
   );
   router.delete(
     "/deleteWishlistedProduct",
@@ -247,6 +251,22 @@ export default function (app: Express, router: Router) {
   );
 
   router.post("/insertCart", cartController.insertCart);
+
+  router.post(
+    "/insertLastViewedProduct",
+    // verifyJWT,
+    // verifyRoles("customer"),
+    productController.insertLastViewedProduct
+  );
+
+  router.get("/getProductCat/:product_id", productController.getProductCat);
+
+  router.put(
+    "/updateCustomerLastViewedCat",
+    // verifyJWT,
+    // verifyRoles("customer"),
+    customerController.updateCustomerLastViewedCat
+  );
 
   router.post(
     "/customer/getCart",
