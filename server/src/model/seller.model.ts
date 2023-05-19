@@ -8,9 +8,15 @@ export const handleGetAllProducts = async (sellerId: number): Promise<Product[]>
     const promisePool = pool.promise();
     const connection = await promisePool.getConnection();
     const sql = 
-    `SELECT p.name, p.description, p.price FROM products p 
-    RIGHT OUTER JOIN listed_products lp ON lp.product_id = p.product_id 
-    WHERE lp.seller_id = ?;`
+    `SELECT p.product_id, p.name, p.description, p.active, pv.sku, pv.variation_1, pv.variation_2, pv.quantity, pv.price, p.category_id, c.name AS category FROM products p
+    RIGHT OUTER JOIN listed_products lp 
+    ON lp.product_id = p.product_id
+    LEFT JOIN product_variations pv
+    ON pv.product_id = p.product_id
+    INNER JOIN category c
+    ON c.category_id = p.category_id
+    WHERE lp.seller_id = ? AND pv.active = 1
+    ORDER BY p.product_id ASC;`
     try {
         const result: any = await connection.query(sql, [sellerId]);
         return result[0] as Product[];
