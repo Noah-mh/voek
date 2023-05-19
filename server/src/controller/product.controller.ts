@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import * as productModel from "../model/product.model";
-
+//Noah
 export const processPublicProductDetails = async (
   req: Request,
   res: Response,
@@ -255,6 +255,7 @@ export const getProductVariations = async (
   }
 };
 
+//Noah
 export const addToCart = async (
   req: Request,
   res: Response,
