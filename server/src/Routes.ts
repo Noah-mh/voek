@@ -142,8 +142,8 @@ export default function (app: Express, router: Router) {
   );
   router.post(
     "/addToCart",
-    // verifyJWT,
-    // verifyRoles("customer"),
+    verifyJWT,
+    verifyRoles("customer"),
     productController.addToCart
   );
   router.post(
