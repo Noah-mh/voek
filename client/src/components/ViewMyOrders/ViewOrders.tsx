@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { cld } from "../../Cloudinary/Cloudinary";
 import { AdvancedImage } from "@cloudinary/react";
 import { useEffect, useState } from "react";
+import { v4 as uuidv4 } from 'uuid'
 
 interface Product {
     description: string;
@@ -63,7 +64,7 @@ const ViewOrders = ({ orders }: Props) => {
             <h1 className="mb-8 text-4xl font-bold">Orders</h1>
             {
                 orderedOrders?.map((ordersArray: any) => (
-                    <div key={ordersArray[0].orders_id} className="mb-8 border border-gray-300 rounded p-4 w-4/5">
+                    <div key={uuidv4()} className="mb-8 border border-gray-300 rounded p-4 w-4/5">
                         {
                             ordersArray.map((order: Product) => (
 
