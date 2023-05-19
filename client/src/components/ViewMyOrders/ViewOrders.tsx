@@ -22,7 +22,9 @@ interface Props {
 
 
 const ViewOrders = ({ orders }: Props) => {
-console.log(orders)
+
+
+    
     return (
         <div className="flex flex-col items-center justify-center p-8">
             <h1 className="mb-8 text-4xl font-bold">Orders</h1>

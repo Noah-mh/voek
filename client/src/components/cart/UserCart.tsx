@@ -8,10 +8,11 @@ import { Link } from "react-router-dom";
 import PayPal from "../PayPal/PayPal";
 
 export default function cartPage(): JSX.Element {
-  const { customer } = useCustomer();
+  const { customer, setCustomer } = useCustomer();
   const customer_id = customer.customer_id;
 
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
+  // setCustomer((prevState: any) => { return { ...prevState, checkOut: []}})
 
   interface userCart {
     customer_id: number;

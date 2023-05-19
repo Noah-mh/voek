@@ -1,16 +1,23 @@
 import { PayPalButtons } from '@paypal/react-paypal-js';
 import useAxiosPrivateCustomer from '../../hooks/useAxiosPrivateCustomer';
+import { useEffect, useState } from 'react';
 
 interface Props {
-    amount: number
+    paypalAmount: number
 }
 
-const PayPalPayment = ({ amount }: Props) => {
+const PayPalPayment = ({ paypalAmount }: Props) => {
+
+    const [amount, setAmount] = useState<number>()
+
+    useEffect(() => {
+        setAmount(paypalAmount);
+    }, [paypalAmount])
 
     const axiosPrivateCustomer = useAxiosPrivateCustomer();
 
     const createOrder = async (data: any) => {
-        
+
         return axiosPrivateCustomer.post(`/create-paypal-order`, {
             amount
         }).then(async (response: any) => {

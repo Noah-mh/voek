@@ -58,15 +58,14 @@ function App() {
           />
           <Route path="test" element={<SomeComponent />} />
           <Route path="searchResults/:userInput" element={<SearchResults />} />
-          <Route path="/customer/cart" element={<CartPage />} />
 
-          <Route path="lastViewed" element={<LastViewed />} />
 
           <Route element={<RequireAuthCustomer />}>
             {/* Protected Routes with persist login */}
             <Route path="wishlist" element={<Wishlist />} />
             <Route path="/customer/cart" element={<CartPage />} />
             <Route path="orders" element={<ViewMyOrders />} />
+            <Route path="lastViewed" element={<LastViewed />} />
           </Route>
         </Route>
       </Route>
