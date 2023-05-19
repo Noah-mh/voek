@@ -19,6 +19,8 @@ interface Product {
   shipment_delivered?: string;
   image_url?: string;
   orders_product_id?: number;
+  seller_id: string;
+  orders_id: string;
 }
 
 const ViewMyOrders = () => {

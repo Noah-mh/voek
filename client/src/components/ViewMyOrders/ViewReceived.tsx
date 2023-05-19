@@ -18,6 +18,9 @@ interface Product {
   shipment_created?: string;
   shipment_delivered?: string;
   image_url?: string;
+  orders_product_id?: number;
+  seller_id: string;
+  orders_id: string;
 }
 
 interface Props {
