@@ -1,66 +1,108 @@
 import "./css/Homepage.css";
-import { useState } from "react";
+import { useState, useEffect, useContext } from "react";
 import Slider from "./Slider.js";
 import { Banner } from "./Banner.js";
 import Category from "./Category.js";
-import Modal from "./Modal.js";
-import { AnimatePresence } from "framer-motion";
-
 import axios from "../../api/axios.js";
+import CustomerContext from "../../context/CustomerProvider";
+
+interface Product {
+  product_id: number;
+  name: string;
+  description: string;
+  image: string;
+}
 
 const Homepage = () => {
-  const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const [productImg, setProductImg] = useState<string | undefined>();
-  const [productId, setProductId] = useState<number | undefined>();
-  const modalOpenFn = () => {
-    setModalOpen(true);
-  };
+  const [topProducts, setTopProducts] = useState<Array<Product>>([]);
+  const [forYouProducts, setForYouProducts] = useState<Array<Product>>([]);
 
-  const modalCloseFn = () => {
-    setModalOpen(false);
-  };
+  const { customer } = useContext(CustomerContext);
+  const customerId = customer.customer_id;
 
-  const viewProduct = async () => {
-    const response = await axios.post(
-      `/productDetails`,
-      JSON.stringify({ productId }),
-      { headers: { "Content-Type": "application/json" }, withCredentials: true }
-    );
-    return response.data;
-  };
+  useEffect(() => {
+    axios
+      .get("/topProducts")
+      .then((response) => {
+        const topProducts = response.data.map((product: any) => {
+          const image = axios.get(`/getProductImage/${product.product_id}`);
+          const pricing = axios.get(
+            `/getProductVariationsPricing/${product.product_id}`
+          );
+          const promises = [image, pricing];
+          return Promise.all(promises).then((responses) => {
+            product.image = responses[0].data[0].imageURL;
+            product.lowestPrice = responses[1].data[0].lowestPrice;
+            product.highestPrice = responses[1].data[0].highestPrice;
+            return product;
+          });
+        });
+        return topProducts;
+      })
+      .then((topProducts) => {
+        Promise.all(topProducts).then((products) => {
+          setTopProducts(products);
+        });
+      })
+      .catch((err: any) => {
+        console.log(err);
+      });
+
+    if (customerId != undefined) {
+      axios
+        .get(`/getCustomerLastViewedCat/${customerId}`)
+        .then((response) => {
+          return response.data[0].categoryId;
+        })
+        .then((categoryId) => {
+          console.log("categoryId", categoryId);
+          return axios
+            .get(`/getRecommendedProductsBasedOnCat/${categoryId}`)
+            .then((response) => {
+              console.log("response data", response.data);
+              return response.data;
+            });
+        })
+        .then((data) => {
+          console.log("data", data);
+          const topProducts = data.map((product: any) => {
+            const image = axios.get(`/getProductImage/${product.product_id}`);
+            const pricing = axios.get(
+              `/getProductVariationsPricing/${product.product_id}`
+            );
+            const promises = [image, pricing];
+            return Promise.all(promises).then((responses) => {
+              product.image = responses[0].data[0].imageURL;
+              product.lowestPrice = responses[1].data[0].lowestPrice;
+              product.highestPrice = responses[1].data[0].highestPrice;
+              return product;
+            });
+          });
+          return topProducts;
+        })
+        .then((topProducts) => {
+          Promise.all(topProducts).then((products) => {
+            console.log("products For you", products);
+            setForYouProducts(products);
+          });
+        })
+        .catch((err: any) => {
+          console.log(err);
+        });
+    }
+  }, []);
 
   return (
     <div className="Homepage">
       <Banner />
       <Category />
       <div className="sliders">
-        <Slider
-          header={"Top Picks"}
-          modalOpen={modalOpen}
-          modalOpenFn={modalOpenFn}
-          modalCloseFn={modalCloseFn}
-          setProductImg={setProductImg}
-          setProductId={setProductId}
-        />
+        <Slider header={"Top Picks"} products={topProducts} />
         <div className="w-4/5 h-1 bg-gray-400 mx-auto rounded-md"></div>
-        <Slider
-          header={"For You"}
-          modalOpen={modalOpen}
-          modalOpenFn={modalOpenFn}
-          modalCloseFn={modalCloseFn}
-          setProductImg={setProductImg}
-          setProductId={setProductId}
-        />
-      </div>
-      <AnimatePresence initial={false} onExitComplete={() => null}>
-        {modalOpen && (
-          <Modal
-            handleClose={modalCloseFn}
-            productImg={productImg}
-            viewProduct={viewProduct}
-          />
+        {customerId != undefined && (
+          <Slider header={"For You"} products={forYouProducts} />
         )}
-      </AnimatePresence>
+      </div>
     </div>
   );
 };

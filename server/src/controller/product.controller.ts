@@ -25,11 +25,11 @@ export const getRecommendedProductsBasedOnCat = async (
   next: NextFunction
 ) => {
   try {
-    const { category_id } = req.body;
+    const { category_id } = req.params;
+    const categoryId = parseInt(category_id);
     const response: Array<object> =
-      await productModel.handlesGetRecommendedProductsBasedOnCat(category_id);
-    if (!response?.length) return res.sendStatus(404);
-    return res.sendStatus(200);
+      await productModel.handlesGetRecommendedProductsBasedOnCat(categoryId);
+    return res.send(response);
   } catch (err: any) {
     return next(err);
   }
@@ -96,8 +96,8 @@ export const getTopProducts = async (
 ) => {
   try {
     const response: Array<object> = await productModel.handlesTopProducts();
-    if (!response?.length) return res.sendStatus(404);
-    return res.sendStatus(200);
+    // if (!response?.length) return res.sendStatus(404);
+    return res.send(response);
   } catch (err: any) {
     return next(err);
   }

@@ -439,3 +439,17 @@ export const handlesUpdateCustomerLastViewedCat = async (
     await connection.release();
   }
 };
+
+export const handlesGetCustomerLastViewedCat = async (customerId: number) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT last_viewed_cat_id as categoryId FROM customer WHERE customer_id = ?;`;
+  try {
+    const result = await connection.query(sql, [customerId]);
+    return result[0] as Array<Object>;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
