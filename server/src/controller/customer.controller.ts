@@ -285,11 +285,13 @@ export const processGetReferralId = async (
     const { customer_id } = req.params;
     if (!customer_id) return res.sendStatus(400);
     const result = await customerModel.handleGetReferralId(customer_id);
-    return res.json({ referral_id: result });
+    return res.status(200).json({ referral_id: result });
   } catch (err: any) {
     return next(err);
   }
 };
+
+//ALLISON :D
 
 export const processGetCoins = async (
   req: Request,
@@ -299,7 +301,23 @@ export const processGetCoins = async (
   try {
     const { customer_id } = req.params;
     const result = await customerModel.handleGetCoins(customer_id);
+    console.log("Successfully got coins");
     return res.json({ result });
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const processGetAddress = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.params;
+    const result = await customerModel.handleGetCustomerAddresses(customer_id);
+    console.log("Successfully got address");
+    return res.json(result);
   } catch (err: any) {
     return next(err);
   }

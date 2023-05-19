@@ -380,7 +380,7 @@ export const handleResetPassword = async (
   } catch (err: any) {
     throw new Error(err);
   } finally {
-    await connection.release()
+    await connection.release();
   }
 };
 
@@ -396,7 +396,7 @@ export const handleGetReferralId = async (
   } catch (err: any) {
     throw new Error(err);
   } finally {
-    await connection.release()
+    await connection.release();
   }
 };
 
@@ -435,5 +435,23 @@ export const handleGetCoins = async (customer_id: string): Promise<number> => {
     return result[0][0].coins as number;
   } catch (err: any) {
     throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handleGetCustomerAddresses = async (
+  customer_id: string
+): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT address_id, postal_code, block, street_name, country, unit_no FROM customer_address WHERE customer_id = ?`;
+  try {
+    const result: any = await connection.query(sql, [customer_id]);
+    return result[0];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
   }
 };
