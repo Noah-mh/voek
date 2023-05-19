@@ -234,17 +234,17 @@ export default function (app: Express, router: Router) {
     productController.getProductVariations
   );
 
-  // router.get(
-  //   "/getProductVariationsPricing/:product_Id",
-  //   productController.getProductVariationsPricing
-  // );
+  router.get(
+    "/getProductVariationsPricing/:product_Id",
+    productController.getProductVariationsPricing
+  );
 
-  // router.get("/getProductImage/:product_Id", productController.getProductImage);
+  router.get("/getProductImage/:product_Id", productController.getProductImage);
 
-  // router.get(
-  //   "/getProductVariationImage/:sku",
-  //   productController.getProductVariationImage
-  // );
+  router.get(
+    "/getProductVariationImage/:sku",
+    productController.getProductVariationImage
+  );
 
   router.post("/insertCart", cartController.insertCart);
 
