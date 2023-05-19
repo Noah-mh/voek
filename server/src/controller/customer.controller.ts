@@ -169,30 +169,6 @@ export const processSignUpLink = async (
   }
 };
 
-export const updateCustLastViewedCat = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { cat_id, customer_id } = req.body;
-    try {
-      const response: number = await customerModel.handlesCustLastViewdCat(
-        cat_id,
-        customer_id
-      );
-      console.log(response);
-      if (response === 0) return res.sendStatus(404);
-      return res.sendStatus(200);
-    } catch (err: any) {
-      return next(err);
-    }
-    return res.sendStatus(200);
-  } catch (err: any) {
-    return next(err);
-  }
-};
-
 export const processLogout = async (
   req: Request,
   res: Response,
@@ -300,6 +276,25 @@ export const processGetCoins = async (
     const { customer_id } = req.params;
     const result = await customerModel.handleGetCoins(customer_id);
     return res.json({ result });
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+// NHAT TIEN :D
+export const updateCustomerLastViewedCat = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { categoryId, customerId } = req.body;
+    const response: Array<object> =
+      await customerModel.handlesUpdateCustomerLastViewedCat(
+        categoryId,
+        customerId
+      );
+    return res.send(response);
   } catch (err: any) {
     return next(err);
   }

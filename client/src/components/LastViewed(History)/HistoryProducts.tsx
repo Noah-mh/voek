@@ -43,7 +43,7 @@ const HistoryProducts = ({ selected }: HistoryProductsProps) => {
   const showProducts = () => {
     if (products.length === 0) {
       return (
-        <div className="p-2">
+        <div className="p-2 mx-2">
           {selected === "" ? (
             <h1>Select a date to view your history</h1>
           ) : (
@@ -60,7 +60,11 @@ const HistoryProducts = ({ selected }: HistoryProductsProps) => {
 
   return (
     <div className="flex justify-center items-center">
-      {status ? <div>{showProducts()}</div> : <Loader />}
+      {status ? (
+        <div className="flex justify-start flex-wrap">{showProducts()}</div>
+      ) : (
+        <Loader />
+      )}
     </div>
   );
 };
