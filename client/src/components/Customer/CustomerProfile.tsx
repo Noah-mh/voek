@@ -71,7 +71,7 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({ customerData, getAll 
             });
         } catch (error) {
             console.error(error);
-            toast.error("Error! Adding to cart failed", {
+            toast.error("Error Uploading Photo", {
                 position: "top-center",
                 autoClose: 5000,
                 hideProgressBar: false,
@@ -112,7 +112,7 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({ customerData, getAll 
         } catch (error) {
             // Handle error and display appropriate message
             console.error(error);
-            toast.error("Error! Adding to cart failed", {
+            toast.error("Updating failed", {
                 position: "top-center",
                 autoClose: 5000,
                 hideProgressBar: false,
