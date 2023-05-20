@@ -27,7 +27,7 @@ import ManageProducts from "./components/SellerSidebar/ManageProducts.js";
 import AddProduct from "./components/SellerSidebar/AddProduct.js";
 import ManageOrders from "./components/SellerSidebar/ManageOrders.js";
 import Checkout from "./components/Checkout/Checkout.js";
-import ViewMyOrders from "./components/ViewMyOrders/ViewMyOrders.js";
+import ViewMyOrders from "./components/Customer/ViewMyOrders.js";
 import LastViewed from "./components/LastViewed(History)/LastViewed.js";
 import SomeComponent from "./components/Test/cloudinaryTest.js";
 import ReferralLink from "./components/ReferralLink/ReferralLink.js";
