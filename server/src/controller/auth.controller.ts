@@ -5,8 +5,8 @@ import config from '../../config/config';
 
 export const processRefreshTokenCustomer = async (req: Request, res: Response, next: NextFunction) => {
     const cookies = req.cookies;
-    if (!cookies?.jwt) return res.sendStatus(401);
-    const refreshToken = cookies.jwt;
+    if (!cookies?.customerJwt) return res.sendStatus(401);
+    const refreshToken = cookies.customerJwt;
     try {
         const result = await authModel.handleRefreshTokenCustomer(refreshToken);
         if (!result.length) return res.sendStatus(401);
@@ -31,8 +31,8 @@ export const processRefreshTokenCustomer = async (req: Request, res: Response, n
 
 export const processRefreshSeller = async (req: Request, res: Response, next: NextFunction) => {
     const cookies = req.cookies;
-    if (!cookies?.jwt) return res.sendStatus(401);
-    const refreshToken = cookies.jwt;
+    if (!cookies?.sellerJwt) return res.sendStatus(401);
+    const refreshToken = cookies.sellerJwt;
     try {
         const result = await authModel.handleRefreshTokenSeller(refreshToken);
         if (!result.length) return res.sendStatus(401);

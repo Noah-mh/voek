@@ -498,14 +498,44 @@ export const handlePackedAndShipped = async (orders_product_id: Array<string>, c
 export const handleGetCustomerOrders = async (seller_id: number, orders_id: number): Promise<Object[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `SELECT orders.orders_id, orders.orders_date, product_variations.sku, product_variations.variation_1, product_variations.variation_2, orders_product.product_id, orders.customer_id, orders_product.orders_product_id, orders_product.total_price, orders_product.quantity, 
-  orders_product.shipment_id, shipment.shipment_created, shipment.shipment_delivered FROM orders 
-    JOIN orders_product ON orders.orders_id = orders_product.orders_id 
-      JOIN product_variations ON orders_product.sku = product_variations.sku
-    LEFT JOIN shipment ON orders_product.shipment_id = shipment.shipment_id
-      WHERE orders.orders_id = ? AND orders_product.product_id IN (
-       SELECT listed_products.product_id FROM listed_products WHERE seller_id = ?
-    )`;
+  const sql = `SELECT
+  orders.orders_id,
+  customer.username,
+  customer_address.postal_code,
+  customer_address.block,
+  customer_address.unit_no,
+  customer_address.street_name,
+  customer.email,
+  customer.phone_number,
+  orders.orders_date,
+  product_variations.sku,
+  product_variations.variation_1,
+  product_variations.variation_2,
+  products.name,
+  products.description,
+  orders_product.product_id,
+  orders.customer_id,
+  orders_product.orders_product_id,
+  orders_product.total_price,
+  orders_product.quantity,
+  orders_product.shipment_id,
+  shipment.shipment_created,
+  shipment.shipment_delivered
+FROM
+  orders
+  JOIN orders_product ON orders.orders_id = orders_product.orders_id
+  JOIN customer ON orders.customer_id = customer.customer_id
+  JOIN customer_address ON orders.address_id = customer_address.address_id
+  JOIN product_variations ON orders_product.sku = product_variations.sku
+  JOIN products ON product_variations.product_id = products.product_id
+  LEFT JOIN shipment ON orders_product.shipment_id = shipment.shipment_id
+WHERE
+  orders.orders_id = ?
+  AND orders_product.product_id IN (
+    SELECT listed_products.product_id
+    FROM listed_products
+    WHERE seller_id = ?
+  )`;
   try {
     const result = await connection.query(sql, [orders_id, seller_id]);
     return result[0] as Object[];

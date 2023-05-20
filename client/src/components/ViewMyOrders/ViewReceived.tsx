@@ -134,7 +134,7 @@ const ViewReceived = ({ receivedOrders }: Props) => {
     //   ))}
     // </div>
     <div className="flex flex-col items-center justify-center p-8">
-      <h1 className="mb-8 text-4xl font-bold">Delivered Orders</h1>
+      <h1 className="mb-8 text-4xl font-bold">Received Orders</h1>
       {
         orderedReceivedOrders?.map((ordersArray: any) => (
           <div key={uuidv4()} className="mb-8 border border-gray-300 rounded p-4 w-4/5">
@@ -162,7 +162,7 @@ const ViewReceived = ({ receivedOrders }: Props) => {
                             ? order.variation_2
                             : "No Variation"}
                     </p>
-                    <h3 className="mt-2 text-lg">Order has been shipped on the {convertUtcToLocal(order.shipment_created!)}</h3>
+                    <h3 className="mt-2 text-lg">Order has been shipped on the {convertUtcToLocal(order.shipment_delivered!)}</h3>
                     <button
                       onClick={() => {
                         handleOpenModal()
