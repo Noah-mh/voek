@@ -9,7 +9,6 @@ import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import { v4 as uuidv4 } from 'uuid'
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import AddressDisplay from "./Address";
 import Loader from "../Loader/Loader";

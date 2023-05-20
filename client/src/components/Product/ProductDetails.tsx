@@ -146,7 +146,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productData, productRevie
                         <Carousel showThumbs={false}>
                             {pData.image_urls.map(
                                 (imageUrl: string | undefined, index: React.Key | null | undefined) => (
-                                    <div className="image-container" key={index}>
+                                    <div className="w-64 h-64" key={index}>
                                         <AdvancedImage cldImg={cld.image(imageUrl)} />
                                     </div>
                                 )
@@ -224,7 +224,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productData, productRevie
                                 {review.image_urls && (
                                     <Carousel showThumbs={false}>
                                         {review.image_urls.map((imageUrl, imageIndex) => (
-                                            <div className="image-container" key={imageIndex}>
+                                            <div className="w-64 h-64" key={imageIndex}>
                                                 <AdvancedImage cldImg={cld.image(imageUrl)} />
                                             </div>
                                         ))}

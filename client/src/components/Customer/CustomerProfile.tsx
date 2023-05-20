@@ -33,11 +33,13 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({ customerData }) => {
 
     return (
         <div>
+            <div className="w-64 h-64">
+                <AdvancedImage cldImg={cld.image(image_url)} />
+            </div>
             <h1>{username}</h1>
             <p>Email: {email}</p>
             <p>Phone number: {phone_number}</p>
-            <img src={image_url} alt="Profile" />
-        </div>
+        </div >
     );
 };
 
