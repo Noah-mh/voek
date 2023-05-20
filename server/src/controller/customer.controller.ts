@@ -315,3 +315,30 @@ export const getCustomerLastViewedCat = async (
     return next(err);
   }
 };
+
+//Noah
+export const getCustomerDetails = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.body;
+
+    // Type checking for customer_id.
+    if (!customer_id || isNaN(customer_id)) {
+      return res.status(400).json({ message: "Invalid 'customer_id' provided." });
+    }
+
+    const customerId = parseInt(customer_id);
+    const response: Array<object> =
+      await customerModel.handlesCustomerDetails(customerId);
+    
+    // Respond with status code and the data.
+    return res.json({details : response});
+    
+  } catch (err: any) {
+    // Return a response with status code and error message.
+    return res.status(500).json({ message: err.message });
+  }
+};

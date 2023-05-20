@@ -159,6 +159,8 @@ export default function (app: Express, router: Router) {
     reviewController.addingReviewImages
   );
 
+  router.get("/customer/profile", customerController.getCustomerDetails)
+
   // ASHLEY ENDPOINTS - seller platform
   router.get(
     "/products/:sellerId",
