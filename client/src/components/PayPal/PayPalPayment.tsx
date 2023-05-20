@@ -33,7 +33,10 @@ const PayPalPayment = ({ paypalAmount }: Props) => {
         return axiosPrivateCustomer.post(`/capture-paypal-order`, {
             orderID: data.orderID
         })
-            .then((response: any) => response);
+            .then((response: any) => {
+                console.log(response)
+                console.log('success')
+            });
     };
 
     return (
