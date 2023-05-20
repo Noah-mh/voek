@@ -471,7 +471,9 @@ export const handlesGetCustomerLastViewedCat = async (
 };
 
 //Noah
-export const handlesCustomerDetails = async (customerId: number) => {
+export const handlesCustomerDetails = async (
+  customerId: number
+): Promise<Object[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT 
@@ -497,7 +499,7 @@ GROUP BY
 `;
   try {
     const [result] = await connection.query(sql, [customerId]);
-    return result as Array<Object>;
+    return result as Object[];
   } catch (err: any) {
     throw new Error(err);
   } finally {
