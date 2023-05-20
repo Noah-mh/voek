@@ -9,7 +9,6 @@ import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import { v4 as uuidv4 } from 'uuid'
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import AddressDisplay from "./Address";
 import Loader from "../Loader/Loader";
@@ -50,7 +49,11 @@ function TabPanel(props: TabPanelProps) {
       {...other}
     >
       {value === index && (
-        <Box sx={{ p: 3 }}>
+        <Box sx={{
+          p: 3, flexGrow: 1, // make it take up the remaining space
+
+          width: "100vh"
+        }}>
           {children}
         </Box>
       )}
@@ -138,7 +141,10 @@ const CustomerProfilePage = () => {
 
     return (
       <Box
-        sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex' }}
+        sx={{
+          flexGrow: 1, bgcolor: 'background.paper', display: 'flex',
+
+        }}
       >
         <Tabs
           orientation="vertical"
@@ -146,7 +152,9 @@ const CustomerProfilePage = () => {
           value={value}
           onChange={handleChange}
           aria-label="Vertical tabs example"
-          sx={{ borderRight: 1, borderColor: 'divider' }}
+          sx={{
+            borderRight: 1, borderColor: 'divider', width: '25%',
+          }}
         >
           <Tab label="Profile" {...a11yProps(0)} />
           <Tab label="Addresses" {...a11yProps(1)} />
@@ -156,7 +164,7 @@ const CustomerProfilePage = () => {
         </Tabs>
         <TabPanel value={value} index={0}>
           {/* Profile content */}
-          <CustomerProfile customerData={customerData!} />
+          <CustomerProfile customerData={customerData!} getAll={getAll} />
         </TabPanel>
         <TabPanel value={value} index={1}>
           {/* Addresses content */}
