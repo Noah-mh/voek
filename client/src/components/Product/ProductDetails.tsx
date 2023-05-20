@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { AdvancedImage } from '@cloudinary/react';
 import { Carousel } from 'react-responsive-carousel';
 import "react-responsive-carousel/lib/styles/carousel.min.css";
-import { Product, ProductVariation, Review, Customer } from './ProductDetailsWithReviews';
+import { Product, ProductVariation, Review } from './ProductDetailsWithReviews';
 import { cld } from "../../Cloudinary/Cloudinary";
 import Select from 'react-select';
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import useCustomer from '../../hooks/UseCustomer';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { AiFillHeart, AiOutlineHeart } from 'react-icons/ai';
 
 interface ProductDetailProps {
     productData: Product[];
@@ -21,9 +24,8 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productData, productRevie
     const [selectedVariation, setSelectedVariation] = useState<string | null>(null);
     const [quantity, setQuantity] = useState<number>(1);
     const [price, setPrice] = useState<number | null>(productData[0].variations![0].price || null);
-    const [selectedSku, setSelectedSku] = useState<string | null>(productData[0].variations![0].sku || null)
-    const [showNotification, setShowNotification] = useState(false);
-    const [showPopup, setShowPopup] = useState(false);
+    const [selectedSku, setSelectedSku] = useState<string | null>(productData[0].variations![0].sku || null);
+    const [heart, setHeart] = useState<boolean>(false);
 
     useEffect(() => {
         if (selectedVariation) {
@@ -66,45 +68,71 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productData, productRevie
 
         if (productVariation && quantity < productVariation.quantity!) {
             setQuantity(prevQuantity => prevQuantity + 1);
-            setShowNotification(false); // Reset notification
         } else {
-            setShowNotification(true); // Show notification
+            // Show notification
+            toast.error("Cannot add more than the available quantity", {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            });
         }
     }
-    useEffect(() => {
-        if (showNotification) {
-            const timeout = setTimeout(() => {
-                setShowNotification(false);
-            }, 3000); // 3 seconds delay
-
-            return () => clearTimeout(timeout); // Clean up on unmount
-        }
-    }, [showNotification]);
 
     const decreaseQuantity = () => {
         setQuantity(prevQuantity => Math.max(prevQuantity - 1, 1));
     }
 
-
     const handleAddToCart = () => {
-        console.log(productData[0].product_id, selectedSku, quantity, customer_id);
-        axiosPrivateCustomer.post("/addToCart", JSON.stringify({ product_id: productData[0].product_id, sku: selectedSku, quantity, customer_id }), {
-            headers: { "Content-Type": "application/json" },
-            withCredentials: true,
-        }).then((response) => {
-            // On successful addition to cart, show the popup
-            console.log(response)
-            setShowPopup(true);
-
-            // Hide the popup after 3 seconds
-            setTimeout(() => {
-                setShowPopup(false);
-            }, 3000);
-        })
-            .catch((error) => {
-                // Handle error here
-                console.error(error);
+        if (!customer_id) {
+            toast.error("Please Log in to add into cart", {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
             });
+            return
+        } else {
+            axiosPrivateCustomer.post("/addToCart", JSON.stringify({ product_id: productData[0].product_id, sku: selectedSku, quantity, customer_id }), {
+                headers: { "Content-Type": "application/json" },
+                withCredentials: true,
+            }).then((response) => {
+                // On successful addition to cart, show the popup
+                console.log(response)
+                toast.success("Item Added to Cart! 😊", {
+                    position: "top-center",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                });
+            })
+                .catch((error) => {
+                    // Handle error here
+                    console.error(error);
+                    toast.error("Error! Adding to cart failed", {
+                        position: "top-center",
+                        autoClose: 5000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "light",
+                    });
+                });
+        }
     }
 
     return (
@@ -156,12 +184,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productData, productRevie
 
                 </div>
             ))}
-            {showNotification && (
-                <div className="fixed bottom-0 right-0 bg-red-500 text-white px-4 py-2 m-4 rounded-md">
-                    Cannot add more than the available quantity
-                </div>
-            )}
-
             <div className="flex items-center justify-center space-x-2">
                 Quantity
                 <button
@@ -178,37 +200,18 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productData, productRevie
                     +
                 </button>
             </div>
-            {showPopup && (
-                <div className="fixed z-10 inset-0 overflow-y-auto">
-                    <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                        <div className="fixed inset-0 transition-opacity">
-                            <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
-                        </div>
-                        <div className="bg-white rounded-lg px-4 pt-5 pb-4 overflow-hidden shadow-xl transform transition-all sm:max-w-sm sm:w-full sm:mx-auto sm:mt-4">
-                            <div>
-                                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
-                                    <svg className="h-6 w-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                    </svg>
-                                </div>
-                                <div className="mt-3 text-center sm:mt-5">
-                                    <h3 className="text-lg leading-6 font-medium text-gray-900">
-                                        Added to cart
-                                    </h3>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <span>
+                <button
+                    onClick={handleAddToCart}
+                    className=" bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                >
+                    Add to Cart
+                </button>
+                <button>
+                    {heart ? <AiFillHeart onClick={() => setHeart(!heart)} /> : <AiOutlineHeart onClick={() => setHeart(!heart)} />}
+                </button>
+            </span>
 
-
-            <button
-                onClick={handleAddToCart}
-                className=" bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            >
-                Add to Cart
-            </button>
             {productReview.map((pReview, index) => (
                 <div key={index}>
                     <h3>Rating: {pReview.rating}</h3>
@@ -232,7 +235,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productData, productRevie
                 </div>
             ))}
 
-
+            <ToastContainer />
 
         </div>
     );

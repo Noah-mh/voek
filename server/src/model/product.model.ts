@@ -101,6 +101,7 @@ export const handlesGetRecommendedProductsBasedOnCat = async (
   LIMIT 6;`;
   try {
     const result = await connection.query(sql, [category_id]);
+    console.log(result[0]);
     return result[0] as Product[];
   } catch (err: any) {
     throw new Error(err);
@@ -140,7 +141,7 @@ export const handlesGetWishlistItems = async (
   WHERE wishlist.customer_id = ?;`;
   try {
     const result = await connection.query(sql, [customer_id]);
-    console.log(result[0]);
+    console.log(result);
     return result[0] as Product[];
   } catch (err: any) {
     throw new Error(err);
@@ -182,7 +183,6 @@ export const handlesTopProducts = async (): Promise<Product[]> => {
   GROUP BY x.product_id;`;
   try {
     const result = await connection.query(sql, []);
-    console.log(result[0]);
     return result[0] as Product[];
   } catch (err: any) {
     throw new Error(err);

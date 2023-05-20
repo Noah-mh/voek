@@ -16,6 +16,30 @@ export const processGetAllProductsOfSeller = async (req: Request, res: Response,
     }
 }
 
+// GET all categories
+export const processGetAllCategories = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const response: any = await sellerModel.handleGetAllCategories();
+        return res.json(response);
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+// POST insert a new product
+export const processAddProduct = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const sellerId: number = parseInt(req.params.sellerId);
+        const { name, description, category_id, variation_1, variation_2, quantity, price } = req.body;
+        if (!name || !category_id || !quantity || !price) return res.sendStatus(400);
+        const response: any = await sellerModel.handleAddProduct(sellerId, name, description, category_id, variation_1, variation_2, quantity, price);
+        return response.insertId;
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+
 // GET order details
 export const processGetOrderDetails = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -94,7 +118,7 @@ export const processVerifyOTP = async (req: Request, res: Response, next: NextFu
                 { expiresIn: '1d' }
             );
             await sellerModel.handleStoreRefreshToken(refreshToken, response[0].seller_id);
-            res.cookie('jwt', refreshToken, {
+            res.cookie('sellerJwt', refreshToken, {
                 httpOnly: true,
                 sameSite: "none",
                 secure: true,
@@ -147,10 +171,10 @@ export const processSignUpLink = async (req: Request, res: Response, next: NextF
 
 export const processLogout = async (req: Request, res: Response, next: NextFunction) => {
     const cookies = req.cookies;
-    if (!cookies?.jwt) return res.sendStatus(204);
-    const refreshToken = cookies.jwt;
+    if (!cookies?.sellerJwt) return res.sendStatus(204);
+    const refreshToken = cookies.sellerJwt;
     await sellerModel.handleLogOut(refreshToken);
-    res.clearCookie('jwt', {
+    res.clearCookie('sellerJwt', {
         httpOnly: true
         , sameSite: "none",
         secure: true

@@ -5,23 +5,100 @@ import client from '../../config/teleSign';
 import c from 'config';
 
 // GET all products from 1 seller
-export const handleGetAllProducts = async (sellerId: number): Promise<Product[]> => {
+export const handleGetAllProducts = async (sellerId: number): Promise<any[]> => {
+    const promisePool = pool.promise();
+    const connection = await promisePool.getConnection();
+    const sql = 
+    `SELECT p.product_id, p.name, p.description, p.active, pv.sku, pv.variation_1, pv.variation_2, pv.quantity, pv.price, p.category_id, c.name AS category FROM products p
+    RIGHT OUTER JOIN listed_products lp 
+    ON lp.product_id = p.product_id
+    LEFT JOIN product_variations pv
+    ON pv.product_id = p.product_id
+    INNER JOIN category c
+    ON c.category_id = p.category_id
+    WHERE lp.seller_id = ? AND pv.active = 1
+    ORDER BY p.product_id ASC;`;
+    try {
+        const result: any = await connection.query(sql, [sellerId]);
+        return result[0] as any[];
+    } catch (err: any) {
+        console.log(err);
+        throw new Error(err);
+    } finally {
+        await connection.release();
+    }
+}
+
+// GET all categories
+export const handleGetAllCategories = async (): Promise<any[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql =
-    `SELECT p.name, p.description, p.price FROM products p 
-    RIGHT OUTER JOIN listed_products lp ON lp.product_id = p.product_id 
-    WHERE lp.seller_id = ?;`
+  const sql = 
+  `SELECT category_id, name FROM category
+  ORDER BY name ASC;`;
   try {
-    const result: any = await connection.query(sql, [sellerId]);
-    return result[0] as Product[];
+      const result: any = await connection.query(sql);
+      return result[0] as any[];
   } catch (err: any) {
+      console.log(err);
+      throw new Error(err);
+  } finally {
+      await connection.release();
+  }
+}
+
+// POST insert a new product
+export const handleAddProduct = async (sellerId: number, name: string, description: string, category_id: number, variation_1: string, variation_2: string, quantity: number, price: number) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql1 = 
+  `INSERT INTO products (name, description, category_id)
+  VALUES (?, ?, ?);`;
+  const sql2 = 
+  `INSERT INTO listed_products (product_id, seller_id)
+  VALUES (?, ?);`;
+  const sql3 = 
+  `INSERT INTO product_variations (sku, product_id, variation_1, variation_2, quantity, price)
+  VALUES (UUID(), ?, ?, ?, ?, ?)`;
+
+  try {
+    // start a local transaction
+    connection.beginTransaction();
+
+    const result1: any = await connection.query(sql1, [name, description, category_id])
+    // // console.log(response);
+    let lastInsertId = result1[0].insertId;
+    console.log(lastInsertId)
+    const result2: any = await connection.query(sql2, [lastInsertId, sellerId]);
+    const result3: any = await connection.query(sql3, [lastInsertId, variation_1, variation_2, quantity, price]);
+
+    // variation_1 .join with , then .split with ,
+    // then run sql3 thru a for loop w [variation_1[i]] for every variation_2
+
+    // result1 = await Promise.resolve(connection.query(sql1, [name, description, category_id]))
+    // .then((response) => {
+    //   // console.log("response", response)
+    //   // console.log("result1", result1)
+    //   // console.log(result1[0].insertId)
+    //   // console.log(response[0].insertId)
+
+    //   let lastInsertId = result1[0].insertId;
+    //   const result2: any = connection.query(sql2, [lastInsertId, sellerId]);
+    //   const result3: any = connection.query(sql3, [lastInsertId, variation_1, variation_2, quantity, price]);
+    // })
+
+    connection.commit();
+    return;
+  } catch (err: any) {
+    connection.rollback()
+    connection.release();
     console.log(err);
     throw new Error(err);
   } finally {
-    await connection.release();
+      await connection.release();
   }
 }
+
 
 // GET order details
 export const handleGetOrderDetails = async (ordersId: number): Promise<Orders> => {
@@ -421,14 +498,44 @@ export const handlePackedAndShipped = async (orders_product_id: Array<string>, c
 export const handleGetCustomerOrders = async (seller_id: number, orders_id: number): Promise<Object[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `SELECT orders.orders_id, orders.orders_date, product_variations.sku, product_variations.variation_1, product_variations.variation_2, orders_product.product_id, orders.customer_id, orders_product.orders_product_id, orders_product.total_price, orders_product.quantity, 
-  orders_product.shipment_id, shipment.shipment_created, shipment.shipment_delivered FROM orders 
-    JOIN orders_product ON orders.orders_id = orders_product.orders_id 
-      JOIN product_variations ON orders_product.sku = product_variations.sku
-    LEFT JOIN shipment ON orders_product.shipment_id = shipment.shipment_id
-      WHERE orders.orders_id = ? AND orders_product.product_id IN (
-       SELECT listed_products.product_id FROM listed_products WHERE seller_id = ?
-    )`;
+  const sql = `SELECT
+  orders.orders_id,
+  customer.username,
+  customer_address.postal_code,
+  customer_address.block,
+  customer_address.unit_no,
+  customer_address.street_name,
+  customer.email,
+  customer.phone_number,
+  orders.orders_date,
+  product_variations.sku,
+  product_variations.variation_1,
+  product_variations.variation_2,
+  products.name,
+  products.description,
+  orders_product.product_id,
+  orders.customer_id,
+  orders_product.orders_product_id,
+  orders_product.total_price,
+  orders_product.quantity,
+  orders_product.shipment_id,
+  shipment.shipment_created,
+  shipment.shipment_delivered
+FROM
+  orders
+  JOIN orders_product ON orders.orders_id = orders_product.orders_id
+  JOIN customer ON orders.customer_id = customer.customer_id
+  JOIN customer_address ON orders.address_id = customer_address.address_id
+  JOIN product_variations ON orders_product.sku = product_variations.sku
+  JOIN products ON product_variations.product_id = products.product_id
+  LEFT JOIN shipment ON orders_product.shipment_id = shipment.shipment_id
+WHERE
+  orders.orders_id = ?
+  AND orders_product.product_id IN (
+    SELECT listed_products.product_id
+    FROM listed_products
+    WHERE seller_id = ?
+  )`;
   try {
     const result = await connection.query(sql, [orders_id, seller_id]);
     return result[0] as Object[];
@@ -458,13 +565,7 @@ const padZero = (value: number): string => {
   return value.toString().padStart(2, '0');
 }
 
-
-interface Product {
-  name: string;
-  description: string;
-  price: number;
-}
-
+  
 interface Orders {
   customer_username: string;
   customer_email: string;

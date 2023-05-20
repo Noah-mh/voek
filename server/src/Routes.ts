@@ -14,6 +14,18 @@ import * as reviewController from "./controller/review.controller";
 export default function (app: Express, router: Router) {
   // KANG RUI ENDPOINTS - user management system
   router.post("/login", customerController.processLogin);
+  router.put(
+    "/customer/logout",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processLogout
+  );
+  router.put(
+    "/customer/seller",
+    verifyJWT,
+    verifyRoles("seller"),
+    sellerController.processLogout
+  );
   router.post("/customer/auth/SMS/OTP", customerController.processSendSMSOTP);
   router.post(
     "/customer/auth/email/OTP",
@@ -76,8 +88,8 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     orderController.processGetCustomerReceivedOrders
   );
-  router.get(
-    "/customer/received/:orders_product_id",
+  router.put(
+    "/customer/received/:orders_id/:seller_id",
     verifyJWT,
     verifyRoles("customer"),
     orderController.processOrderReceived
@@ -142,8 +154,8 @@ export default function (app: Express, router: Router) {
   );
   router.post(
     "/addToCart",
-    // verifyJWT,
-    // verifyRoles("customer"),
+    verifyJWT,
+    verifyRoles("customer"),
     productController.addToCart
   );
   router.post(
@@ -159,12 +171,20 @@ export default function (app: Express, router: Router) {
     reviewController.addingReviewImages
   );
 
+  router.get(
+    "/customer/profile/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.getCustomerDetails
+  );
+
   // ASHLEY ENDPOINTS - seller platform
   router.get(
     "/products/:sellerId",
     sellerController.processGetAllProductsOfSeller
   );
-  router.get("/orders/:ordersId", sellerController.processGetOrderDetails);
+  router.get("/categories", sellerController.processGetAllCategories);
+  router.post("/addProduct/:sellerId", sellerController.processAddProduct);
 
   // NHAT TIEN ENDPOINTS - Homepage, Last Viewed, Wishlist, Product Details
   router.post(
@@ -258,6 +278,7 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     cartController.retrieveCartDetails
   );
+
   router.get("/getProductCat/:product_id", productController.getProductCat);
 
   router.put(
@@ -265,6 +286,17 @@ export default function (app: Express, router: Router) {
     // verifyJWT,
     // verifyRoles("customer"),
     customerController.updateCustomerLastViewedCat
+  );
+
+  router.get(
+    "/getCustomerLastViewedCat/:customer_id",
+    customerController.getCustomerLastViewedCat
+  );
+  router.post(
+    "/customer/getCart",
+    verifyJWT,
+    verifyRoles("customer"),
+    cartController.retrieveCartDetails
   );
   router.post(
     "/customer/alterQuantCart",

@@ -1,34 +1,37 @@
 import React, { useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { images } from "./images";
+import { Link } from "react-router-dom";
 import "./css/Slider.css";
+
+import { AdvancedImage } from "@cloudinary/react";
+import { cld } from "../../Cloudinary/Cloudinary";
 
 interface SliderProps {
   header: string;
-  modalOpenFn: () => void;
-  modalCloseFn: () => void;
-  modalOpen: boolean;
-  setProductImg: (img: string) => void;
-  setProductId: (id: number) => void;
+  products: Array<Product>;
 }
 
-const Slider: React.FC<SliderProps> = ({
-  header,
-  modalOpenFn,
-  modalCloseFn,
-  modalOpen,
-  setProductImg,
-  setProductId,
-}) => {
+interface Product {
+  product_id: number;
+  name: string;
+  description: string;
+  image: string;
+}
+
+const Slider: React.FC<SliderProps> = ({ header, products }) => {
   const [width, setWidth] = useState<number>(0);
   const carousel = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (carousel.current) {
-      console.log(carousel.current.scrollWidth, carousel.current.offsetWidth);
       setWidth(carousel.current.scrollWidth - carousel.current.offsetWidth);
     }
   }, []);
+
+  useEffect(() => {
+    console.log("products: ", products);
+  }, [products]);
 
   return (
     <motion.div
@@ -50,27 +53,25 @@ const Slider: React.FC<SliderProps> = ({
         dragConstraints={{ right: 0, left: -width }}
         className="inner-carousel flex cursor-grab"
       >
-        {images.map((image: string) => {
+        {products.map((product: Product, index: number) => {
           return (
-            <motion.div
-              className="item p-5 px-4 pt-7 cursor-pointer"
-              key={image}
+            <Link
+              to={`/productDetailsWithReviews/${product.product_id}`}
+              key={index}
             >
-              <motion.img
-                src={image}
-                alt="products"
-                draggable={false}
-                className="rounded-5xl"
+              <motion.div
+                className="item p-5 px-4 pt-7 cursor-pointer"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                onClick={() => {
-                  console.log("testing", modalOpen);
-                  modalOpen ? modalCloseFn() : modalOpenFn();
-                  setProductImg(image);
-                  setProductId(1);
-                }}
-              />
-            </motion.div>
+              >
+                <AdvancedImage
+                  cldImg={cld.image(product.image)}
+                  alt="products"
+                  draggable={false}
+                  className="rounded-xl object-cover homepageSliderImg"
+                />
+              </motion.div>
+            </Link>
           );
         })}
       </motion.div>

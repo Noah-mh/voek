@@ -96,7 +96,7 @@ export const processVerifyOTP = async (
         refreshToken,
         response[0].customer_id
       );
-      res.cookie("jwt", refreshToken, {
+      res.cookie("customerJwt", refreshToken, {
         httpOnly: true,
         sameSite: "none",
         secure: true,
@@ -175,10 +175,11 @@ export const processLogout = async (
   next: NextFunction
 ) => {
   const cookies = req.cookies;
-  if (!cookies?.jwt) return res.sendStatus(204);
-  const refreshToken = cookies.jwt;
+  if (!cookies?.customerJwt) return res.sendStatus(204);
+  const refreshToken = cookies.customerJwt;
   await customerModel.handleLogOut(refreshToken);
-  res.clearCookie("jwt", {
+  res.clearCookie("customerJwt", {
+    httpOnly: true,
     sameSite: "none",
     secure: true,
     maxAge: 24 * 60 * 60 * 1000,
@@ -261,7 +262,7 @@ export const processGetReferralId = async (
     const { customer_id } = req.params;
     if (!customer_id) return res.sendStatus(400);
     const result = await customerModel.handleGetReferralId(customer_id);
-    return res.status(200).json({ referral_id: result });
+    return res.json({ referral_id: result });
   } catch (err: any) {
     return next(err);
   }
@@ -296,5 +297,61 @@ export const processGetAddress = async (
     return res.json({ result });
   } catch (err: any) {
     return next(err);
+  }
+};
+
+// NHAT TIEN :D
+export const updateCustomerLastViewedCat = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { categoryId, customerId } = req.body;
+    const response: Array<object> =
+      await customerModel.handlesUpdateCustomerLastViewedCat(
+        categoryId,
+        customerId
+      );
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const getCustomerLastViewedCat = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.params;
+    const customerId = parseInt(customer_id);
+    const response: Array<object> =
+      await customerModel.handlesGetCustomerLastViewedCat(customerId);
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+//Noah
+export const getCustomerDetails = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.params;
+    console.log(customer_id);
+    // Type checking for customer_id.
+    const response = await customerModel.handlesCustomerDetails(
+      parseInt(customer_id)
+    );
+    // Respond with status code and the data.
+    return res.json({ details: response });
+  } catch (err: any) {
+    // Return a response with status code and error message.
+    return res.status(500).json({ message: err.message });
   }
 };
