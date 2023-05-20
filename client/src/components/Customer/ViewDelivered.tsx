@@ -68,7 +68,7 @@ const ViewDelivered = ({ deliveredOrders, getAll }: Props) => {
 
   const buttonHandler = async (orders_id: number, seller_id: number) => {
     try {
-      const result = await axiosPrivateCustomer.put(`/customer/received/${orders_id}/${seller_id}`)
+      await axiosPrivateCustomer.put(`/customer/received/${orders_id}/${seller_id}`)
       getAll();
     } catch (err: any) {
       console.log(err);
