@@ -4,16 +4,14 @@ import ViewOrders from "./ViewOrders";
 import ViewReceived from "./ViewReceived";
 import ViewDelivered from "./ViewDelivered";
 import useCustomer from "../../hooks/UseCustomer";
-import { Customer } from "./CustomerProfile"
+import { Customer } from "./CustomerProfile";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
-import { v4 as uuidv4 } from 'uuid'
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
-import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
+import { v4 as uuidv4 } from "uuid";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+import Box from "@mui/material/Box";
 import AddressDisplay from "./Address";
 import Loader from "../Loader/Loader";
-
 
 interface Product {
   description: string;
@@ -23,7 +21,7 @@ interface Product {
   variation_1?: string;
   variation_2?: string;
   quantity: number;
-  sku: string,
+  sku: string;
   orders_date?: string;
   shipment_created?: string;
   shipment_delivered?: string;
@@ -50,7 +48,14 @@ function TabPanel(props: TabPanelProps) {
       {...other}
     >
       {value === index && (
-        <Box sx={{ p: 3 }}>
+        <Box
+          sx={{
+            p: 3,
+            flexGrow: 1, // make it take up the remaining space
+
+            width: "100vh",
+          }}
+        >
           {children}
         </Box>
       )}
@@ -58,15 +63,12 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
-
 function a11yProps(index: number) {
   return {
     id: `vertical-tab-${index}`,
-    'aria-controls': `vertical-tabpanel-${index}`,
+    "aria-controls": `vertical-tabpanel-${index}`,
   };
 }
-
-
 
 const CustomerProfilePage = () => {
   const { customer } = useCustomer();
@@ -78,67 +80,85 @@ const CustomerProfilePage = () => {
   const [value, setValue] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 
-
   const getCustomerDetails = async () => {
     try {
-      return await axiosPrivateCustomer.get(`/customer/profile/${customer.customer_id}`)
+      return await axiosPrivateCustomer.get(
+        `/customer/profile/${customer.customer_id}`
+      );
     } catch (err: any) {
       console.log(err);
     }
-  }
+  };
 
   const getOrders = async () => {
     try {
-      return await axiosPrivateCustomer.get(`/customer/orders/${customer.customer_id}`)
+      return await axiosPrivateCustomer.get(
+        `/customer/orders/${customer.customer_id}`
+      );
     } catch (err: any) {
       console.log(err);
     }
-  }
+  };
 
   const getDeliveredOrders = async () => {
     try {
-      return await axiosPrivateCustomer.get(`/customer/delivered/orders/${customer.customer_id}`)
+      return await axiosPrivateCustomer.get(
+        `/customer/delivered/orders/${customer.customer_id}`
+      );
     } catch (err: any) {
       console.log(err);
     }
-  }
+  };
 
   const getReceivedOrders = async () => {
     try {
-      return await axiosPrivateCustomer.get(`/customer/received/orders/${customer.customer_id}`)
+      return await axiosPrivateCustomer.get(
+        `/customer/received/orders/${customer.customer_id}`
+      );
     } catch (err: any) {
       console.log(err);
     }
-  }
+  };
 
   useEffect(() => {
-    getAll()
-  }, [])
+    getAll();
+  }, []);
 
   const getAll = async () => {
     try {
-      const result: any = await Promise.all([getCustomerDetails(), getOrders(), getDeliveredOrders(), getReceivedOrders()])
-      SetCustomerData(result[0].data.details[0])
-      setOrders(result[1].data.listedOrders)
-      setDeliveredOrders(result[2].data.listedOrdersDelivered)
-      setReceivedOrders(result[3].data.listedOrdersReceived)
+      const result: any = await Promise.all([
+        getCustomerDetails(),
+        getOrders(),
+        getDeliveredOrders(),
+        getReceivedOrders(),
+      ]);
+      SetCustomerData(result[0].data.details[0]);
+      setOrders(result[1].data.listedOrders);
+      setDeliveredOrders(result[2].data.listedOrdersDelivered);
+      setReceivedOrders(result[3].data.listedOrdersReceived);
       setIsLoading(false);
     } catch (err: any) {
       console.log(err);
     }
-  }
+  };
   if (isLoading) {
-    return <Loader />;
+    return (
+      <div className="flex justify-center items-center">
+        <Loader />
+      </div>
+    );
   } else {
-
     return (
       <Box
-        sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex' }}
+        sx={{
+          flexGrow: 1,
+          bgcolor: "background.paper",
+          display: "flex",
+        }}
       >
         <Tabs
           orientation="vertical"
@@ -146,7 +166,11 @@ const CustomerProfilePage = () => {
           value={value}
           onChange={handleChange}
           aria-label="Vertical tabs example"
-          sx={{ borderRight: 1, borderColor: 'divider' }}
+          sx={{
+            borderRight: 1,
+            borderColor: "divider",
+            width: "25%",
+          }}
         >
           <Tab label="Profile" {...a11yProps(0)} />
           <Tab label="Addresses" {...a11yProps(1)} />
@@ -156,7 +180,7 @@ const CustomerProfilePage = () => {
         </Tabs>
         <TabPanel value={value} index={0}>
           {/* Profile content */}
-          <CustomerProfile customerData={customerData!} />
+          <CustomerProfile customerData={customerData!} getAll={getAll} />
         </TabPanel>
         <TabPanel value={value} index={1}>
           {/* Addresses content */}
@@ -177,6 +201,6 @@ const CustomerProfilePage = () => {
       </Box>
     );
   }
-}
+};
 
-export default CustomerProfilePage
+export default CustomerProfilePage;

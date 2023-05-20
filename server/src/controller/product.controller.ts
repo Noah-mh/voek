@@ -176,7 +176,9 @@ export const deleteWishlistedProduct = async (
   next: NextFunction
 ) => {
   try {
-    const { customerId, productId } = req.body;
+    const { customer_id, product_id } = req.query;
+    const customerId: number = parseInt(customer_id as string);
+    const productId: number = parseInt(product_id as string);
     const response: number =
       await productModel.handlesDeletingWishlistedProduct(
         customerId,

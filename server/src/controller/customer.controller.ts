@@ -355,3 +355,47 @@ export const getCustomerDetails = async (
     return res.status(500).json({ message: err.message });
   }
 };
+
+export const updateCustomerDetails = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.params;
+    const { username, email, phone_number } = req.body;
+    const customerId = parseInt(customer_id);
+    const response: number =
+      await customerModel.handleCustomerProfileEdit(
+        username,
+        email,
+        phone_number,
+        customerId
+      );
+    if (!response) return res.sendStatus(404);
+    return res.sendStatus(200);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const updateCustomerPhoto = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.params;
+    const { image_url } = req.body;
+    const customerId = parseInt(customer_id);
+    const response: number =
+      await customerModel.handleCustomerProfilePhotoEdit(
+        image_url,
+        customerId
+      );
+    if (!response) return res.sendStatus(404);
+    return res.sendStatus(200);
+  } catch (err: any) {
+    return next(err);
+  }
+};

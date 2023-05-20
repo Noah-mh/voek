@@ -9,7 +9,9 @@ import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import useCustomer from "../../hooks/UseCustomer";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { motion } from "framer-motion";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
+import StarRating from "./StarRating";
 
 interface ProductDetailProps {
   productData: Product[];
@@ -63,6 +65,144 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
       }
     }
   }, [selectedVariation, productData]);
+
+  useEffect(() => {
+    const checkWishlistProductExistence = async () => {
+      if (customer_id != undefined) {
+        try {
+          const response = await axiosPrivateCustomer.post(
+            `/checkWishlistProductExistence`,
+            JSON.stringify({
+              customerId: customer_id,
+              productId: productData[0].product_id,
+            }),
+            {
+              headers: { "Content-Type": "application/json" },
+              withCredentials: true,
+            }
+          );
+          if (response.data.length > 0) {
+            setHeart(true);
+          } else {
+            setHeart(false);
+          }
+        } catch (err: any) {
+          setHeart(false);
+        }
+      }
+    };
+    checkWishlistProductExistence();
+  }, []);
+
+  // Nhat Tien (Wishlist) :D
+  const handleAddToWishlist = () => {
+    if (customer_id == undefined) {
+      toast.warn("Please Log in to add into wishlist", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+      return;
+    } else {
+      axiosPrivateCustomer
+        .post(
+          "/insertWishlistedProduct",
+          JSON.stringify({
+            customerId: customer_id,
+            productId: productData[0].product_id,
+          }),
+          {
+            headers: { "Content-Type": "application/json" },
+            withCredentials: true,
+          }
+        )
+        .then((response) => {
+          // On successful addition to wishlist, show the popup
+          if (response.status === 201) {
+            setHeart(true);
+            toast.success("Item Added to Wishlist! 😊", {
+              position: "top-center",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "light",
+            });
+          }
+        })
+        .catch((error) => {
+          // Handle error here
+          console.error(error);
+          toast.error("Error! Adding to wishlist failed", {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+        });
+    }
+  };
+
+  const handleRemoveFromWishlist = () => {
+    if (customer_id == undefined) {
+      toast.warn("Please Log in to use the wishlist", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    } else {
+      axiosPrivateCustomer
+        .delete(
+          `/deleteWishlistedProduct?customer_id=${customer_id}&product_id=${productData[0].product_id}`
+        )
+        .then((response) => {
+          if (response.status === 200) {
+            setHeart(false);
+            toast.success("Item Removed from Wishlist! 😊", {
+              position: "top-center",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "light",
+            });
+          }
+        })
+        .catch((error) => {
+          // Handle error here
+          console.error(error);
+          toast.error("Error! Removing from wishlist failed", {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+        });
+    }
+  };
+
   // Flattening the variations array
   const allVariations = productData
     .filter((product) => product.variations !== null)
@@ -73,7 +213,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
       ],
       []
     );
-
   // Checking if there's at least one variation_1 that's not null
   const hasValidVariation = allVariations.some(
     (variation) => variation.variation_1 !== null
@@ -175,8 +314,14 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                   imageUrl: string | undefined,
                   index: React.Key | null | undefined
                 ) => (
-                  <div className="image-container" key={index}>
-                    <AdvancedImage cldImg={cld.image(imageUrl)} />
+                  <div
+                    className="w-64 h-64 bg-gray-100 rounded-md overflow-hidden"
+                    key={index}
+                  >
+                    <AdvancedImage
+                      cldImg={cld.image(imageUrl)}
+                      className="object-cover w-full h-full"
+                    />
                   </div>
                 )
               )}
@@ -240,25 +385,42 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
           +
         </button>
       </div>
-      <span>
+      <span className="flex items-center">
         <button
           onClick={handleAddToCart}
           className=" bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
         >
           Add to Cart
         </button>
-        <button>
+        <motion.button
+          className="mx-2"
+          whileHover={{ scale: 1.3 }}
+          whileTap={{ scale: 0.9 }}
+        >
           {heart ? (
-            <AiFillHeart onClick={() => setHeart(!heart)} />
+            <AiFillHeart
+              onClick={() => {
+                handleRemoveFromWishlist();
+              }}
+              color="pink"
+              size="2em"
+            />
           ) : (
-            <AiOutlineHeart onClick={() => setHeart(!heart)} />
+            <AiOutlineHeart
+              onClick={() => {
+                handleAddToWishlist();
+              }}
+              color="pink"
+              size="2em"
+            />
           )}
-        </button>
+        </motion.button>
       </span>
 
       {productReview.map((pReview, index) => (
         <div key={index}>
           <h3>Rating: {pReview.rating}</h3>
+          <StarRating rating={pReview.rating} />
           <h3>Reviews:</h3>
           {pReview.reviews &&
             pReview.reviews.map((review, reviewIndex) => (
@@ -267,7 +429,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                 {review.image_urls && (
                   <Carousel showThumbs={false}>
                     {review.image_urls.map((imageUrl, imageIndex) => (
-                      <div className="image-container" key={imageIndex}>
+                      <div className="w-64 h-64" key={imageIndex}>
                         <AdvancedImage cldImg={cld.image(imageUrl)} />
                       </div>
                     ))}
