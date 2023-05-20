@@ -164,7 +164,15 @@ export default function (app: Express, router: Router) {
     "/products/:sellerId",
     sellerController.processGetAllProductsOfSeller
   );
-  router.get("/orders/:ordersId", sellerController.processGetOrderDetails);
+  router.get(
+    "/categories",
+    sellerController.processGetAllCategories
+  )
+  router.post(
+    "/addProduct/:sellerId",
+    sellerController.processAddProduct
+  )
+  
 
   // NHAT TIEN ENDPOINTS - Homepage, Last Viewed, Wishlist, Product Details
   router.post(

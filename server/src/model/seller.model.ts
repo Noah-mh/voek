@@ -5,23 +5,100 @@ import client from '../../config/teleSign';
 import c from 'config';
 
 // GET all products from 1 seller
-export const handleGetAllProducts = async (sellerId: number): Promise<Product[]> => {
+export const handleGetAllProducts = async (sellerId: number): Promise<any[]> => {
+    const promisePool = pool.promise();
+    const connection = await promisePool.getConnection();
+    const sql = 
+    `SELECT p.product_id, p.name, p.description, p.active, pv.sku, pv.variation_1, pv.variation_2, pv.quantity, pv.price, p.category_id, c.name AS category FROM products p
+    RIGHT OUTER JOIN listed_products lp 
+    ON lp.product_id = p.product_id
+    LEFT JOIN product_variations pv
+    ON pv.product_id = p.product_id
+    INNER JOIN category c
+    ON c.category_id = p.category_id
+    WHERE lp.seller_id = ? AND pv.active = 1
+    ORDER BY p.product_id ASC;`;
+    try {
+        const result: any = await connection.query(sql, [sellerId]);
+        return result[0] as any[];
+    } catch (err: any) {
+        console.log(err);
+        throw new Error(err);
+    } finally {
+        await connection.release();
+    }
+}
+
+// GET all categories
+export const handleGetAllCategories = async (): Promise<any[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql =
-    `SELECT p.name, p.description, p.price FROM products p 
-    RIGHT OUTER JOIN listed_products lp ON lp.product_id = p.product_id 
-    WHERE lp.seller_id = ?;`
+  const sql = 
+  `SELECT category_id, name FROM category
+  ORDER BY name ASC;`;
   try {
-    const result: any = await connection.query(sql, [sellerId]);
-    return result[0] as Product[];
+      const result: any = await connection.query(sql);
+      return result[0] as any[];
   } catch (err: any) {
+      console.log(err);
+      throw new Error(err);
+  } finally {
+      await connection.release();
+  }
+}
+
+// POST insert a new product
+export const handleAddProduct = async (sellerId: number, name: string, description: string, category_id: number, variation_1: string, variation_2: string, quantity: number, price: number) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql1 = 
+  `INSERT INTO products (name, description, category_id)
+  VALUES (?, ?, ?);`;
+  const sql2 = 
+  `INSERT INTO listed_products (product_id, seller_id)
+  VALUES (?, ?);`;
+  const sql3 = 
+  `INSERT INTO product_variations (sku, product_id, variation_1, variation_2, quantity, price)
+  VALUES (UUID(), ?, ?, ?, ?, ?)`;
+
+  try {
+    // start a local transaction
+    connection.beginTransaction();
+
+    const result1: any = await connection.query(sql1, [name, description, category_id])
+    // // console.log(response);
+    let lastInsertId = result1[0].insertId;
+    console.log(lastInsertId)
+    const result2: any = await connection.query(sql2, [lastInsertId, sellerId]);
+    const result3: any = await connection.query(sql3, [lastInsertId, variation_1, variation_2, quantity, price]);
+
+    // variation_1 .join with , then .split with ,
+    // then run sql3 thru a for loop w [variation_1[i]] for every variation_2
+
+    // result1 = await Promise.resolve(connection.query(sql1, [name, description, category_id]))
+    // .then((response) => {
+    //   // console.log("response", response)
+    //   // console.log("result1", result1)
+    //   // console.log(result1[0].insertId)
+    //   // console.log(response[0].insertId)
+
+    //   let lastInsertId = result1[0].insertId;
+    //   const result2: any = connection.query(sql2, [lastInsertId, sellerId]);
+    //   const result3: any = connection.query(sql3, [lastInsertId, variation_1, variation_2, quantity, price]);
+    // })
+
+    connection.commit();
+    return;
+  } catch (err: any) {
+    connection.rollback()
+    connection.release();
     console.log(err);
     throw new Error(err);
   } finally {
-    await connection.release();
+      await connection.release();
   }
 }
+
 
 // GET order details
 export const handleGetOrderDetails = async (ordersId: number): Promise<Orders> => {
@@ -458,13 +535,7 @@ const padZero = (value: number): string => {
   return value.toString().padStart(2, '0');
 }
 
-
-interface Product {
-  name: string;
-  description: string;
-  price: number;
-}
-
+  
 interface Orders {
   customer_username: string;
   customer_email: string;

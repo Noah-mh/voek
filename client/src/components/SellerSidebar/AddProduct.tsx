@@ -1,13 +1,35 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import SellerSidebar from "../SellerSidebar/SellerSidebar.js";
+import useSeller from "../../hooks/useSeller.js";
 
 import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller.js";
 
-type Props = {}
+interface Category {
+  category_id: number;
+  name: string;
+}
 
-const CreateProduct = (props: Props) => {
+const CreateProduct = () => {
 
   const axiosPrivateSeller = useAxiosPrivateSeller();
+
+  const { seller } = useSeller();
+  const sellerId = seller.seller_id;
+
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    const getAllCategories = async () => {
+      try {
+        const response = await axiosPrivateSeller.get(`/categories`);
+        setCategories(response.data);
+      } catch (error: any) {
+        console.error('Error fetching data:', error);
+      }
+    }
+
+    getAllCategories();
+  }, []);
 
   const createProduct = async () => {
 
@@ -32,10 +54,9 @@ const CreateProduct = (props: Props) => {
         <br />
         <label>
           <select>
-            <option value="1">Books</option>
-            <option value="2">Tech</option>
-            <option value="3">Shoes</option>
-            <option value="4">Accessories</option>
+          {categories.map(item => (
+            <option key={item.category_id} value={item.category_id}>{item.name}</option>
+          ))}
           </select>
         </label>
         <br />
