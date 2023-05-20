@@ -132,6 +132,12 @@ export default function (app: Express, router: Router) {
     verifyRoles("seller"),
     sellerController.processGetCustomerOrders
   );
+  router.get(
+    "/seller/:seller_id",
+    verifyJWT,
+    verifyRoles("seller"),
+    sellerController.processGetSellerDetails
+  )
 
   // NOAH ENDPOINTS - reviews
   router.get(

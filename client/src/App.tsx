@@ -33,6 +33,7 @@ import SomeComponent from "./components/Test/cloudinaryTest.js";
 import ReferralLink from "./components/ReferralLink/ReferralLink.js";
 import ViewCustomerOrders from "./components/SellerSidebar/ViewCustomerOrders.js";
 import CategoryResults from "./components/CategoryResults/CategoryResults.js";
+import SellerProfile from "./components/SellerProfile/SellerProfile.js";
 
 function App() {
   return (
@@ -99,6 +100,7 @@ function App() {
             <Route path="seller/addProduct" element={<AddProduct />} />
             <Route path="seller/manageOrders" element={<ManageOrders />} />
             <Route path="seller/orders" element={<ViewCustomerOrders />} />
+            <Route path="seller/profile" element={<SellerProfile />} />
           </Route>
         </Route>
       </Route>
