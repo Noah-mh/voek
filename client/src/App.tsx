@@ -27,9 +27,8 @@ import ManageProducts from "./components/SellerSidebar/ManageProducts.js";
 import AddProduct from "./components/SellerSidebar/AddProduct.js";
 import ManageOrders from "./components/SellerSidebar/ManageOrders.js";
 import Checkout from "./components/Checkout/Checkout.js";
-import ViewMyOrders from "./components/Customer/ViewMyOrders.js";
+import CustomerProfilePage from "./components/Customer/CustomerProfilePage.js";
 import LastViewed from "./components/LastViewed(History)/LastViewed.js";
-import SomeComponent from "./components/Test/cloudinaryTest.js";
 import ReferralLink from "./components/ReferralLink/ReferralLink.js";
 import ViewCustomerOrders from "./components/SellerSidebar/ViewCustomerOrders.js";
 import CategoryResults from "./components/CategoryResults/CategoryResults.js";
@@ -58,7 +57,6 @@ function App() {
             path="productDetailsWithReviews/:product_id"
             element={<ProductDetailWithReview />}
           />
-          <Route path="test" element={<SomeComponent />} />
           <Route path="searchResults/:userInput" element={<SearchResults />} />
           <Route
             path="categoryResults/:categoryId"
@@ -71,7 +69,7 @@ function App() {
             {/* Protected Routes with persist login */}
             <Route path="wishlist" element={<Wishlist />} />
             <Route path="customer/cart" element={<CartPage />} />
-            <Route path="orders" element={<ViewMyOrders />} />
+            <Route path="profile" element={<CustomerProfilePage />} />
             <Route path="lastViewed" element={<LastViewed />} />
           </Route>
         </Route>
