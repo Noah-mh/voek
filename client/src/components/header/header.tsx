@@ -50,7 +50,11 @@ const Header = ({ isCustomer, isSeller }: Props) => {
       <div className=" w-9/12 flex">
         <div className="flex items-center  mr-6">
           <span className="font-bold text-xl tracking-widest">
-            <Link to="/">VOEK</Link>
+            {
+              seller?.seller_id ?
+                <Link to="/seller/home">VOEK</Link>
+                : <Link to='/'>VOEK</Link>
+            }
           </span>
         </div>
         <div className="flex items-center px-3 ">
@@ -117,7 +121,7 @@ const Header = ({ isCustomer, isSeller }: Props) => {
           ) : null}
         </div>
       </div>
-      {openProfile && <DropDownProfile />}
+      {openProfile && <DropDownProfile setOpenProfile={setOpenProfile} />}
     </nav>
   );
 };

@@ -293,7 +293,7 @@ export const handleLogOut = async (
 ): Promise<number> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `UPDATE customer SET refresh_token = '' WHERE refresh_token = ?`;
+  const sql = `UPDATE customer SET refresh_token = NULL WHERE refresh_token = ?`;
   try {
     const result = await connection.query(sql, [refreshToken]);
     return (result[0] as any).affectedRows as number;

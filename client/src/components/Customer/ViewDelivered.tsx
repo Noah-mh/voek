@@ -66,9 +66,9 @@ const ViewDelivered = ({ deliveredOrders, getAll }: Props) => {
 
 
 
-  const buttonHandler = async (orders_product_id: number) => {
+  const buttonHandler = async (orders_id: number, seller_id: number) => {
     try {
-      const result = await axiosPrivateCustomer.get(`/customer/received/${orders_product_id}`)
+      const result = await axiosPrivateCustomer.put(`/customer/received/${orders_id}/${seller_id}`)
       getAll();
     } catch (err: any) {
       console.log(err);
@@ -106,11 +106,11 @@ const ViewDelivered = ({ deliveredOrders, getAll }: Props) => {
                             : "No Variation"}
                     </p>
                     <h3 className="mt-2 text-lg">Order has been shipped on the {convertUtcToLocal(order.shipment_created!)}</h3>
-                    <button color="primary" onClick={() => { buttonHandler(order.orders_product_id!) }}>Order Received</button>
                   </div>
                 </div>
               ))
             }
+            <button color="primary" onClick={() => { buttonHandler(ordersArray[0].orders_id, ordersArray[0].seller_id) }}>Order Received</button>
           </div>
         ))
       }

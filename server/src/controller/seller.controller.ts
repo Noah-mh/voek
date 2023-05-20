@@ -118,7 +118,7 @@ export const processVerifyOTP = async (req: Request, res: Response, next: NextFu
                 { expiresIn: '1d' }
             );
             await sellerModel.handleStoreRefreshToken(refreshToken, response[0].seller_id);
-            res.cookie('jwt', refreshToken, {
+            res.cookie('sellerJwt', refreshToken, {
                 httpOnly: true,
                 sameSite: "none",
                 secure: true,
@@ -171,10 +171,10 @@ export const processSignUpLink = async (req: Request, res: Response, next: NextF
 
 export const processLogout = async (req: Request, res: Response, next: NextFunction) => {
     const cookies = req.cookies;
-    if (!cookies?.jwt) return res.sendStatus(204);
-    const refreshToken = cookies.jwt;
+    if (!cookies?.sellerJwt) return res.sendStatus(204);
+    const refreshToken = cookies.sellerJwt;
     await sellerModel.handleLogOut(refreshToken);
-    res.clearCookie('jwt', {
+    res.clearCookie('sellerJwt', {
         httpOnly: true
         , sameSite: "none",
         secure: true
