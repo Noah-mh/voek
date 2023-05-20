@@ -147,17 +147,14 @@ export default function (app: Express, router: Router) {
     verifyJWT,
     verifyRoles("seller"),
     sellerController.processGetSellerDetails
-  )
+  );
   router.put(
     "/seller/profile/:seller_id",
     verifyJWT,
     verifyRoles("seller"),
     sellerController.processUpdateSellerDetails
-  )
-  router.put(
-    "/seller/email/verify",
-    sellerController.processChangeEmail
-  )
+  );
+  router.put("/seller/email/verify", sellerController.processChangeEmail);
 
   // NOAH ENDPOINTS - reviews
   router.get(
@@ -299,8 +296,8 @@ export default function (app: Express, router: Router) {
 
   router.put(
     "/updateCustomerLastViewedCat",
-    // verifyJWT,
-    // verifyRoles("customer"),
+    verifyJWT,
+    verifyRoles("customer"),
     customerController.updateCustomerLastViewedCat
   );
 
@@ -320,6 +317,13 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     cartController.alterQuantCartDetails
   );
+  router.post(
+    "/customer/insertPayment",
+    verifyJWT,
+    verifyRoles("customer"),
+    cartController.insertPayment
+  );
+
   router.post(
     "/customer/insertOrder",
     verifyJWT,
@@ -358,8 +362,8 @@ export default function (app: Express, router: Router) {
   );
   router.get(
     "/customer/getUserAddress/:customer_id",
-    //verifyJWT,
-    // verifyRoles("customer"),
+    verifyJWT,
+    verifyRoles("customer"),
     customerController.processGetAddress
   );
 }

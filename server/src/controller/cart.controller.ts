@@ -62,6 +62,23 @@ export const insertCart = async (
   }
 };
 
+export const insertPayment = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id, amount } = req.body;
+    const response: number | undefined = await cartModel.handleInsertPayment(
+      customer_id,
+      amount
+    );
+    return res.status(201).json(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
 export const insertOrder = async (
   req: Request,
   res: Response,
@@ -101,8 +118,7 @@ export const insertOrderProduct = async (
         orders_id,
         product_id,
         totalPrice,
-        quantity,
-        shipment_id
+        quantity
       );
     return res.status(201).json(response);
   } catch (err: any) {

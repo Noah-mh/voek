@@ -52,7 +52,7 @@ function App() {
 
           <Route path="/" element={<Homepage />} />
           <Route path="test" element={<ReferralLink />} />
-          <Route path="/customer/checkout" element={<Checkout />} />
+
           <Route path="/" element={<Homepage />} />
           <Route path="login" element={<LoginBanner />} />
           <Route path="signup" element={<SignupBannerCustomer />} />
@@ -65,7 +65,6 @@ function App() {
             path="categoryResults/:categoryId"
             element={<CategoryResults />}
           />
-          <Route path="/customer/cart" element={<CartPage />} />
 
           <Route element={<RequireAuthCustomer />}>
             {/* Protected Routes with persist login */}

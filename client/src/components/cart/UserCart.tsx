@@ -11,6 +11,7 @@ import Select from "react-select";
 export default function cartPage(): JSX.Element {
   const { customer, setCustomer } = useCustomer();
   const customer_id = customer.customer_id;
+  const navigate = useNavigate();
 
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
   // setCustomer((prevState: any) => { return { ...prevState, checkOut: []}})
@@ -49,7 +50,8 @@ export default function cartPage(): JSX.Element {
   const [isChecked, setIsChecked] = useState<boolean>(false);
   const [isInputDisabled, setIsInputDisabled] = useState<boolean>(false);
   const [userCoins, setUserCoins] = useState<number>(0);
-  const [userAddress, setUserAddress] = useState<userAddress[]>([]);
+  const [userAddresses, setUserAddresses] = useState<userAddress[]>([]);
+  const [selectedAddress, setSelectedAddress] = useState<userAddress>();
   const [errMsg, setErrMsg] = useState<string>("");
   const [userCart, setUserCart] = useState<cartItem[]>([]);
   const [prodQuantity, setProdQuantity] = useState<number>(0);
@@ -61,6 +63,14 @@ export default function cartPage(): JSX.Element {
     coins: 0,
     total: 0,
   });
+  const [success, setSuccess] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (success) {
+      console.log();
+      checkOut();
+    }
+  }, [success]);
 
   const getCoins = async () => {
     try {
@@ -73,7 +83,30 @@ export default function cartPage(): JSX.Element {
   };
   const getUserCart = async () => {
     try {
-      return await axiosPrivateCustomer.get(`/customer/getCart/${customer_id}`);
+      return await axiosPrivateCustomer
+        .get(`/customer/getCart/${customer_id}`)
+        .then((res) => {
+          setUserCart(res.data);
+          const sum = res.data
+            .reduce((acc: number, item: cartItem) => {
+              return acc + item.price * item.quantity;
+            }, 0)
+            .toFixed(2);
+          setTotalAmt({
+            subTotal: Number(sum),
+            shippingFee: Number(
+              (Math.round((8.95 + sum * 0.1) * 100) / 100).toFixed(2)
+            ),
+
+            total: Number(
+              (
+                Math.round(Number(sum) * 100) / 100 +
+                Math.round((8.95 + sum * 0.1) * 100) / 100
+              ).toFixed(2)
+            ),
+            coins: Number(Math.ceil(sum * 0.1)),
+          });
+        });
     } catch (err: any) {
       console.log(err);
     }
@@ -95,9 +128,8 @@ export default function cartPage(): JSX.Element {
           quantity: cartItem.quantity + change,
         };
         setChangedSKU(newItem.sku);
-        setChangedQuantState(true);
         setProdQuantity(newItem.quantity);
-
+        setChangedQuantState(true);
         return newItem;
       }
       return cartItem;
@@ -116,41 +148,22 @@ export default function cartPage(): JSX.Element {
         setIsInputDisabled(true);
       }
       setUserCoins(result[0].data.result);
-      setUserCart(result[1].data);
-      const sum = result[1].data
-        .reduce((acc: number, item: cartItem) => {
-          return acc + item.price * item.quantity;
-        }, 0)
-        .toFixed(2);
-      setTotalAmt({
-        subTotal: Number(sum),
-        shippingFee: Number(
-          (Math.round((8.95 + sum * 0.1) * 100) / 100).toFixed(2)
-        ),
-
-        total: Number(
-          (
-            Math.round(Number(sum) * 100) / 100 +
-            Math.round((8.95 + sum * 0.1) * 100) / 100
-          ).toFixed(2)
-        ),
-        coins: Number(Math.ceil(sum * 0.1)),
-      });
-      setUserAddress(result[2].data);
+      setUserAddresses(result[2].data);
     } catch (err: any) {
       console.log(err);
     }
   };
+
   const checkOut = async () => {
-    const navigate = useNavigate();
     if (isChecked) {
       setCustomer((prevState: any) => {
         return {
           ...prevState,
           cart: {
-            totalAmt: totalAmt,
-            cartItems: userCart,
-            coinsRedeemed: userCoins,
+            totalAmt: totalAmt, //subtotal , total, coinsEarned, shipping
+            cartItems: userCart, // sku, product_id, name, quantity, price, image_url, variation_1, variation_2, stock
+            coinsRedeemed: userCoins, //coins existing in user
+            addressSelected: selectedAddress,
           },
         };
       });
@@ -162,21 +175,24 @@ export default function cartPage(): JSX.Element {
             totalAmt: totalAmt,
             cartItems: userCart,
             coinsRedeemed: 0,
+            addressSelected: selectedAddress,
           },
         };
       });
     }
+    console.log("setCustomer");
     navigate("/customer/checkout");
   };
 
   // page onload
   useEffect(() => {
     getAll();
+    console.log(userAddresses);
   }, []);
 
   //when cartQuant state changes
   useEffect(() => {
-    if (changedQuantState === false) return;
+    if (changedQuantState == false) return;
     const alterQuantFnc = async () => {
       try {
         const result = await axiosPrivateCustomer.post(
@@ -211,6 +227,11 @@ export default function cartPage(): JSX.Element {
       });
     }
   }, [isChecked]);
+
+  useEffect(() => {
+    console.log("Set?");
+    console.log(selectedAddress);
+  }, [selectedAddress]);
 
   return (
     <div className="container flex">
@@ -313,13 +334,35 @@ export default function cartPage(): JSX.Element {
               <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
             </label>
           </div>
-          <div className="flex justify-center">
-            {/* 
-          <PayPal amount={totalAmt.total} /> */}
+          <div className="flex-col justify-center">
+            <PayPal amount={totalAmt.total} setSuccess={setSuccess} />
+            {userAddresses.length != 0 && (
+              <Select
+                value={
+                  selectedAddress
+                    ? {
+                        value: selectedAddress,
+                        label: `${selectedAddress.street_name}, ${selectedAddress.block}, ${selectedAddress.postal_code}`,
+                        address: selectedAddress,
+                      }
+                    : null
+                }
+                onChange={(option) => {
+                  setSelectedAddress(option?.value || userAddresses[0]);
+                  // console.log("Set?");
+                  // console.log(selectedAddress);
+                }}
+                options={userAddresses.map((address) => ({
+                  value: address,
+                  label: `${address.street_name}, ${address.block}, ${address.postal_code}`,
+                  address: address,
+                }))}
+              />
+            )}
 
-            <button className=" w-full bg-white hover:bg-transparent hover:border-2 hover:border-white text-softerPurple hover:text-white font-bold py-2 px-4 rounded ">
+            {/* <button className=" w-full bg-white hover:bg-transparent hover:border-2 hover:border-white text-softerPurple hover:text-white font-bold py-2 px-4 rounded ">
               Checkout
-            </button>
+            </button> */}
           </div>
         </div>
       </div>

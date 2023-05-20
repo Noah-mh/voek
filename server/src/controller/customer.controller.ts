@@ -294,7 +294,7 @@ export const processGetAddress = async (
     const { customer_id } = req.params;
     const result = await customerModel.handleGetCustomerAddresses(customer_id);
     console.log("Successfully got address");
-    return res.json({ result });
+    return res.json(result);
   } catch (err: any) {
     return next(err);
   }

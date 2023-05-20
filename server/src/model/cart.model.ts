@@ -12,7 +12,6 @@ export const handlesGetCartDetails = async (
   const sql = `SELECT  cart.product_id, cart.customer_id, cart.quantity, product_variations.price, product_variations.sku, products.name, product_variations.variation_1, product_variations.variation_2, product_variations.quantity AS stock FROM cart JOIN products ON cart.product_id = products.product_id JOIN product_variations ON products.product_id = product_variations.product_id WHERE cart.sku = product_variations.sku AND customer_id = ?`;
   try {
     const result = await connection.query(sql, [customer_id]);
-
     console.log("successfully handle got cart details");
     return result[0] as CartItem[];
   } catch (err: any) {
@@ -87,6 +86,25 @@ export const handleAlterQuantCart = async (
 //   }
 // };
 
+export const handleInsertPayment = async (
+  customer_id: number,
+  amount: number
+): Promise<any> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `INSERT INTO payment (customer_id, amount) VALUES (?,?)`;
+
+  try {
+    const [result] = await connection.query(sql, [customer_id, amount]);
+    console.log("Handle Insert Payment Successful");
+    return (result as OkPacket).insertId as number;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
 export const handleInsertOrder = async (
   customer_id: number,
   payment_id: number,
@@ -121,12 +139,11 @@ export const handleInsertOrderProduct = async (
   orders_id: number,
   product_id: number,
   totalPrice: number,
-  quantity: number,
-  shipment_id: number
+  quantity: number
 ): Promise<any> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `INSERT INTO orders_product (sku, orders_id, product_id, total_price, quantity, shipment_id) VALUES (?,?,?,?,?,?)`;
+  const sql = `INSERT INTO orders_product (sku, orders_id, product_id, total_price, quantity) VALUES (?,?,?,?,?)`;
 
   try {
     const [result] = await connection.query(sql, [
@@ -135,7 +152,6 @@ export const handleInsertOrderProduct = async (
       product_id,
       totalPrice,
       quantity,
-      shipment_id,
     ]);
     console.log("Handle Insert Order Product Successful");
     return (result as OkPacket).insertId as number;
