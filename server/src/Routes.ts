@@ -185,6 +185,46 @@ export default function (app: Express, router: Router) {
     "/seller/email/verify",
     sellerController.processChangeEmail
   )
+  router.put(
+    "/customer/email/verify",
+    customerController.processChangeEmail
+  )
+  router.put(
+    "/customer/deactivate/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.deactivateAccount
+  )
+  router.put(
+    "/seller/deactivate/:seller_id",
+    verifyJWT,
+    verifyRoles("seller"),
+    sellerController.deactivateAccount
+  )
+  router.get(
+    "/customer/status/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.getCustomerStatus
+  )
+  router.get(
+    "/seller/status/:seller_id",
+    verifyJWT,
+    verifyRoles("seller"),
+    sellerController.getSellerStatus
+  )
+  router.put(
+    "/seller/activate/:seller_id",
+    verifyJWT,
+    verifyRoles("seller"),
+    sellerController.activateAccount
+  )
+  router.put(
+    "/customer/activate/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.activateAccount
+  )
 
   // NOAH ENDPOINTS - reviews
   router.get(
@@ -234,7 +274,7 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     customerController.updateCustomerPhoto
   );
-    
+
   // ASHLEY ENDPOINTS - seller platform
   router.get(
     "/products/:sellerId",

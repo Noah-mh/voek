@@ -4,6 +4,7 @@ import Sib from '../../config/sendInBlue';
 import client from '../../config/teleSign';
 import config from '../../config/config';
 import jwt from 'jsonwebtoken';
+import e from 'express';
 
 // GET all products from 1 seller
 export const handleGetAllProducts = async (sellerId: number): Promise<any[]> => {
@@ -589,6 +590,15 @@ export const handleUpdateSellerDetails = async (password: string, email: string,
           result = await connection.query(sql, [shop_name, phone_number, seller_id]);
         }
         return { emailChange: true };
+      } else {
+        if (password) {
+          const encryptedPassword = await bcrypt.hash(password, 10);
+          sql = `UPDATE seller SET password = ?, shop_name = ?, phone_number = ? WHERE seller_id = ?`;
+          result = await connection.query(sql, [encryptedPassword, shop_name, phone_number, seller_id]);
+        } else {
+          sql = 'UPDATE seller SET shop_name = ?, phone_number = ? WHERE seller_id = ?';
+          result = await connection.query(sql, [shop_name, phone_number, seller_id]);
+        }
       }
     }
   } catch (err: any) {
@@ -621,7 +631,7 @@ export const handleSendEmailChange = async (seller_id: number, email: string) =>
     .sendTransacEmail({
       sender,
       to: receivers,
-      subject: "Verification Link For VOEK Sign Up",
+      subject: "Verification Link For VOEK Email Change",
       textContent: `http://localhost:5173/seller/email-verification?token=${changeSellerEmailToken}`,
     })
     .then((response: any) => {
@@ -644,6 +654,48 @@ export const handleChangeEmail = async (seller_id: number) => {
     result = await connection.query(sql, [email, seller_id]);
     sql = `DELETE FROM update_seller WHERE seller_id = ?`;
     result = await connection.query(sql, [seller_id]);
+    return;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+}
+
+export const handleDeactivateAccount = async (seller_id: number) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = 'UPDATE seller SET active = 0 WHERE seller_id = ?';
+  try {
+    const result = await connection.query(sql, [seller_id]);
+    return;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+}
+
+export const handleGetSellerStatus = async (seller_id: number) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = 'SELECT active FROM seller WHERE seller_id = ?';
+  try {
+    const result = await connection.query(sql, [seller_id]) as any;
+    return result[0][0].active;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+}
+
+export const handleActivateAccount = async (seller_id: number) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = 'UPDATE seller SET active = 1 WHERE seller_id = ?';
+  try {
+    const result = await connection.query(sql, [seller_id]);
     return;
   } catch (err: any) {
     throw new Error(err);
