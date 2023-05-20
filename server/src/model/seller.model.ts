@@ -2,13 +2,14 @@ import pool from '../../config/database';
 import bcrypt from 'bcrypt';
 import Sib from '../../config/sendInBlue';
 import client from '../../config/teleSign';
-import c from 'config';
+import config from '../../config/config';
+import jwt from 'jsonwebtoken';
 
 // GET all products from 1 seller
 export const handleGetAllProducts = async (sellerId: number): Promise<any[]> => {
-    const promisePool = pool.promise();
-    const connection = await promisePool.getConnection();
-    const sql = 
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql =
     `SELECT p.product_id, p.name, p.description, p.active, pv.sku, pv.variation_1, pv.variation_2, pv.quantity, pv.price, p.category_id, c.name AS category FROM products p
     RIGHT OUTER JOIN listed_products lp 
     ON lp.product_id = p.product_id
@@ -18,32 +19,32 @@ export const handleGetAllProducts = async (sellerId: number): Promise<any[]> => 
     ON c.category_id = p.category_id
     WHERE lp.seller_id = ? AND pv.active = 1
     ORDER BY p.product_id ASC;`;
-    try {
-        const result: any = await connection.query(sql, [sellerId]);
-        return result[0] as any[];
-    } catch (err: any) {
-        console.log(err);
-        throw new Error(err);
-    } finally {
-        await connection.release();
-    }
+  try {
+    const result: any = await connection.query(sql, [sellerId]);
+    return result[0] as any[];
+  } catch (err: any) {
+    console.log(err);
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
 }
 
 // GET all categories
 export const handleGetAllCategories = async (): Promise<any[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = 
-  `SELECT category_id, name FROM category
+  const sql =
+    `SELECT category_id, name FROM category
   ORDER BY name ASC;`;
   try {
-      const result: any = await connection.query(sql);
-      return result[0] as any[];
+    const result: any = await connection.query(sql);
+    return result[0] as any[];
   } catch (err: any) {
-      console.log(err);
-      throw new Error(err);
+    console.log(err);
+    throw new Error(err);
   } finally {
-      await connection.release();
+    await connection.release();
   }
 }
 
@@ -51,14 +52,14 @@ export const handleGetAllCategories = async (): Promise<any[]> => {
 export const handleAddProduct = async (sellerId: number, name: string, description: string, category_id: number, variation_1: string, variation_2: string, quantity: number, price: number) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql1 = 
-  `INSERT INTO products (name, description, category_id)
+  const sql1 =
+    `INSERT INTO products (name, description, category_id)
   VALUES (?, ?, ?);`;
-  const sql2 = 
-  `INSERT INTO listed_products (product_id, seller_id)
+  const sql2 =
+    `INSERT INTO listed_products (product_id, seller_id)
   VALUES (?, ?);`;
-  const sql3 = 
-  `INSERT INTO product_variations (sku, product_id, variation_1, variation_2, quantity, price)
+  const sql3 =
+    `INSERT INTO product_variations (sku, product_id, variation_1, variation_2, quantity, price)
   VALUES (UUID(), ?, ?, ?, ?, ?)`;
 
   try {
@@ -95,7 +96,7 @@ export const handleAddProduct = async (sellerId: number, name: string, descripti
     console.log(err);
     throw new Error(err);
   } finally {
-      await connection.release();
+    await connection.release();
   }
 }
 
@@ -546,6 +547,110 @@ WHERE
   }
 }
 
+export const handleGetSellerDetails = async (seller_id: number): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT email, phone_number, image_url, shop_name FROM seller WHERE seller_id = ?`;
+  try {
+    const result = await connection.query(sql, [seller_id]);
+    return result[0] as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+}
+
+export const handleUpdateSellerDetails = async (password: string, email: string, shop_name: string, phone_number: number, seller_id: number): Promise<Object | undefined> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  try {
+    let sql = `SELECT * FROM seller WHERE email like ? and seller_id != ?`;
+    let result = await connection.query(sql, [email, seller_id]) as any;
+    if (result[0].length != 0) {
+      return { duplicateEmail: true };
+    } else {
+      let sql = `SELECT * FROM seller WHERE email like ? and seller_id = ?`;
+      let result = await connection.query(sql, [email, seller_id]) as any;
+      if (result[0].length === 0) {
+        sql = 'UPDATE update_seller SET new_email = ?, email_sent = utc_timestamp() WHERE seller_id = ?';
+        result = await connection.query(sql, [email, seller_id]);
+        if (result[0].affectedRows === 0) {
+          sql = 'INSERT INTO update_seller (seller_id, new_email, email_sent) VALUES (?, ?, utc_timestamp())';
+          result = await connection.query(sql, [seller_id, email]);
+        }
+        await handleSendEmailChange(seller_id, email);
+        if (password) {
+          const encryptedPassword = await bcrypt.hash(password, 10);
+          sql = `UPDATE seller SET password = ?, shop_name = ?, phone_number = ? WHERE seller_id = ?`;
+          result = await connection.query(sql, [encryptedPassword, shop_name, phone_number, seller_id]);
+        } else {
+          sql = 'UPDATE seller SET shop_name = ?, phone_number = ? WHERE seller_id = ?';
+          result = await connection.query(sql, [shop_name, phone_number, seller_id]);
+        }
+        return { emailChange: true };
+      }
+    }
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+}
+
+export const handleSendEmailChange = async (seller_id: number, email: string) => {
+  const changeSellerEmailToken = jwt.sign(
+    {
+      seller_id: seller_id,
+    },
+    config.emailTokenSecret!,
+    { expiresIn: '300s' }
+  );
+  const tranEmailApi = new Sib.TransactionalEmailsApi();
+  const sender = {
+    email: "voek.help.centre@gmail.com",
+  };
+
+  const receivers = [
+    {
+      email: email,
+    },
+  ];
+
+  tranEmailApi
+    .sendTransacEmail({
+      sender,
+      to: receivers,
+      subject: "Verification Link For VOEK Sign Up",
+      textContent: `http://localhost:5173/seller/email-verification?token=${changeSellerEmailToken}`,
+    })
+    .then((response: any) => {
+      console.log(response);
+      return;
+    })
+    .catch((err: any) => {
+      throw new Error(err);
+    });
+}
+
+export const handleChangeEmail = async (seller_id: number) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  try {
+    let sql = `SELECT new_email FROM update_seller WHERE seller_id = ?`;
+    let result = await connection.query(sql, [seller_id]) as any;
+    const email = result[0][0].new_email;
+    sql = `UPDATE seller SET email = ? WHERE seller_id = ?`;
+    result = await connection.query(sql, [email, seller_id]);
+    sql = `DELETE FROM update_seller WHERE seller_id = ?`;
+    result = await connection.query(sql, [seller_id]);
+    return;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+}
 
 
 const convertLocalTimeToUTC = (): string => {
@@ -565,7 +670,7 @@ const padZero = (value: number): string => {
   return value.toString().padStart(2, '0');
 }
 
-  
+
 interface Orders {
   customer_username: string;
   customer_email: string;
