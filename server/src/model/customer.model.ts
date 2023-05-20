@@ -2,6 +2,7 @@ import pool from "../../config/database";
 import bcrypt from "bcrypt";
 import Sib from "../../config/sendInBlue";
 import client from "../../config/teleSign";
+import { ResultSetHeader } from "mysql2";
 import { connect } from "http2";
 
 export const handleLogin = async (
@@ -13,7 +14,9 @@ export const handleLogin = async (
   const sql = `SELECT username, password, customer_id, phone_number, email FROM customer WHERE email = ? AND active != 0`;
   try {
     const result: any = await connection.query(sql, [email]);
-    const encryptrdPassword = result[0].length ? result[0][0].password : "";
+    const encryptrdPassword = result[0].length
+      ? result[0][0].password
+      : "";
     const check = await bcrypt.compare(password, encryptrdPassword);
     if (check) {
       const customer_id: number = result[0][0]?.customer_id;
@@ -38,7 +41,10 @@ export const handleStoreRefreshToken = async (
   const connection = await promisePool.getConnection();
   const sql = `UPDATE customer SET refresh_token =? WHERE customer_id =?`;
   try {
-    const result = await connection.query(sql, [refreshtoken, customer_id]);
+    const result = await connection.query(sql, [
+      refreshtoken,
+      customer_id,
+    ]);
     return (result[0] as any).affectedRows as number;
   } catch (err: any) {
     throw new Error(err);
@@ -248,7 +254,9 @@ export const handleGetCustomerIdByRefId = async (
   const sql = `SELECT customer_id FROM customer WHERE referral_id = ?`;
   try {
     const result: any = await connection.query(sql, [referral_id]);
-    return result[0][0]?.customer_id ? result[0][0].customer_id : null;
+    return result[0][0]?.customer_id
+      ? result[0][0].customer_id
+      : null;
   } catch (err: any) {
     throw new Error(err);
   } finally {
@@ -281,10 +289,12 @@ export const handleActiveAccount = async (
   }
 };
 
-export const handleLogOut = async (refreshToken: string): Promise<number> => {
+export const handleLogOut = async (
+  refreshToken: string
+): Promise<number> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `UPDATE customer SET refresh_token = '' WHERE refresh_token = ?`;
+  const sql = `UPDATE customer SET refresh_token = NULL WHERE refresh_token = ?`;
   try {
     const result = await connection.query(sql, [refreshToken]);
     return (result[0] as any).affectedRows as number;
@@ -409,7 +419,9 @@ interface LoginResult {
 
 //ALLISON :D
 
-export const handleGetCoins = async (customer_id: string): Promise<number> => {
+export const handleGetCoins = async (
+  customer_id: string
+): Promise<number> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT coins FROM customer WHERE customer_id = ?`;
@@ -431,7 +443,10 @@ export const handlesUpdateCustomerLastViewedCat = async (
   const connection = await promisePool.getConnection();
   const sql = `UPDATE customer SET last_viewed_cat_id = ? WHERE customer_id = ?;`;
   try {
-    const result = await connection.query(sql, [categoryId, customerId]);
+    const result = await connection.query(sql, [
+      categoryId,
+      customerId,
+    ]);
     return result[0] as Array<Object>;
   } catch (err: any) {
     throw new Error(err);
@@ -440,13 +455,108 @@ export const handlesUpdateCustomerLastViewedCat = async (
   }
 };
 
-export const handlesGetCustomerLastViewedCat = async (customerId: number) => {
+export const handlesGetCustomerLastViewedCat = async (
+  customerId: number
+) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT last_viewed_cat_id as categoryId FROM customer WHERE customer_id = ?;`;
   try {
     const result = await connection.query(sql, [customerId]);
     return result[0] as Array<Object>;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+//Noah
+export const handlesCustomerDetails = async (
+  customerId: number
+): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT 
+  customer.*, 
+  JSON_ARRAYAGG(
+    JSON_OBJECT(
+      'address_id', customer_address.address_id,
+      'postal_code', customer_address.postal_code,
+      'block', customer_address.block,
+      'street_name', customer_address.street_name,
+      'country', customer_address.country,
+      'unit_no', customer_address.unit_no
+    )
+  ) AS addresses
+FROM 
+  customer
+LEFT JOIN 
+  customer_address ON customer.customer_id = customer_address.customer_id
+WHERE 
+  customer.customer_id = ?
+GROUP BY 
+  customer.customer_id;
+`;
+  try {
+    const [result] = await connection.query(sql, [customerId]);
+    return result as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handleCustomerProfileEdit = async (
+  username: string,
+  email: string,
+  phoneNumber: string,
+  customerId: number
+): Promise<number> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `
+    UPDATE customer
+    SET
+      username = ?,
+      email = ?,
+      phone_number = ?
+    WHERE customer_id = ?
+  `;
+  try {
+    const [result] = await connection.query(sql, [
+      username,
+      email,
+      phoneNumber,
+      customerId,
+    ]);
+    return (result as ResultSetHeader).affectedRows as number;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handleCustomerProfilePhotoEdit = async (
+  image_url: string,
+  customerId: number
+): Promise<number> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `
+    UPDATE customer
+    SET
+      image_url = ?
+    WHERE customer_id = ?
+  `;
+  try {
+    const [result] = await connection.query(sql, [
+      image_url,
+      customerId,
+    ]);
+    return (result as ResultSetHeader).affectedRows as number;
   } catch (err: any) {
     throw new Error(err);
   } finally {

@@ -134,16 +134,16 @@ const ViewReceived = ({ receivedOrders }: Props) => {
     //   ))}
     // </div>
     <div className="flex flex-col items-center justify-center p-8">
-      <h1 className="mb-8 text-4xl font-bold">Delivered Orders</h1>
+      <h1 className="mb-8 text-4xl font-bold">Received Orders</h1>
       {
         orderedReceivedOrders?.map((ordersArray: any) => (
-          <div key={uuidv4()} className="mb-8 border border-gray-300 rounded p-4 w-4/5">
+          <div key={uuidv4()} className="mb-8 border border-gray-300 rounded p-4">
             {
               ordersArray.map((order: Product) => (
 
-                <div key={order.sku} className="mb-8 border border-gray-300 rounded p-4 w-4/5">
+                <div key={order.sku} className="mb-8 border border-gray-300 rounded p-4">
 
-                  <AdvancedImage cldImg={cld.image(order.image_url)} />
+                  <div className="w-64 h-64"> <AdvancedImage cldImg={cld.image(order.image_url)} /></div>
                   <Link to={`/productDetailsWithReviews/${order.product_id}`} className="text-blue-500 hover:underline">
                     {order.name}
                   </Link>
@@ -162,7 +162,7 @@ const ViewReceived = ({ receivedOrders }: Props) => {
                             ? order.variation_2
                             : "No Variation"}
                     </p>
-                    <h3 className="mt-2 text-lg">Order has been shipped on the {convertUtcToLocal(order.shipment_created!)}</h3>
+                    <h3 className="mt-2 text-lg">Order has been shipped on the {convertUtcToLocal(order.shipment_delivered!)}</h3>
                     <button
                       onClick={() => {
                         handleOpenModal()

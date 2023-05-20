@@ -9,8 +9,9 @@ import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import useCustomer from "../../hooks/UseCustomer";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { motion } from "framer-motion";
+import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
+import StarRating from "./StarRating";
 
 interface ProductDetailProps {
   productData: Product[];
@@ -93,106 +94,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
     checkWishlistProductExistence();
   }, []);
 
-  // Flattening the variations array
-  const allVariations = productData
-    .filter((product) => product.variations !== null)
-    .reduce(
-      (acc: ProductVariation[], curr: Product) => [
-        ...acc,
-        ...(curr.variations || []),
-      ],
-      []
-    );
-
-  // Checking if there's at least one variation_1 that's not null
-  const hasValidVariation = allVariations.some(
-    (variation) => variation.variation_1 !== null
-  );
-  const increaseQuantity = (sku: string | null) => {
-    const productVariation = allVariations.find(
-      (variation) => variation.sku === sku
-    );
-
-    if (productVariation && quantity < productVariation.quantity!) {
-      setQuantity((prevQuantity) => prevQuantity + 1);
-    } else {
-      // Show notification
-      toast.error("Cannot add more than the available quantity", {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
-    }
-  };
-
-  const decreaseQuantity = () => {
-    setQuantity((prevQuantity) => Math.max(prevQuantity - 1, 1));
-  };
-
-  const handleAddToCart = () => {
-    if (!customer_id) {
-      toast.error("Please Log in to add into cart", {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
-      return;
-    } else {
-      axiosPrivateCustomer
-        .post(
-          "/addToCart",
-          JSON.stringify({
-            product_id: productData[0].product_id,
-            sku: selectedSku,
-            quantity,
-            customer_id,
-          }),
-          {
-            headers: { "Content-Type": "application/json" },
-            withCredentials: true,
-          }
-        )
-        .then((response) => {
-          // On successful addition to cart, show the popup
-          console.log(response);
-          toast.success("Item Added to Cart! 😊", {
-            position: "top-center",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-          });
-        })
-        .catch((error) => {
-          // Handle error here
-          console.error(error);
-          toast.error("Error! Adding to cart failed", {
-            position: "top-center",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-          });
-        });
-    }
-  };
-
+  // Nhat Tien (Wishlist) :D
   const handleAddToWishlist = () => {
     if (customer_id == undefined) {
       toast.warn("Please Log in to add into wishlist", {
@@ -301,6 +203,105 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
     }
   };
 
+  // Flattening the variations array
+  const allVariations = productData
+    .filter((product) => product.variations !== null)
+    .reduce(
+      (acc: ProductVariation[], curr: Product) => [
+        ...acc,
+        ...(curr.variations || []),
+      ],
+      []
+    );
+  // Checking if there's at least one variation_1 that's not null
+  const hasValidVariation = allVariations.some(
+    (variation) => variation.variation_1 !== null
+  );
+  const increaseQuantity = (sku: string | null) => {
+    const productVariation = allVariations.find(
+      (variation) => variation.sku === sku
+    );
+
+    if (productVariation && quantity < productVariation.quantity!) {
+      setQuantity((prevQuantity) => prevQuantity + 1);
+    } else {
+      // Show notification
+      toast.error("Cannot add more than the available quantity", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
+  };
+
+  const decreaseQuantity = () => {
+    setQuantity((prevQuantity) => Math.max(prevQuantity - 1, 1));
+  };
+
+  const handleAddToCart = () => {
+    if (!customer_id) {
+      toast.error("Please Log in to add into cart", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+      return;
+    } else {
+      axiosPrivateCustomer
+        .post(
+          "/addToCart",
+          JSON.stringify({
+            product_id: productData[0].product_id,
+            sku: selectedSku,
+            quantity,
+            customer_id,
+          }),
+          {
+            headers: { "Content-Type": "application/json" },
+            withCredentials: true,
+          }
+        )
+        .then((response) => {
+          // On successful addition to cart, show the popup
+          console.log(response);
+          toast.success("Item Added to Cart! 😊", {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+        })
+        .catch((error) => {
+          // Handle error here
+          console.error(error);
+          toast.error("Error! Adding to cart failed", {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+        });
+    }
+  };
+
   return (
     <div className="container">
       {productData.map((pData, index: React.Key | null | undefined) => (
@@ -313,8 +314,14 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                   imageUrl: string | undefined,
                   index: React.Key | null | undefined
                 ) => (
-                  <div className="image-container" key={index}>
-                    <AdvancedImage cldImg={cld.image(imageUrl)} />
+                  <div
+                    className="w-64 h-64 bg-gray-100 rounded-md overflow-hidden"
+                    key={index}
+                  >
+                    <AdvancedImage
+                      cldImg={cld.image(imageUrl)}
+                      className="object-cover w-full h-full"
+                    />
                   </div>
                 )
               )}
@@ -378,7 +385,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
           +
         </button>
       </div>
-      <span className="flex items-center">
+      <span>
         <button
           onClick={handleAddToCart}
           className=" bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
@@ -413,6 +420,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
       {productReview.map((pReview, index) => (
         <div key={index}>
           <h3>Rating: {pReview.rating}</h3>
+          <StarRating rating={pReview.rating} />
           <h3>Reviews:</h3>
           {pReview.reviews &&
             pReview.reviews.map((review, reviewIndex) => (
@@ -421,7 +429,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                 {review.image_urls && (
                   <Carousel showThumbs={false}>
                     {review.image_urls.map((imageUrl, imageIndex) => (
-                      <div className="image-container" key={imageIndex}>
+                      <div className="w-64 h-64" key={imageIndex}>
                         <AdvancedImage cldImg={cld.image(imageUrl)} />
                       </div>
                     ))}
