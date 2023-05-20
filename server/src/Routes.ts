@@ -14,6 +14,8 @@ import * as reviewController from "./controller/review.controller";
 export default function (app: Express, router: Router) {
   // KANG RUI ENDPOINTS - user management system
   router.post("/login", customerController.processLogin);
+  router.put("/customer/logout", verifyJWT, verifyRoles('customer'), customerController.processLogout);
+  router.put("/customer/seller", verifyJWT, verifyRoles('seller'), sellerController.processLogout);
   router.post("/customer/auth/SMS/OTP", customerController.processSendSMSOTP);
   router.post(
     "/customer/auth/email/OTP",
@@ -76,8 +78,8 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     orderController.processGetCustomerReceivedOrders
   );
-  router.get(
-    "/customer/received/:orders_product_id",
+  router.put(
+    "/customer/received/:orders_id/:seller_id",
     verifyJWT,
     verifyRoles("customer"),
     orderController.processOrderReceived
@@ -172,7 +174,7 @@ export default function (app: Express, router: Router) {
     "/addProduct/:sellerId",
     sellerController.processAddProduct
   )
-  
+
 
   // NHAT TIEN ENDPOINTS - Homepage, Last Viewed, Wishlist, Product Details
   router.post(

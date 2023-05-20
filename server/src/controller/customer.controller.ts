@@ -96,7 +96,7 @@ export const processVerifyOTP = async (
         refreshToken,
         response[0].customer_id
       );
-      res.cookie("jwt", refreshToken, {
+      res.cookie("customerJwt", refreshToken, {
         httpOnly: true,
         sameSite: "none",
         secure: true,
@@ -175,10 +175,11 @@ export const processLogout = async (
   next: NextFunction
 ) => {
   const cookies = req.cookies;
-  if (!cookies?.jwt) return res.sendStatus(204);
-  const refreshToken = cookies.jwt;
+  if (!cookies?.customerJwt) return res.sendStatus(204);
+  const refreshToken = cookies.customerJwt;
   await customerModel.handleLogOut(refreshToken);
-  res.clearCookie("jwt", {
+  res.clearCookie("customerJwt", {
+    httpOnly: true,
     sameSite: "none",
     secure: true,
     maxAge: 24 * 60 * 60 * 1000,

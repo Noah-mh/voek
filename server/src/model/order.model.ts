@@ -83,12 +83,18 @@ export const handleGetCustomerReceivedOrders = async (customer_id: number): Prom
     }
 }
 
-export const handleOrderReceived = async (orders_product_id: number): Promise<number> => {
+export const handleOrderReceived = async (orders_id: number, seller_id: number): Promise<number> => {
     const promisePool = pool.promise();
     const connection = await promisePool.getConnection();
-    const sql = `UPDATE shipment SET shipment_delivered = utc_timestamp() WHERE orders_product_id = ?`;
+    const sql = `
+    UPDATE shipment
+    JOIN orders_product ON shipment.shipment_id = orders_product.shipment_id
+    JOIN listed_products ON orders_product.product_id = listed_products.product_id
+    SET shipment.shipment_delivered = UTC_TIMESTAMP()
+    WHERE orders_id = ? AND seller_id = ?
+    `;
     try {
-        const result = await connection.query(sql, [orders_product_id]);
+        const result = await connection.query(sql, [orders_id, seller_id]);
         return (result[0] as any).insertId as number;
     } catch (err: any) {
         throw new Error(err);
