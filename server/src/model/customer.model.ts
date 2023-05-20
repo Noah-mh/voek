@@ -512,7 +512,6 @@ export const handleCustomerProfileEdit = async (
   username: string,
   email: string,
   phoneNumber: string,
-  imageUrl: string,
   customerId: number
 ): Promise<number> => {
   const promisePool = pool.promise();
@@ -523,7 +522,6 @@ export const handleCustomerProfileEdit = async (
       username = ?,
       email = ?,
       phone_number = ?,
-      image_url = ?
     WHERE customer_id = ?
   `;
   try {
@@ -531,7 +529,31 @@ export const handleCustomerProfileEdit = async (
       username,
       email,
       phoneNumber,
-      imageUrl,
+      customerId,
+    ]);
+    return (result as ResultSetHeader).affectedRows as number;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handleCustomerProfilePhotoEdit = async (
+  image_url: string,
+  customerId: number
+): Promise<number> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `
+    UPDATE customer
+    SET
+      image_url = ?
+    WHERE customer_id = ?
+  `;
+  try {
+    const [result] = await connection.query(sql, [
+      image_url,
       customerId,
     ]);
     return (result as ResultSetHeader).affectedRows as number;

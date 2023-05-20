@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Address } from './Address';
 import { cld } from '../../Cloudinary/Cloudinary';
 import { AdvancedImage } from '@cloudinary/react';
@@ -27,9 +27,10 @@ export interface Customer {
 
 interface CustomerDisplayProps {
     customerData: Customer;
+    getAll: () => void;
 }
 
-const CustomerProfile: React.FC<CustomerDisplayProps> = ({ customerData }) => {
+const CustomerProfile: React.FC<CustomerDisplayProps> = ({ customerData, getAll }) => {
     const {
         customer_id,
         username,
@@ -42,23 +43,57 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({ customerData }) => {
     const [updateUsername, setUpdateUsername] = useState(username);
     const [updateEmail, setUpdateEmail] = useState(email);
     const [updatePhoneNumber, setUpdatePhoneNumber] = useState(phone_number);
-    const [updateImage_url, setUpdateImage_url] = useState(image_url);
+    const [updateImage, setUpdateImage] = useState(image_url);
+
+    useEffect(() => { getAll() }, [updateImage])
+
     const handleEdit = () => {
         setEditing(true);
     };
 
-    const handleUpload = () => { };
+    const handleUpload = async (resultInfo: any) => {
+        console.log('Successfully uploaded:', resultInfo.public_id);
+        setUpdateImage(resultInfo.public_id);
+        try {
+            const response = await axiosPrivateCustomer.put(`/customer/profile/edit/photo/${customer_id}`, {
+                image_url: resultInfo.public_id
+            })
+            console.log(response.data);
+            toast.success("Photo updated", {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            });
+        } catch (error) {
+            console.error(error);
+            toast.error("Error! Adding to cart failed", {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            });
+        }
+    };
+
 
     const handleSave = async () => {
-        console.log(updateUsername, updateEmail, updatePhoneNumber, updateImage_url);
+        console.log(updateUsername, updateEmail, updatePhoneNumber);
         setEditing(false);
         try {
             // Make the Axios PUT request to update the user's profile
             const response = await axiosPrivateCustomer.put(`/customer/profile/edit/${customer_id}`, {
                 username: updateUsername,
                 email: updateEmail,
-                phone_number: updatePhoneNumber,
-                image_url: updateImage_url,
+                phone_number: updatePhoneNumber
             });
 
             // Handle success and update UI accordingly
@@ -76,7 +111,17 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({ customerData }) => {
 
         } catch (error) {
             // Handle error and display appropriate message
-            console.error('Error updating profile:', error);
+            console.error(error);
+            toast.error("Error! Adding to cart failed", {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            });
         }
     };
     return (
@@ -138,7 +183,7 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({ customerData }) => {
                 <div className="w-40 h-40 mb-5">
                     <AdvancedImage cldImg={cld.image(image_url)} />
                 </div>
-                <CloudinaryUploader onSuccess={handleUpload} />
+                <CloudinaryUploader onSuccess={handleUpload} caption={"Upload New"} />
             </div>
             <ToastContainer />
 

@@ -212,6 +212,13 @@ export default function (app: Express, router: Router) {
     customerController.updateCustomerDetails
   );
 
+  router.put(
+    "/customer/profile/edit/photo/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.updateCustomerPhoto
+  );
+    
   // ASHLEY ENDPOINTS - seller platform
   router.get(
     "/products/:sellerId",

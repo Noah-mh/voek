@@ -52,7 +52,7 @@ const ModalComponent: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit }) => 
                 </div>
                 <textarea className="w-full p-2 mt-2 rounded-md" onChange={handleCommentChange} value={comment} placeholder="Leave your comment" />
                 <div className='flex justify-center border-2 border-dashed p-2'>
-                    <CloudinaryUploader onSuccess={handleUploadSuccess} />
+                    <CloudinaryUploader onSuccess={handleUploadSuccess} caption = {"Add Photo"}/>
                     {uploadedImageUrl && <div className="w-20 h-20"> <AdvancedImage cldImg={cld.image(uploadedImageUrl)} /></div>}
                 </div>
                 <div className="flex justify-between mt-2">

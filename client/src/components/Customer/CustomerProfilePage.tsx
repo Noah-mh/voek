@@ -51,8 +51,8 @@ function TabPanel(props: TabPanelProps) {
       {value === index && (
         <Box sx={{
           p: 3, flexGrow: 1, // make it take up the remaining space
-          
-          width:"100vh"
+
+          width: "100vh"
         }}>
           {children}
         </Box>
@@ -143,7 +143,7 @@ const CustomerProfilePage = () => {
       <Box
         sx={{
           flexGrow: 1, bgcolor: 'background.paper', display: 'flex',
-         
+
         }}
       >
         <Tabs
@@ -164,7 +164,7 @@ const CustomerProfilePage = () => {
         </Tabs>
         <TabPanel value={value} index={0}>
           {/* Profile content */}
-          <CustomerProfile customerData={customerData!} />
+          <CustomerProfile customerData={customerData!} getAll={getAll} />
         </TabPanel>
         <TabPanel value={value} index={1}>
           {/* Addresses content */}
