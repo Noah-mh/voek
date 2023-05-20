@@ -20,6 +20,7 @@ const SellerProfile = () => {
     const [errMsg, setErrMsg] = useState<string>()
     const [newPassword, setNewPassword] = useState<string>()
     const [saveButton, setSaveButton] = useState<boolean>(false)
+    const [sendEmailVerification, setSendEmailVerification] = useState<boolean>(false)
 
     const getSellerDetails = async () => {
         try {
@@ -47,13 +48,38 @@ const SellerProfile = () => {
     const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (!disabled && saveButton) {
-            setDisabled(true)
-            setSaveButton(true);
+            const body = newPassword ? { password: newPassword, email: sellerDetails?.email, shop_name: sellerDetails?.shop_name, phone_number: sellerDetails?.phone_number } : { email: sellerDetails?.email, shop_name: sellerDetails?.shop_name, phone_number: sellerDetails?.phone_number }
+            const result = await axiosPrivateSeller.put(`/seller/profile/${seller?.seller_id}`, body)
+            if (result.data?.emailChange) {
+                result.data?.emailChange && setSendEmailVerification(true);
+                setDisabled(true);
+                setSaveButton(true);
+                setNewPassword('');
+            } else if (result.data?.duplicateEmail) {
+                result.data?.duplicateEmail && setErrMsg('Email already exists');
+            } else {
+                setDisabled(true);
+                setSaveButton(true);
+                setNewPassword('');
+            }
         } else {
             setDisabled(false)
-            console.log('here')
         }
     }
+
+
+
+    // const updateSellerDetails = async () => {
+    //     if (!disabled && saveButton) {
+    //         const body = newPassword ? { password: newPassword, email: sellerDetails?.email, shop_name: sellerDetails?.shop_name, phone_number: sellerDetails?.phone_number } : { email: sellerDetails?.email, shop_name: sellerDetails?.shop_name, phone_number: sellerDetails?.phone_number }
+    //         await axiosPrivateSeller.put(`/seller/profile/${seller?.seller_id}`, body)
+    //         setDisabled(true)
+    //         setSaveButton(true);
+    //     } else {
+    //         setDisabled(false)
+    //         console.log('here')
+    //     }
+    // }
 
     return (
         <div className="p-8">
@@ -93,6 +119,7 @@ const SellerProfile = () => {
                             }}
                             className="border border-gray-300 rounded px-4 py-2 w-full text-black"
                         />
+                        {sendEmailVerification && <p className="text-red-500">Please verify your email. Email Has Been Sent</p>}
                     </div>
                     <div>
                         <label className="block mb-2 font-bold" htmlFor="phoneNumber">Phone Number</label>

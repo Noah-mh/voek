@@ -175,6 +175,16 @@ export default function (app: Express, router: Router) {
     verifyRoles("seller"),
     sellerController.processGetSellerDetails
   )
+  router.put(
+    "/seller/profile/:seller_id",
+    verifyJWT,
+    verifyRoles("seller"),
+    sellerController.processUpdateSellerDetails
+  )
+  router.put(
+    "/seller/email/verify",
+    sellerController.processChangeEmail
+  )
 
   // NOAH ENDPOINTS - reviews
   router.get(

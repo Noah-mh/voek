@@ -291,3 +291,31 @@ export const processGetSellerDetails = async (req: Request, res: Response, next:
         return next(err);
     }
 }
+
+export const processUpdateSellerDetails = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { password, email, shop_name, phone_number } = req.body;
+        const { seller_id } = req.params;
+        if (!seller_id) return res.sendStatus(400);
+        const result = await sellerModel.handleUpdateSellerDetails(password, email, shop_name, parseInt(phone_number), parseInt(seller_id));
+        if (result) return res.json(result)
+        return res.sendStatus(201)
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processChangeEmail = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { changeSellerEmailToken } = req.body;
+        if (!changeSellerEmailToken) return res.sendStatus(400);
+        jwt.verify(changeSellerEmailToken, config.emailTokenSecret as any, async (err: any, decoded: any) => {
+            if (err) return res.sendStatus(403);
+            const { seller_id } = decoded;
+            await sellerModel.handleChangeEmail(seller_id);
+            return res.sendStatus(200);
+        });
+    } catch (err: any) {
+        return next(err);
+    }
+}

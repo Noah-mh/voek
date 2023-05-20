@@ -33,6 +33,7 @@ import ReferralLink from "./components/ReferralLink/ReferralLink.js";
 import ViewCustomerOrders from "./components/SellerSidebar/ViewCustomerOrders.js";
 import CategoryResults from "./components/CategoryResults/CategoryResults.js";
 import SellerProfile from "./components/SellerProfile/SellerProfile.js";
+import VerifySellerEmail from "./components/SellerProfile/VerifySellerEmail.js";
 
 function App() {
   return (
@@ -86,6 +87,10 @@ function App() {
         <Route
           path="seller/forgetPassword"
           element={<ForgetPasswordSeller />}
+        />
+        <Route
+          path="seller/email-verification"
+          element={<VerifySellerEmail />}
         />
 
         {/* Protected Routes for seller only*/}
