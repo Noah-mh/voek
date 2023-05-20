@@ -49,7 +49,11 @@ function TabPanel(props: TabPanelProps) {
       {...other}
     >
       {value === index && (
-        <Box sx={{ p: 3 }}>
+        <Box sx={{
+          p: 3, flexGrow: 1, // make it take up the remaining space
+          
+          width:"100vh"
+        }}>
           {children}
         </Box>
       )}
@@ -137,7 +141,10 @@ const CustomerProfilePage = () => {
 
     return (
       <Box
-        sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex' }}
+        sx={{
+          flexGrow: 1, bgcolor: 'background.paper', display: 'flex',
+         
+        }}
       >
         <Tabs
           orientation="vertical"
@@ -145,7 +152,9 @@ const CustomerProfilePage = () => {
           value={value}
           onChange={handleChange}
           aria-label="Vertical tabs example"
-          sx={{ borderRight: 1, borderColor: 'divider' }}
+          sx={{
+            borderRight: 1, borderColor: 'divider', width: '25%',
+          }}
         >
           <Tab label="Profile" {...a11yProps(0)} />
           <Tab label="Addresses" {...a11yProps(1)} />

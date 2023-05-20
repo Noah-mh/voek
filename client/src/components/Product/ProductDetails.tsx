@@ -10,6 +10,7 @@ import useCustomer from '../../hooks/UseCustomer';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AiFillHeart, AiOutlineHeart } from 'react-icons/ai';
+import StarRating from './StarRating';
 
 interface ProductDetailProps {
     productData: Product[];
@@ -144,13 +145,11 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productData, productRevie
                     <h1>{pData.name}</h1>
                     {pData.image_urls && (
                         <Carousel showThumbs={false}>
-                            {pData.image_urls.map(
-                                (imageUrl: string | undefined, index: React.Key | null | undefined) => (
-                                    <div className="w-64 h-64" key={index}>
-                                        <AdvancedImage cldImg={cld.image(imageUrl)} />
-                                    </div>
-                                )
-                            )}
+                            {pData.image_urls.map((imageUrl: string | undefined, index: React.Key | null | undefined) => (
+                                <div className="w-64 h-64 bg-gray-100 rounded-md overflow-hidden" key={index}>
+                                    <AdvancedImage cldImg={cld.image(imageUrl)} className="object-cover w-full h-full" />
+                                </div>
+                            ))}
                         </Carousel>
                     )}
                     <h3>Description: {pData.description}</h3>
@@ -215,6 +214,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productData, productRevie
             {productReview.map((pReview, index) => (
                 <div key={index}>
                     <h3>Rating: {pReview.rating}</h3>
+                    <StarRating rating={pReview.rating} />
                     <h3>Reviews:</h3>
                     {pReview.reviews &&
                         pReview.reviews.map((review, reviewIndex) => (

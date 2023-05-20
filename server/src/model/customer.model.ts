@@ -2,6 +2,7 @@ import pool from "../../config/database";
 import bcrypt from "bcrypt";
 import Sib from "../../config/sendInBlue";
 import client from "../../config/teleSign";
+import { ResultSetHeader } from "mysql2";
 import { connect } from "http2";
 
 export const handleLogin = async (
@@ -500,6 +501,40 @@ GROUP BY
   try {
     const [result] = await connection.query(sql, [customerId]);
     return result as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handleCustomerProfileEdit = async (
+  username: string,
+  email: string,
+  phoneNumber: string,
+  imageUrl: string,
+  customerId: number
+): Promise<number> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `
+    UPDATE customer
+    SET
+      username = ?,
+      email = ?,
+      phone_number = ?,
+      image_url = ?
+    WHERE customer_id = ?
+  `;
+  try {
+    const [result] = await connection.query(sql, [
+      username,
+      email,
+      phoneNumber,
+      imageUrl,
+      customerId,
+    ]);
+    return (result as ResultSetHeader).affectedRows as number;
   } catch (err: any) {
     throw new Error(err);
   } finally {

@@ -2,6 +2,7 @@ import React, { useEffect, useCallback, useState } from 'react';
 
 interface CloudinaryUploaderProps {
     onSuccess: (resultInfo: any) => void;
+    
 }
 
 const CloudinaryUploader: React.FC<CloudinaryUploaderProps> = ({ onSuccess }) => {
