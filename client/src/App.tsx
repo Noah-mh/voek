@@ -34,6 +34,7 @@ import ViewCustomerOrders from "./components/SellerSidebar/ViewCustomerOrders.js
 import CategoryResults from "./components/CategoryResults/CategoryResults.js";
 import SellerProfile from "./components/SellerProfile/SellerProfile.js";
 import VerifySellerEmail from "./components/SellerProfile/VerifySellerEmail.js";
+import VerifyCustomerEmail from "./components/Customer/VerifyCustomerEmail.js";
 
 function App() {
   return (
@@ -64,6 +65,11 @@ function App() {
           <Route
             path="categoryResults/:categoryId"
             element={<CategoryResults />}
+          />
+
+          <Route
+            path="customer/email-verification"
+            element={<VerifyCustomerEmail />}
           />
 
           <Route element={<RequireAuthCustomer />}>

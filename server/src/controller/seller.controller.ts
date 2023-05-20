@@ -319,3 +319,33 @@ export const processChangeEmail = async (req: Request, res: Response, next: Next
         return next(err);
     }
 }
+
+export const deactivateAccount = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { seller_id } = req.params;
+        await sellerModel.handleDeactivateAccount(parseInt(seller_id));
+        return res.sendStatus(200);
+    } catch (err: any) {
+        return next(err);
+    }
+};
+
+export const getSellerStatus = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { seller_id } = req.params;
+        const result = await sellerModel.handleGetSellerStatus(parseInt(seller_id));
+        return res.json({ status: result });
+    } catch (err: any) {
+        return next(err);
+    }
+};
+
+export const activateAccount = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { seller_id } = req.params;
+        await sellerModel.handleActivateAccount(parseInt(seller_id));
+        return res.sendStatus(200);
+    } catch (err: any) {
+        return next(err);
+    }
+}
