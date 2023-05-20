@@ -17,9 +17,7 @@ export const handleLogin = async (
   const sql = `SELECT username, password, customer_id, phone_number, email FROM customer WHERE email = ? AND active != 0`;
   try {
     const result: any = await connection.query(sql, [email]);
-    const encryptrdPassword = result[0].length
-      ? result[0][0].password
-      : "";
+    const encryptrdPassword = result[0].length ? result[0][0].password : "";
     const check = await bcrypt.compare(password, encryptrdPassword);
     if (check) {
       const customer_id: number = result[0][0]?.customer_id;
@@ -44,10 +42,7 @@ export const handleStoreRefreshToken = async (
   const connection = await promisePool.getConnection();
   const sql = `UPDATE customer SET refresh_token =? WHERE customer_id =?`;
   try {
-    const result = await connection.query(sql, [
-      refreshtoken,
-      customer_id,
-    ]);
+    const result = await connection.query(sql, [refreshtoken, customer_id]);
     return (result[0] as any).affectedRows as number;
   } catch (err: any) {
     throw new Error(err);
@@ -257,9 +252,7 @@ export const handleGetCustomerIdByRefId = async (
   const sql = `SELECT customer_id FROM customer WHERE referral_id = ?`;
   try {
     const result: any = await connection.query(sql, [referral_id]);
-    return result[0][0]?.customer_id
-      ? result[0][0].customer_id
-      : null;
+    return result[0][0]?.customer_id ? result[0][0].customer_id : null;
   } catch (err: any) {
     throw new Error(err);
   } finally {
@@ -292,9 +285,7 @@ export const handleActiveAccount = async (
   }
 };
 
-export const handleLogOut = async (
-  refreshToken: string
-): Promise<number> => {
+export const handleLogOut = async (refreshToken: string): Promise<number> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `UPDATE customer SET refresh_token = NULL WHERE refresh_token = ?`;
@@ -564,15 +555,29 @@ interface LoginResult {
 
 //ALLISON :D
 
-export const handleGetCoins = async (
-  customer_id: string
-): Promise<number> => {
+export const handleGetCoins = async (customer_id: string): Promise<number> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT coins FROM customer WHERE customer_id = ?`;
   try {
     const result: any = await connection.query(sql, [customer_id]);
     return result[0][0].coins as number;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handleGetCustomerAddresses = async (
+  customer_id: string
+): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT address_id, postal_code, block, street_name, country, unit_no FROM customer_address WHERE customer_id = ?`;
+  try {
+    const result: any = await connection.query(sql, [customer_id]);
+    return result[0];
   } catch (err: any) {
     throw new Error(err);
   } finally {
@@ -590,10 +595,7 @@ export const handlesUpdateCustomerLastViewedCat = async (
   const connection = await promisePool.getConnection();
   const sql = `UPDATE customer SET last_viewed_cat_id = ? WHERE customer_id = ?;`;
   try {
-    const result = await connection.query(sql, [
-      categoryId,
-      customerId,
-    ]);
+    const result = await connection.query(sql, [categoryId, customerId]);
     return result[0] as Array<Object>;
   } catch (err: any) {
     throw new Error(err);
@@ -602,9 +604,7 @@ export const handlesUpdateCustomerLastViewedCat = async (
   }
 };
 
-export const handlesGetCustomerLastViewedCat = async (
-  customerId: number
-) => {
+export const handlesGetCustomerLastViewedCat = async (customerId: number) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT last_viewed_cat_id as categoryId FROM customer WHERE customer_id = ?;`;

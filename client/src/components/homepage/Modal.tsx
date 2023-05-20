@@ -62,8 +62,6 @@ const Modal: React.FC<Props> = ({ handleClose, productImg, viewProduct }) => {
 
   useEffect(() => {
     const checkWishlistProductExistence = async () => {
-      console.log("testing100");
-      console.log(data[0].product_id);
       try {
         console.log("testing300");
         const response = await axios.post(

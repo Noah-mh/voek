@@ -14,8 +14,10 @@ export const processLogin = async (
     return res.sendStatus(400);
   } else {
     try {
-      const response: UserInfo | null =
-        await customerModel.handleLogin(email, password);
+      const response: UserInfo | null = await customerModel.handleLogin(
+        email,
+        password
+      );
       if (response) {
         return res.json(response);
       } else {
@@ -53,10 +55,7 @@ export const processSendEmailOTP = async (
   try {
     const { email, customer_id } = req.body;
     if (!email || !customer_id) return res.sendStatus(400);
-    const response = await customerModel.handleSendEmailOTP(
-      email,
-      customer_id
-    );
+    const response = await customerModel.handleSendEmailOTP(email, customer_id);
     return res.sendStatus(200);
   } catch (err: any) {
     return next(err);
@@ -71,10 +70,7 @@ export const processVerifyOTP = async (
   try {
     const { customer_id, OTP } = req.body;
     if (!customer_id || !OTP) return res.sendStatus(400);
-    const response: any = await customerModel.handleVerifyOTP(
-      customer_id,
-      OTP
-    );
+    const response: any = await customerModel.handleVerifyOTP(customer_id, OTP);
     if (response.length) {
       const accessToken = jwt.sign(
         {
@@ -140,10 +136,7 @@ export const processSendEmailLink = async (
       config.signUpCustomerTokenSecret!,
       { expiresIn: "300s" }
     );
-    const result2 = await customerModel.handleSendEmailLink(
-      signUpToken,
-      email
-    );
+    const result2 = await customerModel.handleSendEmailLink(signUpToken, email);
     return res.sendStatus(200);
   } catch (err: any) {
     return next(err);
@@ -202,9 +195,7 @@ export const processForgetPassword = async (
   try {
     const { email } = req.body;
     if (!email) return res.sendStatus(400);
-    const result: any = await customerModel.handleForgetPassword(
-      email
-    );
+    const result: any = await customerModel.handleForgetPassword(email);
     if (result.length) {
       const forgetPasswordToken = jwt.sign(
         { customer_id: result[0].customer_id },
@@ -270,14 +261,14 @@ export const processGetReferralId = async (
   try {
     const { customer_id } = req.params;
     if (!customer_id) return res.sendStatus(400);
-    const result = await customerModel.handleGetReferralId(
-      customer_id
-    );
+    const result = await customerModel.handleGetReferralId(customer_id);
     return res.json({ referral_id: result });
   } catch (err: any) {
     return next(err);
   }
 };
+
+//ALLISON :D
 
 export const processGetCoins = async (
   req: Request,
@@ -287,7 +278,23 @@ export const processGetCoins = async (
   try {
     const { customer_id } = req.params;
     const result = await customerModel.handleGetCoins(customer_id);
+    console.log("Successfully got coins");
     return res.json({ result });
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const processGetAddress = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.params;
+    const result = await customerModel.handleGetCustomerAddresses(customer_id);
+    console.log("Successfully got address");
+    return res.json(result);
   } catch (err: any) {
     return next(err);
   }

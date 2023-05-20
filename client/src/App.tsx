@@ -53,7 +53,8 @@ function App() {
 
           <Route path="/" element={<Homepage />} />
           <Route path="test" element={<ReferralLink />} />
-          <Route path="customer/checkout" element={<Checkout />} />
+
+          <Route path="/" element={<Homepage />} />
           <Route path="login" element={<LoginBanner />} />
           <Route path="signup" element={<SignupBannerCustomer />} />
           <Route
@@ -65,7 +66,7 @@ function App() {
             path="categoryResults/:categoryId"
             element={<CategoryResults />}
           />
-          <Route path="/customer/cart" element={<CartPage />} />
+
           <Route
             path="customer/email-verification"
             element={<VerifyCustomerEmail />}
@@ -75,6 +76,7 @@ function App() {
             {/* Protected Routes with persist login */}
             <Route path="wishlist" element={<Wishlist />} />
             <Route path="customer/cart" element={<CartPage />} />
+            <Route path="/customer/checkout" element={<Checkout />} />
             <Route path="profile" element={<CustomerProfilePage />} />
             <Route path="lastViewed" element={<LastViewed />} />
           </Route>

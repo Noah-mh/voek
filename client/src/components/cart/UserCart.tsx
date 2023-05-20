@@ -4,12 +4,14 @@ import noImage from "../../img/product/No_Image_Available.jpg";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 // import ConfirmModal from "./ConfirmModal";
 import "./UserCart.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import PayPal from "../PayPal/PayPal";
+import Select from "react-select";
 
 export default function cartPage(): JSX.Element {
   const { customer, setCustomer } = useCustomer();
   const customer_id = customer.customer_id;
+  const navigate = useNavigate();
 
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
   // setCustomer((prevState: any) => { return { ...prevState, checkOut: []}})
@@ -37,10 +39,19 @@ export default function cartPage(): JSX.Element {
     coins: number;
     total: number;
   }
+  interface userAddress {
+    address_id: string;
+    postal_code: string;
+    block: string;
+    street_name: string;
+    country: string;
+    unit_no: string;
+  }
   const [isChecked, setIsChecked] = useState<boolean>(false);
   const [isInputDisabled, setIsInputDisabled] = useState<boolean>(false);
   const [userCoins, setUserCoins] = useState<number>(0);
-  const [checkCoinsRedeem, setCheckCoinsRedeem] = useState<boolean>(false);
+  const [userAddresses, setUserAddresses] = useState<userAddress[]>([]);
+  const [selectedAddress, setSelectedAddress] = useState<userAddress>();
   const [errMsg, setErrMsg] = useState<string>("");
   const [userCart, setUserCart] = useState<cartItem[]>([]);
   const [prodQuantity, setProdQuantity] = useState<number>(0);
@@ -52,70 +63,62 @@ export default function cartPage(): JSX.Element {
     coins: 0,
     total: 0,
   });
+  const [success, setSuccess] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (success) {
+      console.log();
+      checkOut();
+    }
+  }, [success]);
 
   const getCoins = async () => {
-    axiosPrivateCustomer
-      .get("/customer/getUserCoins/" + customer_id, {
-        headers: { "Content-Type": "application/json" },
-        withCredentials: true,
-      })
-      .then((response) => {
-        setUserCoins(response.data.result);
-        if (response.data.result < 10) {
-          setIsInputDisabled(true);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-
-        if (!err?.response) {
-          setErrMsg("No Server Response");
-          console.log("no resp");
-        } else {
-          setErrMsg("Server Error");
-          console.log("server error");
-        }
-      });
-    return 0;
+    try {
+      return await axiosPrivateCustomer.get(
+        `/customer/getUserCoins/${customer_id}`
+      );
+    } catch (err: any) {
+      console.log(err);
+    }
   };
   const getUserCart = async () => {
-    return axiosPrivateCustomer
-      .post("/customer/getCart", JSON.stringify({ customer_id }), {
-        headers: { "Content-Type": "application/json" },
-        withCredentials: true,
-      })
-      .then((response) => {
-        setUserCart(response.data);
-        const sum = response.data
-          .reduce((acc: number, item: cartItem) => {
-            return acc + item.price * item.quantity;
-          }, 0)
-          .toFixed(2);
-        console.log(sum);
-        setTotalAmt({
-          subTotal: Number(sum),
-          shippingFee: Number(
-            (Math.round((8.95 + sum * 0.1) * 100) / 100).toFixed(2)
-          ),
+    try {
+      return await axiosPrivateCustomer
+        .get(`/customer/getCart/${customer_id}`)
+        .then((res) => {
+          setUserCart(res.data);
+          const sum = res.data
+            .reduce((acc: number, item: cartItem) => {
+              return acc + item.price * item.quantity;
+            }, 0)
+            .toFixed(2);
+          setTotalAmt({
+            subTotal: Number(sum),
+            shippingFee: Number(
+              (Math.round((8.95 + sum * 0.1) * 100) / 100).toFixed(2)
+            ),
 
-          total: Number(
-            (
-              Math.round(Number(sum) * 100) / 100 +
-              Math.round((8.95 + sum * 0.1) * 100) / 100
-            ).toFixed(2)
-          ),
-          coins: Number(Math.ceil(sum * 0.1)),
+            total: Number(
+              (
+                Math.round(Number(sum) * 100) / 100 +
+                Math.round((8.95 + sum * 0.1) * 100) / 100
+              ).toFixed(2)
+            ),
+            coins: Number(Math.ceil(sum * 0.1)),
+          });
         });
-      })
-      .catch((err) => {
-        if (!err?.response) {
-          setErrMsg("No Server Response");
-          console.log("no resp");
-        } else {
-          setErrMsg("Server Error");
-          console.log("server error");
-        }
-      });
+    } catch (err: any) {
+      console.log(err);
+    }
+  };
+  const getAddress = async () => {
+    try {
+      return await axiosPrivateCustomer.get(
+        `/customer/getUserAddress/${customer_id}`
+      );
+    } catch (err: any) {
+      console.log(err);
+    }
   };
   const handleQuantityChange = (item: cartItem, change: number) => {
     const updatedCart = userCart.map((cartItem) => {
@@ -125,9 +128,8 @@ export default function cartPage(): JSX.Element {
           quantity: cartItem.quantity + change,
         };
         setChangedSKU(newItem.sku);
-        setChangedQuantState(true);
         setProdQuantity(newItem.quantity);
-
+        setChangedQuantState(true);
         return newItem;
       }
       return cartItem;
@@ -135,50 +137,84 @@ export default function cartPage(): JSX.Element {
     setUserCart(updatedCart);
   };
 
+  const getAll = async () => {
+    try {
+      const result: any = await Promise.all([
+        getCoins(),
+        getUserCart(),
+        getAddress(),
+      ]);
+      if (result[0].data.result < 10) {
+        setIsInputDisabled(true);
+      }
+      setUserCoins(result[0].data.result);
+      setUserAddresses(result[2].data);
+    } catch (err: any) {
+      console.log(err);
+    }
+  };
+
+  const checkOut = async () => {
+    if (isChecked) {
+      setCustomer((prevState: any) => {
+        return {
+          ...prevState,
+          cart: {
+            totalAmt: totalAmt, //subtotal , total, coinsEarned, shipping
+            cartItems: userCart, // sku, product_id, name, quantity, price, image_url, variation_1, variation_2, stock
+            coinsRedeemed: userCoins, //coins existing in user
+            addressSelected: selectedAddress,
+          },
+        };
+      });
+    } else {
+      setCustomer((prevState: any) => {
+        return {
+          ...prevState,
+          cart: {
+            totalAmt: totalAmt,
+            cartItems: userCart,
+            coinsRedeemed: 0,
+            addressSelected: selectedAddress,
+          },
+        };
+      });
+    }
+    console.log("setCustomer");
+    navigate("/customer/checkout");
+  };
+
   // page onload
   useEffect(() => {
-    getUserCart();
-    getCoins();
+    getAll();
+    console.log(userAddresses);
   }, []);
 
   //when cartQuant state changes
   useEffect(() => {
-    if (changedQuantState === false) return;
-
-    axiosPrivateCustomer
-      .post(
-        "/alterQuantCart",
-        JSON.stringify({
-          customer_id,
-          sku: changedSKU,
-          quantity: prodQuantity,
-        }),
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        }
-      )
-      .then((response) => {
-        console.log(response.data);
-      })
-      .catch((err) => {
-        console.log(err);
-        if (!err?.response) {
-          setErrMsg("No Server Response");
-          console.log("no resp");
-        } else {
-          setErrMsg("Server Error");
-          console.log("server error");
-        }
-      })
-      .finally(() => {
+    if (changedQuantState == false) return;
+    const alterQuantFnc = async () => {
+      try {
+        const result = await axiosPrivateCustomer.post(
+          "/customer/alterQuantCart",
+          {
+            customer_id,
+            sku: changedSKU,
+            quantity: prodQuantity,
+          }
+        );
         setChangedQuantState(false);
         getUserCart();
-      });
+      } catch (err: any) {
+        console.log(err);
+      }
+    };
+    alterQuantFnc();
   }, [changedQuantState]);
 
+  //when redeemcoins is checked
   useEffect(() => {
-    const discAmt = Math.floor(totalAmt.coins / 10);
+    const discAmt = Math.floor(userCoins / 10);
     if (isChecked) {
       setTotalAmt({
         ...totalAmt,
@@ -191,6 +227,11 @@ export default function cartPage(): JSX.Element {
       });
     }
   }, [isChecked]);
+
+  useEffect(() => {
+    console.log("Set?");
+    console.log(selectedAddress);
+  }, [selectedAddress]);
 
   return (
     <div className="container flex">
@@ -286,7 +327,6 @@ export default function cartPage(): JSX.Element {
                 value=""
                 className="sr-only peer"
                 disabled={isInputDisabled}
-                onClick={() => setCheckCoinsRedeem(true)}
                 onChange={() => {
                   isChecked ? setIsChecked(false) : setIsChecked(true);
                 }}
@@ -294,8 +334,36 @@ export default function cartPage(): JSX.Element {
               <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
             </label>
           </div>
+          <div className="flex-col justify-center">
+            <PayPal amount={totalAmt.total} setSuccess={setSuccess} />
+            {userAddresses.length != 0 && (
+              <Select
+                value={
+                  selectedAddress
+                    ? {
+                        value: selectedAddress,
+                        label: `${selectedAddress.street_name}, ${selectedAddress.block}, ${selectedAddress.postal_code}`,
+                        address: selectedAddress,
+                      }
+                    : null
+                }
+                onChange={(option) => {
+                  setSelectedAddress(option?.value || userAddresses[0]);
+                  // console.log("Set?");
+                  // console.log(selectedAddress);
+                }}
+                options={userAddresses.map((address) => ({
+                  value: address,
+                  label: `${address.street_name}, ${address.block}, ${address.postal_code}`,
+                  address: address,
+                }))}
+              />
+            )}
 
-          <PayPal amount={totalAmt.total} />
+            {/* <button className=" w-full bg-white hover:bg-transparent hover:border-2 hover:border-white text-softerPurple hover:text-white font-bold py-2 px-4 rounded ">
+              Checkout
+            </button> */}
+          </div>
         </div>
       </div>
     </div>
