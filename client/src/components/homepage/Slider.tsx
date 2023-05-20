@@ -61,7 +61,7 @@ const Slider: React.FC<SliderProps> = ({ header, products }) => {
             >
               <motion.div
                 className="item p-5 px-4 pt-7 cursor-pointer"
-                whileHover={{ scale: 1.1 }}
+                whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.9 }}
               >
                 <AdvancedImage
