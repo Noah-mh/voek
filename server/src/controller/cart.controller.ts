@@ -10,12 +10,12 @@ export const retrieveCartDetails = async (
   next: NextFunction
 ) => {
   try {
-    const { customer_id } = req.body;
+    const { customer_id } = req.params;
 
-    console.log("Connected to Controller");
+    console.log("Connected to getCart Controller");
 
     const response: Array<object> = await cartModel.handlesGetCartDetails(
-      parseInt(customer_id)
+      customer_id
     );
     if (!response?.length) return res.sendStatus(404);
     return res.json(response);
@@ -62,6 +62,23 @@ export const insertCart = async (
   }
 };
 
+export const insertPayment = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id, amount } = req.body;
+    const response: number | undefined = await cartModel.handleInsertPayment(
+      customer_id,
+      amount
+    );
+    return res.status(201).json(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
 export const insertOrder = async (
   req: Request,
   res: Response,
@@ -101,8 +118,7 @@ export const insertOrderProduct = async (
         orders_id,
         product_id,
         totalPrice,
-        quantity,
-        shipment_id
+        quantity
       );
     return res.status(201).json(response);
   } catch (err: any) {
