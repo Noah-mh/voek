@@ -521,7 +521,7 @@ export const handleCustomerProfileEdit = async (
     SET
       username = ?,
       email = ?,
-      phone_number = ?,
+      phone_number = ?
     WHERE customer_id = ?
   `;
   try {
