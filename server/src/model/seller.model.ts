@@ -9,14 +9,14 @@ export const handleGetAllProducts = async (sellerId: number): Promise<any[]> => 
     const promisePool = pool.promise();
     const connection = await promisePool.getConnection();
     const sql = 
-    `SELECT p.product_id, p.name, p.description, p.active, pv.sku, pv.variation_1, pv.variation_2, pv.quantity, pv.price, p.category_id, c.name AS category FROM products p
+    `SELECT p.product_id, p.name, p.description, p.active, pv.sku, pv.variation_1, pv.variation_2, pv.quantity, pv.price, pv.active AS availability, p.category_id, c.name AS category FROM products p
     RIGHT OUTER JOIN listed_products lp 
     ON lp.product_id = p.product_id
     LEFT JOIN product_variations pv
     ON pv.product_id = p.product_id
     INNER JOIN category c
     ON c.category_id = p.category_id
-    WHERE lp.seller_id = ? AND pv.active = 1
+    WHERE lp.seller_id = ?
     ORDER BY p.product_id ASC;`;
     try {
         const result: any = await connection.query(sql, [sellerId]);
@@ -65,27 +65,23 @@ export const handleAddProduct = async (sellerId: number, name: string, descripti
     // start a local transaction
     connection.beginTransaction();
 
-    const result1: any = await connection.query(sql1, [name, description, category_id])
-    // // console.log(response);
-    let lastInsertId = result1[0].insertId;
-    console.log(lastInsertId)
-    const result2: any = await connection.query(sql2, [lastInsertId, sellerId]);
-    const result3: any = await connection.query(sql3, [lastInsertId, variation_1, variation_2, quantity, price]);
-
-    // variation_1 .join with , then .split with ,
+    // variation .join with , then .split with ,
     // then run sql3 thru a for loop w [variation_1[i]] for every variation_2
 
-    // result1 = await Promise.resolve(connection.query(sql1, [name, description, category_id]))
-    // .then((response) => {
-    //   // console.log("response", response)
-    //   // console.log("result1", result1)
-    //   // console.log(result1[0].insertId)
-    //   // console.log(response[0].insertId)
+    let var1Arr: string[] = variation_1.split(", ");
+    let var2Arr: string[] = variation_2.split(", ");
 
-    //   let lastInsertId = result1[0].insertId;
-    //   const result2: any = connection.query(sql2, [lastInsertId, sellerId]);
-    //   const result3: any = connection.query(sql3, [lastInsertId, variation_1, variation_2, quantity, price]);
-    // })
+    const result1 = await Promise.resolve(connection.query(sql1, [name, description, category_id]))
+    .then((response) => {
+      let lastInsertId = Object.values(response[0])[2];
+      const result2: any = connection.query(sql2, [lastInsertId, sellerId]);
+      // const result3: any = connection.query(sql3, [lastInsertId, variation_1, variation_2, quantity, price]);
+      var1Arr.forEach((option1) => {
+        var2Arr.forEach((option2) => {
+          let result3: any = connection.query(sql3, [lastInsertId, option1, option2, quantity, price]);
+        })
+      })
+    })
 
     connection.commit();
     return;
@@ -99,6 +95,7 @@ export const handleAddProduct = async (sellerId: number, name: string, descripti
   }
 }
 
+// export const handleEditProduct
 
 // GET order details
 export const handleGetOrderDetails = async (ordersId: number): Promise<Orders> => {
