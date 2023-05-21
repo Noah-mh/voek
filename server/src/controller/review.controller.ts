@@ -9,6 +9,8 @@ export const addingReview = async (
   try {
     const { product_id, customer_id, rating, comment, sku } =
       req.body;
+    if (!product_id || !customer_id || !rating || !comment || !sku)
+      return res.sendStatus(404);
     const response: number = await reviewModel.handleAddingReview(
       product_id,
       customer_id,
@@ -30,6 +32,7 @@ export const addingReviewImages = async (
 ) => {
   try {
     const { review_id, image_url } = req.body;
+    if (!review_id || !image_url) return res.sendStatus(404);
     const response: number =
       await reviewModel.handleAddingReviewImages(
         review_id,
@@ -48,8 +51,8 @@ export const deleteReview = async (
   next: NextFunction
 ) => {
   try {
-    console.log(req.body);
     const { review_id, sku } = req.body;
+    if (!review_id || !sku) return res.sendStatus(404);
     const response: number = await reviewModel.handleDeleteReview(
       review_id,
       sku
