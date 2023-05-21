@@ -53,36 +53,42 @@ const WishlistCard = () => {
         });
       })
       .then((wishlistItems: any) => {
-        const randomNum: number = Math.floor(
-          Math.random() * wishlistItems.length
-        );
-        const randomProduct: any = wishlistItems[randomNum];
-        console.log("randomProduct", randomProduct);
-        return axiosPrivateCustomer.get(
-          `/getRecommendedProductsBasedOnCatWishlist/${randomProduct.category_id}`
-        );
-      })
-      .then((response) => {
-        setStatus(true);
-        const products = response.data.map((product: any) => {
-          const image = axios.get(`/getProductImage/${product.product_id}`);
-          const pricing = axios.get(
-            `/getProductVariationsPricing/${product.product_id}`
+        if (wishlistItems.length > 0) {
+          const randomNum: number = Math.floor(
+            Math.random() * wishlistItems.length
           );
-          const promises = [image, pricing];
-          return Promise.all(promises).then((responses) => {
-            product.image = responses[0].data[0].imageURL;
-            product.lowestPrice = responses[1].data[0].lowestPrice;
-            product.highestPrice = responses[1].data[0].highestPrice;
-            return product;
+          const randomProduct: any = wishlistItems[randomNum];
+          console.log("randomProduct", randomProduct);
+          return axiosPrivateCustomer.get(
+            `/getRecommendedProductsBasedOnCatWishlist/${randomProduct.category_id}`
+          );
+        }
+      })
+      .then((response: any) => {
+        if (response != null) {
+          const products = response.data.map((product: any) => {
+            const image = axios.get(`/getProductImage/${product.product_id}`);
+            const pricing = axios.get(
+              `/getProductVariationsPricing/${product.product_id}`
+            );
+            const promises = [image, pricing];
+            return Promise.all(promises).then((responses) => {
+              product.image = responses[0].data[0].imageURL;
+              product.lowestPrice = responses[1].data[0].lowestPrice;
+              product.highestPrice = responses[1].data[0].highestPrice;
+              return product;
+            });
           });
-        });
-        return products;
+          return products;
+        }
       })
       .then((products) => {
-        Promise.all(products).then((products) => {
-          setCategoryProducts(products);
-        });
+        if (products != null) {
+          Promise.all(products).then((products) => {
+            setCategoryProducts(products);
+          });
+        }
+        setStatus(true);
       })
       .catch((err: any) => {
         console.log(err);
@@ -130,10 +136,19 @@ const WishlistCard = () => {
               })}
             </div>
           ) : (
-            <div>
-              <div>Uh-oh!</div>
-              <div>It seems like you don't have any wishlisted item.</div>
-              <div>Let's go find some items!</div>
+            <div className="my-3 mx-36 flex justify-center items-center text-lg whitespace-nowrap">
+              <div>
+                <div className="py-1">Uh-oh! 😔</div>
+                <div className="py-1">
+                  It seems like you don't have any wishlisted item.
+                </div>
+                <Link
+                  to="/"
+                  className="text-purpleAccent font-semibold hover:text-softerPurple py-1"
+                >
+                  Let's go find some items!
+                </Link>
+              </div>
             </div>
           )}
           <div className="wishlistCardRecommendedProducts right w-5/12 p-5 bg-softerPurple flex flex-col items-center">
