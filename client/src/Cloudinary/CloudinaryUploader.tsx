@@ -2,9 +2,10 @@ import React, { useEffect, useCallback, useState } from 'react';
 
 interface CloudinaryUploaderProps {
     onSuccess: (resultInfo: any) => void;
+    caption:String;
 }
 
-const CloudinaryUploader: React.FC<CloudinaryUploaderProps> = ({ onSuccess }) => {
+const CloudinaryUploader: React.FC<CloudinaryUploaderProps> = ({ onSuccess, caption }) => {
     const [myWidget, setMyWidget] = useState<any>(null);
     useEffect(() => {
         if ((window as any).cloudinary) {
@@ -28,7 +29,7 @@ const CloudinaryUploader: React.FC<CloudinaryUploaderProps> = ({ onSuccess }) =>
     return (
         <div>
             <button className="cloudinary-button" onClick={handleUploadClick}>
-                Add Photo
+               {caption}
             </button>
 
         </div>

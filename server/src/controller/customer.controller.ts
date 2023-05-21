@@ -279,6 +279,8 @@ export const processGetReferralId = async (
   }
 };
 
+//ALLISON :D
+
 export const processGetCoins = async (
   req: Request,
   res: Response,
@@ -287,7 +289,25 @@ export const processGetCoins = async (
   try {
     const { customer_id } = req.params;
     const result = await customerModel.handleGetCoins(customer_id);
+    console.log("Successfully got coins");
     return res.json({ result });
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const processGetAddress = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.params;
+    const result = await customerModel.handleGetCustomerAddresses(
+      customer_id
+    );
+    console.log("Successfully got address");
+    return res.json(result);
   } catch (err: any) {
     return next(err);
   }
@@ -348,3 +368,152 @@ export const getCustomerDetails = async (
     return res.status(500).json({ message: err.message });
   }
 };
+
+// export const updateCustomerDetails = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   try {
+//     const { customer_id } = req.params;
+//     const { username, email, phone_number } = req.body;
+//     const customerId = parseInt(customer_id);
+//     const response: number =
+//       await customerModel.handleCustomerProfileEdit(
+//         username,
+//         email,
+//         phone_number,
+//         customerId
+//       );
+//     if (!response) return res.sendStatus(404);
+//     return res.sendStatus(200);
+//   } catch (err: any) {
+//     return next(err);
+//   }
+// };
+
+export const updateCustomerDetails = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { password, email, username, phone_number } = req.body;
+    const { customer_id } = req.params;
+    if (!customer_id) return res.sendStatus(400);
+    const result = await customerModel.handleUpdateCustomerDetails(
+      password,
+      email,
+      username,
+      parseInt(phone_number),
+      parseInt(customer_id)
+    );
+    if (result) return res.json(result);
+    return res.sendStatus(201);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const processChangeEmail = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { changeCustomerEmailToken } = req.body;
+    if (!changeCustomerEmailToken) return res.sendStatus(400);
+    jwt.verify(
+      changeCustomerEmailToken,
+      config.emailTokenSecret as any,
+      async (err: any, decoded: any) => {
+        if (err) return res.sendStatus(403);
+        const { customer_id } = decoded;
+        await customerModel.handleChangeEmail(customer_id);
+        return res.sendStatus(200);
+      }
+    );
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const updateCustomerPhoto = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.params;
+    const { image_url } = req.body;
+    const customerId = parseInt(customer_id);
+    const response: number =
+      await customerModel.handleCustomerProfilePhotoEdit(
+        image_url,
+        customerId
+      );
+    if (!response) return res.sendStatus(404);
+    return res.sendStatus(200);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const deactivateAccount = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.params;
+    await customerModel.handleDeactivateAccount(
+      parseInt(customer_id)
+    );
+    return res.sendStatus(200);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const getCustomerStatus = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.params;
+    const result = await customerModel.handleGetCustomerStatus(
+      parseInt(customer_id)
+    );
+    return res.json({ status: result });
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const activateAccount = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.params;
+    await customerModel.handleActivateAccount(parseInt(customer_id));
+    return res.sendStatus(200);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+// export const processUpdateCustomerDetails = async (req: Request, res: Response, next: NextFunction) => {
+//   try {
+//     const { password, email, shop_name, phone_number } = req.body;
+//     const { customer_id } = req.params;
+//     if (!customer_id) return res.sendStatus(400);
+//     const result = await customerModel.handleUpdateCustomerDetails(password, email, shop_name, parseInt(phone_number), parseInt(customer_id));
+//     if (result) return res.json(result)
+//     return res.sendStatus(201)
+//   } catch (err: any) {
+//     return next(err);
+//   }
+// }

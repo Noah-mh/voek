@@ -5,13 +5,86 @@ import PayPal from "../PayPal/PayPal";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-export default function cartPage(): JSX.Element {
+export default function CheckOutPage(): JSX.Element {
   const { customer } = useCustomer();
   const customer_id = customer.customer_id;
-
+  const checkedOutCart = customer.cart;
+  const coinsRedeemed: number = checkedOutCart.coinsRedeemed;
+  const coinsEarned = checkedOutCart.totalAmt.coinsEarned;
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
+  const address_id = checkedOutCart.addressSelected.address_id;
   const [paymentSuccess, setPaymentSuccess] = useState(false);
 
+  useEffect(() => {
+    const insertOrder = async () => {
+      try {
+        const resPaymentId = await axiosPrivateCustomer.post(
+          `/customer/insertPayment`,
+          {
+            customer_id: customer_id,
+            amount: checkedOutCart.totalAmt.total,
+          }
+        );
+        console.log("hit");
+        const resOrderId = await axiosPrivateCustomer.post(
+          `/customer/insertOrder`,
+          {
+            customer_id: customer_id,
+            payment_id: resPaymentId.data,
+            discount_applied: 0,
+            coins_redeemed: coinsRedeemed,
+            address_id: address_id,
+          }
+        );
+
+        const productIds = await Promise.all(
+          checkedOutCart.cartItems.map(async (item: any) => {
+            const resOrderProductIDs = await axiosPrivateCustomer.post(
+              `/customer/insertOrderProduct`,
+              {
+                orders_id: resOrderId.data,
+                product_id: item.product_id,
+                sku: item.sku,
+                totalPrice: (item.quantity * item.price).toFixed(2),
+                quantity: item.quantity,
+              }
+            );
+
+            return resOrderProductIDs.data; // Assuming the product ID is in the 'productId' property of the response
+          })
+        );
+        const updateStock = await Promise.all(
+          checkedOutCart.cartItems.map(async (item: any) => {
+            const resUpdateStock = await axiosPrivateCustomer.post(
+              `/customer/updateProductStock`,
+              {
+                quantityDeduct: item.quantity,
+                sku: item.sku,
+              }
+            );
+
+            return resUpdateStock.data; // Assuming the product ID is in the 'productId' property of the response
+          })
+        );
+
+        const updateCustomerCoins = await axiosPrivateCustomer.post(
+          `/customer/updateCustomerCoins`,
+          {
+            customer_id: customer_id,
+            coins_redeemed: coinsRedeemed === 0 ? coinsEarned : coinsRedeemed,
+          }
+        );
+      } catch (err) {
+        console.log(err);
+        setPaymentSuccess(false);
+      }
+    };
+
+    insertOrder();
+    setPaymentSuccess(true);
+  }, []);
+
+  
   return (
     <div>
       {paymentSuccess && (

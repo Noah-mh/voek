@@ -50,3 +50,20 @@ export const handleAddingReviewImages = async (
     await connection.release();
   }
 };
+
+export const handleDeleteReview = async (
+  review_id: number,
+  sku: string
+): Promise<number> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `DELETE FROM review WHERE review_id = ? AND sku = ?`;
+  try {
+    const [result] = await connection.query(sql, [review_id, sku]);
+    return (result as ResultSetHeader).affectedRows;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};

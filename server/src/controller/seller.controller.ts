@@ -4,6 +4,7 @@ import { UserInfo } from '../interfaces/interfaces';
 import { Request, Response, NextFunction } from "express";
 import * as sellerModel from "../model/seller.model";
 import { parse } from 'path';
+import { P } from 'pino';
 
 // GET all products from 1 seller
 export const processGetAllProductsOfSeller = async (req: Request, res: Response, next: NextFunction) => {
@@ -275,6 +276,75 @@ export const processGetCustomerOrders = async (req: Request, res: Response, next
         if (!seller_id || !orders_id) return res.sendStatus(400);
         const result = await sellerModel.handleGetCustomerOrders(parseInt(seller_id), parseInt(orders_id));
         return res.json({ orders: result });
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processGetSellerDetails = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { seller_id } = req.params;
+        if (!seller_id) return res.sendStatus(400);
+        const result = await sellerModel.handleGetSellerDetails(parseInt(seller_id));
+        return res.json({ sellerDetails: result });
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processUpdateSellerDetails = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { password, email, shop_name, phone_number } = req.body;
+        const { seller_id } = req.params;
+        if (!seller_id) return res.sendStatus(400);
+        const result = await sellerModel.handleUpdateSellerDetails(password, email, shop_name, parseInt(phone_number), parseInt(seller_id));
+        if (result) return res.json(result)
+        return res.sendStatus(201)
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processChangeEmail = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { changeSellerEmailToken } = req.body;
+        if (!changeSellerEmailToken) return res.sendStatus(400);
+        jwt.verify(changeSellerEmailToken, config.emailTokenSecret as any, async (err: any, decoded: any) => {
+            if (err) return res.sendStatus(403);
+            const { seller_id } = decoded;
+            await sellerModel.handleChangeEmail(seller_id);
+            return res.sendStatus(200);
+        });
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const deactivateAccount = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { seller_id } = req.params;
+        await sellerModel.handleDeactivateAccount(parseInt(seller_id));
+        return res.sendStatus(200);
+    } catch (err: any) {
+        return next(err);
+    }
+};
+
+export const getSellerStatus = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { seller_id } = req.params;
+        const result = await sellerModel.handleGetSellerStatus(parseInt(seller_id));
+        return res.json({ status: result });
+    } catch (err: any) {
+        return next(err);
+    }
+};
+
+export const activateAccount = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { seller_id } = req.params;
+        await sellerModel.handleActivateAccount(parseInt(seller_id));
+        return res.sendStatus(200);
     } catch (err: any) {
         return next(err);
     }

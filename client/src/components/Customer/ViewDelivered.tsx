@@ -68,7 +68,7 @@ const ViewDelivered = ({ deliveredOrders, getAll }: Props) => {
 
   const buttonHandler = async (orders_id: number, seller_id: number) => {
     try {
-      const result = await axiosPrivateCustomer.put(`/customer/received/${orders_id}/${seller_id}`)
+      await axiosPrivateCustomer.put(`/customer/received/${orders_id}/${seller_id}`)
       getAll();
     } catch (err: any) {
       console.log(err);
@@ -80,13 +80,13 @@ const ViewDelivered = ({ deliveredOrders, getAll }: Props) => {
       <h1 className="mb-8 text-4xl font-bold">Delivered Orders</h1>
       {
         orderedDeliveredOrders?.map((ordersArray: any) => (
-          <div key={uuidv4()} className="mb-8 border border-gray-300 rounded p-4 w-4/5">
+          <div key={uuidv4()} className="mb-8 border border-gray-300 rounded p-4">
             {
               ordersArray.map((order: Product) => (
 
-                <div key={order.sku} className="mb-8 border border-gray-300 rounded p-4 w-4/5">
+                <div key={order.sku} className="mb-8 border border-gray-300 rounded p-4">
+                  <div className="w-64 h-64"> <AdvancedImage cldImg={cld.image(order.image_url)} /></div>
 
-                  <AdvancedImage cldImg={cld.image(order.image_url)} />
                   <Link to={`/productDetailsWithReviews/${order.product_id}`} className="text-blue-500 hover:underline">
                     {order.name}
                   </Link>
