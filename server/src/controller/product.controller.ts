@@ -400,3 +400,24 @@ export const addToCart = async (
     return next(err);
   }
 };
+
+export const getCart = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.params;
+    const { sku } = req.body;
+    if (!customer_id || !sku) return res.sendStatus(404);
+    const response: Array<object> =
+      await productModel.handleCartDetails(
+        parseInt(customer_id),
+        sku
+      );
+    if (!response) return res.sendStatus(404);
+    return res.json({ cartDetails: response });
+  } catch (err: any) {
+    return next(err);
+  }
+};

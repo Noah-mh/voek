@@ -231,22 +231,33 @@ export default function (app: Express, router: Router) {
     "/productDetailsWithoutReviews/:product_id",
     productController.getProductDetailsWithoutReviews
   );
+
   router.get(
     "/productReviews/:product_id",
     productController.getProductReviews
   );
+
+  router.get(
+    "/getCartDetails/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    productController.getCart
+  );
+
   router.post(
     "/addToCart",
     verifyJWT,
     verifyRoles("customer"),
     productController.addToCart
   );
+
   router.post(
     "/addReview",
     verifyJWT,
     verifyRoles("customer"),
     reviewController.addingReview
   );
+
   router.post(
     "/addReviewImages",
     verifyJWT,
@@ -260,6 +271,7 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     reviewController.deleteReview
   );
+
   router.get(
     "/customer/profile/:customer_id",
     verifyJWT,
