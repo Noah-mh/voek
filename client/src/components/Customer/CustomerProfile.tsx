@@ -9,6 +9,7 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import { ToastContainer, toast } from "react-toastify";
 import useCustomer from "../../hooks/UseCustomer";
+import ReferralLink from '../ReferralLink/ReferralLink';
 
 export interface Customer {
     customer_id: number;
@@ -211,6 +212,7 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({ customerData, getAll 
                 }}
                 noValidate
                 autoComplete="off"
+                onSubmit={(e) => { e.preventDefault(); }}
             >
                 <TextField
                     id="outlined-username"
@@ -281,6 +283,7 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({ customerData, getAll 
                     </label>
                     {status ? <p className="text-green-600">Active</p> : <p className="text-red-600">Inactive</p>}
                 </div>
+                <ReferralLink />
             </Box>
             <div className="flex flex-col items-center ml-9">
                 <div className="w-40 h-40 mb-5">
