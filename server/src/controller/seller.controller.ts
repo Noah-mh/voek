@@ -34,7 +34,7 @@ export const processAddProduct = async (req: Request, res: Response, next: NextF
         const { name, description, category_id, variation_1, variation_2, quantity, price } = req.body;
         if (!name || !category_id || !quantity || !price) return res.sendStatus(400);
         const response: any = await sellerModel.handleAddProduct(sellerId, name, description, category_id, variation_1, variation_2, quantity, price);
-        return response.insertId;
+        return res.json(response);
     } catch (err: any) {
         return next(err);
     }
