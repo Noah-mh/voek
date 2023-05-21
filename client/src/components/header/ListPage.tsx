@@ -6,8 +6,12 @@ interface ListPageProps {
 }
 
 const ListPage = ({ searchResults, fnMouseClick }: ListPageProps) => {
-  const results = searchResults.map((result: any) => {
-    return <Product result={result} fnMouseClick={fnMouseClick} />;
+  const results = searchResults.map((result: any, index: number) => {
+    return (
+      <span key={index}>
+        <Product result={result} fnMouseClick={fnMouseClick} />
+      </span>
+    );
   });
 
   const content = searchResults.length ? (
