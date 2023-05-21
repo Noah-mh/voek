@@ -347,6 +347,9 @@ export const handleProductReviews = async (
   (SELECT 
       JSON_ARRAYAGG(
           JSON_OBJECT(
+            'review_id', r.review_id,
+            'sku', r.sku,
+            'customer_id', c.customer_id,
               'customerName', c.username,
               'comment', r.comment,
               'image_urls', (SELECT 

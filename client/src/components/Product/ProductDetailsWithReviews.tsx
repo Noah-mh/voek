@@ -21,6 +21,9 @@ export interface Review {
 }
 
 export interface Customer {
+  sku: string;
+  review_id: number;
+  customer_id: number;
   customerName: string;
   comment: string;
   image_urls: string[];

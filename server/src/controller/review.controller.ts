@@ -41,3 +41,22 @@ export const addingReviewImages = async (
     return next(err);
   }
 };
+
+export const deleteReview = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    console.log(req.body);
+    const { review_id, sku } = req.body;
+    const response: number = await reviewModel.handleDeleteReview(
+      review_id,
+      sku
+    );
+    if (!response) return res.sendStatus(404);
+    return res.sendStatus(200);
+  } catch (err: any) {
+    return next(err);
+  }
+};
