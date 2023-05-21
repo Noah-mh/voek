@@ -24,6 +24,7 @@ import ResetPasswordCustomer from "./components/ResetPasswordCustomer/ResetPassw
 import ForgetPasswordSeller from "./components/ForgetPasswordSeller/ForgetPasswordSeller.js";
 import HomepageSeller from "./components/HomepageSeller/HomepageSeller.js";
 import ManageProducts from "./components/SellerSidebar/ManageProducts.js";
+import EditProduct from "./components/SellerSidebar/EditProduct.js";
 import AddProduct from "./components/SellerSidebar/AddProduct.js";
 import ManageOrders from "./components/SellerSidebar/ManageOrders.js";
 import Checkout from "./components/Checkout/Checkout.js";
@@ -106,6 +107,7 @@ function App() {
           <Route element={<RequireAuthSeller />}>
             <Route path="seller/home" element={<HomepageSeller />} />
             <Route path="seller/manageProducts" element={<ManageProducts />} />
+            <Route path="seller/editProduct" element={<EditProduct />} />
             <Route path="seller/addProduct" element={<AddProduct />} />
             <Route path="seller/manageOrders" element={<ManageOrders />} />
             <Route path="seller/orders" element={<ViewCustomerOrders />} />
