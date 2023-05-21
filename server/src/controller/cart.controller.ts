@@ -17,7 +17,9 @@ export const retrieveCartDetails = async (
     const response: Array<object> = await cartModel.handlesGetCartDetails(
       customer_id
     );
-    if (!response?.length) return res.sendStatus(404);
+
+    // if (!response?.length)
+    //   return res.status(200).json({ message: "No cart details found" });
     return res.json(response);
   } catch (err: any) {
     return next(err);
@@ -170,6 +172,22 @@ export const insertShipment = async (
       customer_id
     );
     return res.status(201).json(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+export const clearCart = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  console.log("Connected to clearCart Controller");
+  try {
+    const { customer_id } = req.body;
+    const response: Array<object> = await cartModel.handleClearCart(
+      customer_id
+    );
+    return res.sendStatus(200);
   } catch (err: any) {
     return next(err);
   }
