@@ -309,8 +309,8 @@ export default function (app: Express, router: Router) {
 
   router.post(
     "/insertLastViewedProduct",
-    // verifyJWT,
-    // verifyRoles("customer"),
+    verifyJWT,
+    verifyRoles("customer"),
     productController.insertLastViewedProduct
   );
 
@@ -318,8 +318,8 @@ export default function (app: Express, router: Router) {
 
   router.put(
     "/updateCustomerLastViewedCat",
-    // verifyJWT,
-    // verifyRoles("customer"),
+    verifyJWT,
+    verifyRoles("customer"),
     customerController.updateCustomerLastViewedCat
   );
 
