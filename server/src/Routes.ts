@@ -365,12 +365,19 @@ export default function (app: Express, router: Router) {
     cartController.retrieveCartDetails
   );
 
+  router.post(
+    "/insertLastViewedProduct",
+    // verifyJWT,
+    // verifyRoles("customer"),
+    productController.insertLastViewedProduct
+  );
+
   router.get("/getProductCat/:product_id", productController.getProductCat);
 
   router.put(
     "/updateCustomerLastViewedCat",
-    verifyJWT,
-    verifyRoles("customer"),
+    // verifyJWT,
+    // verifyRoles("customer"),
     customerController.updateCustomerLastViewedCat
   );
 

@@ -17,6 +17,13 @@ interface ProductDetailProps {
   productData: Product[];
   productReview: Review[];
 }
+interface CartItem {
+  cart_id: number;
+  quantity: number;
+  customer_id: number;
+  product_id: number;
+  sku: string;
+}
 
 const ProductDetail: React.FC<ProductDetailProps> = ({
   productData,
@@ -30,6 +37,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
     null
   );
   const [quantity, setQuantity] = useState<number>(1);
+  const [cart, setCart] = useState<CartItem[]>([]);
   const [price, setPrice] = useState<number | null>(
     productData[0].variations![0].price || null
   );
@@ -39,7 +47,32 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
   const [heart, setHeart] = useState<boolean>(false);
 
   useEffect(() => {
+    if (customer_id != undefined) {
+      // const checkCart = async () => {
+      //   try {
+      //     const response = await axiosPrivateCustomer.get(
+      //       `/getCartDetails?customer_id=${customer_id}`,{ data : { sku :selectedSku } }
+      //     );
+      //     if (response.data.length > 0) {
+      //       setCartQuantity(response.data[0].quantity);
+      //     } else {
+      //       setCartQuantity(0);
+      //     }
+      //   } catch (err: any) {
+      //     setCartQuantity(0);
+      //   }
+      // };
+      axiosPrivateCustomer.get(`getCartDetails/${customer_id}?sku=${selectedSku}`)
+        .then((response) => {
+          setCart(response.data.cartDetails);
+        })
+
+    }
+
     if (selectedVariation) {
+
+
+
       const selectedProduct = productData.find((product) =>
         product.variations?.some((variation) => {
           const combinedKey = variation.variation_2
@@ -218,26 +251,32 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
   const hasValidVariation = allVariations.some(
     (variation) => variation.variation_1 !== null
   );
+
   const increaseQuantity = (sku: string | null) => {
     const productVariation = allVariations.find(
       (variation) => variation.sku === sku
     );
 
-    if (productVariation && quantity < productVariation.quantity!) {
-      setQuantity((prevQuantity) => prevQuantity + 1);
-    } else {
-      // Show notification
-      toast.error("Cannot add more than the available quantity", {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
-    }
+    setQuantity((prevQuantity) => {
+      if (cart.length == 0 && (productVariation && prevQuantity < productVariation.quantity!)) {
+        return prevQuantity + 1;
+      } else if (productVariation && (prevQuantity + cart[0]?.quantity) < productVariation.quantity!) {
+        return prevQuantity + 1;
+      } else {
+        // Show notification
+        toast.error("Cannot add more than the available quantity", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+        return prevQuantity; // Return the same quantity if it shouldn't be updated
+      }
+    });
   };
 
   const decreaseQuantity = () => {
@@ -379,7 +418,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                 }
                 onChange={(option) => {
                   setSelectedVariation(option?.value || null);
-                  console.log("Selected option SKU: ", option?.sku || "No SKU");
                   setSelectedSku(option?.sku || null);
                 }}
                 options={pData.variations!.reduce<
@@ -474,7 +512,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                 <div className="flex flex-row justify-between">
                   <p>{review.comment}</p>
                   {review.customer_id === customer_id && (
-                    <button className="justify-content-center align-item-center" onClick={() => handleDeleteReview(review.review_id,review.sku)}>
+                    <button className="justify-content-center align-item-center" onClick={() => handleDeleteReview(review.review_id, review.sku)}>
                       <AiFillDelete />
                     </button>)}
                 </div>
