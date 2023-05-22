@@ -57,7 +57,6 @@ export default function cartPage(): JSX.Element {
   const [userCoins, setUserCoins] = useState<number>(0);
   const [userAddresses, setUserAddresses] = useState<userAddress[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<userAddress>();
-  const [errMsg, setErrMsg] = useState<string>("");
   const [userCart, setUserCart] = useState<cartItem[]>([]);
   const [prodQuantity, setProdQuantity] = useState<number>(0);
   const [changedSKU, setChangedSKU] = useState<string>("");
@@ -104,6 +103,7 @@ export default function cartPage(): JSX.Element {
           if (res.data.length === 0) {
             setCartisEmpty(true);
             setIsInputDisabled(true);
+            setPaypalCN("pointer-events-none opacity-50");
           }
           setTotalAmt({
             subTotal: Number(sum),
@@ -313,11 +313,9 @@ export default function cartPage(): JSX.Element {
               <button
                 className="text-sm border px-2 py-1 mx-2"
                 onClick={(event) => {
-                  setErrMsg("");
                   event.preventDefault();
                   handleQuantityChange(item, -1);
                 }}
-                disabled={item.quantity <= 0}
               >
                 -
               </button>
@@ -325,10 +323,18 @@ export default function cartPage(): JSX.Element {
               <button
                 className="text-sm border  px-2 py-1 mx-2"
                 onClick={(event) => {
-                  setErrMsg("");
                   event.preventDefault();
                   if (item.quantity >= item.stock) {
-                    setErrMsg("Max stock reached");
+                    toast.warn("🦄 Wow so easy!", {
+                      position: "top-center",
+                      autoClose: 5000,
+                      hideProgressBar: false,
+                      closeOnClick: true,
+                      pauseOnHover: true,
+                      draggable: true,
+                      progress: undefined,
+                      theme: "light",
+                    });
                   } else {
                     handleQuantityChange(item, 1);
                   }
@@ -336,11 +342,6 @@ export default function cartPage(): JSX.Element {
               >
                 +
               </button>
-              {errMsg.length != 0 && (
-                <div className="errorMessage text-red-600 text-sm">
-                  {errMsg}
-                </div>
-              )}
             </div>
           </Link>
         ))}
