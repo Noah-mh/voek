@@ -1,12 +1,9 @@
 import { useEffect, useState, useContext } from "react";
-// import moment from "moment";
-// import "moment-timezone";
 import tz from "moment-timezone";
 import ProductCard from "../Result/ProductCard";
 import Loader from "../Loader/Loader";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import CustomerContext from "../../context/CustomerProvider";
-import axios from "../../api/axios";
 
 interface HistoryProductsProps {
   selected: string;
