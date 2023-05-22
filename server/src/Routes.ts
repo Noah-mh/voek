@@ -267,6 +267,14 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     productController.getWishlistItems
   );
+
+  router.get(
+    "/getLastViewedProductExistence",
+    verifyJWT,
+    verifyRoles("customer"),
+    productController.getLastViewedProductExistence
+  );
+
   router.post(
     "/getLastViewed",
     verifyJWT,
@@ -346,6 +354,12 @@ export default function (app: Express, router: Router) {
 
   router.post("/insertCart", cartController.insertCart);
 
+  router.post(
+    "/insertLastViewedProduct",
+    verifyJWT,
+    verifyRoles("customer"),
+    productController.insertLastViewedProduct
+  );
   router.get(
     "/customer/getCart/:customer_id",
     verifyJWT,

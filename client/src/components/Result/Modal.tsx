@@ -210,7 +210,9 @@ const Modal = ({ setModalOpen, product, pricingRange }: ModalProps) => {
                 <h1>{product.name}</h1>
                 <h1 className="text-purpleAccent mt-3">
                   $
-                  {chosenSKU === ""
+                  {variations.length === 1
+                    ? pricingRange?.lowestPrice
+                    : chosenSKU === ""
                     ? pricingRange?.lowestPrice === pricingRange?.highestPrice
                       ? pricingRange?.lowestPrice
                       : pricingRange?.lowestPrice +
