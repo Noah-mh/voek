@@ -1,11 +1,12 @@
 // ProductDetailWithReview.tsx
 import React, { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
-import axios, { axiosPrivateCustomer } from "../../api/axios";
+import axios from "../../api/axios";
 import Loader from "../Loader/Loader";
 import "./ProductDetailsWithReviews.css";
 import ProductDetail from "./ProductDetails"; // make sure the path is correct
 import CustomerContext from "../../context/CustomerProvider";
+import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 
 export interface ProductVariation {
   variation_1: string | null;
@@ -40,11 +41,14 @@ const ProductDetailWithReview: React.FC = () => {
   const [productData, setProductData] = useState<Product[] | null>(null);
   const [productReview, setProductReview] = useState<Review[] | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const axiosPrivateCustomer = useAxiosPrivateCustomer();
 
   const { customer } = useContext(CustomerContext);
   const customerId = customer.customer_id;
 
   useEffect(() => {
+    console.log("product_id", product_id);
+
     // Noah
     axios
       .get(`/productDetailsWithoutReviews/${product_id}`, {
@@ -80,26 +84,18 @@ const ProductDetailWithReview: React.FC = () => {
           const productId = product_id;
           axiosPrivateCustomer.post(
             `/insertLastViewedProduct`,
-            JSON.stringify({ productId, categoryId, customerId }),
-            {
-              headers: { "Content-Type": "application/json" },
-              withCredentials: true,
-            }
+            JSON.stringify({ productId, categoryId, customerId })
           );
           axiosPrivateCustomer.put(
             `/updateCustomerLastViewedCat`,
-            JSON.stringify({ categoryId, customerId }),
-            {
-              headers: { "Content-Type": "application/json" },
-              withCredentials: true,
-            }
+            JSON.stringify({ categoryId, customerId })
           );
         })
         .catch((error) => {
           console.error(error);
         });
     }
-  }, [product_id]);
+  }, [product_id, customer]);
 
   if (isLoading || !productData || !productReview) {
     return <Loader />;
