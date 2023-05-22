@@ -78,6 +78,7 @@ export default function CheckOutPage(): JSX.Element {
               coins: coinsRedeemed == 0 ? coinsEarned : -coinsRedeemed,
             }
           );
+          setPaymentSuccess(true);
         } catch (err) {
           console.log(err);
           setPaymentSuccess(false);
@@ -85,7 +86,6 @@ export default function CheckOutPage(): JSX.Element {
       };
 
       insertOrder();
-      setPaymentSuccess(true);
     }
   }, []);
 
@@ -126,12 +126,12 @@ export default function CheckOutPage(): JSX.Element {
               </p>
               <p> Have a great day! </p>
               <div className="py-10 text-center">
-                <a
-                  href="#"
+                <Link
+                  to="/customer/cart"
                   className="px-12 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3"
                 >
                   GO BACK
-                </a>
+                </Link>
               </div>
             </div>
           </div>
@@ -158,12 +158,12 @@ export default function CheckOutPage(): JSX.Element {
               </p>
               <p> Please try again.</p>
               <div className="py-10 text-center">
-                <a
-                  href="#"
+                <Link
+                  to="/customer/cart"
                   className="px-12 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3"
                 >
                   GO BACK
-                </a>
+                </Link>
               </div>
             </div>
           </div>

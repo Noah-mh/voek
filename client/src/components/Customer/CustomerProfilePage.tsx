@@ -53,7 +53,7 @@ function TabPanel(props: TabPanelProps) {
             p: 3,
             flexGrow: 1, // make it take up the remaining space
 
-            width: "100vh",
+            width: "80%",
           }}
         >
           {children}
@@ -159,6 +159,7 @@ const CustomerProfilePage = () => {
           bgcolor: "background.paper",
           display: "flex",
         }}
+        className="pl-10"
       >
         <Tabs
           orientation="vertical"
