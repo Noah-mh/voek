@@ -7,6 +7,11 @@ import "./UserCart.css";
 import { Link, useNavigate } from "react-router-dom";
 import PayPal from "../PayPal/PayPal";
 import Select from "react-select";
+import { AdvancedImage } from "@cloudinary/react";
+import { cld } from "../../Cloudinary/Cloudinary";
+import { ToastContainer, toast } from "react-toastify";
+
+import "react-toastify/dist/ReactToastify.css";
 
 export default function cartPage(): JSX.Element {
   const { customer, setCustomer } = useCustomer();
@@ -56,7 +61,12 @@ export default function cartPage(): JSX.Element {
   const [userCart, setUserCart] = useState<cartItem[]>([]);
   const [prodQuantity, setProdQuantity] = useState<number>(0);
   const [changedSKU, setChangedSKU] = useState<string>("");
+  const [paypalCN, setPaypalCN] = useState<string>(
+    "pointer-events-none opacity-50"
+  );
   const [changedQuantState, setChangedQuantState] = useState<boolean>(false);
+  const [cartisEmpty, setCartisEmpty] = useState<boolean>(false);
+
   const [totalAmt, setTotalAmt] = useState<totalCart>({
     subTotal: 0,
     shippingFee: 0,
@@ -67,7 +77,6 @@ export default function cartPage(): JSX.Element {
 
   useEffect(() => {
     if (success) {
-      console.log();
       checkOut();
     }
   }, [success]);
@@ -86,26 +95,38 @@ export default function cartPage(): JSX.Element {
       return await axiosPrivateCustomer
         .get(`/customer/getCart/${customer_id}`)
         .then((res) => {
-          setUserCart(res.data);
           const sum = res.data
             .reduce((acc: number, item: cartItem) => {
               return acc + item.price * item.quantity;
             }, 0)
+
             .toFixed(2);
+          if (res.data.length === 0) {
+            setCartisEmpty(true);
+            setIsInputDisabled(true);
+          }
           setTotalAmt({
             subTotal: Number(sum),
-            shippingFee: Number(
-              (Math.round((8.95 + sum * 0.1) * 100) / 100).toFixed(2)
-            ),
+            shippingFee:
+              sum == 0
+                ? 0
+                : Number(
+                    (Math.round((8.95 + sum * 0.1) * 100) / 100).toFixed(2)
+                  ),
 
-            total: Number(
-              (
-                Math.round(Number(sum) * 100) / 100 +
-                Math.round((8.95 + sum * 0.1) * 100) / 100
-              ).toFixed(2)
-            ),
+            total:
+              sum == 0
+                ? 0
+                : Number(
+                    (
+                      Math.round(Number(sum) * 100) / 100 +
+                      Math.round((8.95 + sum * 0.1) * 100) / 100
+                    ).toFixed(2)
+                  ),
             coins: Number(Math.ceil(sum * 0.1)),
           });
+
+          setUserCart(res.data);
         });
     } catch (err: any) {
       console.log(err);
@@ -147,6 +168,7 @@ export default function cartPage(): JSX.Element {
       if (result[0].data.result < 10) {
         setIsInputDisabled(true);
       }
+
       setUserCoins(result[0].data.result);
       setUserAddresses(result[2].data);
     } catch (err: any) {
@@ -160,7 +182,7 @@ export default function cartPage(): JSX.Element {
         return {
           ...prevState,
           cart: {
-            totalAmt: totalAmt, //subtotal , total, coinsEarned, shipping
+            totalAmt: totalAmt, //subtotal , total, coins, shipping
             cartItems: userCart, // sku, product_id, name, quantity, price, image_url, variation_1, variation_2, stock
             coinsRedeemed: userCoins, //coins existing in user
             addressSelected: selectedAddress,
@@ -180,19 +202,29 @@ export default function cartPage(): JSX.Element {
         };
       });
     }
-    console.log("setCustomer");
     navigate("/customer/checkout");
   };
 
   // page onload
   useEffect(() => {
     getAll();
-    console.log(userAddresses);
   }, []);
 
   //when cartQuant state changes
   useEffect(() => {
     if (changedQuantState == false) return;
+    if (prodQuantity <= 0) {
+      toast.success("Item removed from cart. 🤡", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
     const alterQuantFnc = async () => {
       try {
         const result = await axiosPrivateCustomer.post(
@@ -203,6 +235,7 @@ export default function cartPage(): JSX.Element {
             quantity: prodQuantity,
           }
         );
+
         setChangedQuantState(false);
         getUserCart();
       } catch (err: any) {
@@ -228,21 +261,27 @@ export default function cartPage(): JSX.Element {
     }
   }, [isChecked]);
 
-  useEffect(() => {
-    console.log("Set?");
-    console.log(selectedAddress);
-  }, [selectedAddress]);
-
   return (
     <div className="container flex">
       <div className="w-2/3 bg-white rounded-lg shadow-lg p-2">
-        <div className="grid grid-cols-5 gap-2">
-          <div className="col-span-2 sm:col-span-1"></div>
-          <div className="col-span-2 sm:col-span-1">Name</div>
-          <div className="col-span-2 sm:col-span-1">Variations</div>
-          <div className="col-span-2 sm:col-span-1">Price</div>
-          <div className="col-span-3 sm:col-span-1">Quantity</div>
-        </div>
+        {!cartisEmpty && (
+          <div className="grid grid-cols-5 gap-2">
+            <div className="col-span-2 sm:col-span-1"></div>
+            <div className="col-span-2 sm:col-span-1 font-semibold">Name</div>
+            <div className="col-span-2 sm:col-span-1 font-semibold">
+              Variations
+            </div>
+            <div className="col-span-2 sm:col-span-1 font-semibold">Price</div>
+            <div className="col-span-3 sm:col-span-1 font-semibold">
+              Quantity
+            </div>
+          </div>
+        )}
+        {cartisEmpty && (
+          <div className="font-bold text-xl text-gray-300 flex justify-center h-full items-center">
+            No cart items to retrieve.
+          </div>
+        )}
 
         {userCart.map((item: cartItem) => (
           <Link
@@ -251,7 +290,16 @@ export default function cartPage(): JSX.Element {
             key={item.sku}
           >
             <div className="col-span-2 sm:col-span-1">
-              <img src={noImage} className="productImage" />
+              {item.image_url == null ? (
+                <img src={noImage} alt="product Image" />
+              ) : (
+                <AdvancedImage
+                  cldImg={cld.image(item.image_url)}
+                  alt="product image"
+                  draggable={false}
+                  className="rounded-xl object-cover cartImg"
+                />
+              )}
             </div>
             <div className="col-span-2 sm:col-span-1">{item.name}</div>
             <div className="col-span-2 sm:flex-row sm:col-span-1">
@@ -335,7 +383,9 @@ export default function cartPage(): JSX.Element {
             </label>
           </div>
           <div className="flex-col justify-center">
-            <PayPal amount={totalAmt.total} setSuccess={setSuccess} />
+            <div className={paypalCN}>
+              <PayPal amount={totalAmt.total} setSuccess={setSuccess} />
+            </div>
             {userAddresses.length != 0 && (
               <Select
                 value={
@@ -349,8 +399,9 @@ export default function cartPage(): JSX.Element {
                 }
                 onChange={(option) => {
                   setSelectedAddress(option?.value || userAddresses[0]);
-                  // console.log("Set?");
-                  // console.log(selectedAddress);
+                  if (totalAmt.total != 0) {
+                    setPaypalCN("opacity-100 cursor-pointer");
+                  }
                 }}
                 options={userAddresses.map((address) => ({
                   value: address,
@@ -366,6 +417,18 @@ export default function cartPage(): JSX.Element {
           </div>
         </div>
       </div>
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </div>
   );
 }

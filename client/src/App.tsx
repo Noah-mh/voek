@@ -77,7 +77,7 @@ function App() {
             {/* Protected Routes with persist login */}
             <Route path="wishlist" element={<Wishlist />} />
             <Route path="customer/cart" element={<CartPage />} />
-            <Route path="/customer/checkout" element={<Checkout />} />
+            <Route path="customer/checkout" element={<Checkout />} />
             <Route path="profile" element={<CustomerProfilePage />} />
             <Route path="lastViewed" element={<LastViewed />} />
           </Route>
