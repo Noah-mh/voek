@@ -325,7 +325,7 @@ export default function cartPage(): JSX.Element {
                 onClick={(event) => {
                   event.preventDefault();
                   if (item.quantity >= item.stock) {
-                    toast.warn("🦄 Wow so easy!", {
+                    toast.warn("Max Stock reached", {
                       position: "top-center",
                       autoClose: 5000,
                       hideProgressBar: false,
