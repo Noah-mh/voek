@@ -26,6 +26,7 @@ export const Date: React.FC<DateProps> = ({
 
   useEffect(() => {
     onSelectDate(moment(today).format("YYYY-MM-DD"));
+    console.log("selected date: ", selected); // this is always the same as today
   }, []);
 
   return (

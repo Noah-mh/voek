@@ -6,6 +6,8 @@ import Loader from "../Loader/Loader";
 import "./ProductDetailsWithReviews.css";
 import ProductDetail from "./ProductDetails"; // make sure the path is correct
 import CustomerContext from "../../context/CustomerProvider";
+import moment from "moment";
+import tz from "moment-timezone";
 
 export interface ProductVariation {
   variation_1: string | null;
@@ -33,6 +35,9 @@ export interface Product {
   description: string | null;
   variations: ProductVariation[] | null;
 }
+
+const timezone = tz.tz.guess();
+const currentDate = moment().format("YYYY-MM-DD");
 
 const ProductDetailWithReview: React.FC = () => {
   const params = useParams();
@@ -70,25 +75,46 @@ const ProductDetailWithReview: React.FC = () => {
 
     // Nhat Tien :D
     console.log("customerId", customerId);
+
     if (customerId != undefined) {
+      // axiosPrivateCustomer
+      //   .get(
+      //     `/getLastViewedProductExistence?customerId=${customerId}&productId=${product_id}&dateViewed=${currentDate}&timezone=${timezone}`
+      //   )
+      //   .then((response: any) => {
+      //     if (response.data.length === 0) {
+
+      //     }
+      //   });
+      // axiosPrivateCustomer
+      //   .get(`/getProductCat/${product_id}`)
+      //   .then((response) => {
+      //     return response.data[0].categoryId;
+      //   })
+      //   .then((categoryId) => {
+      //     const productId = product_id;
       axiosPrivateCustomer
-        .get(`/getProductCat/${product_id}`)
+        .post(
+          `/insertLastViewedProduct`,
+          JSON.stringify({
+            productId: product_id,
+            customerId,
+            currentDate,
+            timezone,
+          }),
+          {
+            headers: { "Content-Type": "application/json" },
+            withCredentials: true,
+          }
+        )
         .then((response) => {
-          return response.data[0].categoryId;
-        })
-        .then((categoryId) => {
-          const productId = product_id;
-          axiosPrivateCustomer.post(
-            `/insertLastViewedProduct`,
-            JSON.stringify({ productId, categoryId, customerId }),
-            {
-              headers: { "Content-Type": "application/json" },
-              withCredentials: true,
-            }
-          );
+          console.log("Data...", response.data);
           axiosPrivateCustomer.put(
             `/updateCustomerLastViewedCat`,
-            JSON.stringify({ categoryId, customerId }),
+            JSON.stringify({
+              categoryId: response.data[0].categoryId,
+              customerId,
+            }),
             {
               headers: { "Content-Type": "application/json" },
               withCredentials: true,

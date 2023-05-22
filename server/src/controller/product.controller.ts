@@ -70,19 +70,39 @@ export const getWishlistItems = async (
   }
 };
 
+export const getLastViewedProductExistence = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customerId, productId, timezone, dateViewed } = req.query;
+    const response: Array<object> =
+      await productModel.handlesGetLastViewedProductExistence(
+        parseInt(customerId as string),
+        parseInt(productId as string),
+        timezone as string,
+        dateViewed as string
+      );
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
 export const getLastViewed = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const { customerId, dateViewed } = req.body;
+    const { customerId, dateViewed, timezone } = req.body;
+    console.log("timezone:", timezone);
     const response: Array<object> = await productModel.handlesGetLastViewed(
       customerId,
+      timezone,
       dateViewed
     );
-    // if (!response?.length) return res.sendStatus(404);
-    // return res.sendStatus(200);
     return res.send(response);
   } catch (err: any) {
     return next(err);
@@ -331,12 +351,13 @@ export const insertLastViewedProduct = async (
   next: NextFunction
 ) => {
   try {
-    const { productId, categoryId, customerId } = req.body;
+    const { productId, customerId, currentDate, timezone } = req.body;
     const response: Array<object> =
       await productModel.handlesInsertLastViewedProduct(
         productId,
-        categoryId,
-        customerId
+        customerId,
+        currentDate,
+        timezone
       );
     return res.send(response);
   } catch (err: any) {

@@ -1,5 +1,6 @@
 import pool from "../../config/database";
 import { OkPacket } from "mysql2";
+import { updateCustomerLastViewedCat } from "../controller/customer.controller";
 
 //Noah
 export const handlesGetProductDetails = async (
@@ -150,8 +151,30 @@ export const handlesGetWishlistItems = async (
   }
 };
 
+export const handlesGetLastViewedProductExistence = async (
+  customer_id: number,
+  product_id: number,
+  timezone: string,
+  date_viewed: string
+): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT * FROM last_viewed WHERE product_id = ? AND customer_id = ? AND DATE(CONVERT_TZ(date_viewed, '+00:00', ?)) = ?;`;
+  const params = [product_id, customer_id, timezone, date_viewed];
+  try {
+    const result = await connection.query(sql, params);
+    console.log(result[0]);
+    return result[0] as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
 export const handlesGetLastViewed = async (
   customer_id: number,
+  timezone: string,
   date_viewed: string
 ): Promise<Product[]> => {
   const promisePool = pool.promise();
@@ -160,9 +183,9 @@ export const handlesGetLastViewed = async (
   FROM last_viewed
   JOIN customer ON last_viewed.customer_id = customer.customer_id
   JOIN products ON last_viewed.product_id = products.product_id
-  WHERE last_viewed.customer_id = ? and last_viewed.date_viewed LIKE ?;`;
+  WHERE last_viewed.customer_id = ? and CONVERT_TZ(date_viewed, '+00:00', ?) LIKE ?;`;
   console.log("customerId", customer_id);
-  const params = [customer_id, `${date_viewed}%`];
+  const params = [customer_id, timezone, `${date_viewed}%`];
   try {
     const result = await connection.query(sql, params);
     console.log(result[0]);
@@ -484,13 +507,15 @@ export const handlesGetProductVariationImage = async (sku: string) => {
   }
 };
 
-export const handlesGetProductCat = async (productId: number) => {
+export const handlesGetProductCat = async (
+  productId: number
+): Promise<Category[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT category_id as categoryId FROM products WHERE product_id = ?;`;
   try {
     const result = await connection.query(sql, [productId]);
-    return result[0] as Array<Object>;
+    return result[0] as Array<Category>;
   } catch (err: any) {
     throw new Error(err);
   } finally {
@@ -500,23 +525,37 @@ export const handlesGetProductCat = async (productId: number) => {
 
 export const handlesInsertLastViewedProduct = async (
   productId: number,
-  categoryId: number,
-  customerId: number
+  customerId: number,
+  currentDate: string,
+  timezone: string
 ) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `INSERT INTO last_viewed (product_id, category_id, customer_id) VALUES (?, ?, ?);`;
-  try {
-    const result = await connection.query(sql, [
-      productId,
-      categoryId,
-      customerId,
-    ]);
-    return result[0] as Array<Object>;
-  } catch (err: any) {
-    throw new Error(err);
-  } finally {
-    await connection.release();
+  const categories: Category[] = await handlesGetProductCat(productId);
+  const categoryId = categories.length > 0 ? categories[0].categoryId : 0;
+  const found = await handlesGetLastViewedProductExistence(
+    customerId,
+    productId,
+    timezone,
+    currentDate
+  );
+
+  if (found.length === 0) {
+    const sql = `INSERT INTO last_viewed (product_id, category_id, customer_id) VALUES (?, ?, ?);`;
+    try {
+      const result = await connection.query(sql, [
+        productId,
+        categoryId,
+        customerId,
+      ]);
+      return [{ categoryId, customerId }]; //result[0] as Array<Object>;
+    } catch (err: any) {
+      throw new Error(err);
+    } finally {
+      await connection.release();
+    }
+  } else {
+    return [{ categoryId, customerId }];
   }
 };
 
@@ -555,4 +594,8 @@ interface ProductWithImages extends Product {
 interface Review {
   customerName: string;
   comment: string;
+}
+
+interface Category {
+  categoryId: number;
 }
