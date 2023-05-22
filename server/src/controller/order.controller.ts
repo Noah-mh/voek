@@ -37,9 +37,9 @@ export const processGetCustomerReceivedOrders = async (req: Request, res: Respon
 
 export const processOrderReceived = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { orders_product_id } = req.params;
-        if (!orders_product_id) return res.sendStatus(400);
-        const result = await orderModel.handleOrderReceived(parseInt(orders_product_id));
+        const { orders_id, seller_id } = req.params;
+        if (!orders_id || !seller_id) return res.sendStatus(400);
+        const result = await orderModel.handleOrderReceived(parseInt(orders_id), parseInt(seller_id));
         return res.sendStatus(200);
     } catch (err: any) {
         return next(err);
