@@ -21,6 +21,9 @@ const SellerProfile = () => {
     const [newPassword, setNewPassword] = useState<string>()
     const [saveButton, setSaveButton] = useState<boolean>(false)
     const [sendEmailVerification, setSendEmailVerification] = useState<boolean>(false)
+    const [status, setStatus] = useState<boolean>();
+    const [modal, setModal] = useState<boolean>(false);
+    const [disabledModal, setDisabledModal] = useState<boolean>(true);
 
     const getSellerDetails = async () => {
         try {
@@ -31,8 +34,36 @@ const SellerProfile = () => {
         }
     }
 
+    const getActiveStatus = async () => {
+        try {
+            const response = await axiosPrivateSeller.get(`/seller/status/${seller.seller_id}`)
+            setStatus(response.data.status)
+        } catch (err: any) {
+            console.log(err)
+        }
+    }
+
+    const deactivateAccount = async () => {
+        try {
+            await axiosPrivateSeller.put(`/seller/deactivate/${seller.seller_id}`)
+            setStatus(false)
+        } catch (err: any) {
+            console.log(err)
+        }
+    }
+
+    const activateAccount = async () => {
+        try {
+            await axiosPrivateSeller.put(`/seller/activate/${seller.seller_id}`)
+            setStatus(true)
+        } catch (err: any) {
+            console.log(err)
+        }
+    }
+
     useEffect(() => {
         getSellerDetails()
+        getActiveStatus();
     }, [])
 
     useEffect(() => {
@@ -90,6 +121,24 @@ const SellerProfile = () => {
                 <div className="ml-4">
                     <h1 className="text-3xl font-bold">Seller Profile</h1>
                     <h2 className="text-xl">{sellerDetails?.shop_name}</h2>
+                </div>
+                <div className="flex">
+                    Account Status: &nbsp;
+                    <label className="inline-flex relative items-center mr-5 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            className="sr-only peer"
+                            checked={status}
+                            readOnly
+                        />
+                        <div
+                            onClick={() => {
+                                !status ? activateAccount() : setModal(true)
+                            }}
+                            className="w-11 h-6 bg-gray-200 rounded-full peer  peer-focus:ring-green-300  peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"
+                        ></div>
+                    </label>
+                    {status ? <p className="text-green-600">Active</p> : <p className="text-red-600">Inactive</p>}
                 </div>
             </div>
             <div>
@@ -156,6 +205,47 @@ const SellerProfile = () => {
                     />
                 </form>
             </div>
+            {modal && status ? (
+                <div className="fixed inset-0 z-50 flex items-center justify-center w-full h-full">
+                    <div className="fixed inset-0 transition-opacity">
+                        <div className="absolute inset-0 bg-gray-900 opacity-75"></div>
+                    </div>
+                    <div className="relative z-10 bg-white rounded-lg w-80">
+                        <div className="flex flex-col justify-center items-center p-4">
+                            <p className="mb-2">Type "Deactivate" To Deactivate Account</p>
+                            <input
+                                type="text"
+                                className="border border-gray-300 rounded px-4 py-2 w-full text-black mb-2"
+                                onChange={(e) => {
+                                    e.target.value === 'Deactivate'
+                                        ? setDisabledModal(false)
+                                        : setDisabledModal(true)
+                                }}
+                            />
+                            <div className="flex justify-around w-full">
+                                <button
+                                    onClick={() => {
+                                        deactivateAccount()
+                                        setModal(false)
+                                    }}
+                                    disabled={disabledModal}
+                                    className="bg-red-500 text-white font-bold py-2 px-4 rounded cursor-pointer"
+                                >
+                                    Deactivate
+                                </button>
+                                <button
+                                    className="px-4 py-2 text-sm font-medium text-gray-600 transition-colors duration-150 bg-transparent border border-gray-300 rounded-md hover:bg-gray-100 focus:outline-none focus:ring focus:ring-gray-300"
+                                    onClick={() => {
+                                        setModal(false)
+                                    }}
+                                >
+                                    No
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ) : null}
         </div>
     )
 }

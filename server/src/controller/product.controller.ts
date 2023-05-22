@@ -9,6 +9,7 @@ export const processPublicProductDetails = async (
   try {
     console.log();
     const { productId } = req.body;
+    if (!productId) return res.sendStatus(404);
     const response: Array<object> = await productModel.handlesGetProductDetails(
       productId
     );
@@ -218,7 +219,7 @@ export const getProductDetailsWithoutReviews = async (
 ) => {
   try {
     const product_id: number = parseInt(req.params.product_id);
-
+    if (!product_id) return res.sendStatus(404);
     const response: Array<object> =
       await productModel.handleProductDetailsWithoutReviews(product_id);
     if (!response?.length) return res.sendStatus(404);
@@ -235,7 +236,7 @@ export const getProductReviews = async (
 ) => {
   try {
     const product_id: number = parseInt(req.params.product_id);
-
+    if (!product_id) return res.sendStatus(404);
     const response: Array<object> = await productModel.handleProductReviews(
       product_id
     );
@@ -406,6 +407,8 @@ export const addToCart = async (
 ) => {
   try {
     const { quantity, customer_id, product_id, sku } = req.body;
+    if (!quantity || !customer_id || !product_id || !sku)
+      return res.sendStatus(404);
     const response: number = await productModel.handleAddToCart(
       quantity,
       customer_id,

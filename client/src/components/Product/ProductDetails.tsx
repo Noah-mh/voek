@@ -10,7 +10,7 @@ import useCustomer from "../../hooks/UseCustomer";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion";
-import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
+import { AiFillHeart, AiOutlineHeart, AiFillDelete } from "react-icons/ai";
 import StarRating from "./StarRating";
 
 interface ProductDetailProps {
@@ -203,6 +203,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
     }
   };
 
+  //Noah
   // Flattening the variations array
   const allVariations = productData
     .filter((product) => product.variations !== null)
@@ -302,6 +303,40 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
     }
   };
 
+  const handleDeleteReview = (review_id: number, sku: string) => {
+    axiosPrivateCustomer
+      .delete(`/deleteReview`, { data: { review_id, sku } })
+      .then((response) => {
+        if (response.status === 200) {
+          toast.success("Review Deleted! 😊", {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+          window.location.reload();
+        }
+      })
+      .catch((error) => {
+        // Handle error here
+        console.error(error);
+        toast.error("Error! Deleting review failed", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      });
+  };
+
   return (
     <div className="container">
       {productData.map((pData, index: React.Key | null | undefined) => (
@@ -336,10 +371,10 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                 value={
                   selectedVariation
                     ? {
-                        label: selectedVariation,
-                        value: selectedVariation,
-                        sku: "",
-                      }
+                      label: selectedVariation,
+                      value: selectedVariation,
+                      sku: "",
+                    }
                     : null
                 }
                 onChange={(option) => {
@@ -424,6 +459,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
           <h3>Reviews:</h3>
           {pReview.reviews &&
             pReview.reviews.map((review, reviewIndex) => (
+
               <div key={reviewIndex}>
                 <h4>{review.customerName}</h4>
                 {review.image_urls && (
@@ -435,7 +471,13 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                     ))}
                   </Carousel>
                 )}{" "}
-                <p>{review.comment}</p>
+                <div className="flex flex-row justify-between">
+                  <p>{review.comment}</p>
+                  {review.customer_id === customer_id && (
+                    <button className="justify-content-center align-item-center" onClick={() => handleDeleteReview(review.review_id,review.sku)}>
+                      <AiFillDelete />
+                    </button>)}
+                </div>
               </div>
             ))}
         </div>

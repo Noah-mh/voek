@@ -24,6 +24,7 @@ import ResetPasswordCustomer from "./components/ResetPasswordCustomer/ResetPassw
 import ForgetPasswordSeller from "./components/ForgetPasswordSeller/ForgetPasswordSeller.js";
 import HomepageSeller from "./components/HomepageSeller/HomepageSeller.js";
 import ManageProducts from "./components/SellerSidebar/ManageProducts.js";
+import EditProduct from "./components/SellerSidebar/EditProduct.js";
 import AddProduct from "./components/SellerSidebar/AddProduct.js";
 import ManageOrders from "./components/SellerSidebar/ManageOrders.js";
 import Checkout from "./components/Checkout/Checkout.js";
@@ -34,6 +35,7 @@ import ViewCustomerOrders from "./components/SellerSidebar/ViewCustomerOrders.js
 import CategoryResults from "./components/CategoryResults/CategoryResults.js";
 import SellerProfile from "./components/SellerProfile/SellerProfile.js";
 import VerifySellerEmail from "./components/SellerProfile/VerifySellerEmail.js";
+import VerifyCustomerEmail from "./components/Customer/VerifyCustomerEmail.js";
 
 function App() {
   return (
@@ -52,7 +54,8 @@ function App() {
 
           <Route path="/" element={<Homepage />} />
           <Route path="test" element={<ReferralLink />} />
-          <Route path="customer/checkout" element={<Checkout />} />
+
+          <Route path="/" element={<Homepage />} />
           <Route path="login" element={<LoginBanner />} />
           <Route path="signup" element={<SignupBannerCustomer />} />
           <Route
@@ -64,13 +67,17 @@ function App() {
             path="categoryResults/:categoryId"
             element={<CategoryResults />}
           />
-          <Route path="/customer/cart" element={<CartPage />} />
 
+          <Route
+            path="customer/email-verification"
+            element={<VerifyCustomerEmail />}
+          />
 
           <Route element={<RequireAuthCustomer />}>
             {/* Protected Routes with persist login */}
             <Route path="wishlist" element={<Wishlist />} />
             <Route path="customer/cart" element={<CartPage />} />
+            <Route path="customer/checkout" element={<Checkout />} />
             <Route path="profile" element={<CustomerProfilePage />} />
             <Route path="lastViewed" element={<LastViewed />} />
           </Route>
@@ -100,6 +107,7 @@ function App() {
           <Route element={<RequireAuthSeller />}>
             <Route path="seller/home" element={<HomepageSeller />} />
             <Route path="seller/manageProducts" element={<ManageProducts />} />
+            <Route path="seller/editProduct" element={<EditProduct />} />
             <Route path="seller/addProduct" element={<AddProduct />} />
             <Route path="seller/manageOrders" element={<ManageOrders />} />
             <Route path="seller/orders" element={<ViewCustomerOrders />} />

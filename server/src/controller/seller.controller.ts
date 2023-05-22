@@ -34,7 +34,7 @@ export const processAddProduct = async (req: Request, res: Response, next: NextF
         const { name, description, category_id, variation_1, variation_2, quantity, price } = req.body;
         if (!name || !category_id || !quantity || !price) return res.sendStatus(400);
         const response: any = await sellerModel.handleAddProduct(sellerId, name, description, category_id, variation_1, variation_2, quantity, price);
-        return response.insertId;
+        return res.json(response);
     } catch (err: any) {
         return next(err);
     }
@@ -315,6 +315,36 @@ export const processChangeEmail = async (req: Request, res: Response, next: Next
             await sellerModel.handleChangeEmail(seller_id);
             return res.sendStatus(200);
         });
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const deactivateAccount = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { seller_id } = req.params;
+        await sellerModel.handleDeactivateAccount(parseInt(seller_id));
+        return res.sendStatus(200);
+    } catch (err: any) {
+        return next(err);
+    }
+};
+
+export const getSellerStatus = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { seller_id } = req.params;
+        const result = await sellerModel.handleGetSellerStatus(parseInt(seller_id));
+        return res.json({ status: result });
+    } catch (err: any) {
+        return next(err);
+    }
+};
+
+export const activateAccount = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { seller_id } = req.params;
+        await sellerModel.handleActivateAccount(parseInt(seller_id));
+        return res.sendStatus(200);
     } catch (err: any) {
         return next(err);
     }

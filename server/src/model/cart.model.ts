@@ -4,17 +4,20 @@ import pool from "../../config/database";
 import { NumberSchema, StringSchema } from "yup";
 
 export const handlesGetCartDetails = async (
-  customerId: number
+  customer_id: string
 ): Promise<CartItem[]> => {
   console.log("Connected to getCart Model");
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `SELECT  cart.product_id, cart.customer_id, cart.quantity, product_variations.price, product_variations.sku, products.name, product_variations.variation_1, product_variations.variation_2, product_variations.quantity AS stock FROM cart JOIN products ON cart.product_id = products.product_id JOIN product_variations ON products.product_id = product_variations.product_id WHERE cart.sku = product_variations.sku AND customer_id = ?`;
+  const sql = `SELECT cart.product_id, cart.customer_id, cart.quantity, product_variations.price, product_variations.sku, products.name, product_variations.variation_1, product_variations.variation_2,product_images.image_url,  product_variations.quantity AS stock FROM cart JOIN products ON cart.product_id = products.product_id LEFT JOIN product_images ON cart.sku = product_images.sku JOIN product_variations ON products.product_id = product_variations.product_id WHERE cart.sku = product_variations.sku AND customer_id = ?`;
   try {
-    const result = await connection.query(sql, [customerId]);
-
+    const result = await connection.query(sql, [customer_id]);
     console.log("successfully handle got cart details");
-    return result[0] as CartItem[];
+    if (Array.isArray(result[0]) && result[0].length === 0) {
+      return [] as CartItem[];
+    } else {
+      return result[0] as CartItem[];
+    }
   } catch (err: any) {
     throw new Error(err);
   } finally {
@@ -31,13 +34,11 @@ export const handleAlterQuantCart = async (
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   if (quantity === 0) {
-    console.log(quantity);
     //If quantity of object hits 0, it will be deleted, and no new sku is defined
     const sql = `DELETE FROM cart WHERE customer_id = ? AND sku = ?`;
     try {
       const result = await connection.query(sql, [customer_id, sku]);
       console.log("Successfully deleted?? (Handle)");
-      console.log(result);
       return result;
     } catch (err: any) {
       throw new Error(err);
@@ -87,6 +88,25 @@ export const handleAlterQuantCart = async (
 //   }
 // };
 
+export const handleInsertPayment = async (
+  customer_id: number,
+  amount: number
+): Promise<any> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `INSERT INTO payment (customer_id, amount) VALUES (?,?)`;
+
+  try {
+    const [result] = await connection.query(sql, [customer_id, amount]);
+    console.log("Handle Insert Payment Successful");
+    return (result as OkPacket).insertId as number;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
 export const handleInsertOrder = async (
   customer_id: number,
   payment_id: number,
@@ -121,12 +141,11 @@ export const handleInsertOrderProduct = async (
   orders_id: number,
   product_id: number,
   totalPrice: number,
-  quantity: number,
-  shipment_id: number
+  quantity: number
 ): Promise<any> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `INSERT INTO orders_product (sku, orders_id, product_id, total_price, quantity, shipment_id) VALUES (?,?,?,?,?,?)`;
+  const sql = `INSERT INTO orders_product (sku, orders_id, product_id, total_price, quantity) VALUES (?,?,?,?,?)`;
 
   try {
     const [result] = await connection.query(sql, [
@@ -135,7 +154,6 @@ export const handleInsertOrderProduct = async (
       product_id,
       totalPrice,
       quantity,
-      shipment_id,
     ]);
     console.log("Handle Insert Order Product Successful");
     return (result as OkPacket).insertId as number;
@@ -171,10 +189,9 @@ export const handleAlterCustomerCoins = async (
 ): Promise<any> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `UPDATE customer SET coins = ? WHERE customer_id = ?; `;
-
+  const sql = `UPDATE customer SET coins = (coins + ?) WHERE customer_id = ?; `;
   try {
-    const result = await connection.query(sql, [customer_id, coins]);
+    const result = await connection.query(sql, [coins, customer_id]);
     console.log("Handle Alter Customer Coins Successful ");
     return (result[0] as OkPacket).affectedRows as number;
   } catch (err: any) {
@@ -189,6 +206,7 @@ export const handleInsertShipment = async (
   customer_id: number
 ): Promise<any> => {
   const promisePool = pool.promise();
+  console.log("entered handle insert shipment");
   const connection = await promisePool.getConnection();
   const sql = `INSERT INTO shipment (orders_product_id, customer_id) VALUES (?,?) `;
 
@@ -205,7 +223,21 @@ export const handleInsertShipment = async (
     await connection.release();
   }
 };
+export const handleClearCart = async (customer_id: number): Promise<any> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `DELETE FROM cart WHERE customer_id = ? `;
 
+  try {
+    const [result] = await connection.query(sql, [customer_id]);
+    console.log("Handle Clear Cart Successful ");
+    return (result as OkPacket).affectedRows as number;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
 // NHAT TIEN :D
 export const handlesInsertCart = async (
   quantity: number,

@@ -1,13 +1,3 @@
-// import React, { useState, useEffect } from 'react'
-import SellerSidebar from "../SellerSidebar/SellerSidebar.js";
-import useSeller from "../../hooks/useSeller.js";
-
-import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller.js";
-
-// import { Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
-// import MaterialReactTable from 'material-react-table';
-// import type { MRT_ColumnDef } from 'material-react-table'; // If using TypeScript (optional, but recommended)
-
 import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import MaterialReactTable, {
   type MaterialReactTableProps,
@@ -30,16 +20,17 @@ import {
 } from '@mui/material';
 import { Delete, Edit } from '@mui/icons-material';
 
-export type Person = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  age: number;
-  state: string;
-};
+import SellerSidebar from "../SellerSidebar/SellerSidebar.js";
+import useSeller from "../../hooks/useSeller.js";
+
+import { Link } from 'react-router-dom';
+
+import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller.js";
+
 
 interface ProductVariations {
+  name: string;
+  active: boolean;
   price: number;
   sku: string;
   variation1: string;
@@ -63,138 +54,21 @@ interface Product {
 
 const ManageProducts = () => {
 
-  const data: Person[] = [
-    {
-      id: '9s41rp',
-      firstName: 'Kelvin',
-      lastName: 'Langosh',
-      email: 'Jerod14@hotmail.com',
-      age: 19,
-      state: 'Ohio',
-    },
-    {
-      id: '08m6rx',
-      firstName: 'Molly',
-      lastName: 'Purdy',
-      email: 'Hugh.Dach79@hotmail.com',
-      age: 37,
-      state: 'Rhode Island',
-    },
-    {
-      id: '5ymtrc',
-      firstName: 'Henry',
-      lastName: 'Lynch',
-      email: 'Camden.Macejkovic@yahoo.com',
-      age: 20,
-      state: 'California',
-    },
-    {
-      id: 'ek5b97',
-      firstName: 'Glenda',
-      lastName: 'Douglas',
-      email: 'Eric0@yahoo.com',
-      age: 38,
-      state: 'Montana',
-    },
-    {
-      id: 'xxtydd',
-      firstName: 'Leone',
-      lastName: 'Williamson',
-      email: 'Ericka_Mueller52@yahoo.com',
-      age: 19,
-      state: 'Colorado',
-    },
-    {
-      id: 'wzxj9m',
-      firstName: 'Mckenna',
-      lastName: 'Friesen',
-      email: 'Veda_Feeney@yahoo.com',
-      age: 34,
-      state: 'New York',
-    },
-    {
-      id: '21dwtz',
-      firstName: 'Wyman',
-      lastName: 'Jast',
-      email: 'Melvin.Pacocha@yahoo.com',
-      age: 23,
-      state: 'Montana',
-    },
-    {
-      id: 'o8oe4k',
-      firstName: 'Janick',
-      lastName: 'Willms',
-      email: 'Delfina12@gmail.com',
-      age: 25,
-      state: 'Nebraska',
-    },
-  ];
-
-  const states: Array<String> = [
-    'Alabama',
-    'Alaska',
-    'Arizona',
-    'Arkansas',
-    'California',
-    'Colorado',
-    'Connecticut',
-    'Delaware',
-    'Florida',
-    'Georgia',
-    'Hawaii',
-    'Idaho',
-    'Illinois',
-    'Indiana',
-    'Iowa',
-    'Kansas',
-    'Kentucky',
-    'Louisiana',
-    'Maine',
-    'Maryland',
-    'Massachusetts',
-    'Michigan',
-    'Minnesota',
-    'Mississippi',
-    'Missouri',
-    'Montana',
-    'Nebraska',
-    'Nevada',
-    'New Hampshire',
-    'New Jersey',
-    'New Mexico',
-    'New York',
-    'North Carolina',
-    'North Dakota',
-    'Ohio',
-    'Oklahoma',
-    'Oregon',
-    'Pennsylvania',
-    'Rhode Island',
-    'South Carolina',
-    'South Dakota',
-    'Tennessee',
-    'Texas',
-    'Utah',
-    'Vermont',
-    'Virginia',
-    'Washington',
-    'West Virginia',
-    'Wisconsin',
-    'Wyoming',
-    'Puerto Rico',
-  ];
-
   const axiosPrivateSeller = useAxiosPrivateSeller();
 
   const { seller } = useSeller();
   const sellerId = seller.seller_id;
 
-  const [tableData1, setTableData1] = useState<Product[]>([]);
+  const [tableData, setTableData] = useState<Product[]>([]);
+  const [validationErrors, setValidationErrors] = useState<{
+    [cellId: string]: string;
+  }>({});
 
+  // console.log tableData everytime it changes
   useEffect(() => {
-    console.log("Updated tableData1:", tableData1);
-    tableData1.forEach((item) => console.log(item));
-  }, [tableData1]);
+    console.log("Updated tableData:", tableData);
+    tableData.forEach((item) => console.log(item));
+  }, [tableData]);
   
 
   useEffect(() => {
@@ -214,7 +88,7 @@ const ManageProducts = () => {
           sku: "",
           subRows: []
         };
-        console.log("hi");
+        // console.log("hi");
         let currentProductId: number = 0;
         let sellerProducts: Product[] = [];
         let currentIdx: number = -1;
@@ -223,7 +97,7 @@ const ManageProducts = () => {
           // hence, this would be a new product, so sellerProduct would need to be reinitialised
           if (currentProductId != item.product_id) {
             currentProductId = item.product_id;
-            console.log(currentProductId)
+            // console.log(currentProductId)
 
             currentIdx++;
 
@@ -244,6 +118,8 @@ const ManageProducts = () => {
             // check for existing product variation
             if (item.variation_1 != null || item.variation_2 != null) {
               let sellerProductVariation: ProductVariations = {
+                name: `${item.variation_1} + ${item.variation_2}`,
+                active: item.availability,
                 price: item.price,
                 sku: item.sku,
                 variation1: item.variation_1,
@@ -261,14 +137,16 @@ const ManageProducts = () => {
             }
 
             // add Product to sellerProducts
-            console.log(`sellerProduct: ${Object.values(sellerProduct)}`)
+            // console.log(`sellerProduct: ${Object.values(sellerProduct)}`)
             sellerProducts.push(sellerProduct);
-            console.log("sellerProducts:", sellerProducts.map(obj => JSON.stringify(obj)));
+            // console.log("sellerProducts:", sellerProducts.map(obj => JSON.stringify(obj)));
 
           } else { 
             // same product_id means that this is a product variation
             // add subRow to sellerProducts[currentIdx]
             let sellerProductVariation: ProductVariations = {
+              name: `${item.variation_1} + ${item.variation_2}`,
+              active: item.availability,
               price: item.price,
               sku: item.sku,
               variation1: item.variation_1,
@@ -286,7 +164,7 @@ const ManageProducts = () => {
 
         }))
 
-        setTableData1(sellerProducts);
+        setTableData(sellerProducts);
 
       } catch(error) {
         console.error('Error fetching data:', error);
@@ -297,152 +175,161 @@ const ManageProducts = () => {
 
   }, []);
 
+  // edit
+  // const handleSaveRowEdits: MaterialReactTableProps<Product>['onEditingRowSave'] =
+  // async ({ exitEditingMode, row, values }) => {
+  //   if (!Object.keys(validationErrors).length) {
+  //     const updatedData = {
+  //       id: row.original.productId, 
+  //       ...values,
+  //     };
+
+  //     console.log("updatedData", updatedData)
+
+  //     try {
+  //       // Make an API call to send the updated data to the backend
+  //       await axiosPrivateSeller.put(`/editProduct/` + updatedData.id, updatedData);
+
+  //       // If the API call is successful, update the local table data and exit editing mode
+  //       tableData[row.index] = values;
+  //       console.log(tableData[row.index])
+
+  //       setTableData([...tableData]);
+  //       exitEditingMode(); // Required to exit editing mode and close the modal
+  //     } catch (error) {
+  //       // Handle any error that occurred during the API call
+  //       console.error('Error updating data:', error);
+  //     }
+  //   }
+  // };
+
+  // const handleCancelRowEdits = () => {
+  //   setValidationErrors({});
+  // };
+
+  // const getCommonEditTextFieldProps = useCallback(
+  //   (
+  //     cell: MRT_Cell<Product>,
+  //   ): MRT_ColumnDef<Product>['muiTableBodyCellEditTextFieldProps'] => {
+  //     return {
+  //       error: !!validationErrors[cell.id],
+  //       helperText: validationErrors[cell.id],
+  //       onBlur: (event) => {
+  //         const isValid =
+  //           cell.column.id === 'email'
+  //             ? validateEmail(event.target.value)
+  //             : cell.column.id === 'age'
+  //             ? validateAge(+event.target.value)
+  //             : validateRequired(event.target.value);
+  //         if (!isValid) {
+  //           //set validation error for cell if invalid
+  //           setValidationErrors({
+  //             ...validationErrors,
+  //             [cell.id]: `${cell.column.columnDef.header} is required`,
+  //           });
+  //         } else {
+  //           //remove validation error for cell if valid
+  //           delete validationErrors[cell.id];
+  //           setValidationErrors({
+  //             ...validationErrors,
+  //           });
+  //         }
+  //       },
+  //     };
+  //   },
+  //   [validationErrors],
+  // );
+
+  const columns = useMemo<MRT_ColumnDef<Product>[]>(
+    () => [
+      {
+        accessorKey: 'name',
+        header: 'Name',
+        enableClickToCopy: true,
+        size: 140,
+        // muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
+        //   ...getCommonEditTextFieldProps(cell),
+        // }),
+      },
+      {
+        accessorKey: 'description',
+        header: 'Description',
+        enableClickToCopy: true,
+        size: 80,
+      },
+      {
+        accessorKey: 'category',
+        header: 'Category',
+        enableClickToCopy: true,
+        size: 80,
+      },
+      {
+        accessorKey: 'price',
+        header: 'Price',
+        // enableEditing: true,
+        size: 80,
+        // muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
+        //   ...getCommonEditTextFieldProps(cell),
+        //   type: 'number',
+        // }),
+      },
+      {
+        accessorKey: 'quantity',
+        header: 'Stock',
+        // enableEditing: true,
+        size: 80,
+        // muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
+        //   ...getCommonEditTextFieldProps(cell),
+        //   type: 'number',
+        // }),
+      },
+      {
+        accessorKey: 'sku',
+        header: 'SKU',
+        enableClickToCopy: true,
+        // enableEditing: false, //disable editing on this column
+        size: 140,
+        // muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
+        //   ...getCommonEditTextFieldProps(cell),
+        // }),
+      },
+      {
+        accessorKey: 'active',
+        header: 'Active',
+        // enableEditing: false, //disable editing on this column
+        size: 140,
+        // muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
+        //   ...getCommonEditTextFieldProps(cell),
+        // }),
+      },
+      {
+        accessorKey: 'productId',
+        header: 'Edit',
+        size: 80,
+        Cell: ({ row }: { row: MRT_Row<Product> }) => (
+          <Link 
+            to="/seller/editProduct/" 
+            state={{ Product: row.original }} 
+          >
+            Edit
+          </Link>
+        ),
+      },
+    ],
+    []
+  )
+
   // const toggleSubrows = (itemId: number) => {
   //   setTableData((prevTableData: Product[]) =>
   //     prevTableData.map((item: Product) =>
   //       item.product_id === itemId ? { ...item, showSubrows: !item.showSubrows } : item
   //     )
   //   );
-  // };
-
-  const [createModalOpen, setCreateModalOpen] = useState(false);
-  const [tableData, setTableData] = useState<Person[]>(() => data);
-  const [validationErrors, setValidationErrors] = useState<{
-    [cellId: string]: string;
-  }>({});
-
-  const handleCreateNewRow = (values: Person) => {
-    tableData.push(values);
-    setTableData([...tableData]);
-  };
-
-  const handleSaveRowEdits: MaterialReactTableProps<Person>['onEditingRowSave'] =
-    async ({ exitEditingMode, row, values }) => {
-      if (!Object.keys(validationErrors).length) {
-        tableData[row.index] = values;
-        //send/receive api updates here, then refetch or update local table data for re-render
-        setTableData([...tableData]);
-        exitEditingMode(); //required to exit editing mode and close modal
-      }
-    };
-
-  const handleCancelRowEdits = () => {
-    setValidationErrors({});
-  };
-
-  const handleDeleteRow = useCallback(
-    (row: MRT_Row<Person>) => {
-      if (
-        !confirm(`Are you sure you want to delete ${row.getValue('firstName')}`)
-      ) {
-        return;
-      }
-      //send api delete request here, then refetch or update local table data for re-render
-      tableData.splice(row.index, 1);
-      setTableData([...tableData]);
-    },
-    [tableData],
-  );
-
-  const getCommonEditTextFieldProps = useCallback(
-    (
-      cell: MRT_Cell<Person>,
-    ): MRT_ColumnDef<Person>['muiTableBodyCellEditTextFieldProps'] => {
-      return {
-        error: !!validationErrors[cell.id],
-        helperText: validationErrors[cell.id],
-        onBlur: (event) => {
-          const isValid =
-            cell.column.id === 'email'
-              ? validateEmail(event.target.value)
-              : cell.column.id === 'age'
-              ? validateAge(+event.target.value)
-              : validateRequired(event.target.value);
-          if (!isValid) {
-            //set validation error for cell if invalid
-            setValidationErrors({
-              ...validationErrors,
-              [cell.id]: `${cell.column.columnDef.header} is required`,
-            });
-          } else {
-            //remove validation error for cell if valid
-            delete validationErrors[cell.id];
-            setValidationErrors({
-              ...validationErrors,
-            });
-          }
-        },
-      };
-    },
-    [validationErrors],
-  );
-
-  const columns = useMemo<MRT_ColumnDef<Person>[]>(
-    () => [
-      {
-        accessorKey: 'id',
-        header: 'ID',
-        enableColumnOrdering: false,
-        enableEditing: false, //disable editing on this column
-        enableSorting: false,
-        size: 80,
-      },
-      {
-        accessorKey: 'firstName',
-        header: 'First Name',
-        size: 140,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
-        }),
-      },
-      {
-        accessorKey: 'lastName',
-        header: 'Last Name',
-        size: 140,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
-        }),
-      },
-      {
-        accessorKey: 'email',
-        header: 'Email',
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
-          type: 'email',
-        }),
-      },
-      {
-        accessorKey: 'age',
-        header: 'Age',
-        size: 80,
-        muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-          ...getCommonEditTextFieldProps(cell),
-          type: 'number',
-        }),
-      },
-      // {
-      //   accessorKey: 'state',
-      //   header: 'State',
-      //   muiTableBodyCellEditTextFieldProps: {
-      //     select: true, //change to select for a dropdown
-      //     children: states.map((state) => (
-      //       <MenuItem key={state} value={state}>
-      //         {state}
-      //       </MenuItem>
-      //     )),
-      //   },
-      // },
-    ],
-    [getCommonEditTextFieldProps],
-  );
-
-
-  
+  // }; 
 
   return (
     <div className="flex flex-row">
         <SellerSidebar />
-        <div className="flex flex-column">ManageProducts</div>
 
         <MaterialReactTable
         displayColumnDefOptions={{
@@ -455,41 +342,43 @@ const ManageProducts = () => {
         }}
         columns={columns}
         data={tableData}
-        editingMode="modal" //default
         enableColumnOrdering
-        enableEditing
-        onEditingRowSave={handleSaveRowEdits}
-        onEditingRowCancel={handleCancelRowEdits}
-        renderRowActions={({ row, table }) => (
-          <Box sx={{ display: 'flex', gap: '1rem' }}>
-            <Tooltip arrow placement="left" title="Edit">
-              <IconButton onClick={() => table.setEditingRow(row)}>
-                <Edit />
-              </IconButton>
-            </Tooltip>
-            <Tooltip arrow placement="right" title="Delete">
-              <IconButton color="error" onClick={() => handleDeleteRow(row)}>
-                <Delete />
-              </IconButton>
-            </Tooltip>
-          </Box>
-        )}
-        renderTopToolbarCustomActions={() => (
-          <Button
-            color="secondary"
-            onClick={() => setCreateModalOpen(true)}
-            variant="contained"
-          >
-            Create New Account
-          </Button>
-        )}
+        enableExpanding
+        getSubRows={(originalRow) => originalRow.subRows}
+        // editingMode="row" 
+        // enableEditing
+        // onEditingRowSave={handleSaveRowEdits}
+        // onEditingRowCancel={handleCancelRowEdits}
+        // renderRowActions={({ row, table }) => (
+        //   <Box sx={{ display: 'flex', gap: '1rem' }}>
+        //     <Tooltip arrow placement="left" title="Edit">
+        //       <IconButton onClick={() => table.setEditingRow(row)}>
+        //         <Edit />
+        //       </IconButton>
+        //     </Tooltip>
+        //     <Tooltip arrow placement="right" title="Delete">
+        //       <IconButton color="error" onClick={() => handleDeleteRow(row)}>
+        //         <Delete />
+        //       </IconButton>
+        //     </Tooltip>
+        //   </Box>
+        // )}
+        // renderTopToolbarCustomActions={() => (
+        //   <Button
+        //     color="secondary"
+        //     onClick={() => setCreateModalOpen(true)}
+        //     variant="contained"
+        //   >
+        //     Create New Account
+        //   </Button>
+        // )}
       />
-      <CreateNewAccountModal
+      {/* <CreateNewAccountModal
         columns={columns}
         open={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
         onSubmit={handleCreateNewRow}
-      />
+      /> */}
 
         {/* <MaterialReactTable
           columns={columns}
@@ -565,9 +454,9 @@ const ManageProducts = () => {
 export default ManageProducts
 
 interface CreateModalProps {
-  columns: MRT_ColumnDef<Person>[];
+  columns: MRT_ColumnDef<Product>[];
   onClose: () => void;
-  onSubmit: (values: Person) => void;
+  onSubmit: (values: Product) => void;
   open: boolean;
 }
 
