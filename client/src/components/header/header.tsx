@@ -1,11 +1,11 @@
 import "./css/header.css";
 import { useRef, useState, useEffect } from "react";
-import useCustomer from "../../hooks/UseCustomer";
-import useSeller from "../../hooks/useSeller";
-import LiveSearch from "../Header/LiveSearch.js";
-import DropDownProfile from "../Header/DropDownProfile.js";
+import useCustomer from "../../hooks/UseCustomer.js";
+import useSeller from "../../hooks/useSeller.js";
+import LiveSearch from "./LiveSearch.js";
+import DropDownProfile from "./DropDownProfile.js";
 import { Link } from "react-router-dom";
-import axios from "../../api/axios";
+import axios from "../../api/axios.js";
 
 interface Props {
   isCustomer?: boolean;
