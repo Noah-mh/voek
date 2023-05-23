@@ -50,6 +50,14 @@ app.use((0, cors_1.default)({
     credentials: true,
 }));
 app.use(router);
+// app.use((req: Request, res: Response, next: NextFunction) => {
+//   const acceptLanguageHeader = req.headers["accept-language"];
+//   const languages = acceptLanguageHeader ? acceptLanguageHeader.split(",") : [];
+//   const locale = languages[0]?.trim() || "en"; // Set default locale to 'en' if none is provided
+//   // req.locale = locale;
+//   console.log("locale", locale);
+//   next();
+// });
 (0, Routes_1.default)(app, router);
 app.use((error, req, res, next) => {
     console.log(error);

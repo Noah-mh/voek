@@ -32,9 +32,9 @@ const authModel = __importStar(require("../model/auth.model"));
 const config_1 = __importDefault(require("../../config/config"));
 const processRefreshTokenCustomer = async (req, res, next) => {
     const cookies = req.cookies;
-    if (!cookies?.jwt)
+    if (!cookies?.customerJwt)
         return res.sendStatus(401);
-    const refreshToken = cookies.jwt;
+    const refreshToken = cookies.customerJwt;
     try {
         const result = await authModel.handleRefreshTokenCustomer(refreshToken);
         if (!result.length)
@@ -58,9 +58,9 @@ const processRefreshTokenCustomer = async (req, res, next) => {
 exports.processRefreshTokenCustomer = processRefreshTokenCustomer;
 const processRefreshSeller = async (req, res, next) => {
     const cookies = req.cookies;
-    if (!cookies?.jwt)
+    if (!cookies?.sellerJwt)
         return res.sendStatus(401);
-    const refreshToken = cookies.jwt;
+    const refreshToken = cookies.sellerJwt;
     try {
         const result = await authModel.handleRefreshTokenSeller(refreshToken);
         if (!result.length)
