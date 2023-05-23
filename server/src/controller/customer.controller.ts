@@ -356,7 +356,6 @@ export const getCustomerDetails = async (
 ) => {
   try {
     const { customer_id } = req.params;
-    console.log(customer_id);
     // Type checking for customer_id.
     const response = await customerModel.handlesCustomerDetails(
       parseInt(customer_id)
