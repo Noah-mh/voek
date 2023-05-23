@@ -26,12 +26,18 @@ export default function (app: Express, router: Router) {
     verifyRoles("seller"),
     sellerController.processLogout
   );
-  router.post("/customer/auth/SMS/OTP", customerController.processSendSMSOTP);
+  router.post(
+    "/customer/auth/SMS/OTP",
+    customerController.processSendSMSOTP
+  );
   router.post(
     "/customer/auth/email/OTP",
     customerController.processSendEmailOTP
   );
-  router.post("/customer/auth/verify/OTP", customerController.processVerifyOTP);
+  router.post(
+    "/customer/auth/verify/OTP",
+    customerController.processVerifyOTP
+  );
   router.post(
     "/customer/signup/link/:referral_id",
     customerController.processSendEmailLink
@@ -40,7 +46,10 @@ export default function (app: Express, router: Router) {
     "/customer/signup/verify/link",
     customerController.processSignUpLink
   );
-  router.get("/refresh/customer", authController.processRefreshTokenCustomer);
+  router.get(
+    "/refresh/customer",
+    authController.processRefreshTokenCustomer
+  );
   router.post(
     "/customer/forget/password",
     customerController.processForgetPassword
@@ -55,11 +64,26 @@ export default function (app: Express, router: Router) {
   );
 
   router.post("/login/seller", sellerController.processLogin);
-  router.post("/seller/auth/SMS/OTP", sellerController.processSendSMSOTP);
-  router.post("/seller/auth/email/OTP", sellerController.processSendEmailOTP);
-  router.post("/seller/auth/verify/OTP", sellerController.processVerifyOTP);
-  router.post("/seller/signup/link", sellerController.processSendEmailLink);
-  router.post("/seller/signup/verify/link", sellerController.processSignUpLink);
+  router.post(
+    "/seller/auth/SMS/OTP",
+    sellerController.processSendSMSOTP
+  );
+  router.post(
+    "/seller/auth/email/OTP",
+    sellerController.processSendEmailOTP
+  );
+  router.post(
+    "/seller/auth/verify/OTP",
+    sellerController.processVerifyOTP
+  );
+  router.post(
+    "/seller/signup/link",
+    sellerController.processSendEmailLink
+  );
+  router.post(
+    "/seller/signup/verify/link",
+    sellerController.processSignUpLink
+  );
   router.get("/refresh/seller", authController.processRefreshSeller);
   router.post(
     "/seller/forget/password",
@@ -69,7 +93,10 @@ export default function (app: Express, router: Router) {
     "/seller/verify/reset/password",
     sellerController.processForgetPasswordLink
   );
-  router.post("/seller/reset/password", sellerController.processResetPassword);
+  router.post(
+    "/seller/reset/password",
+    sellerController.processResetPassword
+  );
   router.get(
     "/customer/orders/:customer_id",
     verifyJWT,
@@ -154,8 +181,14 @@ export default function (app: Express, router: Router) {
     verifyRoles("seller"),
     sellerController.processUpdateSellerDetails
   );
-  router.put("/seller/email/verify", sellerController.processChangeEmail);
-  router.put("/customer/email/verify", customerController.processChangeEmail);
+  router.put(
+    "/seller/email/verify",
+    sellerController.processChangeEmail
+  );
+  router.put(
+    "/customer/email/verify",
+    customerController.processChangeEmail
+  );
   router.put(
     "/customer/deactivate/:customer_id",
     verifyJWT,
@@ -193,7 +226,7 @@ export default function (app: Express, router: Router) {
     customerController.activateAccount
   );
 
-  // NOAH ENDPOINTS - reviews
+  // NOAH ENDPOINTS - reviews, customer profile, customer address, add to cart
   router.get(
     "/productDetailsWithoutReviews/:product_id",
     productController.getProductDetailsWithoutReviews
@@ -260,13 +293,36 @@ export default function (app: Express, router: Router) {
     customerController.updateCustomerPhoto
   );
 
+  router.post(
+    "/customer/addAddress/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processCustomerAddressAdd
+  );
+  router.put(
+    "/customer/updateAddress/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processCustomerAddressUpdate
+  );
+  router.delete(
+    "/customer/:customer_id/deleteAddress/:address_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processCustomerAddressDelete
+  );
+  //end of NOAH ENDPOINTS
+
   // ASHLEY ENDPOINTS - seller platform
   router.get(
     "/products/:sellerId",
     sellerController.processGetAllProductsOfSeller
   );
   router.get("/categories", sellerController.processGetAllCategories);
-  router.post("/addProduct/:sellerId", sellerController.processAddProduct);
+  router.post(
+    "/addProduct/:sellerId",
+    sellerController.processAddProduct
+  );
   // router.put(
   //   "/editProduct/:productId",
   //   sellerController.processEditProduct
@@ -301,7 +357,10 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     productController.getLastViewed
   );
-  router.post("/productDetails", productController.processPublicProductDetails);
+  router.post(
+    "/productDetails",
+    productController.processPublicProductDetails
+  );
 
   router.get(
     "/getRecommendedProductsBasedOnCat/:category_id",
@@ -354,7 +413,10 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     productController.checkWishListProductExistence
   );
-  router.get("/getAllListedProducts", productController.getAllListedProducts);
+  router.get(
+    "/getAllListedProducts",
+    productController.getAllListedProducts
+  );
   router.get(
     "/getProductVariations/:product_Id",
     productController.getProductVariations
@@ -365,7 +427,10 @@ export default function (app: Express, router: Router) {
     productController.getProductVariationsPricing
   );
 
-  router.get("/getProductImage/:product_Id", productController.getProductImage);
+  router.get(
+    "/getProductImage/:product_Id",
+    productController.getProductImage
+  );
 
   router.get(
     "/getProductVariationImage/:sku",
@@ -394,7 +459,10 @@ export default function (app: Express, router: Router) {
     productController.insertLastViewedProduct
   );
 
-  router.get("/getProductCat/:product_id", productController.getProductCat);
+  router.get(
+    "/getProductCat/:product_id",
+    productController.getProductCat
+  );
 
   router.put(
     "/updateCustomerLastViewedCat",
