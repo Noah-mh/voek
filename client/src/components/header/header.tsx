@@ -2,8 +2,8 @@ import "./css/header.css";
 import { useRef, useState, useEffect } from "react";
 import useCustomer from "../../hooks/UseCustomer";
 import useSeller from "../../hooks/useSeller";
-import LiveSearch from "./LiveSearch";
-import DropDownProfile from "./DropDownProfile";
+import LiveSearch from "../Header/LiveSearch";
+import DropDownProfile from "../Header/DropDownProfile";
 import { Link } from "react-router-dom";
 import axios from "../../api/axios";
 
@@ -50,11 +50,11 @@ const Header = ({ isCustomer, isSeller }: Props) => {
       <div className=" w-9/12 flex">
         <div className="flex items-center  mr-6">
           <span className="font-bold text-xl tracking-widest">
-            {
-              seller?.seller_id ?
-                <Link to="/seller/home">VOEK</Link>
-                : <Link to='/'>VOEK</Link>
-            }
+            {seller?.seller_id ? (
+              <Link to="/seller/home">VOEK</Link>
+            ) : (
+              <Link to="/">VOEK</Link>
+            )}
           </span>
         </div>
         <div className="flex items-center px-3 ">
@@ -67,7 +67,7 @@ const Header = ({ isCustomer, isSeller }: Props) => {
           ) : null}
         </div>
       </div>
-      <div className=" block flex justify-end">
+      <div className="block justify-end">
         <div className="text-sm lg:flex-grow inline-block  px-4  leading-none">
           {isCustomer ? (
             customer?.customer_id ? (
