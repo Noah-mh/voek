@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.processGetReferralId = exports.processResetPassword = exports.processForgetPasswordLink = exports.processForgetPassword = exports.processLogout = exports.updateCustLastViewedCat = exports.processSignUpLink = exports.processSendEmailLink = exports.processVerifyOTP = exports.processSendEmailOTP = exports.processSendSMSOTP = exports.processLogin = void 0;
+exports.activateAccount = exports.getCustomerStatus = exports.deactivateAccount = exports.updateCustomerPhoto = exports.processChangeEmail = exports.updateCustomerDetails = exports.getCustomerDetails = exports.getCustomerLastViewedCat = exports.updateCustomerLastViewedCat = exports.processGetAddress = exports.processGetCoins = exports.processGetReferralId = exports.processResetPassword = exports.processForgetPasswordLink = exports.processForgetPassword = exports.processLogout = exports.processSignUpLink = exports.processSendEmailLink = exports.processVerifyOTP = exports.processSendEmailOTP = exports.processSendSMSOTP = exports.processLogin = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = __importDefault(require("../../config/config"));
 const customerModel = __importStar(require("../model/customer.model"));
@@ -87,21 +87,21 @@ const processVerifyOTP = async (req, res, next) => {
             const accessToken = jsonwebtoken_1.default.sign({
                 UserInfo: {
                     customer_id: response[0].customer_id,
-                    role: "customer"
-                }
-            }, config_1.default.accessTokenSecret, { expiresIn: '300s' });
+                    role: "customer",
+                },
+            }, config_1.default.accessTokenSecret, { expiresIn: "300s" });
             const refreshToken = jsonwebtoken_1.default.sign({
                 UserInfo: {
                     customer_id: response[0].customer_id,
-                    role: "customer"
-                }
-            }, config_1.default.refreshTokenSecret, { expiresIn: '3600s' });
+                    role: "customer",
+                },
+            }, config_1.default.refreshTokenSecret, { expiresIn: "1d" });
             await customerModel.handleStoreRefreshToken(refreshToken, response[0].customer_id);
-            res.cookie('jwt', refreshToken, {
+            res.cookie("customerJwt", refreshToken, {
                 httpOnly: true,
                 sameSite: "none",
                 secure: true,
-                maxAge: 24 * 60 * 60 * 1000
+                maxAge: 24 * 60 * 60 * 1000,
             });
             res.json({ refreshToken, accessToken });
         }
@@ -117,13 +117,14 @@ exports.processVerifyOTP = processVerifyOTP;
 const processSendEmailLink = async (req, res, next) => {
     try {
         const { email, username, phone_number, password } = req.body;
+        const { referral_id } = req.params;
         if (!email || !username || !phone_number || !password)
             return res.sendStatus(400);
-        const result = await customerModel.handleSignUp(username, password, email, phone_number);
+        const result = await customerModel.handleSignUp(username, password, email, phone_number, referral_id);
         if (result === 1062) {
             return res.sendStatus(409);
         }
-        const signUpToken = jsonwebtoken_1.default.sign({ customer_id: result }, config_1.default.signUpCustomerTokenSecret, { expiresIn: '300s' });
+        const signUpToken = jsonwebtoken_1.default.sign({ customer_id: result, referral_id }, config_1.default.signUpCustomerTokenSecret, { expiresIn: "300s" });
         const result2 = await customerModel.handleSendEmailLink(signUpToken, email);
         return res.sendStatus(200);
     }
@@ -140,8 +141,8 @@ const processSignUpLink = async (req, res, next) => {
         jsonwebtoken_1.default.verify(signUpToken, config_1.default.signUpCustomerTokenSecret, (err, decoded) => {
             if (err)
                 return res.sendStatus(403);
-            const { customer_id } = decoded;
-            const result = customerModel.handleActiveAccount(customer_id);
+            const { customer_id, referral_id } = decoded;
+            const result = customerModel.handleActiveAccount(customer_id, referral_id);
             return res.status(200);
         });
     }
@@ -150,36 +151,17 @@ const processSignUpLink = async (req, res, next) => {
     }
 };
 exports.processSignUpLink = processSignUpLink;
-const updateCustLastViewedCat = async (req, res, next) => {
-    try {
-        const { cat_id, customer_id } = req.body;
-        try {
-            const response = await customerModel.handlesCustLastViewdCat(cat_id, customer_id);
-            console.log(response);
-            if (response === 0)
-                return res.sendStatus(404);
-            return res.sendStatus(200);
-        }
-        catch (err) {
-            return next(err);
-        }
-        return res.sendStatus(200);
-    }
-    catch (err) {
-        return next(err);
-    }
-};
-exports.updateCustLastViewedCat = updateCustLastViewedCat;
 const processLogout = async (req, res, next) => {
     const cookies = req.cookies;
-    if (!cookies?.jwt)
+    if (!cookies?.customerJwt)
         return res.sendStatus(204);
-    const refreshToken = cookies.jwt;
+    const refreshToken = cookies.customerJwt;
     await customerModel.handleLogOut(refreshToken);
-    res.clearCookie('jwt', {
+    res.clearCookie("customerJwt", {
+        httpOnly: true,
         sameSite: "none",
         secure: true,
-        maxAge: 24 * 60 * 60 * 1000
+        maxAge: 24 * 60 * 60 * 1000,
     });
     res.sendStatus(204);
 };
@@ -191,7 +173,7 @@ const processForgetPassword = async (req, res, next) => {
             return res.sendStatus(400);
         const result = await customerModel.handleForgetPassword(email);
         if (result.length) {
-            const forgetPasswordToken = jsonwebtoken_1.default.sign({ customer_id: result[0].customer_id }, config_1.default.forgetPasswordCustomerTokenSecret, { expiresIn: '300s' });
+            const forgetPasswordToken = jsonwebtoken_1.default.sign({ customer_id: result[0].customer_id }, config_1.default.forgetPasswordCustomerTokenSecret, { expiresIn: "300s" });
             await customerModel.handleSendEmailForgetPassword(forgetPasswordToken, email);
         }
         return res.sendStatus(200);
@@ -244,4 +226,185 @@ const processGetReferralId = async (req, res, next) => {
     }
 };
 exports.processGetReferralId = processGetReferralId;
+//ALLISON :D
+const processGetCoins = async (req, res, next) => {
+    try {
+        const { customer_id } = req.params;
+        const result = await customerModel.handleGetCoins(customer_id);
+        console.log("Successfully got coins");
+        return res.json({ result });
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.processGetCoins = processGetCoins;
+const processGetAddress = async (req, res, next) => {
+    try {
+        const { customer_id } = req.params;
+        const result = await customerModel.handleGetCustomerAddresses(customer_id);
+        console.log("Successfully got address");
+        return res.json(result);
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.processGetAddress = processGetAddress;
+// NHAT TIEN :D
+const updateCustomerLastViewedCat = async (req, res, next) => {
+    try {
+        const { categoryId, customerId } = req.body;
+        const response = await customerModel.handlesUpdateCustomerLastViewedCat(categoryId, customerId);
+        return res.send(response);
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.updateCustomerLastViewedCat = updateCustomerLastViewedCat;
+const getCustomerLastViewedCat = async (req, res, next) => {
+    try {
+        const { customer_id } = req.params;
+        const customerId = parseInt(customer_id);
+        const response = await customerModel.handlesGetCustomerLastViewedCat(customerId);
+        return res.send(response);
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.getCustomerLastViewedCat = getCustomerLastViewedCat;
+//Noah
+const getCustomerDetails = async (req, res, next) => {
+    try {
+        const { customer_id } = req.params;
+        console.log(customer_id);
+        // Type checking for customer_id.
+        const response = await customerModel.handlesCustomerDetails(parseInt(customer_id));
+        // Respond with status code and the data.
+        return res.json({ details: response });
+    }
+    catch (err) {
+        // Return a response with status code and error message.
+        return res.status(500).json({ message: err.message });
+    }
+};
+exports.getCustomerDetails = getCustomerDetails;
+// export const updateCustomerDetails = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   try {
+//     const { customer_id } = req.params;
+//     const { username, email, phone_number } = req.body;
+//     const customerId = parseInt(customer_id);
+//     const response: number =
+//       await customerModel.handleCustomerProfileEdit(
+//         username,
+//         email,
+//         phone_number,
+//         customerId
+//       );
+//     if (!response) return res.sendStatus(404);
+//     return res.sendStatus(200);
+//   } catch (err: any) {
+//     return next(err);
+//   }
+// };
+const updateCustomerDetails = async (req, res, next) => {
+    try {
+        const { password, email, username, phone_number } = req.body;
+        const { customer_id } = req.params;
+        if (!customer_id)
+            return res.sendStatus(400);
+        const result = await customerModel.handleUpdateCustomerDetails(password, email, username, parseInt(phone_number), parseInt(customer_id));
+        if (result)
+            return res.json(result);
+        return res.sendStatus(201);
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.updateCustomerDetails = updateCustomerDetails;
+const processChangeEmail = async (req, res, next) => {
+    try {
+        const { changeCustomerEmailToken } = req.body;
+        if (!changeCustomerEmailToken)
+            return res.sendStatus(400);
+        jsonwebtoken_1.default.verify(changeCustomerEmailToken, config_1.default.emailTokenSecret, async (err, decoded) => {
+            if (err)
+                return res.sendStatus(403);
+            const { customer_id } = decoded;
+            await customerModel.handleChangeEmail(customer_id);
+            return res.sendStatus(200);
+        });
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.processChangeEmail = processChangeEmail;
+const updateCustomerPhoto = async (req, res, next) => {
+    try {
+        const { customer_id } = req.params;
+        const { image_url } = req.body;
+        const customerId = parseInt(customer_id);
+        const response = await customerModel.handleCustomerProfilePhotoEdit(image_url, customerId);
+        if (!response)
+            return res.sendStatus(404);
+        return res.sendStatus(200);
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.updateCustomerPhoto = updateCustomerPhoto;
+const deactivateAccount = async (req, res, next) => {
+    try {
+        const { customer_id } = req.params;
+        await customerModel.handleDeactivateAccount(parseInt(customer_id));
+        return res.sendStatus(200);
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.deactivateAccount = deactivateAccount;
+const getCustomerStatus = async (req, res, next) => {
+    try {
+        const { customer_id } = req.params;
+        const result = await customerModel.handleGetCustomerStatus(parseInt(customer_id));
+        return res.json({ status: result });
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.getCustomerStatus = getCustomerStatus;
+const activateAccount = async (req, res, next) => {
+    try {
+        const { customer_id } = req.params;
+        await customerModel.handleActivateAccount(parseInt(customer_id));
+        return res.sendStatus(200);
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.activateAccount = activateAccount;
+// export const processUpdateCustomerDetails = async (req: Request, res: Response, next: NextFunction) => {
+//   try {
+//     const { password, email, shop_name, phone_number } = req.body;
+//     const { customer_id } = req.params;
+//     if (!customer_id) return res.sendStatus(400);
+//     const result = await customerModel.handleUpdateCustomerDetails(password, email, shop_name, parseInt(phone_number), parseInt(customer_id));
+//     if (result) return res.json(result)
+//     return res.sendStatus(201)
+//   } catch (err: any) {
+//     return next(err);
+//   }
+// }
 //# sourceMappingURL=customer.controller.js.map

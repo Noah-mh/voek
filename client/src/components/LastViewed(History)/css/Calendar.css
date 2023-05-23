@@ -42,3 +42,7 @@
 .calendarScroll > * {
   flex: 0 0 250px;
 }
+
+.lastDate * {
+  width: 230px;
+}
