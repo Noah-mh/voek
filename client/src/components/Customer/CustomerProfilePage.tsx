@@ -186,7 +186,7 @@ const CustomerProfilePage = () => {
         </TabPanel>
         <TabPanel value={value} index={1}>
           {/* Addresses content */}
-          <AddressDisplay customerData={customerData!} />
+          <AddressDisplay customerData={customerData!} getAll = {getAll}/>
         </TabPanel>
         <TabPanel value={value} index={2}>
           {/* Orders content */}
