@@ -1,10 +1,10 @@
 import { useLocation } from 'react-router-dom';
 import SellerSidebar from "../SellerSidebar/SellerSidebar.js";
-import useSeller from "../../hooks/useSeller.js";
+// import useSeller from "../../hooks/useSeller.js";
 
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 
-import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller.js";
+// import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller.js";
 
 const EditProduct = () => {
   let { state } = useLocation();

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import SellerSidebar from "../SellerSidebar/SellerSidebar.js";
-import useSeller from "../../hooks/useSeller.js";
+// import useSeller from "../../hooks/useSeller.js";
 
 import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller.js";
 
@@ -9,12 +9,22 @@ interface Category {
   name: string;
 }
 
+// const validateRequired = (value: string) => !!value.length;
+// const validateEmail = (email: string) =>
+//   !!email.length &&
+//   email
+//     .toLowerCase()
+//     .match(
+//       /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+//     );
+// const validateAge = (age: number) => age >= 18 && age <= 50;
+
 const CreateProduct = () => {
 
   const axiosPrivateSeller = useAxiosPrivateSeller();
 
-  const { seller } = useSeller();
-  const sellerId = seller.seller_id;
+  // const { seller } = useSeller();
+  // const sellerId = seller.seller_id;
 
   // const [showVariations, setShowVariations] = useState(false);
 
@@ -210,3 +220,72 @@ const CreateProduct = () => {
 }
 
 export default CreateProduct
+
+  // edit
+  // const [validationErrors, setValidationErrors] = useState<{
+  //   [cellId: string]: string;
+  // }>({});
+
+  // const handleSaveRowEdits: MaterialReactTableProps<Product>['onEditingRowSave'] =
+  // async ({ exitEditingMode, row, values }) => {
+  //   if (!Object.keys(validationErrors).length) {
+  //     const updatedData = {
+  //       id: row.original.productId, 
+  //       ...values,
+  //     };
+
+  //     console.log("updatedData", updatedData)
+
+  //     try {
+  //       // Make an API call to send the updated data to the backend
+  //       await axiosPrivateSeller.put(`/editProduct/` + updatedData.id, updatedData);
+
+  //       // If the API call is successful, update the local table data and exit editing mode
+  //       tableData[row.index] = values;
+  //       console.log(tableData[row.index])
+
+  //       setTableData([...tableData]);
+  //       exitEditingMode(); // Required to exit editing mode and close the modal
+  //     } catch (error) {
+  //       // Handle any error that occurred during the API call
+  //       console.error('Error updating data:', error);
+  //     }
+  //   }
+  // };
+
+  // const handleCancelRowEdits = () => {
+  //   setValidationErrors({});
+  // };
+
+  // const getCommonEditTextFieldProps = useCallback(
+  //   (
+  //     cell: MRT_Cell<Product>,
+  //   ): MRT_ColumnDef<Product>['muiTableBodyCellEditTextFieldProps'] => {
+  //     return {
+  //       error: !!validationErrors[cell.id],
+  //       helperText: validationErrors[cell.id],
+  //       onBlur: (event) => {
+  //         const isValid =
+  //           cell.column.id === 'email'
+  //             ? validateEmail(event.target.value)
+  //             : cell.column.id === 'age'
+  //             ? validateAge(+event.target.value)
+  //             : validateRequired(event.target.value);
+  //         if (!isValid) {
+  //           //set validation error for cell if invalid
+  //           setValidationErrors({
+  //             ...validationErrors,
+  //             [cell.id]: `${cell.column.columnDef.header} is required`,
+  //           });
+  //         } else {
+  //           //remove validation error for cell if valid
+  //           delete validationErrors[cell.id];
+  //           setValidationErrors({
+  //             ...validationErrors,
+  //           });
+  //         }
+  //       },
+  //     };
+  //   },
+  //   [validationErrors],
+  // );
