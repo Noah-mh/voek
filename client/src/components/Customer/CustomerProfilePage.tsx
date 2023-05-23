@@ -6,7 +6,6 @@ import ViewDelivered from "./ViewDelivered";
 import useCustomer from "../../hooks/UseCustomer";
 import { Customer } from "./CustomerProfile";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
-import { v4 as uuidv4 } from "uuid";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
@@ -82,6 +81,7 @@ const CustomerProfilePage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    console.log(event)
     setValue(newValue);
   };
 
