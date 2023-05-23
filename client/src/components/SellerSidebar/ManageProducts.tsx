@@ -22,6 +22,7 @@ import { Delete, Edit } from '@mui/icons-material';
 
 import SellerSidebar from "../SellerSidebar/SellerSidebar.js";
 import useSeller from "../../hooks/useSeller.js";
+import Active from "./Active.tsx"
 
 import { Link } from 'react-router-dom';
 
@@ -29,8 +30,9 @@ import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller.js";
 
 
 interface ProductVariations {
-  name: string;
+  productId: number;
   active: boolean;
+  name: string;
   price: number;
   sku: string;
   variation1: string;
@@ -52,6 +54,8 @@ interface Product {
   subRows: Array<ProductVariations>;
 }
 
+type ProductOrProductVariations = Product | ProductVariations;
+
 const ManageProducts = () => {
 
   const axiosPrivateSeller = useAxiosPrivateSeller();
@@ -67,7 +71,7 @@ const ManageProducts = () => {
   // console.log tableData everytime it changes
   useEffect(() => {
     console.log("Updated tableData:", tableData);
-    tableData.forEach((item) => console.log(item));
+    // tableData.forEach((item) => console.log(item));
   }, [tableData]);
   
 
@@ -92,6 +96,9 @@ const ManageProducts = () => {
         let currentProductId: number = 0;
         let sellerProducts: Product[] = [];
         let currentIdx: number = -1;
+        let newIsCheckedMap: boolean[][] = [];   
+        // let arr: Boolean[] = [];
+
         await Promise.all (response.data.map((item: any) => {
           // if current item is not a variation of the previous item, they will not have the same product_id. 
           // hence, this would be a new product, so sellerProduct would need to be reinitialised
@@ -118,8 +125,9 @@ const ManageProducts = () => {
             // check for existing product variation
             if (item.variation_1 != null || item.variation_2 != null) {
               let sellerProductVariation: ProductVariations = {
-                name: `${item.variation_1} + ${item.variation_2}`,
+                productId: item.product_id,
                 active: item.availability,
+                name: `${item.variation_1} + ${item.variation_2}`,
                 price: item.price,
                 sku: item.sku,
                 variation1: item.variation_1,
@@ -131,9 +139,12 @@ const ManageProducts = () => {
               // tallying total quantity including all variations
               if (sellerProduct.quantity == undefined) sellerProduct.quantity = item.price;
               else sellerProduct.quantity += item.quantity
+
+              newIsCheckedMap.push([item.active, item.availability]);
             } else {
               sellerProduct.sku = item.sku;
               sellerProduct.quantity = item.quantity
+              newIsCheckedMap.push([item.active]);
             }
 
             // add Product to sellerProducts
@@ -145,8 +156,9 @@ const ManageProducts = () => {
             // same product_id means that this is a product variation
             // add subRow to sellerProducts[currentIdx]
             let sellerProductVariation: ProductVariations = {
-              name: `${item.variation_1} + ${item.variation_2}`,
+              productId: item.product_id,
               active: item.availability,
+              name: `${item.variation_1} + ${item.variation_2}`,
               price: item.price,
               sku: item.sku,
               variation1: item.variation_1,
@@ -160,10 +172,13 @@ const ManageProducts = () => {
 
             // finding lowest price among all variations
             if (item.price < sellerProducts[currentIdx].price) sellerProducts[currentIdx].price = item.price
+          
+            newIsCheckedMap[currentProductId-1].push(item.availability);
           }
 
         }))
 
+        setIsCheckedMap(newIsCheckedMap);
         setTableData(sellerProducts);
 
       } catch(error) {
@@ -240,6 +255,151 @@ const ManageProducts = () => {
   //   [validationErrors],
   // );
 
+  // const [isChecked, setIsChecked] = useState<boolean | undefined>(undefined);
+
+  const [isCheckedMap, setIsCheckedMap] = useState<boolean[][]>([]);
+
+  useEffect(() => {
+    console.log("Updated isCheckedMap:", isCheckedMap);
+    isCheckedMap.forEach((item) => console.log(item));
+    // console.log("help", isCheckedMap["0"][0])
+  }, [isCheckedMap]);
+
+
+  const updateCheckedMap = () => {
+    const newMap: boolean[][] = [];
+
+    tableData.forEach((product) => {
+      if (product.subRows.length == 0) {
+        newMap.push([product.active]);
+      } else {
+        let arr: boolean[] = [product.active];
+        for (var i = 0; i < product.subRows.length; i++) {
+          arr.push(product.subRows[i].active);
+        }
+        newMap.push(arr);
+      }
+    });
+
+    setIsCheckedMap(newMap);
+  };
+
+  const handleToggle = async (row: any) => {
+    const productId = row.original.productId - 1;
+    console.log("productId", productId)
+    // let idx = 0;
+    // if (row.original.sku == "" && row.originalSubRows == undefined) idx = row.index;
+  
+        // const toggleActive = async () => {
+        // update row.original.active
+        row.original.active = !row.original.active;
+        console.log("row", row.original.active)
+
+        // if sku is an empty string, product.active is being toggled
+        if (row.original.sku == "") {
+            await axiosPrivateSeller.put(`/updateProduct/active/${row.original.productId}`, 
+            JSON.stringify({ active: row.original.active }), {
+                headers: { "Content-Type": "application/json" },
+                withCredentials: true,
+            })
+            
+            setIsCheckedMap((prevMap: boolean[][]) => {
+              const updatedMap = [...prevMap];
+              updatedMap[productId][0] = !prevMap[productId][0];
+              // if subrows exist, update productVariation.active to change accordingly
+              if (row.originalSubRows.length > 0) {
+                for (var i = 1; i <= row.originalSubRows.length; i++) {
+                  updatedMap[productId][i] = updatedMap[productId][0];
+                }
+              }
+              console.log("updatedMap", updatedMap)
+              return updatedMap;
+            });
+
+            row.originalSubRows ? row.originalSubRows.forEach((item: ProductVariations) => {
+              console.log("subrow", item)
+              item.active = row.original.active;
+            // setIsChecked(item.active);
+            }) : ""
+        } else { 
+            // if sku is not empty, product with no productVariation OR productVariation.active is being toggled. 
+            // check if all productVariations are inactive in backend. if all are inactive, product.active will become inactive
+            // hence, checking by sku will work even for products with no product variations
+            console.log("row.index", row.index);
+
+            await axiosPrivateSeller.put(`/updateProductVariation/active/${row.original.productId}`, 
+            JSON.stringify({ active: row.original.active, sku: row.original.sku }), {
+                headers: { "Content-Type": "application/json" },
+                withCredentials: true,
+            })
+
+            if (!row.getParentRow()) {
+              console.log("no product variations")
+              setIsCheckedMap((prevMap: boolean[][]) => {
+                const updatedMap = [...prevMap];
+                updatedMap[productId][0] = !prevMap[productId][0];
+                return updatedMap;
+              });
+            } else if (row.original.active && row.getParentRow()) {
+              // if productVariation becomes active but product inactive, make product active
+              console.log("productVariation becomes active but product inactive")
+              setIsCheckedMap((prevMap: boolean[][]) => {
+                const updatedMap = [...prevMap];
+                updatedMap[productId][row.index+1] = !prevMap[productId][row.index+1];
+                if (!row.getParentRow().original.active) {
+                  updatedMap[productId][0] = true;
+                  row.getParentRow().original.active = true;
+                }
+                console.log("updatedMap", updatedMap)
+                return updatedMap;
+              });
+              // console.log("help", row.getParentRow().original.active)
+              // // setIsChecked(row.getParentRow().original.active);
+              // console.log("help2", row.getParentRow().original.active)
+            } else if (!row.original.active && row.getParentRow()) {
+              // if all productVariations become inactive but product active, make product inactive 
+              console.log("all productVariations become inactive but product active")
+              var productVariationsAllInactive = true;
+              for (var i = 0; i < row.getParentRow().originalSubRows.length; i++) {
+                if (row.getParentRow().originalSubRows[i].active) {
+                  productVariationsAllInactive = false;
+                  break;
+                }
+              }
+              setIsCheckedMap((prevMap: boolean[][]) => {
+                const updatedMap = [...prevMap];
+                updatedMap[productId][row.index+1] = !prevMap[productId][row.index+1];
+                if (row.getParentRow().original.active && productVariationsAllInactive) {
+                  updatedMap[productId][0] = false;
+                  row.getParentRow().original.active = false;
+                }
+                console.log("updatedMap", updatedMap)
+                return updatedMap;
+              });
+              // if (productVariationsAllInactive) {
+              // // console.log("help", row.getParentRow().original.active)
+              // // row.getParentRow().original.active = false;
+              // // // setIsChecked(row.getParentRow().original.active);
+              // // console.log("help2", row.getParentRow().original.active)
+              // }
+            }
+        }
+        // setIsChecked(!row.original.active);
+            // setIsCheckedMap((prevMap: boolean[][]) => {
+    //   const updatedMap = [...prevMap];
+    //   // if (!updatedMap[productId]) {
+    //   //   updatedMap[productId] = [];
+    //   // }
+    //   updatedMap[productId][idx] = !prevMap[productId][idx];
+    //   console.log("updatedMap", updatedMap)
+    //   return updatedMap;
+    // });
+
+    console.log("isCheckedMap", isCheckedMap);
+  }
+
+  
+
   const columns = useMemo<MRT_ColumnDef<Product>[]>(
     () => [
       {
@@ -296,11 +456,19 @@ const ManageProducts = () => {
       {
         accessorKey: 'active',
         header: 'Active',
-        // enableEditing: false, //disable editing on this column
-        size: 140,
-        // muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-        //   ...getCommonEditTextFieldProps(cell),
-        // }),
+        size: 80,
+        Cell: ({row}) => (
+          <Active 
+            // row = {row}  
+            key={row.id}
+            row={row}
+            // isChecked={row.original.active}
+            // isCheckedMap={isCheckedMap}
+
+            isChecked={isCheckedMap?.[row.original.productId]?.[row.index] ? isCheckedMap[row.original.productId-1][row.index] : row.original.active}
+            onToggle={handleToggle}
+          />
+        )
       },
       {
         accessorKey: 'productId',
@@ -317,15 +485,7 @@ const ManageProducts = () => {
       },
     ],
     []
-  )
-
-  // const toggleSubrows = (itemId: number) => {
-  //   setTableData((prevTableData: Product[]) =>
-  //     prevTableData.map((item: Product) =>
-  //       item.product_id === itemId ? { ...item, showSubrows: !item.showSubrows } : item
-  //     )
-  //   );
-  // }; 
+  );
 
   return (
     <div className="flex flex-row">
@@ -373,82 +533,8 @@ const ManageProducts = () => {
         //   </Button>
         // )}
       />
-      {/* <CreateNewAccountModal
-        columns={columns}
-        open={createModalOpen}
-        onClose={() => setCreateModalOpen(false)}
-        onSubmit={handleCreateNewRow}
-      /> */}
-
-        {/* <MaterialReactTable
-          columns={columns}
-          data={data}
-          enableExpanding
-          getSubRows={(originalRow) => originalRow.subRows} //default, can customize
-        /> */}
-
-        {/* material react table */}
-        {/* <Table className="flex flex-column">
-          <TableHead>
-            <TableRow>
-              <TableCell>Product Info</TableCell>
-              <TableCell>Price</TableCell>
-              <TableCell>Stock</TableCell>
-              <TableCell>Active</TableCell>
-              <TableCell></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {tableData.map((item) => (
-              <React.Fragment key={item.product_id}>
-                <TableRow>
-                  <TableCell>{item.name}</TableCell>
-                  <TableCell>{item.price}</TableCell>
-                  <TableCell>{item.description}</TableCell>
-                  <TableCell>
-                    <button onClick={() => toggleSubrows(item.product_id)}>
-                      {item.showSubrows ? '-' : '+'}
-                    </button>
-                  </TableCell>
-                </TableRow>
-                {item.showSubrows && (
-                  <TableRow>
-                    <TableCell colSpan={3}> */}
-                      {/* Render subrows content here */}
-                      {/* Subrow 1
-                      <br />
-                      Subrow 2
-                      <br />
-                      Subrow 3
-                      <br />
-                    </TableCell>
-                  </TableRow>
-                )}
-              </React.Fragment>
-            ))}
-          </TableBody>
-        </Table> */}
-
-        {/* <table className="border">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Description</th>
-              <th>Price</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tableData.map((item: Product) => (
-              <tr key={item.product_id}>
-                <td>{item.name}</td>
-                <td>{item.description}</td>
-                <td>{item.price}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table> */}
     </div>
-  )
+  );
 }
 
 export default ManageProducts

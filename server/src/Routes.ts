@@ -298,6 +298,14 @@ export default function (app: Express, router: Router) {
   //   "/editProduct/:productId",
   //   sellerController.processEditProduct
   // )
+  router.put(
+    "/updateProductVariation/active/:productId",
+    sellerController.processUpdateProductVariationActive
+  );
+  router.put(
+    "/updateProduct/active/:productId",
+    sellerController.processUpdateProductActive
+  )
 
   // NHAT TIEN ENDPOINTS - Homepage, Last Viewed, Wishlist, Product Details
   router.post(
