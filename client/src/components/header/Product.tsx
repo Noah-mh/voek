@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Link } from "react-router-dom";
 
 interface ResultProps {
@@ -9,10 +8,6 @@ interface ResultProps {
 }
 
 const Product = ({ result, fnMouseClick }: ResultProps) => {
-  // useEffect(() => {
-  //   console.log("result", result);
-  // }, [result]);
-
   return (
     <Link
       to={`/searchResults/${result.name}`}
