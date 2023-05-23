@@ -26,14 +26,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.processResetPassword = exports.processForgetPasswordLink = exports.processForgetPassword = exports.processLogout = exports.processSignUpLink = exports.processSendEmailLink = exports.processVerifyOTP = exports.processSendEmailOTP = exports.processSendSMSOTP = exports.processLogin = exports.processGetAllProductsOfSeller = void 0;
+exports.activateAccount = exports.getSellerStatus = exports.deactivateAccount = exports.processChangeEmail = exports.processUpdateSellerDetails = exports.processGetSellerDetails = exports.processGetCustomerOrders = exports.processPackedAndShipped = exports.processGetSellerDelivered = exports.processGetSellerShipped = exports.processGetSellerOrders = exports.processResetPassword = exports.processForgetPasswordLink = exports.processForgetPassword = exports.processLogout = exports.processSignUpLink = exports.processSendEmailLink = exports.processVerifyOTP = exports.processSendEmailOTP = exports.processSendSMSOTP = exports.processLogin = exports.processGetOrderDetails = exports.processAddProduct = exports.processGetAllCategories = exports.processGetAllProductsOfSeller = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = __importDefault(require("../../config/config"));
 const sellerModel = __importStar(require("../model/seller.model"));
 // GET all products from 1 seller
 const processGetAllProductsOfSeller = async (req, res, next) => {
     try {
-        console.log("yes");
         const sellerId = parseInt(req.params.sellerId);
         const response = await sellerModel.handleGetAllProducts(sellerId);
         return res.json(response);
@@ -43,6 +42,44 @@ const processGetAllProductsOfSeller = async (req, res, next) => {
     }
 };
 exports.processGetAllProductsOfSeller = processGetAllProductsOfSeller;
+// GET all categories
+const processGetAllCategories = async (req, res, next) => {
+    try {
+        const response = await sellerModel.handleGetAllCategories();
+        return res.json(response);
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.processGetAllCategories = processGetAllCategories;
+// POST insert a new product
+const processAddProduct = async (req, res, next) => {
+    try {
+        const sellerId = parseInt(req.params.sellerId);
+        const { name, description, category_id, variation_1, variation_2, quantity, price } = req.body;
+        if (!name || !category_id || !quantity || !price)
+            return res.sendStatus(400);
+        const response = await sellerModel.handleAddProduct(sellerId, name, description, category_id, variation_1, variation_2, quantity, price);
+        return res.json(response);
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.processAddProduct = processAddProduct;
+// GET order details
+const processGetOrderDetails = async (req, res, next) => {
+    try {
+        const ordersId = parseInt(req.params.ordersId);
+        const response = await sellerModel.handleGetOrderDetails(ordersId);
+        return res.json(response);
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.processGetOrderDetails = processGetOrderDetails;
 const processLogin = async (req, res, next) => {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -110,7 +147,7 @@ const processVerifyOTP = async (req, res, next) => {
                 }
             }, config_1.default.refreshTokenSecret, { expiresIn: '1d' });
             await sellerModel.handleStoreRefreshToken(refreshToken, response[0].seller_id);
-            res.cookie('jwt', refreshToken, {
+            res.cookie('sellerJwt', refreshToken, {
                 httpOnly: true,
                 sameSite: "none",
                 secure: true,
@@ -166,11 +203,11 @@ const processSignUpLink = async (req, res, next) => {
 exports.processSignUpLink = processSignUpLink;
 const processLogout = async (req, res, next) => {
     const cookies = req.cookies;
-    if (!cookies?.jwt)
+    if (!cookies?.sellerJwt)
         return res.sendStatus(204);
-    const refreshToken = cookies.jwt;
+    const refreshToken = cookies.sellerJwt;
     await sellerModel.handleLogOut(refreshToken);
-    res.clearCookie('jwt', {
+    res.clearCookie('sellerJwt', {
         httpOnly: true,
         sameSite: "none",
         secure: true
@@ -225,4 +262,149 @@ const processResetPassword = async (req, res, next) => {
     }
 };
 exports.processResetPassword = processResetPassword;
+const processGetSellerOrders = async (req, res, next) => {
+    try {
+        const { seller_id } = req.params;
+        if (!seller_id)
+            return res.sendStatus(400);
+        const result = await sellerModel.handleGetSellerOrders(seller_id);
+        return res.json({ orders: result });
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.processGetSellerOrders = processGetSellerOrders;
+const processGetSellerShipped = async (req, res, next) => {
+    try {
+        const { seller_id } = req.params;
+        if (!seller_id)
+            return res.sendStatus(400);
+        const result = await sellerModel.handleGetSellerShipped(seller_id);
+        return res.json({ shipped: result });
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.processGetSellerShipped = processGetSellerShipped;
+const processGetSellerDelivered = async (req, res, next) => {
+    try {
+        const { seller_id } = req.params;
+        if (!seller_id)
+            return res.sendStatus(400);
+        const result = await sellerModel.handleGetSellerDelivered(seller_id);
+        return res.json({ delivered: result });
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.processGetSellerDelivered = processGetSellerDelivered;
+const processPackedAndShipped = async (req, res, next) => {
+    try {
+        const { orders_product_id, customer_id } = req.body;
+        if (!orders_product_id || !customer_id)
+            return res.sendStatus(400);
+        await sellerModel.handlePackedAndShipped(orders_product_id, customer_id);
+        return res.sendStatus(201);
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.processPackedAndShipped = processPackedAndShipped;
+const processGetCustomerOrders = async (req, res, next) => {
+    try {
+        const { seller_id, orders_id } = req.params;
+        if (!seller_id || !orders_id)
+            return res.sendStatus(400);
+        const result = await sellerModel.handleGetCustomerOrders(parseInt(seller_id), parseInt(orders_id));
+        return res.json({ orders: result });
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.processGetCustomerOrders = processGetCustomerOrders;
+const processGetSellerDetails = async (req, res, next) => {
+    try {
+        const { seller_id } = req.params;
+        if (!seller_id)
+            return res.sendStatus(400);
+        const result = await sellerModel.handleGetSellerDetails(parseInt(seller_id));
+        return res.json({ sellerDetails: result });
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.processGetSellerDetails = processGetSellerDetails;
+const processUpdateSellerDetails = async (req, res, next) => {
+    try {
+        const { password, email, shop_name, phone_number } = req.body;
+        const { seller_id } = req.params;
+        if (!seller_id)
+            return res.sendStatus(400);
+        const result = await sellerModel.handleUpdateSellerDetails(password, email, shop_name, parseInt(phone_number), parseInt(seller_id));
+        if (result)
+            return res.json(result);
+        return res.sendStatus(201);
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.processUpdateSellerDetails = processUpdateSellerDetails;
+const processChangeEmail = async (req, res, next) => {
+    try {
+        const { changeSellerEmailToken } = req.body;
+        if (!changeSellerEmailToken)
+            return res.sendStatus(400);
+        jsonwebtoken_1.default.verify(changeSellerEmailToken, config_1.default.emailTokenSecret, async (err, decoded) => {
+            if (err)
+                return res.sendStatus(403);
+            const { seller_id } = decoded;
+            await sellerModel.handleChangeEmail(seller_id);
+            return res.sendStatus(200);
+        });
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.processChangeEmail = processChangeEmail;
+const deactivateAccount = async (req, res, next) => {
+    try {
+        const { seller_id } = req.params;
+        await sellerModel.handleDeactivateAccount(parseInt(seller_id));
+        return res.sendStatus(200);
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.deactivateAccount = deactivateAccount;
+const getSellerStatus = async (req, res, next) => {
+    try {
+        const { seller_id } = req.params;
+        const result = await sellerModel.handleGetSellerStatus(parseInt(seller_id));
+        return res.json({ status: result });
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.getSellerStatus = getSellerStatus;
+const activateAccount = async (req, res, next) => {
+    try {
+        const { seller_id } = req.params;
+        await sellerModel.handleActivateAccount(parseInt(seller_id));
+        return res.sendStatus(200);
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.activateAccount = activateAccount;
 //# sourceMappingURL=seller.controller.js.map

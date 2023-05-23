@@ -37,7 +37,8 @@ const pool = mysql2_1.default.createPool({
     connectionLimit: process.env.DB_CONNECTION_LIMIT,
     ssl: {
         rejectUnauthorized: false,
-    }
+    },
+    dateStrings: true
 });
 exports.default = pool;
 //

@@ -23,11 +23,13 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addingReviewImages = exports.addingReview = void 0;
+exports.deleteReview = exports.addingReviewImages = exports.addingReview = void 0;
 const reviewModel = __importStar(require("../model/review.model"));
 const addingReview = async (req, res, next) => {
     try {
         const { product_id, customer_id, rating, comment, sku } = req.body;
+        if (!product_id || !customer_id || !rating || !comment || !sku)
+            return res.sendStatus(404);
         const response = await reviewModel.handleAddingReview(product_id, customer_id, rating, comment, sku);
         if (!response)
             return res.sendStatus(404);
@@ -41,6 +43,8 @@ exports.addingReview = addingReview;
 const addingReviewImages = async (req, res, next) => {
     try {
         const { review_id, image_url } = req.body;
+        if (!review_id || !image_url)
+            return res.sendStatus(404);
         const response = await reviewModel.handleAddingReviewImages(review_id, image_url);
         if (!response)
             return res.sendStatus(404);
@@ -51,4 +55,19 @@ const addingReviewImages = async (req, res, next) => {
     }
 };
 exports.addingReviewImages = addingReviewImages;
+const deleteReview = async (req, res, next) => {
+    try {
+        const { review_id, sku } = req.body;
+        if (!review_id || !sku)
+            return res.sendStatus(404);
+        const response = await reviewModel.handleDeleteReview(review_id, sku);
+        if (!response)
+            return res.sendStatus(404);
+        return res.sendStatus(200);
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.deleteReview = deleteReview;
 //# sourceMappingURL=review.controller.js.map
