@@ -392,6 +392,7 @@ export const getCustomerDetails = async (
 //   }
 // };
 
+//Noah
 export const updateCustomerDetails = async (
   req: Request,
   res: Response,
@@ -438,6 +439,7 @@ export const processChangeEmail = async (
   }
 };
 
+//Noah
 export const updateCustomerPhoto = async (
   req: Request,
   res: Response,
@@ -517,3 +519,91 @@ export const activateAccount = async (
 //     return next(err);
 //   }
 // }
+
+//Noah
+export const processCustomerAddressAdd = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.params;
+    const { postal_code, block, street_name, country, unit_no } =
+      req.body;
+    const customerId = parseInt(customer_id);
+    const response: number =
+      await customerModel.handleCustomerAddressAdd(
+        postal_code,
+        block,
+        street_name,
+        country,
+        unit_no,
+        customerId
+      );
+    if (!response) return res.sendStatus(404);
+    console.log("Successfully added address with id ", response);
+    return res.sendStatus(200);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+//Noah
+export const processCustomerAddressDelete = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.params;
+    const { address_id } = req.body;
+    const customerId = parseInt(customer_id);
+    const addressId = parseInt(address_id);
+    const response: number =
+      await customerModel.handleCustomerAddressDelete(
+        addressId,
+        customerId
+      );
+    if (!response) return res.sendStatus(404);
+    console.log("Successfully deleted address");
+    return res.sendStatus(200);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+//Noah
+export const processCustomerAddressEdit = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.params;
+    const {
+      address_id,
+      postal_code,
+      block,
+      street_name,
+      country,
+      unit_no,
+    } = req.body;
+    const customerId = parseInt(customer_id);
+    const addressId = parseInt(address_id);
+    const response: number =
+      await customerModel.handleCustomerAddressEdit(
+        addressId,
+        postal_code,
+        block,
+        street_name,
+        country,
+        unit_no,
+        customerId
+      );
+    if (!response) return res.sendStatus(404);
+    console.log("Successfully edited address");
+    return res.sendStatus(200);
+  } catch (err: any) {
+    return next(err);
+  }
+};

@@ -17,7 +17,9 @@ export const handleLogin = async (
   const sql = `SELECT username, password, customer_id, phone_number, email FROM customer WHERE email = ? AND active != 0`;
   try {
     const result: any = await connection.query(sql, [email]);
-    const encryptrdPassword = result[0].length ? result[0][0].password : "";
+    const encryptrdPassword = result[0].length
+      ? result[0][0].password
+      : "";
     const check = await bcrypt.compare(password, encryptrdPassword);
     if (check) {
       const customer_id: number = result[0][0]?.customer_id;
@@ -42,7 +44,10 @@ export const handleStoreRefreshToken = async (
   const connection = await promisePool.getConnection();
   const sql = `UPDATE customer SET refresh_token =? WHERE customer_id =?`;
   try {
-    const result = await connection.query(sql, [refreshtoken, customer_id]);
+    const result = await connection.query(sql, [
+      refreshtoken,
+      customer_id,
+    ]);
     return (result[0] as any).affectedRows as number;
   } catch (err: any) {
     throw new Error(err);
@@ -65,8 +70,8 @@ export const handleSendSMSOTP = async (
         if (err === null) {
           console.log(
             `Messaging response for messaging phone number: ${phoneNumber}` +
-            ` => code: ${res["status"]["code"]}` +
-            `, description: ${res["status"]["description"]}`
+              ` => code: ${res["status"]["code"]}` +
+              `, description: ${res["status"]["description"]}`
           );
         } else {
           console.log("Unable to send message. " + err);
@@ -252,7 +257,9 @@ export const handleGetCustomerIdByRefId = async (
   const sql = `SELECT customer_id FROM customer WHERE referral_id = ?`;
   try {
     const result: any = await connection.query(sql, [referral_id]);
-    return result[0][0]?.customer_id ? result[0][0].customer_id : null;
+    return result[0][0]?.customer_id
+      ? result[0][0].customer_id
+      : null;
   } catch (err: any) {
     throw new Error(err);
   } finally {
@@ -285,7 +292,9 @@ export const handleActiveAccount = async (
   }
 };
 
-export const handleLogOut = async (refreshToken: string): Promise<number> => {
+export const handleLogOut = async (
+  refreshToken: string
+): Promise<number> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `UPDATE customer SET refresh_token = NULL WHERE refresh_token = ?`;
@@ -387,42 +396,76 @@ export const handleGetReferralId = async (
   }
 };
 
-export const handleUpdateCustomerDetails = async (password: string, email: string, username: string, phone_number: number, customer_id: number): Promise<Object | undefined> => {
+export const handleUpdateCustomerDetails = async (
+  password: string,
+  email: string,
+  username: string,
+  phone_number: number,
+  customer_id: number
+): Promise<Object | undefined> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   try {
     let sql = `SELECT * FROM customer WHERE email like ? and customer_id != ?`;
-    let result = await connection.query(sql, [email, customer_id]) as any;
+    let result = (await connection.query(sql, [
+      email,
+      customer_id,
+    ])) as any;
     if (result[0].length != 0) {
       return { duplicateEmail: true };
     } else {
       let sql = `SELECT * FROM customer WHERE email like ? and customer_id = ?`;
-      let result = await connection.query(sql, [email, customer_id]) as any;
+      let result = (await connection.query(sql, [
+        email,
+        customer_id,
+      ])) as any;
       if (result[0].length === 0) {
-        sql = 'UPDATE update_customer SET new_email = ?, email_sent = utc_timestamp() WHERE customer_id = ?';
+        sql =
+          "UPDATE update_customer SET new_email = ?, email_sent = utc_timestamp() WHERE customer_id = ?";
         result = await connection.query(sql, [email, customer_id]);
         if (result[0].affectedRows === 0) {
-          sql = 'INSERT INTO update_customer (customer_id, new_email, email_sent) VALUES (?, ?, utc_timestamp())';
+          sql =
+            "INSERT INTO update_customer (customer_id, new_email, email_sent) VALUES (?, ?, utc_timestamp())";
           result = await connection.query(sql, [customer_id, email]);
         }
         await handleSendEmailChange(customer_id, email);
         if (password) {
           const encryptedPassword = await bcrypt.hash(password, 10);
           sql = `UPDATE customer SET password = ?, username = ?, phone_number = ? WHERE customer_id = ?`;
-          result = await connection.query(sql, [encryptedPassword, username, phone_number, customer_id]);
+          result = await connection.query(sql, [
+            encryptedPassword,
+            username,
+            phone_number,
+            customer_id,
+          ]);
         } else {
-          sql = 'UPDATE customer SET username = ?, phone_number = ? WHERE customer_id = ?';
-          result = await connection.query(sql, [username, phone_number, customer_id]);
+          sql =
+            "UPDATE customer SET username = ?, phone_number = ? WHERE customer_id = ?";
+          result = await connection.query(sql, [
+            username,
+            phone_number,
+            customer_id,
+          ]);
         }
         return { emailChange: true };
       } else {
         if (password) {
           const encryptedPassword = await bcrypt.hash(password, 10);
           sql = `UPDATE customer SET password = ?, username = ?, phone_number = ? WHERE customer_id = ?`;
-          result = await connection.query(sql, [encryptedPassword, username, phone_number, customer_id]);
+          result = await connection.query(sql, [
+            encryptedPassword,
+            username,
+            phone_number,
+            customer_id,
+          ]);
         } else {
-          sql = 'UPDATE customer SET username = ?, phone_number = ? WHERE customer_id = ?';
-          result = await connection.query(sql, [username, phone_number, customer_id]);
+          sql =
+            "UPDATE customer SET username = ?, phone_number = ? WHERE customer_id = ?";
+          result = await connection.query(sql, [
+            username,
+            phone_number,
+            customer_id,
+          ]);
         }
       }
     }
@@ -431,15 +474,18 @@ export const handleUpdateCustomerDetails = async (password: string, email: strin
   } finally {
     await connection.release();
   }
-}
+};
 
-export const handleSendEmailChange = async (customer_id: number, email: string) => {
+export const handleSendEmailChange = async (
+  customer_id: number,
+  email: string
+) => {
   const changeCustomerEmailToken = jwt.sign(
     {
       customer_id: customer_id,
     },
     config.emailTokenSecret!,
-    { expiresIn: '300s' }
+    { expiresIn: "300s" }
   );
   const tranEmailApi = new Sib.TransactionalEmailsApi();
   const sender = {
@@ -466,14 +512,14 @@ export const handleSendEmailChange = async (customer_id: number, email: string) 
     .catch((err: any) => {
       throw new Error(err);
     });
-}
+};
 
 export const handleChangeEmail = async (customer_id: number) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   try {
     let sql = `SELECT new_email FROM update_customer WHERE customer_id = ?`;
-    let result = await connection.query(sql, [customer_id]) as any;
+    let result = (await connection.query(sql, [customer_id])) as any;
     const email = result[0][0].new_email;
     sql = `UPDATE customer SET email = ? WHERE customer_id = ?`;
     result = await connection.query(sql, [email, customer_id]);
@@ -485,12 +531,14 @@ export const handleChangeEmail = async (customer_id: number) => {
   } finally {
     await connection.release();
   }
-}
+};
 
-export const handleDeactivateAccount = async (customer_id: number) => {
+export const handleDeactivateAccount = async (
+  customer_id: number
+) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = 'UPDATE customer SET active = 0 WHERE customer_id = ?';
+  const sql = "UPDATE customer SET active = 0 WHERE customer_id = ?";
   try {
     const result = await connection.query(sql, [customer_id]);
     return;
@@ -499,26 +547,30 @@ export const handleDeactivateAccount = async (customer_id: number) => {
   } finally {
     await connection.release();
   }
-}
+};
 
-export const handleGetCustomerStatus = async (customer_id: number) => {
+export const handleGetCustomerStatus = async (
+  customer_id: number
+) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = 'SELECT active FROM customer WHERE customer_id = ?';
+  const sql = "SELECT active FROM customer WHERE customer_id = ?";
   try {
-    const result = await connection.query(sql, [customer_id]) as any;
+    const result = (await connection.query(sql, [
+      customer_id,
+    ])) as any;
     return result[0][0].active;
   } catch (err: any) {
     throw new Error(err);
   } finally {
     await connection.release();
   }
-}
+};
 
 export const handleActivateAccount = async (customer_id: number) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = 'UPDATE customer SET active = 1 WHERE customer_id = ?';
+  const sql = "UPDATE customer SET active = 1 WHERE customer_id = ?";
   try {
     const result = await connection.query(sql, [customer_id]);
     return;
@@ -527,7 +579,7 @@ export const handleActivateAccount = async (customer_id: number) => {
   } finally {
     await connection.release();
   }
-}
+};
 
 const convertLocalTimeToUTC = (): string => {
   const now = new Date();
@@ -555,7 +607,9 @@ interface LoginResult {
 
 //ALLISON :D
 
-export const handleGetCoins = async (customer_id: string): Promise<number> => {
+export const handleGetCoins = async (
+  customer_id: string
+): Promise<number> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT coins FROM customer WHERE customer_id = ?`;
@@ -595,7 +649,10 @@ export const handlesUpdateCustomerLastViewedCat = async (
   const connection = await promisePool.getConnection();
   const sql = `UPDATE customer SET last_viewed_cat_id = ? WHERE customer_id = ?;`;
   try {
-    const result = await connection.query(sql, [categoryId, customerId]);
+    const result = await connection.query(sql, [
+      categoryId,
+      customerId,
+    ]);
     return result[0] as Array<Object>;
   } catch (err: any) {
     throw new Error(err);
@@ -604,7 +661,9 @@ export const handlesUpdateCustomerLastViewedCat = async (
   }
 };
 
-export const handlesGetCustomerLastViewedCat = async (customerId: number) => {
+export const handlesGetCustomerLastViewedCat = async (
+  customerId: number
+) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT last_viewed_cat_id as categoryId FROM customer WHERE customer_id = ?;`;
@@ -686,6 +745,7 @@ export const handleCustomerProfileEdit = async (
   }
 };
 
+//Noah
 export const handleCustomerProfilePhotoEdit = async (
   image_url: string,
   customerId: number
@@ -705,6 +765,103 @@ export const handleCustomerProfilePhotoEdit = async (
     ]);
     return (result as ResultSetHeader).affectedRows as number;
   } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+//Noah
+export const handleCustomerAddressAdd = async (
+  postal_code: string,
+  block: string,
+  street_name: string,
+  country: string,
+  unit_no: string,
+  customer_id: number
+): Promise<number> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `
+    INSERT INTO customer_address
+      (postal_code, block, street_name, country, unit_no, customer_id)
+    VALUES
+      (?, ?, ?, ?, ?, ?)
+  `;
+  try {
+    const [result] = await connection.query(sql, [
+      postal_code,
+      block,
+      street_name,
+      country,
+      unit_no,
+      customer_id,
+    ]);
+    return (result as ResultSetHeader).insertId as number;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handleCustomerAddressEdit = async (
+  address_id: number,
+  postal_code: string,
+  block: string,
+  street_name: string,
+  country: string,
+  unit_no: string,
+  customer_id: number
+): Promise<number> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `
+    UPDATE customer_address
+    SET
+      postal_code = ?,
+      block = ?,
+      street_name = ?,
+      country = ?,
+      unit_no = ?
+    WHERE address_id = ? AND customer_id = ?
+  `;
+  try {
+    const [result] = await connection.query(sql, [
+      postal_code,
+      block,
+      street_name,
+      country,
+      unit_no,
+      address_id,
+      customer_id,
+    ]);
+    return (result as ResultSetHeader).affectedRows as number;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handleCustomerAddressDelete = async (
+  address_id: number,
+  customer_id: number
+): Promise<number> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `
+    DELETE FROM customer_address
+    WHERE address_id = ? AND customer_id = ?
+  `;
+  try {
+    const [result] = await connection.query(sql, [
+      address_id,
+      customer_id,
+    ]);
+    return (result as ResultSetHeader).affectedRows as number;
+  } catch (err: any) {
+    console.log(err);
     throw new Error(err);
   } finally {
     await connection.release();
