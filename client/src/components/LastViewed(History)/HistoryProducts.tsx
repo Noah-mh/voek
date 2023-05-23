@@ -1,4 +1,5 @@
 import { useEffect, useState, useContext } from "react";
+import tz from "moment-timezone";
 import ProductCard from "../Result/ProductCard";
 import Loader from "../Loader/Loader";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
@@ -7,6 +8,8 @@ import CustomerContext from "../../context/CustomerProvider";
 interface HistoryProductsProps {
   selected: string;
 }
+
+const timezone = tz.tz.guess();
 
 const HistoryProducts = ({ selected }: HistoryProductsProps) => {
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
@@ -23,7 +26,7 @@ const HistoryProducts = ({ selected }: HistoryProductsProps) => {
     axiosPrivateCustomer
       .post(
         `/getLastViewed`,
-        JSON.stringify({ customerId, dateViewed: selected }),
+        JSON.stringify({ customerId, dateViewed: selected, timezone }),
         {
           headers: { "Content-Type": "application/json" },
           withCredentials: true,
@@ -36,6 +39,7 @@ const HistoryProducts = ({ selected }: HistoryProductsProps) => {
         setProducts(data);
       })
       .catch((err: any) => {
+        console.log(err);
         setStatus(false);
       });
   }, [selected]);

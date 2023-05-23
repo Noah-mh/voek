@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { useLocation } from "react-router-dom";
 import useSeller from '../../hooks/useSeller';
 import useAxiosPrivateSeller from '../../hooks/useAxiosPrivateSeller';
 

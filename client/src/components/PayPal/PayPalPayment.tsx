@@ -12,6 +12,7 @@ const PayPalPayment = ({ paypalAmount, setSuccess }: Props) => {
   const [amount, setAmount] = useState<number>();
 
   useEffect(() => {
+    console.log(amount)
     setAmount(paypalAmount);
     amountRef.current = paypalAmount; // Update the ref value whenever the state changes
     console.log(paypalAmount);
@@ -20,6 +21,7 @@ const PayPalPayment = ({ paypalAmount, setSuccess }: Props) => {
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
 
   const createOrder = async (data: any) => {
+    console.log(data)
     return axiosPrivateCustomer
       .post(`/create-paypal-order`, {
         amount: amountRef.current, // Use the current value of the ref
@@ -44,8 +46,8 @@ const PayPalPayment = ({ paypalAmount, setSuccess }: Props) => {
 
   return (
     <PayPalButtons
-      createOrder={(data, actions) => createOrder(data)}
-      onApprove={(data, actions) => onApprove(data)}
+      createOrder={(data) => createOrder(data)}
+      onApprove={(data) => onApprove(data)}
     />
   );
 };
