@@ -2,8 +2,8 @@ import "./css/header.css";
 import { useRef, useState, useEffect } from "react";
 import useCustomer from "../../hooks/UseCustomer.js";
 import useSeller from "../../hooks/useSeller.js";
-import LiveSearch from "./LiveSearch.js";
-import DropDownProfile from "./DropDownProfile.js";
+import LiveSearch from "../header/LiveSearch.js";
+import DropDownProfile from "../header/DropDownProfile.js";
 import { Link } from "react-router-dom";
 import axios from "../../api/axios.js";
 
