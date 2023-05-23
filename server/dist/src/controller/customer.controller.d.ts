@@ -21,3 +21,6 @@ export declare const updateCustomerPhoto: (req: Request, res: Response, next: Ne
 export declare const deactivateAccount: (req: Request, res: Response, next: NextFunction) => Promise<void | Response<any, Record<string, any>>>;
 export declare const getCustomerStatus: (req: Request, res: Response, next: NextFunction) => Promise<void | Response<any, Record<string, any>>>;
 export declare const activateAccount: (req: Request, res: Response, next: NextFunction) => Promise<void | Response<any, Record<string, any>>>;
+export declare const processCustomerAddressAdd: (req: Request, res: Response, next: NextFunction) => Promise<void | Response<any, Record<string, any>>>;
+export declare const processCustomerAddressDelete: (req: Request, res: Response, next: NextFunction) => Promise<void | Response<any, Record<string, any>>>;
+export declare const processCustomerAddressUpdate: (req: Request, res: Response, next: NextFunction) => Promise<void | Response<any, Record<string, any>>>;

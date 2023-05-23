@@ -32,4 +32,7 @@ export declare const handlesGetCustomerLastViewedCat: (customerId: number) => Pr
 export declare const handlesCustomerDetails: (customerId: number) => Promise<Object[]>;
 export declare const handleCustomerProfileEdit: (username: string, email: string, phoneNumber: string, customerId: number) => Promise<number>;
 export declare const handleCustomerProfilePhotoEdit: (image_url: string, customerId: number) => Promise<number>;
+export declare const handleCustomerAddressAdd: (postal_code: string, block: string, street_name: string, country: string, unit_no: string, customer_id: number) => Promise<number>;
+export declare const handleCustomerAddressUpdate: (address_id: number, postal_code: string, block: string, street_name: string, country: string, unit_no: string, customer_id: number) => Promise<number>;
+export declare const handleCustomerAddressDelete: (address_id: number, customer_id: number) => Promise<number>;
 export {};
