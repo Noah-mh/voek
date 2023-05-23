@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import useCustomer from "../../hooks/UseCustomer";
 import { Link, useNavigate } from "react-router-dom";
-import PayPal from "../PayPal/PayPal";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export default function CheckOutPage(): JSX.Element {
   const [paymentSuccess, setPaymentSuccess] = useState(false);
@@ -41,7 +39,7 @@ export default function CheckOutPage(): JSX.Element {
             }
           );
 
-          const productIds = await Promise.all(
+          await Promise.all(
             customer.cart.cartItems.map(async (item: any) => {
               const resOrderProductIDs = await axiosPrivateCustomer.post(
                 `/customer/insertOrderProduct`,
@@ -57,7 +55,7 @@ export default function CheckOutPage(): JSX.Element {
               return resOrderProductIDs.data; // Assuming the product ID is in the 'productId' property of the response
             })
           );
-          const updateStock = await Promise.all(
+          await Promise.all(
             customer.cart.cartItems.map(async (item: any) => {
               const resUpdateStock = await axiosPrivateCustomer.post(
                 `/customer/updateProductStock`,
@@ -71,13 +69,10 @@ export default function CheckOutPage(): JSX.Element {
             })
           );
 
-          const updateCustomerCoins = await axiosPrivateCustomer.post(
-            `/customer/updateCustomerCoins`,
-            {
-              customer_id: customer_id,
-              coins: coinsRedeemed == 0 ? coinsEarned : -coinsRedeemed,
-            }
-          );
+          await axiosPrivateCustomer.post(`/customer/updateCustomerCoins`, {
+            customer_id: customer_id,
+            coins: coinsRedeemed == 0 ? coinsEarned : -coinsRedeemed,
+          });
           setPaymentSuccess(true);
         } catch (err) {
           console.log(err);
