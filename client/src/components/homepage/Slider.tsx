@@ -1,6 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { images } from "./images";
 import { Link } from "react-router-dom";
 import "./css/Slider.css";
 

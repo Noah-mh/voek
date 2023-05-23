@@ -1,5 +1,4 @@
 import { useEffect, useState, useContext } from "react";
-import { macbook } from "./images";
 import { Link } from "react-router-dom";
 import Loader from "../Loader/Loader";
 import "./css/WishlistCard.css";
@@ -8,11 +7,6 @@ import axios from "../../api/axios";
 import CustomerContext from "../../context/CustomerProvider";
 import { AdvancedImage } from "@cloudinary/react";
 import { cld } from "../../Cloudinary/Cloudinary";
-
-interface Pricing {
-  lowestPrice: number;
-  highestPrice: number;
-}
 
 const WishlistCard = () => {
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
