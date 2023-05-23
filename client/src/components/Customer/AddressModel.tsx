@@ -4,8 +4,16 @@ import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import useCustomer from "../../hooks/UseCustomer";
+import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function AddressModal() {
+    const { customer } = useCustomer();
+    const customer_id = customer.customer_id;
+    const axiosPrivateCustomer = useAxiosPrivateCustomer();
+
     const [open, setOpen] = useState(false);
     const [address, setAddress] = useState({
         block: '',
@@ -23,7 +31,23 @@ export default function AddressModal() {
     });
 
     const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
+    const handleClose = () => {
+        setOpen(false);
+        setAddress({
+            block: '',
+            unit_no: '',
+            street_name: '',
+            postal_code: '',
+            country: ''
+        });
+        setError({
+            block: false,
+            unit_no: false,
+            street_name: false,
+            postal_code: false,
+            country: false
+        });
+    };
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setAddress({
@@ -36,7 +60,7 @@ export default function AddressModal() {
         });
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         const hasError = Object.values(address).some((value) => !value);
         if (hasError) {
             setError({
@@ -50,6 +74,40 @@ export default function AddressModal() {
         }
         console.log(address);
         handleClose();
+        try {
+            const response = await axiosPrivateCustomer.post(`/customer/addAddress/${customer_id}`,
+                {
+                    block: address.block,
+                    unit_no: address.unit_no,
+                    street_name: address.street_name,
+                    postal_code: address.postal_code,
+                    country: address.country
+                });
+            console.log(response);
+            toast.success("Added New Address", {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            });
+
+        } catch (error) {
+            console.error(error);
+            toast.error("Error Uploading Photo", {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            });
+        }
     };
 
     const body = (

@@ -555,8 +555,7 @@ export const processCustomerAddressDelete = async (
   next: NextFunction
 ) => {
   try {
-    const { customer_id } = req.params;
-    const { address_id } = req.body;
+    const { customer_id, address_id } = req.params;
     const customerId = parseInt(customer_id);
     const addressId = parseInt(address_id);
     const response: number =
@@ -573,7 +572,7 @@ export const processCustomerAddressDelete = async (
 };
 
 //Noah
-export const processCustomerAddressEdit = async (
+export const processCustomerAddressUpdate = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -591,7 +590,7 @@ export const processCustomerAddressEdit = async (
     const customerId = parseInt(customer_id);
     const addressId = parseInt(address_id);
     const response: number =
-      await customerModel.handleCustomerAddressEdit(
+      await customerModel.handleCustomerAddressUpdate(
         addressId,
         postal_code,
         block,
@@ -601,7 +600,7 @@ export const processCustomerAddressEdit = async (
         customerId
       );
     if (!response) return res.sendStatus(404);
-    console.log("Successfully edited address");
+    console.log("Successfully updated address");
     return res.sendStatus(200);
   } catch (err: any) {
     return next(err);

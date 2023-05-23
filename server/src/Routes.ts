@@ -295,16 +295,23 @@ export default function (app: Express, router: Router) {
 
   router.post(
     "/customer/addAddress/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
     customerController.processCustomerAddressAdd
   );
   router.put(
-    "/customer/editAddress/:customer_id",
-    customerController.processCustomerAddressEdit
+    "/customer/updateAddress/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processCustomerAddressUpdate
   );
   router.delete(
-    "/customer/deleteAddress/:customer_id",
+    "/customer/:customer_id/deleteAddress/:address_id",
+    verifyJWT,
+    verifyRoles("customer"),
     customerController.processCustomerAddressDelete
   );
+  //end of NOAH ENDPOINTS
 
   // ASHLEY ENDPOINTS - seller platform
   router.get(

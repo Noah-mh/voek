@@ -805,7 +805,7 @@ export const handleCustomerAddressAdd = async (
   }
 };
 
-export const handleCustomerAddressEdit = async (
+export const handleCustomerAddressUpdate = async (
   address_id: number,
   postal_code: string,
   block: string,
