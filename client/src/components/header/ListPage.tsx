@@ -1,4 +1,4 @@
-import Product from "../header/Product";
+import Product from "../Header/Product";
 
 interface ListPageProps {
   searchResults: Array<object>;
