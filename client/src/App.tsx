@@ -2,12 +2,12 @@ import "./App.css";
 import { Route, Routes } from "react-router-dom";
 import Missing from "./components/Missing/Missing";
 import LoginBannerSeller from "./components/LoginBannerSeller/LoginBannerSeller.js";
-import LoginBanner from "./components/LoginBanner/LoginBanner.js";
+import LoginBanner from "./components/LoginBanner/loginBanner.js";
 import SignupBannerCustomer from "./components/SignupBannerCustomer/SignupBannerCustomer.js";
 import Layout from "./components/Layout/Layout";
-import Homepage from "./components/Homepage/Homepage.js";
+import Homepage from "./components/homepage/Homepage.js";
 import RequireAuthCustomer from "./components/RequireAuth/RequireAuthCustomer";
-import CartPage from "./components/Cart/UserCart.js";
+import CartPage from "./components/cart/UserCart.js";
 import VerifySignupSeller from "./components/SignupSeller/VerifySignupSeller.js";
 import SignupBannerSeller from "./components/SignupSeller/SignupBannerSeller.js";
 import ResetPasswordSeller from "./components/ResetPasswordSeller/ResetPasswordSeller.js";
@@ -30,7 +30,6 @@ import ManageOrders from "./components/SellerSidebar/ManageOrders.js";
 import Checkout from "./components/Checkout/Checkout.js";
 import CustomerProfilePage from "./components/Customer/CustomerProfilePage.js";
 import LastViewed from "./components/LastViewed(History)/LastViewed.js";
-import ReferralLink from "./components/ReferralLink/ReferralLink.js";
 import ViewCustomerOrders from "./components/SellerSidebar/ViewCustomerOrders.js";
 import CategoryResults from "./components/CategoryResults/CategoryResults.js";
 import SellerProfile from "./components/SellerProfile/SellerProfile.js";
@@ -53,7 +52,6 @@ function App() {
           {/* Public Routes with persist login */}
 
           <Route path="/" element={<Homepage />} />
-          <Route path="test" element={<ReferralLink />} />
 
           <Route path="/" element={<Homepage />} />
           <Route path="login" element={<LoginBanner />} />
