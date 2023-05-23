@@ -50,7 +50,11 @@ const Header = ({ isCustomer, isSeller }: Props) => {
       <div className=" w-9/12 flex">
         <div className="flex items-center  mr-6">
           <span className="font-bold text-xl tracking-widest">
-            <Link to="/">VOEK</Link>
+            {
+              seller?.seller_id ?
+                <Link to="/seller/home">VOEK</Link>
+                : <Link to='/'>VOEK</Link>
+            }
           </span>
         </div>
         <div className="flex items-center px-3 ">
@@ -82,7 +86,7 @@ const Header = ({ isCustomer, isSeller }: Props) => {
                       Profile
                     </p>
                   </div>
-                  <Link to="/cart" className="mx-2">
+                  <Link to="/customer/cart" className="mx-2">
                     <p className="text-purpleAccent">Cart</p>
                   </Link>
                 </div>
@@ -98,7 +102,7 @@ const Header = ({ isCustomer, isSeller }: Props) => {
                   <Link to="/login" className="mx-2">
                     <p className="text-purpleAccent">Login</p>
                   </Link>
-                  <Link to="/cart" className="mx-2">
+                  <Link to="/customer/cart" className="mx-2">
                     <p className="text-purpleAccent">Cart</p>
                   </Link>
                 </div>
@@ -117,7 +121,7 @@ const Header = ({ isCustomer, isSeller }: Props) => {
           ) : null}
         </div>
       </div>
-      {openProfile && <DropDownProfile />}
+      {openProfile && <DropDownProfile setOpenProfile={setOpenProfile} />}
     </nav>
   );
 };

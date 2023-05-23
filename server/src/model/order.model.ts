@@ -4,12 +4,13 @@ export const handleGetCustomerOrders = async (customer_id: number): Promise<Obje
     const promisePool = pool.promise();
     const connection = await promisePool.getConnection();
     const sql = `
-    SELECT products.description, products.name, product_variations.price, products.product_id, product_variations.variation_1, product_variations.variation_2, orders_product.quantity, orders_product.sku,
-    orders.orders_date, product_images.sku FROM orders
+    SELECT orders.orders_id, listed_products.seller_id, products.description, products.name, product_variations.price, products.product_id, product_variations.variation_1, product_variations.variation_2, orders_product.quantity, orders_product.sku,
+    orders.orders_date, product_images.image_url FROM orders
         JOIN orders_product ON orders.orders_id = orders_product.orders_id
         JOIN products ON orders_product.product_id = products.product_id
         JOIN product_variations ON orders_product.sku = product_variations.sku
         JOIN product_images ON orders_product.sku = product_images.sku
+        JOIN listed_products ON orders_product.product_id = listed_products.product_id 
         WHERE orders_product.orders_id in (
             SELECT orders.orders_id FROM orders WHERE orders.customer_id = ?
         ) AND orders_product.shipment_id IS NULL
@@ -28,13 +29,14 @@ export const handleGetCustomerDeliveredOrders = async (customer_id: number): Pro
     const promisePool = pool.promise();
     const connection = await promisePool.getConnection();
     const sql = `
-    SELECT products.description, products.name, product_variations.price, products.product_id, product_variations.variation_1, product_variations.variation_2, orders_product.quantity, orders_product.sku,
+    SELECT listed_products.seller_id, orders_product.orders_id, products.description, products.name, product_variations.price, products.product_id, product_variations.variation_1, product_variations.variation_2, orders_product.quantity, orders_product.sku,
     shipment.shipment_created, orders_product.orders_product_id, product_images.image_url FROM orders
         JOIN orders_product ON orders.orders_id = orders_product.orders_id
         JOIN products ON orders_product.product_id = products.product_id
         JOIN product_variations ON orders_product.sku = product_variations.sku
         JOIN shipment ON orders_product.shipment_id = shipment.shipment_id
         JOIN product_images ON orders_product.sku = product_images.sku
+        JOIN listed_products ON orders_product.product_id = listed_products.product_id
         WHERE orders_product.orders_id in (
             SELECT orders.orders_id FROM orders
                 JOIN orders_product ON orders.orders_id = orders_product.orders_id 
@@ -56,13 +58,14 @@ export const handleGetCustomerReceivedOrders = async (customer_id: number): Prom
     const promisePool = pool.promise();
     const connection = await promisePool.getConnection();
     const sql = `
-    SELECT products.description, products.name, product_variations.price, products.product_id, product_variations.variation_1, product_variations.variation_2, orders_product.quantity, orders_product.sku,
+    SELECT listed_products.seller_id, orders_product.orders_id, products.description, products.name, product_variations.price, products.product_id, product_variations.variation_1, product_variations.variation_2, orders_product.quantity, orders_product.sku,
     shipment.shipment_delivered, product_images.image_url FROM orders
         JOIN orders_product ON orders.orders_id = orders_product.orders_id
         JOIN products ON orders_product.product_id = products.product_id
         JOIN product_variations ON orders_product.sku = product_variations.sku
         JOIN shipment ON orders_product.shipment_id = shipment.shipment_id
         JOIN product_images ON orders_product.sku = product_images.sku
+        JOIN listed_products ON orders_product.product_id = listed_products.product_id
         WHERE orders_product.orders_id in (
             SELECT orders.orders_id FROM orders
                 JOIN orders_product ON orders.orders_id = orders_product.orders_id 
@@ -80,12 +83,18 @@ export const handleGetCustomerReceivedOrders = async (customer_id: number): Prom
     }
 }
 
-export const handleOrderReceived = async (orders_product_id: number): Promise<number> => {
+export const handleOrderReceived = async (orders_id: number, seller_id: number): Promise<number> => {
     const promisePool = pool.promise();
     const connection = await promisePool.getConnection();
-    const sql = `UPDATE shipment SET shipment_delivered = utc_timestamp() WHERE orders_product_id = ?`;
+    const sql = `
+    UPDATE shipment
+    JOIN orders_product ON shipment.shipment_id = orders_product.shipment_id
+    JOIN listed_products ON orders_product.product_id = listed_products.product_id
+    SET shipment.shipment_delivered = UTC_TIMESTAMP()
+    WHERE orders_id = ? AND seller_id = ?
+    `;
     try {
-        const result = await connection.query(sql, [orders_product_id]);
+        const result = await connection.query(sql, [orders_id, seller_id]);
         return (result[0] as any).insertId as number;
     } catch (err: any) {
         throw new Error(err);

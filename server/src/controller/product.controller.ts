@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import * as productModel from "../model/product.model";
-
+//Noah
 export const processPublicProductDetails = async (
   req: Request,
   res: Response,
@@ -9,6 +9,7 @@ export const processPublicProductDetails = async (
   try {
     console.log();
     const { productId } = req.body;
+    if (!productId) return res.sendStatus(404);
     const response: Array<object> = await productModel.handlesGetProductDetails(
       productId
     );
@@ -25,11 +26,29 @@ export const getRecommendedProductsBasedOnCat = async (
   next: NextFunction
 ) => {
   try {
-    const { category_id } = req.body;
+    const { category_id } = req.params;
+    const categoryId = parseInt(category_id);
     const response: Array<object> =
-      await productModel.handlesGetRecommendedProductsBasedOnCat(category_id);
-    if (!response?.length) return res.sendStatus(404);
-    return res.sendStatus(200);
+      await productModel.handlesGetRecommendedProductsBasedOnCat(categoryId);
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const getRecommendedProductsBasedOnCatWishlist = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { category_id } = req.params;
+    const categoryId = parseInt(category_id);
+    const response: Array<object> =
+      await productModel.handlesGetRecommendedProductsBasedOnCatWishlist(
+        categoryId
+      );
+    return res.send(response);
   } catch (err: any) {
     return next(err);
   }
@@ -52,19 +71,39 @@ export const getWishlistItems = async (
   }
 };
 
+export const getLastViewedProductExistence = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customerId, productId, timezone, dateViewed } = req.query;
+    const response: Array<object> =
+      await productModel.handlesGetLastViewedProductExistence(
+        parseInt(customerId as string),
+        parseInt(productId as string),
+        timezone as string,
+        dateViewed as string
+      );
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
 export const getLastViewed = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const { customerId, dateViewed } = req.body;
+    const { customerId, dateViewed, timezone } = req.body;
+    console.log("timezone:", timezone);
     const response: Array<object> = await productModel.handlesGetLastViewed(
       customerId,
+      timezone,
       dateViewed
     );
-    // if (!response?.length) return res.sendStatus(404);
-    // return res.sendStatus(200);
     return res.send(response);
   } catch (err: any) {
     return next(err);
@@ -78,8 +117,8 @@ export const getTopProducts = async (
 ) => {
   try {
     const response: Array<object> = await productModel.handlesTopProducts();
-    if (!response?.length) return res.sendStatus(404);
-    return res.sendStatus(200);
+    // if (!response?.length) return res.sendStatus(404);
+    return res.send(response);
   } catch (err: any) {
     return next(err);
   }
@@ -158,7 +197,9 @@ export const deleteWishlistedProduct = async (
   next: NextFunction
 ) => {
   try {
-    const { customerId, productId } = req.body;
+    const { customer_id, product_id } = req.query;
+    const customerId: number = parseInt(customer_id as string);
+    const productId: number = parseInt(product_id as string);
     const response: number =
       await productModel.handlesDeletingWishlistedProduct(
         customerId,
@@ -178,7 +219,7 @@ export const getProductDetailsWithoutReviews = async (
 ) => {
   try {
     const product_id: number = parseInt(req.params.product_id);
-
+    if (!product_id) return res.sendStatus(404);
     const response: Array<object> =
       await productModel.handleProductDetailsWithoutReviews(product_id);
     if (!response?.length) return res.sendStatus(404);
@@ -195,7 +236,7 @@ export const getProductReviews = async (
 ) => {
   try {
     const product_id: number = parseInt(req.params.product_id);
-
+    if (!product_id) return res.sendStatus(404);
     const response: Array<object> = await productModel.handleProductReviews(
       product_id
     );
@@ -251,6 +292,155 @@ export const getProductVariations = async (
     const response: Array<object> =
       await productModel.handlesGetProductVariations(productId);
     return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const getProductVariationsPricing = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { product_Id } = req.params;
+    const productId: number = parseInt(product_Id);
+    const response: Array<object> =
+      await productModel.handlesGetProductVariationsPricing(productId);
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const getProductImage = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { product_Id } = req.params;
+    const productId: number = parseInt(product_Id);
+    const response: Array<object> = await productModel.handlesGetProductImage(
+      productId
+    );
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const getProductVariationImage = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { sku } = req.params;
+    const productId: number = parseInt(sku);
+    const response: Array<object> =
+      await productModel.handlesGetProductVariationImage(sku);
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const insertLastViewedProduct = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { productId, customerId, currentDate, timezone } = req.body;
+    const response: Array<object> =
+      await productModel.handlesInsertLastViewedProduct(
+        productId,
+        customerId,
+        currentDate,
+        timezone
+      );
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const getProductsUsingCategory = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { category_id } = req.params;
+    const categoryId: number = parseInt(category_id);
+    const response: Array<object> =
+      await productModel.handlesGetProductsUsingCategory(categoryId);
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const getProductCat = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { product_id } = req.params;
+    const productId: number = parseInt(product_id);
+    const response: Array<object> = await productModel.handlesGetProductCat(
+      productId
+    );
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+//Noah
+export const addToCart = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { quantity, customer_id, product_id, sku } = req.body;
+    if (!quantity || !customer_id || !product_id || !sku)
+      return res.sendStatus(404);
+    const response: number = await productModel.handleAddToCart(
+      quantity,
+      customer_id,
+      product_id,
+      sku
+    );
+    if (!response) return res.sendStatus(404);
+    return res.sendStatus(200);
+  } catch (err: any) {
+    console.error(err);
+    return next(err);
+  }
+};
+
+export const getCart = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.params;
+    const { sku } = req.query;
+    console.log("sku", sku);
+    if (!customer_id || !sku) return res.sendStatus(404);
+    const response: Array<object> =
+      await productModel.handleCartDetails(
+        parseInt(customer_id),
+        sku as string
+      );
+    if (!response) return res.sendStatus(404);
+    console.log("response", response);
+    return res.json({ cartDetails: response });
   } catch (err: any) {
     return next(err);
   }

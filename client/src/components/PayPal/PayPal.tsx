@@ -1,26 +1,34 @@
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
-import PayPalPayment from './PayPalPayment';
+import PayPalPayment from "./PayPalPayment";
+import { useEffect, useState } from "react";
 
 interface Props {
-    amount: number
+  amount: number;
+  setSuccess: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const PayPal = ({ amount }: Props) => {
+const PayPal = ({ amount, setSuccess }: Props) => {
+  const [paypalAmount, setPaypalAmount] = useState(0);
 
-    const initialOptions = {
-        "client-id": "ARw2wYulFy7lbbqLNXXLUlJw3yJFkaY7Y4g3yr10Hlq4WpSCpj10JfloLeDeBTN2nL7GibnMJWbrc6Pi",
-        currency: "SGD",
-        intent: "capture",
-        // "data-client-token": "abc123xyz==",
-    };
+  useEffect(() => {
+    setPaypalAmount(amount);
+  }, [amount]);
 
-    return (
-        <div>
-            <PayPalScriptProvider options={initialOptions}>
-                <PayPalPayment amount={amount} />
-            </PayPalScriptProvider>
-        </div>
-    )
-}
+  const initialOptions = {
+    "client-id":
+      "ARw2wYulFy7lbbqLNXXLUlJw3yJFkaY7Y4g3yr10Hlq4WpSCpj10JfloLeDeBTN2nL7GibnMJWbrc6Pi",
+    currency: "SGD",
+    intent: "capture",
+    // "data-client-token": "abc123xyz==",
+  };
 
-export default PayPal
+  return (
+    <div>
+      <PayPalScriptProvider options={initialOptions}>
+        <PayPalPayment setSuccess={setSuccess} paypalAmount={paypalAmount} />
+      </PayPalScriptProvider>
+    </div>
+  );
+};
+
+export default PayPal;
