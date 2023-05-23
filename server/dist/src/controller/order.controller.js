@@ -66,10 +66,10 @@ const processGetCustomerReceivedOrders = async (req, res, next) => {
 exports.processGetCustomerReceivedOrders = processGetCustomerReceivedOrders;
 const processOrderReceived = async (req, res, next) => {
     try {
-        const { orders_product_id } = req.params;
-        if (!orders_product_id)
+        const { orders_id, seller_id } = req.params;
+        if (!orders_id || !seller_id)
             return res.sendStatus(400);
-        const result = await orderModel.handleOrderReceived(parseInt(orders_product_id));
+        const result = await orderModel.handleOrderReceived(parseInt(orders_id), parseInt(seller_id));
         return res.sendStatus(200);
     }
     catch (err) {
