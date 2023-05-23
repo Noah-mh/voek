@@ -46,8 +46,8 @@ const PayPalPayment = ({ paypalAmount, setSuccess }: Props) => {
 
   return (
     <PayPalButtons
-      createOrder={(data, actions) => createOrder(data)}
-      onApprove={(data, actions) => onApprove(data)}
+      createOrder={(data) => createOrder(data)}
+      onApprove={(data) => onApprove(data)}
     />
   );
 };

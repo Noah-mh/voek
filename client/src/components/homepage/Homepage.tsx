@@ -1,8 +1,8 @@
 import "./css/Homepage.css";
 import { useState, useEffect, useContext } from "react";
-import Slider from "../homepage/Slider.js";
-import { Banner } from "../homepage/Banner.js";
-import Category from "../homepage/Category.js";
+import Slider from "../Homepage/Slider.js";
+import { Banner } from "../Homepage/Banner.js";
+import Category from "../Homepage/Category.js";
 import axios from "../../api/axios.js";
 import CustomerContext from "../../context/CustomerProvider";
 
