@@ -198,22 +198,33 @@ export default function (app: Express, router: Router) {
     "/productDetailsWithoutReviews/:product_id",
     productController.getProductDetailsWithoutReviews
   );
+
   router.get(
     "/productReviews/:product_id",
     productController.getProductReviews
   );
+
+  router.get(
+    "/getCartDetails/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    productController.getCart
+  );
+
   router.post(
     "/addToCart",
     verifyJWT,
     verifyRoles("customer"),
     productController.addToCart
   );
+
   router.post(
     "/addReview",
     verifyJWT,
     verifyRoles("customer"),
     reviewController.addingReview
   );
+
   router.post(
     "/addReviewImages",
     verifyJWT,
@@ -227,6 +238,7 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     reviewController.deleteReview
   );
+
   router.get(
     "/customer/profile/:customer_id",
     verifyJWT,
@@ -267,6 +279,14 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     productController.getWishlistItems
   );
+
+  router.get(
+    "/getLastViewedProductExistence",
+    verifyJWT,
+    verifyRoles("customer"),
+    productController.getLastViewedProductExistence
+  );
+
   router.post(
     "/getLastViewed",
     verifyJWT,
@@ -346,6 +366,12 @@ export default function (app: Express, router: Router) {
 
   router.post("/insertCart", cartController.insertCart);
 
+  router.post(
+    "/insertLastViewedProduct",
+    verifyJWT,
+    verifyRoles("customer"),
+    productController.insertLastViewedProduct
+  );
   router.get(
     "/customer/getCart/:customer_id",
     verifyJWT,
@@ -353,12 +379,19 @@ export default function (app: Express, router: Router) {
     cartController.retrieveCartDetails
   );
 
+  router.post(
+    "/insertLastViewedProduct",
+    // verifyJWT,
+    // verifyRoles("customer"),
+    productController.insertLastViewedProduct
+  );
+
   router.get("/getProductCat/:product_id", productController.getProductCat);
 
   router.put(
     "/updateCustomerLastViewedCat",
-    verifyJWT,
-    verifyRoles("customer"),
+    // verifyJWT,
+    // verifyRoles("customer"),
     customerController.updateCustomerLastViewedCat
   );
 

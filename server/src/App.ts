@@ -1,12 +1,12 @@
-import express, { NextFunction, Request, Response } from 'express';
-import config from 'config';
-import log from './logger';
-import routes from './Routes';
-import cors from 'cors';
-import cookieParser from 'cookie-parser';
-import * as bodyParser from 'body-parser'
-import credientals from './middlewares/credentials'
-import corsOptions from '../config/corsOptions'
+import express, { NextFunction, Request, Response } from "express";
+import config from "config";
+import log from "./logger";
+import routes from "./Routes";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import * as bodyParser from "body-parser";
+import credientals from "./middlewares/credentials";
+import corsOptions from "../config/corsOptions";
 
 const port: number = config.get("port");
 const host: string = config.get("host");
@@ -29,6 +29,14 @@ app.use(
   })
 );
 app.use(router);
+// app.use((req: Request, res: Response, next: NextFunction) => {
+//   const acceptLanguageHeader = req.headers["accept-language"];
+//   const languages = acceptLanguageHeader ? acceptLanguageHeader.split(",") : [];
+//   const locale = languages[0]?.trim() || "en"; // Set default locale to 'en' if none is provided
+//   // req.locale = locale;
+//   console.log("locale", locale);
+//   next();
+// });
 
 routes(app, router);
 
