@@ -28,7 +28,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const config_1 = __importDefault(require("config"));
-const logger_1 = __importDefault(require("./logger"));
 const Routes_1 = __importDefault(require("./Routes"));
 const cors_1 = __importDefault(require("cors"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
@@ -63,7 +62,10 @@ app.use((error, req, res, next) => {
     console.log(error);
     res.status(500).json(error.message);
 });
-app.listen(port, host, () => {
-    logger_1.default.info(`Server is listening on http://${host}:${port}`);
+// app.listen(port, host, () => {
+//   log.info(`Server is listening on http://${host}:${port}`);
+// });
+app.listen(process.env.PORT || port, () => {
+    console.log(`Server is listening on port ${process.env.PORT || port}`);
 });
 //# sourceMappingURL=App.js.map
