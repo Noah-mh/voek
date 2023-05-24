@@ -44,7 +44,7 @@ const ViewSellerDelivered = ({ deliveredOrders }: Props) => {
       const orderedOrdersArray = Object.values(updatedOrders);
       setOrderedOrders(orderedOrdersArray)
     };
-    orderOrders()
+  orderOrders()
   }, [deliveredOrders])
 
   const getTotalAmt = (order: any) => {

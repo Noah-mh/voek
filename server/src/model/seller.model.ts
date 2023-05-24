@@ -924,7 +924,22 @@ export const handleActivateAccount = async (seller_id: number) => {
   } finally {
     await connection.release();
   }
-};
+}
+
+export const handleViewVouchers = async (seller_id: number): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT voucher_id, voucher_name, number_amount, percentage_amount, voucher_category, min_spend, active FROM seller_voucher WHERE seller_id = ?`;
+  try {
+    const [result] = await connection.query(sql, [seller_id]);
+    return result as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+}
+
 
 const convertLocalTimeToUTC = (): string => {
   const now = new Date();
