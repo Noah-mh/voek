@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.handleActivateAccount = exports.handleGetSellerStatus = exports.handleDeactivateAccount = exports.handleChangeEmail = exports.handleSendEmailChange = exports.handleUpdateSellerDetails = exports.handleGetSellerDetails = exports.handleGetCustomerOrders = exports.handlePackedAndShipped = exports.handleGetSellerDelivered = exports.handleGetSellerShipped = exports.handleGetSellerOrders = exports.handleResetPassword = exports.handleSendEmailForgetPassword = exports.handleForgetPassword = exports.handleLogOut = exports.handleActiveAccount = exports.handleSignUp = exports.handleSendEmailLink = exports.handleVerifyOTP = exports.updateOTP = exports.handleSendEmailOTP = exports.handleSendSMSOTP = exports.handleStoreRefreshToken = exports.handleLogin = exports.handleGetOrderDetails = exports.handleAddProduct = exports.handleGetAllCategories = exports.handleGetAllProducts = void 0;
+exports.handleActivateAccount = exports.handleGetSellerStatus = exports.handleDeactivateAccount = exports.handleChangeEmail = exports.handleSendEmailChange = exports.handleUpdateSellerDetails = exports.handleGetSellerDetails = exports.handleGetCustomerOrders = exports.handlePackedAndShipped = exports.handleGetSellerDelivered = exports.handleGetSellerShipped = exports.handleGetSellerOrders = exports.handleResetPassword = exports.handleSendEmailForgetPassword = exports.handleForgetPassword = exports.handleLogOut = exports.handleActiveAccount = exports.handleSignUp = exports.handleSendEmailLink = exports.handleVerifyOTP = exports.updateOTP = exports.handleSendEmailOTP = exports.handleSendSMSOTP = exports.handleStoreRefreshToken = exports.handleLogin = exports.handleGetOrderDetails = exports.handleUpdateProductActive = exports.handleUpdateProductVariationActive = exports.handleAddProduct = exports.handleGetAllCategories = exports.handleGetAllProducts = void 0;
 const database_1 = __importDefault(require("../../config/database"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const sendInBlue_1 = __importDefault(require("../../config/sendInBlue"));
@@ -83,7 +83,6 @@ const handleAddProduct = async (sellerId, name, description, category_id, variat
                 });
             });
         });
-        connection.commit();
         return;
     }
     catch (err) {
@@ -93,11 +92,68 @@ const handleAddProduct = async (sellerId, name, description, category_id, variat
         throw new Error(err);
     }
     finally {
+        connection.commit();
         await connection.release();
     }
 };
 exports.handleAddProduct = handleAddProduct;
 // export const handleEditProduct
+// PUT product variation active
+const handleUpdateProductVariationActive = async (active, productId, sku) => {
+    const promisePool = database_1.default.promise();
+    const connection = await promisePool.getConnection();
+    const sql1 = `UPDATE product_variations SET active = ? WHERE sku = ?;`;
+    const sql2 = `UPDATE products SET active = true WHERE product_id = ?;`;
+    const sql3 = `UPDATE products p SET p.active = false 
+    WHERE p.product_id = ? 
+    AND (SELECT pv.active FROM product_variations pv WHERE pv.product_id = ? AND pv.active = 1) IS NULL;`;
+    try {
+        connection.beginTransaction();
+        const result1 = await connection.query(sql1, [active, sku]);
+        if (active) {
+            const result2 = await connection.query(sql2, [productId]);
+        }
+        else {
+            const result3 = await connection.query(sql3, [productId, productId]);
+        }
+        return result1[0].affectedRows;
+    }
+    catch (err) {
+        connection.rollback();
+        connection.release();
+        console.log(err);
+        throw new Error(err);
+    }
+    finally {
+        connection.commit();
+        await connection.release();
+    }
+};
+exports.handleUpdateProductVariationActive = handleUpdateProductVariationActive;
+// PUT product active
+const handleUpdateProductActive = async (active, productId) => {
+    const promisePool = database_1.default.promise();
+    const connection = await promisePool.getConnection();
+    const sql1 = `UPDATE products SET active = ? WHERE product_id = ?;`;
+    const sql2 = `UPDATE product_variations SET active = ? WHERE product_id = ?;`;
+    try {
+        connection.beginTransaction();
+        const result1 = await connection.query(sql1, [active, productId]);
+        const result2 = await connection.query(sql2, [active, productId]);
+        return result1[0].affectedRows;
+    }
+    catch (err) {
+        connection.rollback();
+        connection.release();
+        console.log(err);
+        throw new Error(err);
+    }
+    finally {
+        connection.commit();
+        await connection.release();
+    }
+};
+exports.handleUpdateProductActive = handleUpdateProductActive;
 // GET order details
 const handleGetOrderDetails = async (ordersId) => {
     const promisePool = database_1.default.promise();

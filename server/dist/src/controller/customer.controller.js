@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.activateAccount = exports.getCustomerStatus = exports.deactivateAccount = exports.updateCustomerPhoto = exports.processChangeEmail = exports.updateCustomerDetails = exports.getCustomerDetails = exports.getCustomerLastViewedCat = exports.updateCustomerLastViewedCat = exports.processGetAddress = exports.processGetCoins = exports.processGetReferralId = exports.processResetPassword = exports.processForgetPasswordLink = exports.processForgetPassword = exports.processLogout = exports.processSignUpLink = exports.processSendEmailLink = exports.processVerifyOTP = exports.processSendEmailOTP = exports.processSendSMSOTP = exports.processLogin = void 0;
+exports.processCustomerAddressUpdate = exports.processCustomerAddressDelete = exports.processCustomerAddressAdd = exports.activateAccount = exports.getCustomerStatus = exports.deactivateAccount = exports.updateCustomerPhoto = exports.processChangeEmail = exports.updateCustomerDetails = exports.getCustomerDetails = exports.getCustomerLastViewedCat = exports.updateCustomerLastViewedCat = exports.processGetAddress = exports.processGetCoins = exports.processGetReferralId = exports.processResetPassword = exports.processForgetPasswordLink = exports.processForgetPassword = exports.processLogout = exports.processSignUpLink = exports.processSendEmailLink = exports.processVerifyOTP = exports.processSendEmailOTP = exports.processSendSMSOTP = exports.processLogin = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = __importDefault(require("../../config/config"));
 const customerModel = __importStar(require("../model/customer.model"));
@@ -279,7 +279,6 @@ exports.getCustomerLastViewedCat = getCustomerLastViewedCat;
 const getCustomerDetails = async (req, res, next) => {
     try {
         const { customer_id } = req.params;
-        console.log(customer_id);
         // Type checking for customer_id.
         const response = await customerModel.handlesCustomerDetails(parseInt(customer_id));
         // Respond with status code and the data.
@@ -313,6 +312,7 @@ exports.getCustomerDetails = getCustomerDetails;
 //     return next(err);
 //   }
 // };
+//Noah
 const updateCustomerDetails = async (req, res, next) => {
     try {
         const { password, email, username, phone_number } = req.body;
@@ -347,6 +347,7 @@ const processChangeEmail = async (req, res, next) => {
     }
 };
 exports.processChangeEmail = processChangeEmail;
+//Noah
 const updateCustomerPhoto = async (req, res, next) => {
     try {
         const { customer_id } = req.params;
@@ -407,4 +408,56 @@ exports.activateAccount = activateAccount;
 //     return next(err);
 //   }
 // }
+//Noah
+const processCustomerAddressAdd = async (req, res, next) => {
+    try {
+        const { customer_id } = req.params;
+        const { postal_code, block, street_name, country, unit_no } = req.body;
+        const customerId = parseInt(customer_id);
+        const response = await customerModel.handleCustomerAddressAdd(postal_code, block, street_name, country, unit_no, customerId);
+        if (!response)
+            return res.sendStatus(404);
+        console.log("Successfully added address with id ", response);
+        return res.sendStatus(200);
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.processCustomerAddressAdd = processCustomerAddressAdd;
+//Noah
+const processCustomerAddressDelete = async (req, res, next) => {
+    try {
+        const { customer_id, address_id } = req.params;
+        const customerId = parseInt(customer_id);
+        const addressId = parseInt(address_id);
+        const response = await customerModel.handleCustomerAddressDelete(addressId, customerId);
+        if (!response)
+            return res.sendStatus(404);
+        console.log("Successfully deleted address");
+        return res.sendStatus(200);
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.processCustomerAddressDelete = processCustomerAddressDelete;
+//Noah
+const processCustomerAddressUpdate = async (req, res, next) => {
+    try {
+        const { customer_id } = req.params;
+        const { address_id, postal_code, block, street_name, country, unit_no, } = req.body;
+        const customerId = parseInt(customer_id);
+        const addressId = parseInt(address_id);
+        const response = await customerModel.handleCustomerAddressUpdate(addressId, postal_code, block, street_name, country, unit_no, customerId);
+        if (!response)
+            return res.sendStatus(404);
+        console.log("Successfully updated address");
+        return res.sendStatus(200);
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.processCustomerAddressUpdate = processCustomerAddressUpdate;
 //# sourceMappingURL=customer.controller.js.map

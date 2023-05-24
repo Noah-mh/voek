@@ -82,7 +82,7 @@ function default_1(app, router) {
     router.get("/seller/status/:seller_id", verifyJWT_1.default, (0, verifyRoles_1.default)("seller"), sellerController.getSellerStatus);
     router.put("/seller/activate/:seller_id", verifyJWT_1.default, (0, verifyRoles_1.default)("seller"), sellerController.activateAccount);
     router.put("/customer/activate/:customer_id", verifyJWT_1.default, (0, verifyRoles_1.default)("customer"), customerController.activateAccount);
-    // NOAH ENDPOINTS - reviews
+    // NOAH ENDPOINTS - reviews, customer profile, customer address, add to cart
     router.get("/productDetailsWithoutReviews/:product_id", productController.getProductDetailsWithoutReviews);
     router.get("/productReviews/:product_id", productController.getProductReviews);
     router.get("/getCartDetails/:customer_id", verifyJWT_1.default, (0, verifyRoles_1.default)("customer"), productController.getCart);
@@ -93,6 +93,10 @@ function default_1(app, router) {
     router.get("/customer/profile/:customer_id", verifyJWT_1.default, (0, verifyRoles_1.default)("customer"), customerController.getCustomerDetails);
     router.put("/customer/profile/edit/:customer_id", verifyJWT_1.default, (0, verifyRoles_1.default)("customer"), customerController.updateCustomerDetails);
     router.put("/customer/profile/edit/photo/:customer_id", verifyJWT_1.default, (0, verifyRoles_1.default)("customer"), customerController.updateCustomerPhoto);
+    router.post("/customer/addAddress/:customer_id", verifyJWT_1.default, (0, verifyRoles_1.default)("customer"), customerController.processCustomerAddressAdd);
+    router.put("/customer/updateAddress/:customer_id", verifyJWT_1.default, (0, verifyRoles_1.default)("customer"), customerController.processCustomerAddressUpdate);
+    router.delete("/customer/:customer_id/deleteAddress/:address_id", verifyJWT_1.default, (0, verifyRoles_1.default)("customer"), customerController.processCustomerAddressDelete);
+    //end of NOAH ENDPOINTS
     // ASHLEY ENDPOINTS - seller platform
     router.get("/products/:sellerId", sellerController.processGetAllProductsOfSeller);
     router.get("/categories", sellerController.processGetAllCategories);
@@ -101,6 +105,8 @@ function default_1(app, router) {
     //   "/editProduct/:productId",
     //   sellerController.processEditProduct
     // )
+    router.put("/updateProductVariation/active/:productId", sellerController.processUpdateProductVariationActive);
+    router.put("/updateProduct/active/:productId", sellerController.processUpdateProductActive);
     // NHAT TIEN ENDPOINTS - Homepage, Last Viewed, Wishlist, Product Details
     router.post("/getWishlistItems", verifyJWT_1.default, (0, verifyRoles_1.default)("customer"), productController.getWishlistItems);
     router.get("/getLastViewedProductExistence", verifyJWT_1.default, (0, verifyRoles_1.default)("customer"), productController.getLastViewedProductExistence);

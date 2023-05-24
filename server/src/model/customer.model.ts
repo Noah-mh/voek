@@ -5,6 +5,10 @@ import client from "../../config/teleSign";
 import { ResultSetHeader } from "mysql2";
 import config from "../../config/config";
 import jwt from "jsonwebtoken";
+import * as dotenv from "dotenv";
+dotenv.config({
+  path: __dirname + "../../env",
+});
 import { connect } from "http2";
 import c from "config";
 
@@ -186,7 +190,9 @@ export const handleSendEmailLink = async (
         sender,
         to: receivers,
         subject: "Verification Link For VOEK Sign Up",
-        textContent: `http://localhost:5173/signup/verify?signupToken=${signUpToken}`,
+        textContent: `${
+          process.env.FRONTEND_BASE_URL || "http://localhost:5173"
+        }/signup/verify?signupToken=${signUpToken}`,
       })
       .then((response: any) => {
         console.log(response);
@@ -345,7 +351,9 @@ export const handleSendEmailForgetPassword = async (
         sender,
         to: receivers,
         subject: "Verification Link For VOEK Sign Up",
-        textContent: `http://localhost:5173/forgetPassword/verify?forgetPasswordToken=${forgetPasswordToken}`,
+        textContent: `${
+          process.env.FRONTEND_BASE_URL || "http://localhost:5173"
+        }/forgetPassword/verify?forgetPasswordToken=${forgetPasswordToken}`,
       })
       .then((response: any) => {
         console.log(response);
@@ -503,7 +511,9 @@ export const handleSendEmailChange = async (
       sender,
       to: receivers,
       subject: "Verification Link For VOEK Email Change",
-      textContent: `http://localhost:5173/customer/email-verification?token=${changeCustomerEmailToken}`,
+      textContent: `${
+        process.env.FRONTEND_BASE_URL || "http://localhost:5173"
+      }/customer/email-verification?token=${changeCustomerEmailToken}`,
     })
     .then((response: any) => {
       console.log(response);
