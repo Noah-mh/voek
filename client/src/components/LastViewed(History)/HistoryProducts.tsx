@@ -39,6 +39,7 @@ const HistoryProducts = ({ selected }: HistoryProductsProps) => {
         setProducts(data);
       })
       .catch((err: any) => {
+        console.log(err);
         setStatus(false);
       });
   }, [selected]);

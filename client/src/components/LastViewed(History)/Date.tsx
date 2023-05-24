@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import moment from "moment";
 import "./css/Date.css";
 
@@ -11,12 +11,7 @@ interface DateProps {
   today: string;
 }
 
-export const Date: React.FC<DateProps> = ({
-  date,
-  onSelectDate,
-  selected,
-  today,
-}) => {
+export const Date: React.FC<DateProps> = ({ date, onSelectDate, today }) => {
   const day =
     moment(date).format("YYYY-MM-DD") === moment().format("YYYY-MM-DD")
       ? "Today"

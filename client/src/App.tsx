@@ -30,7 +30,6 @@ import ManageOrders from "./components/SellerSidebar/ManageOrders.js";
 import Checkout from "./components/Checkout/Checkout.js";
 import CustomerProfilePage from "./components/Customer/CustomerProfilePage.js";
 import LastViewed from "./components/LastViewed(History)/LastViewed.js";
-import ReferralLink from "./components/ReferralLink/ReferralLink.js";
 import ViewCustomerOrders from "./components/SellerSidebar/ViewCustomerOrders.js";
 import CategoryResults from "./components/CategoryResults/CategoryResults.js";
 import SellerProfile from "./components/SellerProfile/SellerProfile.js";

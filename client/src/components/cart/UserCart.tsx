@@ -227,14 +227,11 @@ export default function cartPage(): JSX.Element {
     }
     const alterQuantFnc = async () => {
       try {
-        const result = await axiosPrivateCustomer.post(
-          "/customer/alterQuantCart",
-          {
-            customer_id,
-            sku: changedSKU,
-            quantity: prodQuantity,
-          }
-        );
+        await axiosPrivateCustomer.post("/customer/alterQuantCart", {
+          customer_id,
+          sku: changedSKU,
+          quantity: prodQuantity,
+        });
 
         setChangedQuantState(false);
         getUserCart();

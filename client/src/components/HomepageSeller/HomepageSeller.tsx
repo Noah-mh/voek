@@ -1,21 +1,21 @@
-import { useState } from "react";
+// import { useState } from "react";
 import SellerSidebar from "../SellerSidebar/SellerSidebar.js";
-import useSeller from "../../hooks/useSeller.js";
+// import useSeller from "../../hooks/useSeller.js";
 
 
 
-interface Product {
-  product_id: number;
-  name: string;
-  description: string;
-  category: number;
-  price: number;
-}
+// interface Product {
+//   product_id: number;
+//   name: string;
+//   description: string;
+//   category: number;
+//   price: number;
+// }
 
 const HomepageSeller = () => {
 
-  const { seller } = useSeller();
-  const sellerId = seller.seller_id;
+  // const { seller } = useSeller();
+  // const sellerId = seller.seller_id;
 
 
   return (

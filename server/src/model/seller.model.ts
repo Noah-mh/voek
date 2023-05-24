@@ -85,7 +85,6 @@ export const handleAddProduct = async (sellerId: number, name: string, descripti
       })
     })
 
-    connection.commit();
     return;
   } catch (err: any) {
     connection.rollback()
@@ -93,11 +92,74 @@ export const handleAddProduct = async (sellerId: number, name: string, descripti
     console.log(err);
     throw new Error(err);
   } finally {
+    connection.commit();
     await connection.release();
   }
 }
 
 // export const handleEditProduct
+
+// PUT product variation active
+export const handleUpdateProductVariationActive = async (active: boolean, productId: number, sku: string) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql1 = 
+    `UPDATE product_variations SET active = ? WHERE sku = ?;`
+  const sql2 = 
+    `UPDATE products SET active = true WHERE product_id = ?;`
+  const sql3 =
+    `UPDATE products p SET p.active = false 
+    WHERE p.product_id = ? 
+    AND (SELECT pv.active FROM product_variations pv WHERE pv.product_id = ? AND pv.active = 1) IS NULL;`
+
+  try {
+    connection.beginTransaction();
+
+    const result1: any = await connection.query(sql1, [active, sku]);
+
+    if (active) {
+      const result2: any = await connection.query(sql2, [productId]);
+    } else {
+      const result3: any = await connection.query(sql3, [productId, productId])
+    }
+
+    return result1[0].affectedRows as number;
+  } catch (err: any) {
+    connection.rollback()
+    connection.release();
+    console.log(err);
+    throw new Error(err);
+  } finally {
+    connection.commit();
+    await connection.release()
+  }
+}
+
+// PUT product active
+export const handleUpdateProductActive = async (active: boolean, productId: number) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql1 = 
+    `UPDATE products SET active = ? WHERE product_id = ?;`
+  const sql2 =
+    `UPDATE product_variations SET active = ? WHERE product_id = ?;`
+  try {
+    connection.beginTransaction();
+
+    const result1: any = await connection.query(sql1, [active, productId]);
+    const result2: any = await connection.query(sql2, [active, productId]);
+
+    return result1[0].affectedRows as number;
+  } catch (err: any) {
+    connection.rollback()
+    connection.release();
+    console.log(err);
+    throw new Error(err);
+  } finally {
+    connection.commit();
+    await connection.release()
+  }
+}
 
 // GET order details
 export const handleGetOrderDetails = async (ordersId: number): Promise<Orders> => {

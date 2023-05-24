@@ -1,55 +1,36 @@
-import React, { useCallback, useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import MaterialReactTable, {
-  type MaterialReactTableProps,
-  type MRT_Cell,
   type MRT_ColumnDef,
   type MRT_Row,
 } from 'material-react-table';
-import {
-  Box,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-  MenuItem,
-  Stack,
-  TextField,
-  Tooltip,
-} from '@mui/material';
-import { Delete, Edit } from '@mui/icons-material';
 
 import SellerSidebar from "../SellerSidebar/SellerSidebar.js";
 import useSeller from "../../hooks/useSeller.js";
+import Active from "./Active.tsx"
 
 import { Link } from 'react-router-dom';
 
 import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller.js";
 
-
-interface ProductVariations {
-  name: string;
-  active: boolean;
-  price: number;
-  sku: string;
-  variation1: string;
-  varitation2: string;
-  quantity: number;
-}
-
 interface Product {
   productId: number;
   active: boolean;
-  showSubrows: boolean;
   name: string;
-  description: string;
-  categoryId: number;
-  category: string;
   price: number;
   quantity: number;
   sku: string;
-  subRows: Array<ProductVariations>;
+  subRows: Array<Product>;
+
+  // optional properties
+  // product only
+  showSubrows?: boolean;
+  description?: string;
+  categoryId?: number;
+  category?: string;
+
+  // product variations only
+  variation1?: string;
+  varitation2?: string;
 }
 
 const ManageProducts = () => {
@@ -60,17 +41,13 @@ const ManageProducts = () => {
   const sellerId = seller.seller_id;
 
   const [tableData, setTableData] = useState<Product[]>([]);
-  const [validationErrors, setValidationErrors] = useState<{
-    [cellId: string]: string;
-  }>({});
 
-  // console.log tableData everytime it changes
   useEffect(() => {
     console.log("Updated tableData:", tableData);
-    tableData.forEach((item) => console.log(item));
+    // tableData.forEach((item) => console.log(item));
   }, [tableData]);
   
-
+  // populate tableData and isCheckedMap
   useEffect(() => {
     const getAllProducts = async() => {
       try {
@@ -86,12 +63,15 @@ const ManageProducts = () => {
           price: 0,
           quantity: 0,
           sku: "",
-          subRows: []
+          subRows: [],
         };
         // console.log("hi");
         let currentProductId: number = 0;
         let sellerProducts: Product[] = [];
         let currentIdx: number = -1;
+        let newIsCheckedMap: boolean[][] = [];   
+        // let arr: Boolean[] = [];
+
         await Promise.all (response.data.map((item: any) => {
           // if current item is not a variation of the previous item, they will not have the same product_id. 
           // hence, this would be a new product, so sellerProduct would need to be reinitialised
@@ -112,28 +92,33 @@ const ManageProducts = () => {
               price: item.price,
               subRows: [],
               sku: "",
-              quantity: 0
+              quantity: 0,
             }
 
             // check for existing product variation
             if (item.variation_1 != null || item.variation_2 != null) {
-              let sellerProductVariation: ProductVariations = {
-                name: `${item.variation_1} + ${item.variation_2}`,
+              let sellerProductVariation: Product = {
+                productId: item.product_id,
                 active: item.availability,
+                name: `${item.variation_1} + ${item.variation_2}`,
                 price: item.price,
                 sku: item.sku,
                 variation1: item.variation_1,
                 varitation2: item.variation_2,
                 quantity: item.quantity,
+                subRows: [],
               }
               sellerProduct.subRows.push(sellerProductVariation);
 
               // tallying total quantity including all variations
               if (sellerProduct.quantity == undefined) sellerProduct.quantity = item.price;
               else sellerProduct.quantity += item.quantity
+
+              newIsCheckedMap.push([item.active, item.availability]);
             } else {
               sellerProduct.sku = item.sku;
               sellerProduct.quantity = item.quantity
+              newIsCheckedMap.push([item.active]);
             }
 
             // add Product to sellerProducts
@@ -144,14 +129,16 @@ const ManageProducts = () => {
           } else { 
             // same product_id means that this is a product variation
             // add subRow to sellerProducts[currentIdx]
-            let sellerProductVariation: ProductVariations = {
-              name: `${item.variation_1} + ${item.variation_2}`,
+            let sellerProductVariation: Product = {
+              productId: item.product_id,
               active: item.availability,
+              name: `${item.variation_1} + ${item.variation_2}`,
               price: item.price,
               sku: item.sku,
               variation1: item.variation_1,
               varitation2: item.variation_2,
               quantity: item.quantity,
+              subRows: [],
             }
             sellerProducts[currentIdx].subRows.push(sellerProductVariation);              
 
@@ -160,10 +147,13 @@ const ManageProducts = () => {
 
             // finding lowest price among all variations
             if (item.price < sellerProducts[currentIdx].price) sellerProducts[currentIdx].price = item.price
+          
+            newIsCheckedMap[currentProductId-1].push(item.availability);
           }
 
         }))
 
+        setIsCheckedMap(newIsCheckedMap);
         setTableData(sellerProducts);
 
       } catch(error) {
@@ -175,70 +165,123 @@ const ManageProducts = () => {
 
   }, []);
 
-  // edit
-  // const handleSaveRowEdits: MaterialReactTableProps<Product>['onEditingRowSave'] =
-  // async ({ exitEditingMode, row, values }) => {
-  //   if (!Object.keys(validationErrors).length) {
-  //     const updatedData = {
-  //       id: row.original.productId, 
-  //       ...values,
-  //     };
+  const [isCheckedMap, setIsCheckedMap] = useState<boolean[][]>([]);
 
-  //     console.log("updatedData", updatedData)
+  useEffect(() => {
+    console.log("Updated isCheckedMap:", isCheckedMap);
+    isCheckedMap.forEach((item) => console.log(item));
+    // console.log("help", isCheckedMap["0"][0])
+  }, [isCheckedMap]);
 
-  //     try {
-  //       // Make an API call to send the updated data to the backend
-  //       await axiosPrivateSeller.put(`/editProduct/` + updatedData.id, updatedData);
 
-  //       // If the API call is successful, update the local table data and exit editing mode
-  //       tableData[row.index] = values;
-  //       console.log(tableData[row.index])
+  // const updateCheckedMap = () => {
+  //   const newMap: boolean[][] = [];
 
-  //       setTableData([...tableData]);
-  //       exitEditingMode(); // Required to exit editing mode and close the modal
-  //     } catch (error) {
-  //       // Handle any error that occurred during the API call
-  //       console.error('Error updating data:', error);
+  //   tableData.forEach((product) => {
+  //     if (product.subRows.length == 0) {
+  //       newMap.push([product.active]);
+  //     } else {
+  //       let arr: boolean[] = [product.active];
+  //       for (var i = 0; i < product.subRows.length; i++) {
+  //         arr.push(product.subRows[i].active);
+  //       }
+  //       newMap.push(arr);
   //     }
-  //   }
+  //   });
+
+  //   setIsCheckedMap(newMap);
   // };
 
-  // const handleCancelRowEdits = () => {
-  //   setValidationErrors({});
-  // };
+  // update isCheckedMap
+  const handleToggle = async (row: any) => {
+    const productId = row.original.productId - 1;
+    // console.log("productId", productId)
+    // update row.original.active
+    row.original.active = !row.original.active;
+    // console.log("row", row.original.active)
 
-  // const getCommonEditTextFieldProps = useCallback(
-  //   (
-  //     cell: MRT_Cell<Product>,
-  //   ): MRT_ColumnDef<Product>['muiTableBodyCellEditTextFieldProps'] => {
-  //     return {
-  //       error: !!validationErrors[cell.id],
-  //       helperText: validationErrors[cell.id],
-  //       onBlur: (event) => {
-  //         const isValid =
-  //           cell.column.id === 'email'
-  //             ? validateEmail(event.target.value)
-  //             : cell.column.id === 'age'
-  //             ? validateAge(+event.target.value)
-  //             : validateRequired(event.target.value);
-  //         if (!isValid) {
-  //           //set validation error for cell if invalid
-  //           setValidationErrors({
-  //             ...validationErrors,
-  //             [cell.id]: `${cell.column.columnDef.header} is required`,
-  //           });
-  //         } else {
-  //           //remove validation error for cell if valid
-  //           delete validationErrors[cell.id];
-  //           setValidationErrors({
-  //             ...validationErrors,
-  //           });
-  //         }
-  //       },
-  //     };
-  //   },
-  //   [validationErrors],
-  // );
+    // if sku is an empty string, product.active is being toggled
+    if (row.original.sku == "") {
+        await axiosPrivateSeller.put(`/updateProduct/active/${row.original.productId}`, 
+        JSON.stringify({ active: row.original.active }), {
+            headers: { "Content-Type": "application/json" },
+            withCredentials: true,
+        })
+        
+        setIsCheckedMap((prevMap: boolean[][]) => {
+          const updatedMap = [...prevMap];
+          updatedMap[productId][0] = !prevMap[productId][0];
+          // if subrows exist, update productVariation.active to change accordingly
+          if (row.originalSubRows.length > 0) {
+            for (var i = 1; i <= row.originalSubRows.length; i++) {
+              updatedMap[productId][i] = updatedMap[productId][0];
+            }
+          }
+          // console.log("updatedMap", updatedMap)
+          return updatedMap;
+        });
+
+        row.originalSubRows ? row.originalSubRows.forEach((item: Product) => {
+          // console.log("subrow", item)
+          item.active = row.original.active;
+        }) : ""
+    } else { 
+        // if sku is not empty, product with no productVariation OR productVariation.active is being toggled. 
+        // check if all productVariations are inactive in backend. if all are inactive, product.active will become inactive
+        // hence, checking by sku will work even for products with no product variations
+        // console.log("row.index", row.index);
+
+        await axiosPrivateSeller.put(`/updateProductVariation/active/${row.original.productId}`, 
+        JSON.stringify({ active: row.original.active, sku: row.original.sku }), {
+            headers: { "Content-Type": "application/json" },
+            withCredentials: true,
+        })
+
+        if (!row.getParentRow()) {
+          // console.log("no product variations")
+          setIsCheckedMap((prevMap: boolean[][]) => {
+            const updatedMap = [...prevMap];
+            updatedMap[productId][0] = !prevMap[productId][0];
+            return updatedMap;
+          });
+        } else if (row.original.active && row.getParentRow()) {
+          // if productVariation becomes active but product inactive, make product active
+          // console.log("productVariation becomes active but product inactive")
+          setIsCheckedMap((prevMap: boolean[][]) => {
+            const updatedMap = [...prevMap];
+            updatedMap[productId][row.index+1] = !prevMap[productId][row.index+1];
+            if (!row.getParentRow().original.active) {
+              updatedMap[productId][0] = true;
+              row.getParentRow().original.active = true;
+            }
+            // console.log("updatedMap", updatedMap)
+            return updatedMap;
+          });
+        } else if (!row.original.active && row.getParentRow()) {
+          // if all productVariations become inactive but product active, make product inactive 
+          // console.log("all productVariations become inactive but product active")
+          var productVariationsAllInactive = true;
+          for (var i = 0; i < row.getParentRow().originalSubRows.length; i++) {
+            if (row.getParentRow().originalSubRows[i].active) {
+              productVariationsAllInactive = false;
+              break;
+            }
+          }
+          setIsCheckedMap((prevMap: boolean[][]) => {
+            const updatedMap = [...prevMap];
+            updatedMap[productId][row.index+1] = !prevMap[productId][row.index+1];
+            if (row.getParentRow().original.active && productVariationsAllInactive) {
+              updatedMap[productId][0] = false;
+              row.getParentRow().original.active = false;
+            }
+            // console.log("updatedMap", updatedMap)
+            return updatedMap;
+          });
+        }
+    }
+    // console.log("isCheckedMap", isCheckedMap);
+  }
+
 
   const columns = useMemo<MRT_ColumnDef<Product>[]>(
     () => [
@@ -247,9 +290,6 @@ const ManageProducts = () => {
         header: 'Name',
         enableClickToCopy: true,
         size: 140,
-        // muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-        //   ...getCommonEditTextFieldProps(cell),
-        // }),
       },
       {
         accessorKey: 'description',
@@ -266,41 +306,33 @@ const ManageProducts = () => {
       {
         accessorKey: 'price',
         header: 'Price',
-        // enableEditing: true,
+        enableClickToCopy: true,
         size: 80,
-        // muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-        //   ...getCommonEditTextFieldProps(cell),
-        //   type: 'number',
-        // }),
       },
       {
         accessorKey: 'quantity',
         header: 'Stock',
-        // enableEditing: true,
+        enableClickToCopy: true,
         size: 80,
-        // muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-        //   ...getCommonEditTextFieldProps(cell),
-        //   type: 'number',
-        // }),
       },
       {
         accessorKey: 'sku',
         header: 'SKU',
         enableClickToCopy: true,
-        // enableEditing: false, //disable editing on this column
         size: 140,
-        // muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-        //   ...getCommonEditTextFieldProps(cell),
-        // }),
       },
       {
         accessorKey: 'active',
         header: 'Active',
-        // enableEditing: false, //disable editing on this column
-        size: 140,
-        // muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-        //   ...getCommonEditTextFieldProps(cell),
-        // }),
+        size: 80,
+        Cell: ({row}) => (
+          <Active 
+            key={row.id}
+            row={row}
+            isChecked={row.original.active}
+            onToggle={handleToggle}
+          />
+        )
       },
       {
         accessorKey: 'productId',
@@ -317,15 +349,7 @@ const ManageProducts = () => {
       },
     ],
     []
-  )
-
-  // const toggleSubrows = (itemId: number) => {
-  //   setTableData((prevTableData: Product[]) =>
-  //     prevTableData.map((item: Product) =>
-  //       item.product_id === itemId ? { ...item, showSubrows: !item.showSubrows } : item
-  //     )
-  //   );
-  // }; 
+  );
 
   return (
     <div className="flex flex-row">
@@ -345,182 +369,9 @@ const ManageProducts = () => {
         enableColumnOrdering
         enableExpanding
         getSubRows={(originalRow) => originalRow.subRows}
-        // editingMode="row" 
-        // enableEditing
-        // onEditingRowSave={handleSaveRowEdits}
-        // onEditingRowCancel={handleCancelRowEdits}
-        // renderRowActions={({ row, table }) => (
-        //   <Box sx={{ display: 'flex', gap: '1rem' }}>
-        //     <Tooltip arrow placement="left" title="Edit">
-        //       <IconButton onClick={() => table.setEditingRow(row)}>
-        //         <Edit />
-        //       </IconButton>
-        //     </Tooltip>
-        //     <Tooltip arrow placement="right" title="Delete">
-        //       <IconButton color="error" onClick={() => handleDeleteRow(row)}>
-        //         <Delete />
-        //       </IconButton>
-        //     </Tooltip>
-        //   </Box>
-        // )}
-        // renderTopToolbarCustomActions={() => (
-        //   <Button
-        //     color="secondary"
-        //     onClick={() => setCreateModalOpen(true)}
-        //     variant="contained"
-        //   >
-        //     Create New Account
-        //   </Button>
-        // )}
       />
-      {/* <CreateNewAccountModal
-        columns={columns}
-        open={createModalOpen}
-        onClose={() => setCreateModalOpen(false)}
-        onSubmit={handleCreateNewRow}
-      /> */}
-
-        {/* <MaterialReactTable
-          columns={columns}
-          data={data}
-          enableExpanding
-          getSubRows={(originalRow) => originalRow.subRows} //default, can customize
-        /> */}
-
-        {/* material react table */}
-        {/* <Table className="flex flex-column">
-          <TableHead>
-            <TableRow>
-              <TableCell>Product Info</TableCell>
-              <TableCell>Price</TableCell>
-              <TableCell>Stock</TableCell>
-              <TableCell>Active</TableCell>
-              <TableCell></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {tableData.map((item) => (
-              <React.Fragment key={item.product_id}>
-                <TableRow>
-                  <TableCell>{item.name}</TableCell>
-                  <TableCell>{item.price}</TableCell>
-                  <TableCell>{item.description}</TableCell>
-                  <TableCell>
-                    <button onClick={() => toggleSubrows(item.product_id)}>
-                      {item.showSubrows ? '-' : '+'}
-                    </button>
-                  </TableCell>
-                </TableRow>
-                {item.showSubrows && (
-                  <TableRow>
-                    <TableCell colSpan={3}> */}
-                      {/* Render subrows content here */}
-                      {/* Subrow 1
-                      <br />
-                      Subrow 2
-                      <br />
-                      Subrow 3
-                      <br />
-                    </TableCell>
-                  </TableRow>
-                )}
-              </React.Fragment>
-            ))}
-          </TableBody>
-        </Table> */}
-
-        {/* <table className="border">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Description</th>
-              <th>Price</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tableData.map((item: Product) => (
-              <tr key={item.product_id}>
-                <td>{item.name}</td>
-                <td>{item.description}</td>
-                <td>{item.price}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table> */}
     </div>
-  )
+  );
 }
 
 export default ManageProducts
-
-interface CreateModalProps {
-  columns: MRT_ColumnDef<Product>[];
-  onClose: () => void;
-  onSubmit: (values: Product) => void;
-  open: boolean;
-}
-
-//example of creating a mui dialog modal for creating new rows
-export const CreateNewAccountModal = ({
-  open,
-  columns,
-  onClose,
-  onSubmit,
-}: CreateModalProps) => {
-  const [values, setValues] = useState<any>(() =>
-    columns.reduce((acc, column) => {
-      acc[column.accessorKey ?? ''] = '';
-      return acc;
-    }, {} as any),
-  );
-
-  const handleSubmit = () => {
-    //put your validation logic here
-    onSubmit(values);
-    onClose();
-  };
-
-  return (
-    <Dialog open={open}>
-      <DialogTitle textAlign="center">Create New Account</DialogTitle>
-      <DialogContent>
-        <form onSubmit={(e) => e.preventDefault()}>
-          <Stack
-            sx={{
-              width: '100%',
-              minWidth: { xs: '300px', sm: '360px', md: '400px' },
-              gap: '1.5rem',
-            }}
-          >
-            {columns.map((column) => (
-              <TextField
-                key={column.accessorKey}
-                label={column.header}
-                name={column.accessorKey}
-                onChange={(e) =>
-                  setValues({ ...values, [e.target.name]: e.target.value })
-                }
-              />
-            ))}
-          </Stack>
-        </form>
-      </DialogContent>
-      <DialogActions sx={{ p: '1.25rem' }}>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button color="secondary" onClick={handleSubmit} variant="contained">
-          Create New Account
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-};
-
-const validateRequired = (value: string) => !!value.length;
-const validateEmail = (email: string) =>
-  !!email.length &&
-  email
-    .toLowerCase()
-    .match(
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-    );
-const validateAge = (age: number) => age >= 18 && age <= 50;
