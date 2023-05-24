@@ -63,3 +63,40 @@ export const deleteReview = async (
     return next(err);
   }
 };
+
+export const processCustomerRated = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { orders_product_id, customer_id } = req.params;
+    if (!orders_product_id || !customer_id)
+      return res.sendStatus(400);
+    const response: number = await reviewModel.handleCustomerRated(
+      parseInt(orders_product_id),
+      parseInt(customer_id)
+    );
+    if (!response) return res.sendStatus(404);
+    return res.sendStatus(200);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const processGetCustomerRated = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.params;
+    if (!customer_id) return res.sendStatus(400);
+    const result = await reviewModel.handleGetCustomerRated(
+      parseInt(customer_id)
+    );
+    return res.json({ rated: result });
+  } catch (err: any) {
+    return next(err);
+  }
+};

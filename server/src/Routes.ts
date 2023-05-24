@@ -111,8 +111,8 @@ export default function (app: Express, router: Router) {
   );
   router.get(
     "/customer/received/orders/:customer_id",
-    verifyJWT,
-    verifyRoles("customer"),
+    // verifyJWT,
+    // verifyRoles("customer"),
     orderController.processGetCustomerReceivedOrders
   );
   router.put(
@@ -244,6 +244,13 @@ export default function (app: Express, router: Router) {
     productController.getCart
   );
 
+  router.get(
+    "/customer/ratedOrNot/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    reviewController.processGetCustomerRated
+  );
+
   router.post(
     "/addToCart",
     verifyJWT,
@@ -263,6 +270,13 @@ export default function (app: Express, router: Router) {
     verifyJWT,
     verifyRoles("customer"),
     reviewController.addingReviewImages
+  );
+
+  router.put(
+    "/customer/rated/:orders_product_id/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    reviewController.processCustomerRated
   );
 
   router.delete(
@@ -334,7 +348,7 @@ export default function (app: Express, router: Router) {
   router.put(
     "/updateProduct/active/:productId",
     sellerController.processUpdateProductActive
-  )
+  );
 
   // NHAT TIEN ENDPOINTS - Homepage, Last Viewed, Wishlist, Product Details
   router.post(

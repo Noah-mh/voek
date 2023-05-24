@@ -198,7 +198,7 @@ const CustomerProfilePage = () => {
         </TabPanel>
         <TabPanel value={value} index={4}>
           {/* Received Orders content */}
-          <ViewReceived receivedOrders={receivedOrders} />
+          <ViewReceived receivedOrders={receivedOrders} getAll={getAll} />
         </TabPanel>
       </Box>
     );
