@@ -143,13 +143,10 @@ const Category: React.FC = () => {
       whileInView={{ opacity: 1 }}
       transition={{ type: "spring", duration: 2 }}
     >
-      <motion.div
-        className="categoriesHeader m-3 ml-3 text-3xl font-semibold hover:cursor-pointer tracking-widest"
-        whileHover={{ scale: 1.05, x: 8 }}
-        whileTap={{ scale: 0.9, x: 0 }}
-      >
-        Categories &#10093;
-      </motion.div>
+      <div className="categoriesHeader m-3 ml-3 text-3xl font-semibold tracking-widest">
+        Categories
+        {/* &#10093; */}
+      </div>
       <ResponsiveMasonry columnsCountBreakPoints={{ 350: 1, 750: 2, 900: 3 }}>
         <Masonry gutter="20px">
           {/* col 1 */}
