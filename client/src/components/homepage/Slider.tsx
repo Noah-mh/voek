@@ -40,13 +40,10 @@ const Slider: React.FC<SliderProps> = ({ header, products }) => {
       whileInView={{ opacity: 1, x: 0 }}
       transition={{ type: "spring", duration: 2 }}
     >
-      <motion.h1
-        className="ml-12 font-bold text-3xl mt-3 header hover:cursor-pointer tracking-widest"
-        whileHover={{ scale: 1.05, x: 8 }}
-        whileTap={{ scale: 0.9, x: 0 }}
-      >
-        {header} &#10093;
-      </motion.h1>
+      <h1 className="ml-12 font-bold text-3xl mt-3 header tracking-widest">
+        {header}
+        {/* &#10093; */}
+      </h1>
       <motion.div
         drag="x"
         dragConstraints={{ right: 0, left: -width }}
