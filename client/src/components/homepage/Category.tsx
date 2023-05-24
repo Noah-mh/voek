@@ -1,7 +1,7 @@
 import React from "react";
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 import { motion } from "framer-motion";
-import { images, clothes, book, accessories } from "../Homepage/images";
+import { images, clothes, book, accessories } from "./images";
 import { Link } from "react-router-dom";
 import "./css/Category.css";
 
