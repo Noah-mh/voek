@@ -312,12 +312,6 @@ export default function (app: Express, router: Router) {
     productController.getProductsUsingCategory
   );
 
-  router.get(
-    "/cartDetails",
-    verifyJWT,
-    verifyRoles("customer"),
-    cartController.retrieveCartDetails
-  );
   router.get("/topProducts", productController.getTopProducts);
   router.get(
     "/searchBarPredictions",
@@ -372,12 +366,6 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     productController.insertLastViewedProduct
   );
-  router.get(
-    "/customer/getCart/:customer_id",
-    verifyJWT,
-    verifyRoles("customer"),
-    cartController.retrieveCartDetails
-  );
 
   router.post(
     "/insertLastViewedProduct",
@@ -399,12 +387,16 @@ export default function (app: Express, router: Router) {
     "/getCustomerLastViewedCat/:customer_id",
     customerController.getCustomerLastViewedCat
   );
-  router.post(
-    "/customer/getCart",
+
+  // ALLISON'S ENDPOINTS get Cart details, altering quantity, insert payment, insert order, insert order product, update product stock, deleting cart
+
+  router.get(
+    "/customer/getCart/:customer_id",
     verifyJWT,
     verifyRoles("customer"),
     cartController.retrieveCartDetails
   );
+
   router.post(
     "/customer/alterQuantCart",
     verifyJWT,
