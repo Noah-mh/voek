@@ -9,7 +9,7 @@ export const handlesGetCartDetails = async (
   console.log("Connected to getCart Model");
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `SELECT cart.product_id, cart.customer_id, cart.quantity, product_variations.price, product_variations.sku, products.name, product_variations.variation_1, product_variations.variation_2,product_images.image_url,  product_variations.quantity AS stock FROM cart JOIN products ON cart.product_id = products.product_id LEFT JOIN product_images ON cart.sku = product_images.sku JOIN product_variations ON products.product_id = product_variations.product_id WHERE cart.sku = product_variations.sku AND customer_id = ?`;
+  const sql = `SELECT listed_products.seller_id, cart.product_id, cart.customer_id, cart.quantity, product_variations.price, product_variations.sku, products.name, product_variations.variation_1, product_variations.variation_2,product_images.image_url,  product_variations.quantity AS stock FROM cart JOIN products ON cart.product_id = products.product_id LEFT JOIN product_images ON cart.sku = product_images.sku JOIN product_variations ON products.product_id = product_variations.product_id JOIN listed_products ON listed_products.product_id = cart.product_id WHERE cart.sku = product_variations.sku AND customer_id = ?`;
   try {
     const result = await connection.query(sql, [customer_id]);
     console.log("successfully handle got cart details");

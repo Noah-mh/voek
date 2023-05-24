@@ -18,8 +18,6 @@ export const retrieveCartDetails = async (
       customer_id
     );
 
-    // if (!response?.length)
-    //   return res.status(200).json({ message: "No cart details found" });
     return res.json(response);
   } catch (err: any) {
     return next(err);

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import useCustomer from "../../hooks/UseCustomer";
 import noImage from "../../img/product/No_Image_Available.jpg";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
-// import ConfirmModal from "./ConfirmModal";
 import "./UserCart.css";
 import { Link, useNavigate } from "react-router-dom";
 import PayPal from "../PayPal/PayPal";
@@ -10,7 +9,6 @@ import Select from "react-select";
 import { AdvancedImage } from "@cloudinary/react";
 import { cld } from "../../Cloudinary/Cloudinary";
 import { ToastContainer, toast } from "react-toastify";
-
 import "react-toastify/dist/ReactToastify.css";
 
 export default function cartPage(): JSX.Element {
@@ -19,7 +17,6 @@ export default function cartPage(): JSX.Element {
   const navigate = useNavigate();
 
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
-  // setCustomer((prevState: any) => { return { ...prevState, checkOut: []}})
 
   interface userCart {
     customer_id: number;
@@ -28,6 +25,7 @@ export default function cartPage(): JSX.Element {
     cartItems: Array<cartItem>;
   }
   interface cartItem {
+    seller_id: number;
     sku: string;
     product_id: number;
     name: string;
@@ -168,8 +166,10 @@ export default function cartPage(): JSX.Element {
       if (result[0].data.result < 10) {
         setIsInputDisabled(true);
       }
-
       setUserCoins(result[0].data.result);
+      if (result[2].data.length === 0) {
+        setIsInputDisabled(true);
+      }
       setUserAddresses(result[2].data);
     } catch (err: any) {
       console.log(err);
@@ -380,12 +380,11 @@ export default function cartPage(): JSX.Element {
               <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
             </label>
           </div>
-          <div className="flex-col justify-center">
-            <div className={paypalCN}>
-              <PayPal amount={totalAmt.total} setSuccess={setSuccess} />
-            </div>
+          <div className="flex-col items-center justify-center">
             {userAddresses.length != 0 && (
               <Select
+                placeholder="Select Address.."
+                className="mb-5"
                 value={
                   selectedAddress
                     ? {
@@ -408,10 +407,19 @@ export default function cartPage(): JSX.Element {
                 }))}
               />
             )}
-
-            {/* <button className=" w-full bg-white hover:bg-transparent hover:border-2 hover:border-white text-softerPurple hover:text-white font-bold py-2 px-4 rounded ">
-              Checkout
-            </button> */}
+            {userAddresses.length == 0 && (
+              <div className="my-4 ">
+                <Link
+                  to={"/profile"}
+                  className="flex  items-center justify-center bg-white hover:bg-transparent hover:border-2 hover:box-border text-center hover:border-white hover:text-white text-softerPurple font-bold py-2 px-4 rounded mx-auto"
+                >
+                  Add an Address..
+                </Link>
+              </div>
+            )}
+            <div className={paypalCN}>
+              <PayPal amount={totalAmt.total} setSuccess={setSuccess} />
+            </div>
           </div>
         </div>
       </div>
