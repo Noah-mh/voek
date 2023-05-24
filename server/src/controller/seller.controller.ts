@@ -373,3 +373,13 @@ export const activateAccount = async (req: Request, res: Response, next: NextFun
         return next(err);
     }
 }
+
+export const processViewVouchers = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { seller_id } = req.params;
+        const result = await sellerModel.handleViewVouchers(parseInt(seller_id));
+        return res.json({ vouchers: result });
+    } catch (err: any) {
+        return next(err);
+    }
+}

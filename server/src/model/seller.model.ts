@@ -8,9 +8,9 @@ import e from 'express';
 
 // GET all products from 1 seller
 export const handleGetAllProducts = async (sellerId: number): Promise<any[]> => {
-    const promisePool = pool.promise();
-    const connection = await promisePool.getConnection();
-    const sql = 
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql =
     `SELECT p.product_id, p.name, p.description, p.active, pv.sku, pv.variation_1, pv.variation_2, pv.quantity, pv.price, pv.active AS availability, p.category_id, c.name AS category FROM products p
     RIGHT OUTER JOIN listed_products lp 
     ON lp.product_id = p.product_id
@@ -74,16 +74,16 @@ export const handleAddProduct = async (sellerId: number, name: string, descripti
     let var2Arr: string[] = variation_2.split(", ");
 
     const result1 = await Promise.resolve(connection.query(sql1, [name, description, category_id]))
-    .then((response) => {
-      let lastInsertId = Object.values(response[0])[2];
-      const result2: any = connection.query(sql2, [lastInsertId, sellerId]);
-      // const result3: any = connection.query(sql3, [lastInsertId, variation_1, variation_2, quantity, price]);
-      var1Arr.forEach((option1) => {
-        var2Arr.forEach((option2) => {
-          let result3: any = connection.query(sql3, [lastInsertId, option1, option2, quantity, price]);
+      .then((response) => {
+        let lastInsertId = Object.values(response[0])[2];
+        const result2: any = connection.query(sql2, [lastInsertId, sellerId]);
+        // const result3: any = connection.query(sql3, [lastInsertId, variation_1, variation_2, quantity, price]);
+        var1Arr.forEach((option1) => {
+          var2Arr.forEach((option2) => {
+            let result3: any = connection.query(sql3, [lastInsertId, option1, option2, quantity, price]);
+          })
         })
       })
-    })
 
     return;
   } catch (err: any) {
@@ -103,9 +103,9 @@ export const handleAddProduct = async (sellerId: number, name: string, descripti
 export const handleUpdateProductVariationActive = async (active: boolean, productId: number, sku: string) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql1 = 
+  const sql1 =
     `UPDATE product_variations SET active = ? WHERE sku = ?;`
-  const sql2 = 
+  const sql2 =
     `UPDATE products SET active = true WHERE product_id = ?;`
   const sql3 =
     `UPDATE products p SET p.active = false 
@@ -139,7 +139,7 @@ export const handleUpdateProductVariationActive = async (active: boolean, produc
 export const handleUpdateProductActive = async (active: boolean, productId: number) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql1 = 
+  const sql1 =
     `UPDATE products SET active = ? WHERE product_id = ?;`
   const sql2 =
     `UPDATE product_variations SET active = ? WHERE product_id = ?;`
@@ -756,6 +756,20 @@ export const handleActivateAccount = async (seller_id: number) => {
   try {
     const result = await connection.query(sql, [seller_id]);
     return;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+}
+
+export const handleViewVouchers = async (seller_id: number): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT voucher_id, voucher_name, number_amount, percentage_amount, voucher_category, min_spend, active FROM seller_voucher WHERE seller_id = ?`;
+  try {
+    const [result] = await connection.query(sql, [seller_id]);
+    return result as Object[];
   } catch (err: any) {
     throw new Error(err);
   } finally {

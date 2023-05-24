@@ -4,7 +4,7 @@ import Header from "../Header/header.js";
 
 const LayoutSeller = () => {
   return (
-    <main className="App">
+    <main className="App flex flex-col min-h-screen">
       <Header isSeller={true} />
       <Outlet />
       <Footer />
