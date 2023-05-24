@@ -4,7 +4,7 @@ import Footer from "../footer/footer.js";
 
 const Layout = () => {
   return (
-    <main className="App">
+    <main className="App flex flex-col min-h-screen">
       <Header isCustomer={true} />
       <Outlet />
       <Footer />

@@ -225,6 +225,34 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     customerController.activateAccount
   );
+  router.get(
+    "/seller/vouchers/:seller_id",
+    sellerController.processViewVouchers
+  )
+  router.get(
+    "/customer/vouchers/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processViewVouchers
+  )
+  router.put(
+    "/customer/vouchers/:customer_id/:voucher_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processPutVouchers
+  )
+  router.get(
+    "/customer/vouchers/wallet/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processCustomerVouchers
+  )
+  router.delete(
+    "/customer/vouchers/:customer_voucher_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processDeleteVouchers
+  )
 
   // NOAH ENDPOINTS - reviews, customer profile, customer address, add to cart
   router.get(
