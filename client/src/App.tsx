@@ -35,6 +35,7 @@ import CategoryResults from "./components/CategoryResults/CategoryResults.js";
 import SellerProfile from "./components/SellerProfile/SellerProfile.js";
 import VerifySellerEmail from "./components/SellerProfile/VerifySellerEmail.js";
 import VerifyCustomerEmail from "./components/Customer/VerifyCustomerEmail.js";
+import SellerVouchers from "./components/SellerVouchers/SellerVouchers.js";
 
 function App() {
   return (
@@ -110,6 +111,7 @@ function App() {
             <Route path="seller/manageOrders" element={<ManageOrders />} />
             <Route path="seller/orders" element={<ViewCustomerOrders />} />
             <Route path="seller/profile" element={<SellerProfile />} />
+            <Route path="seller/vouchers" element={<SellerVouchers />} />
           </Route>
         </Route>
       </Route>

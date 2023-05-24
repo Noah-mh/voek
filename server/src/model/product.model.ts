@@ -1,6 +1,5 @@
 import pool from "../../config/database";
 import { OkPacket } from "mysql2";
-import { updateCustomerLastViewedCat } from "../controller/customer.controller";
 
 //Noah
 export const handlesGetProductDetails = async (

@@ -10,6 +10,7 @@ import * as cartController from "./controller/cart.controller";
 import * as orderController from "./controller/order.controller";
 import * as paypalController from "./controller/paypal.controller";
 import * as reviewController from "./controller/review.controller";
+import * as voucherController from "./controller/voucher.controller";
 
 export default function (app: Express, router: Router) {
   // KANG RUI ENDPOINTS - user management system
@@ -410,15 +411,6 @@ export default function (app: Express, router: Router) {
     cartController.retrieveCartDetails
   );
 
-  router.post(
-    "/insertLastViewedProduct",
-    // verifyJWT,
-    // verifyRoles("customer"),
-    productController.insertLastViewedProduct
-  );
-
-  // router.get("/getProductCat/:product_id", productController.getProductCat);
-
   router.put(
     "/updateCustomerLastViewedCat",
     // verifyJWT,
@@ -430,6 +422,16 @@ export default function (app: Express, router: Router) {
     "/getCustomerLastViewedCat/:customer_id",
     customerController.getCustomerLastViewedCat
   );
+
+  router.post("/insertVoucherAmount", voucherController.insertVoucherAmount);
+  router.put(
+    "/updateRedemptionsAvailable",
+    voucherController.updateRedemptionsAvailable
+  );
+  router.delete("/deleteVoucher", voucherController.deleteVoucher);
+
+  // router.get("/getProductCat/:product_id", productController.getProductCat);
+
   router.post(
     "/customer/getCart",
     verifyJWT,
