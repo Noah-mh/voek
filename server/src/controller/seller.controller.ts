@@ -40,6 +40,30 @@ export const processAddProduct = async (req: Request, res: Response, next: NextF
     }
 }
 
+// PUT product variation active
+export const processUpdateProductVariationActive = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const productId: number = parseInt(req.params.productId);
+        const { active, sku } = req.body;
+        const response: any = await sellerModel.handleUpdateProductVariationActive(active, productId, sku);
+        return res.json(response);
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+// PUT product active
+export const processUpdateProductActive = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const productId: number = parseInt(req.params.productId);
+        const { active } = req.body;
+        const response: any = await sellerModel.handleUpdateProductActive(active, productId);
+        return res.json(response);
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
 
 // GET order details
 export const processGetOrderDetails = async (req: Request, res: Response, next: NextFunction) => {

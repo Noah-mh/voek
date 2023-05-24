@@ -6,12 +6,12 @@ import ViewDelivered from "./ViewDelivered";
 import useCustomer from "../../hooks/UseCustomer";
 import { Customer } from "./CustomerProfile";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
-import { v4 as uuidv4 } from "uuid";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import AddressDisplay from "./Address";
 import Loader from "../Loader/Loader";
+
 
 interface Product {
   description: string;
@@ -81,6 +81,7 @@ const CustomerProfilePage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    console.log(event)
     setValue(newValue);
   };
 
@@ -185,7 +186,7 @@ const CustomerProfilePage = () => {
         </TabPanel>
         <TabPanel value={value} index={1}>
           {/* Addresses content */}
-          <AddressDisplay customerData={customerData!} />
+          <AddressDisplay customerData={customerData!} getAll = {getAll}/>
         </TabPanel>
         <TabPanel value={value} index={2}>
           {/* Orders content */}

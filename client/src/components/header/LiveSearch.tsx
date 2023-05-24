@@ -1,5 +1,5 @@
 import { FormEvent, ChangeEvent, FC, useState } from "react";
-import ListPage from "./ListPage";
+import ListPage from "../Header/ListPage";
 import { Link } from "react-router-dom";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -58,6 +58,7 @@ const LiveSearch: FC<LiveSearchProps> = ({
             setFocus(true);
           }}
           onBlur={(e) => {
+            console.log(e.target.value);
             setFocus(false);
           }}
         />
