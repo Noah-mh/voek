@@ -62,17 +62,14 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
       //     setCartQuantity(0);
       //   }
       // };
-      axiosPrivateCustomer.get(`getCartDetails/${customer_id}?sku=${selectedSku}`)
+      axiosPrivateCustomer
+        .get(`getCartDetails/${customer_id}?sku=${selectedSku}`)
         .then((response) => {
           setCart(response.data.cartDetails);
-        })
-
+        });
     }
 
     if (selectedVariation) {
-
-
-
       const selectedProduct = productData.find((product) =>
         product.variations?.some((variation) => {
           const combinedKey = variation.variation_2
@@ -100,19 +97,12 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
   }, [selectedVariation, productData]);
 
   useEffect(() => {
+    // Nhat Tien (Wishlist) :D
     const checkWishlistProductExistence = async () => {
       if (customer_id != undefined) {
         try {
-          const response = await axiosPrivateCustomer.post(
-            `/checkWishlistProductExistence`,
-            JSON.stringify({
-              customerId: customer_id,
-              productId: productData[0].product_id,
-            }),
-            {
-              headers: { "Content-Type": "application/json" },
-              withCredentials: true,
-            }
+          const response = await axiosPrivateCustomer.get(
+            `/checkWishlistProductExistence/?customerId=${customer_id}&productId=${productData[0].product_id}`
           );
           if (response.data.length > 0) {
             setHeart(true);
@@ -127,7 +117,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
     checkWishlistProductExistence();
   }, []);
 
-  // Nhat Tien (Wishlist) :D
   const handleAddToWishlist = () => {
     if (customer_id == undefined) {
       toast.warn("Please Log in to add into wishlist", {
@@ -258,9 +247,16 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
     );
 
     setQuantity((prevQuantity) => {
-      if (cart.length == 0 && (productVariation && prevQuantity < productVariation.quantity!)) {
+      if (
+        cart.length == 0 &&
+        productVariation &&
+        prevQuantity < productVariation.quantity!
+      ) {
         return prevQuantity + 1;
-      } else if (productVariation && (prevQuantity + cart[0]?.quantity) < productVariation.quantity!) {
+      } else if (
+        productVariation &&
+        prevQuantity + cart[0]?.quantity < productVariation.quantity!
+      ) {
         return prevQuantity + 1;
       } else {
         // Show notification
@@ -410,10 +406,10 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                 value={
                   selectedVariation
                     ? {
-                      label: selectedVariation,
-                      value: selectedVariation,
-                      sku: "",
-                    }
+                        label: selectedVariation,
+                        value: selectedVariation,
+                        sku: "",
+                      }
                     : null
                 }
                 onChange={(option) => {
@@ -497,7 +493,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
           <h3>Reviews:</h3>
           {pReview.reviews &&
             pReview.reviews.map((review, reviewIndex) => (
-
               <div key={reviewIndex}>
                 <h4>{review.customerName}</h4>
                 {review.image_urls && (
@@ -512,9 +507,15 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                 <div className="flex flex-row justify-between">
                   <p>{review.comment}</p>
                   {review.customer_id === customer_id && (
-                    <button className="justify-content-center align-item-center" onClick={() => handleDeleteReview(review.review_id, review.sku)}>
+                    <button
+                      className="justify-content-center align-item-center"
+                      onClick={() =>
+                        handleDeleteReview(review.review_id, review.sku)
+                      }
+                    >
                       <AiFillDelete />
-                    </button>)}
+                    </button>
+                  )}
                 </div>
               </div>
             ))}

@@ -20,10 +20,7 @@ const WishlistCard = () => {
 
   useEffect(() => {
     axiosPrivateCustomer
-      .post(`/getWishlistItems`, JSON.stringify({ customerId }), {
-        headers: { "Content-Type": "application/json" },
-        withCredentials: true,
-      })
+      .get(`/getWishlistItems/${customerId}`)
       .then((response) => {
         const products = response.data.map((product: any) => {
           const image = axios.get(`/getProductImage/${product.product_id}`);

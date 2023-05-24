@@ -35,8 +35,9 @@ const LiveSearch: FC<LiveSearchProps> = ({
     }
 
     const serachValue: string = e.target.value.toLowerCase();
-    const resultsArray = results.filter((result) =>
-      result.name.toLowerCase().includes(serachValue)
+    const resultsArray = results.filter(
+      (result) =>
+        result.name.toLowerCase().includes(serachValue) && result.active != 0
     );
     setUserInput(e.target.value);
     link = `/searchResults/${userInput}`;

@@ -60,11 +60,10 @@ export const getWishlistItems = async (
   next: NextFunction
 ) => {
   try {
-    const { customerId } = req.body;
+    const { customerId } = req.params;
     const response: Array<object> = await productModel.handlesGetWishlistItems(
-      customerId
+      parseInt(customerId as string)
     );
-    console.log("resonse", response);
     return res.send(response);
   } catch (err: any) {
     return next(err);
@@ -97,12 +96,12 @@ export const getLastViewed = async (
   next: NextFunction
 ) => {
   try {
-    const { customerId, dateViewed, timezone } = req.body;
+    const { customerId, dateViewed, timezone } = req.query;
     console.log("timezone:", timezone);
     const response: Array<object> = await productModel.handlesGetLastViewed(
-      customerId,
-      timezone,
-      dateViewed
+      parseInt(customerId as string),
+      timezone as string,
+      dateViewed as string
     );
     return res.send(response);
   } catch (err: any) {
@@ -145,7 +144,7 @@ export const getSearchResult = async (
   next: NextFunction
 ) => {
   try {
-    const { input } = req.body;
+    const { input } = req.params;
     const response: Array<object> = await productModel.handlesSearchResult(
       input
     );
@@ -253,11 +252,11 @@ export const checkWishListProductExistence = async (
   next: NextFunction
 ) => {
   try {
-    const { customerId, productId } = req.body;
+    const { customerId, productId } = req.query;
     const response: Array<object> =
       await productModel.handlesCheckWishlistProductExistence(
-        customerId,
-        productId
+        parseInt(customerId as string),
+        parseInt(productId as string)
       );
     // if (response.length === 0) return res.sendStatus(404);
     // return res.sendStatus(response[0]["COUNT(*)"] === 0 ? 404 : 200);
@@ -433,11 +432,10 @@ export const getCart = async (
     const { sku } = req.query;
     console.log("sku", sku);
     if (!customer_id || !sku) return res.sendStatus(404);
-    const response: Array<object> =
-      await productModel.handleCartDetails(
-        parseInt(customer_id),
-        sku as string
-      );
+    const response: Array<object> = await productModel.handleCartDetails(
+      parseInt(customer_id),
+      sku as string
+    );
     if (!response) return res.sendStatus(404);
     console.log("response", response);
     return res.json({ cartDetails: response });
