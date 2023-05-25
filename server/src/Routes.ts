@@ -10,6 +10,7 @@ import * as cartController from "./controller/cart.controller";
 import * as orderController from "./controller/order.controller";
 import * as paypalController from "./controller/paypal.controller";
 import * as reviewController from "./controller/review.controller";
+import * as customer_sellerController from "./controller/customer_seller.controller";
 
 export default function (app: Express, router: Router) {
   // KANG RUI ENDPOINTS - user management system
@@ -111,8 +112,8 @@ export default function (app: Express, router: Router) {
   );
   router.get(
     "/customer/received/orders/:customer_id",
-    // verifyJWT,
-    // verifyRoles("customer"),
+    verifyJWT,
+    verifyRoles("customer"),
     orderController.processGetCustomerReceivedOrders
   );
   router.put(
@@ -228,31 +229,31 @@ export default function (app: Express, router: Router) {
   router.get(
     "/seller/vouchers/:seller_id",
     sellerController.processViewVouchers
-  )
+  );
   router.get(
     "/customer/vouchers/:customer_id",
     verifyJWT,
     verifyRoles("customer"),
     customerController.processViewVouchers
-  )
+  );
   router.put(
     "/customer/vouchers/:customer_id/:voucher_id",
     verifyJWT,
     verifyRoles("customer"),
     customerController.processPutVouchers
-  )
+  );
   router.get(
     "/customer/vouchers/wallet/:customer_id",
     verifyJWT,
     verifyRoles("customer"),
     customerController.processCustomerVouchers
-  )
+  );
   router.delete(
     "/customer/vouchers/:customer_voucher_id",
     verifyJWT,
     verifyRoles("customer"),
     customerController.processDeleteVouchers
-  )
+  );
 
   // NOAH ENDPOINTS - reviews, customer profile, customer address, add to cart
   router.get(
@@ -277,6 +278,26 @@ export default function (app: Express, router: Router) {
     verifyJWT,
     verifyRoles("customer"),
     reviewController.processGetCustomerRated
+  );
+
+  router.get(
+    "/sellerDetails/:seller_id",
+    customer_sellerController.getSellerDetails
+  );
+
+  router.get(
+    "/sellerCategories/:seller_id",
+    customer_sellerController.getSellerCategories
+  );
+
+  router.get(
+    "/sellerProducts/:seller_id",
+    customer_sellerController.getSellerProductsDetails
+  );
+
+  router.get(
+    "/sellerProducts/:seller_id/category/:category_id",
+    customer_sellerController.getSellerProductsByCategory
   );
 
   router.post(
