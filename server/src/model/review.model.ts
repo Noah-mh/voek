@@ -68,6 +68,22 @@ export const handleDeleteReview = async (
   }
 };
 
+export const handleDeleteReviewImages = async (
+  review_id: number
+): Promise<number> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `DELETE FROM review_images WHERE review_id = ?`;
+  try {
+    const [result] = await connection.query(sql, [review_id]);
+    return (result as ResultSetHeader).affectedRows;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
 export const handleCustomerRated = async (
   orders_product_id: number,
   customer_id: number
@@ -84,7 +100,7 @@ export const handleCustomerRated = async (
       orders_product_id,
       customer_id,
     ]);
-    console.log("update shipment rated")
+    console.log("update shipment rated");
     return (result as ResultSetHeader).affectedRows;
   } catch (err: any) {
     throw new Error(err);

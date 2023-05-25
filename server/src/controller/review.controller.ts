@@ -53,11 +53,12 @@ export const deleteReview = async (
   try {
     const { review_id, sku } = req.body;
     if (!review_id || !sku) return res.sendStatus(404);
-    const response: number = await reviewModel.handleDeleteReview(
-      review_id,
-      sku
-    );
-    if (!response) return res.sendStatus(404);
+    const promises = [
+      reviewModel.handleDeleteReview(review_id, sku),
+      reviewModel.handleDeleteReviewImages(review_id),
+    ];
+    const response = await Promise.all(promises);
+    if (!response[0]) return res.sendStatus(404);
     return res.sendStatus(200);
   } catch (err: any) {
     return next(err);
