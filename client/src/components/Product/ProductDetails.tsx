@@ -48,20 +48,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
 
   useEffect(() => {
     if (customer_id != undefined) {
-      // const checkCart = async () => {
-      //   try {
-      //     const response = await axiosPrivateCustomer.get(
-      //       `/getCartDetails?customer_id=${customer_id}`,{ data : { sku :selectedSku } }
-      //     );
-      //     if (response.data.length > 0) {
-      //       setCartQuantity(response.data[0].quantity);
-      //     } else {
-      //       setCartQuantity(0);
-      //     }
-      //   } catch (err: any) {
-      //     setCartQuantity(0);
-      //   }
-      // };
       axiosPrivateCustomer.get(`getCartDetails/${customer_id}?sku=${selectedSku}`)
         .then((response) => {
           setCart(response.data.cartDetails);

@@ -111,8 +111,8 @@ export default function (app: Express, router: Router) {
   );
   router.get(
     "/customer/received/orders/:customer_id",
-    // verifyJWT,
-    // verifyRoles("customer"),
+    verifyJWT,
+    verifyRoles("customer"),
     orderController.processGetCustomerReceivedOrders
   );
   router.put(
