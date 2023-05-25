@@ -423,12 +423,15 @@ export default function (app: Express, router: Router) {
     customerController.getCustomerLastViewedCat
   );
 
-  router.post("/insertVoucherAmount", voucherController.insertVoucherAmount);
+  router.post("/insertVoucher", voucherController.insertVoucher);
   router.put(
     "/updateRedemptionsAvailable",
     voucherController.updateRedemptionsAvailable
   );
+  router.put("/updateVoucher", voucherController.updateVoucher);
   router.delete("/deleteVoucher", voucherController.deleteVoucher);
+  router.get("/getVoucherCategories", voucherController.getVoucherCategories);
+  router.get("/getVouchers/:sellerId", voucherController.getVouchers);
 
   // router.get("/getProductCat/:product_id", productController.getProductCat);
 

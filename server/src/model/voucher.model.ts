@@ -1,12 +1,13 @@
 import pool from "../../config/database";
 
-export const handlesInsertingVoucherAmount = async (
+export const handlesInsertingVoucher = async (
   name: string,
   seller_id: number,
   type: number,
   amount: number,
   voucher_category: number,
   min_spend: number,
+  expiration_date: string,
   redemptions_available: number,
   active: number
 ): Promise<number> => {
@@ -15,7 +16,7 @@ export const handlesInsertingVoucherAmount = async (
   const sql = `INSERT INTO seller_voucher 
   (voucher_name, seller_id, number_amount, percentage_amount, 
   voucher_category, min_spend, expiration_date, redemptions_available, active)
-  VALUES (?, ?, ?, ?, ?, ?, (SELECT UTC_TIMESTAMP() + INTERVAL 10 DAY AS new_timestamp), ?, ?);`;
+  VALUES (?, ?, ?, ?, ?, ?, CAST(? AS datetime), ?, ?);`;
   let percentage_amount = null;
   let number_amount = null;
   if (type === 1) {
@@ -32,10 +33,43 @@ export const handlesInsertingVoucherAmount = async (
       percentage_amount,
       voucher_category,
       min_spend,
+      expiration_date,
       redemptions_available,
       active,
     ]);
     return (result[0] as any).affectedRows as number;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handlesGetVoucherCategories = async () => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT c.voucher_category_id as categoryId, c.voucher_category as category FROM voucher_category c;`;
+  try {
+    const result = await connection.query(sql, []);
+    return result[0] as Array<Object>;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handlesGetVouchers = async (sellerId: number) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT v.voucher_id as voucherId, v.voucher_name as name, v.number_amount as amount, v.percentage_amount as percentage, 
+  v.voucher_category as category, v.min_spend as minSpend, v.expiration_date as expiryDate, 
+  v.redemptions_available as redemptionsAvailable, v.active as active
+  FROM seller_voucher v 
+  WHERE seller_id = ?;`;
+  try {
+    const result = await connection.query(sql, [sellerId]);
+    return result[0] as Array<Object>;
   } catch (err: any) {
     throw new Error(err);
   } finally {
@@ -53,6 +87,50 @@ export const handlesUpdateRedemptionsAvailable = async (
   try {
     const result = await connection.query(sql, [
       redemptions_available,
+      voucher_id,
+    ]);
+    return (result[0] as any).affectedRows as number;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handlesUpdateVoucher = async (
+  name: string,
+  type: number,
+  amount: number,
+  voucher_category: number,
+  min_spend: number,
+  expiration_date: string,
+  redemptions_available: number,
+  active: number,
+  voucher_id: number
+): Promise<number> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `UPDATE seller_voucher 
+  SET voucher_name = ?, number_amount = ?, percentage_amount = ?, voucher_category = ?, 
+  min_spend = ?, expiration_date = CAST(? as datetime), redemptions_available = ?, active = ?
+  WHERE voucher_id = ?;`;
+  let percentage_amount = null;
+  let number_amount = null;
+  if (type === 1) {
+    percentage_amount = amount;
+  } else {
+    number_amount = amount;
+  }
+  try {
+    const result = await connection.query(sql, [
+      name,
+      number_amount,
+      percentage_amount,
+      voucher_category,
+      min_spend,
+      expiration_date,
+      redemptions_available,
+      active,
       voucher_id,
     ]);
     return (result[0] as any).affectedRows as number;

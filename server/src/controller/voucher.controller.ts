@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import * as voucherModel from "../model/voucher.model";
 
-export const insertVoucherAmount = async (
+export const insertVoucher = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -14,21 +14,52 @@ export const insertVoucherAmount = async (
       amount,
       voucher_category,
       min_spend,
+      expiration_date,
       redemptions_available,
       active,
     } = req.body;
-    const response: number = await voucherModel.handlesInsertingVoucherAmount(
+    const response: number = await voucherModel.handlesInsertingVoucher(
       name,
       seller_id,
       type,
       amount,
       voucher_category,
       min_spend,
+      expiration_date,
       redemptions_available,
       active
     );
     if (response === 0) return res.sendStatus(404);
     return res.sendStatus(201);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const getVoucherCategories = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const response: any = await voucherModel.handlesGetVoucherCategories();
+    return res.status(200).json(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const getVouchers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { sellerId } = req.params;
+    const response: any = await voucherModel.handlesGetVouchers(
+      parseInt(sellerId)
+    );
+    return res.status(200).json(response);
   } catch (err: any) {
     return next(err);
   }
@@ -46,6 +77,41 @@ export const updateRedemptionsAvailable = async (
         voucher_id,
         redemptions_available
       );
+    if (response === 0) return res.sendStatus(404);
+    return res.sendStatus(204);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const updateVoucher = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const {
+      name,
+      type,
+      amount,
+      voucher_category,
+      min_spend,
+      expiration_date,
+      redemptions_available,
+      active,
+      voucher_id,
+    } = req.body;
+    const response: number = await voucherModel.handlesUpdateVoucher(
+      name,
+      type,
+      amount,
+      voucher_category,
+      min_spend,
+      expiration_date,
+      redemptions_available,
+      active,
+      voucher_id
+    );
     if (response === 0) return res.sendStatus(404);
     return res.sendStatus(204);
   } catch (err: any) {

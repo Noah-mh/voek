@@ -1,4 +1,20 @@
+import { useEffect, useState } from "react";
+import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller";
+import useSeller from "../../hooks/useSeller";
+
 const VoucherTable = () => {
+  const [vouchers, setVouchers] = useState([]);
+
+  const axiosPrivateSeller = useAxiosPrivateSeller();
+  const { seller } = useSeller();
+  const sellerId = seller.seller_id;
+
+  useEffect(() => {
+    axiosPrivateSeller.get(`/getVouchers/${sellerId}`).then((response) => {
+      setVouchers(response.data);
+    });
+  }, []);
+
   return (
     <>
       <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
