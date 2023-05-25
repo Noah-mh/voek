@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import axios from "../../api/axios";
 import Loader from "../Loader/Loader";
 import "./ProductDetailsWithReviews.css";
-import ProductDetail from "./ProductDetails"; // make sure the path is correct
+import ProductDetail from "./ProductDetails";
 import CustomerContext from "../../context/CustomerProvider";
 import moment from "moment";
 import tz from "moment-timezone";
