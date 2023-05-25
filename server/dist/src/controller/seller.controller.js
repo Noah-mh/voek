@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.activateAccount = exports.getSellerStatus = exports.deactivateAccount = exports.processChangeEmail = exports.processUpdateSellerDetails = exports.processGetSellerDetails = exports.processGetCustomerOrders = exports.processPackedAndShipped = exports.processGetSellerDelivered = exports.processGetSellerShipped = exports.processGetSellerOrders = exports.processResetPassword = exports.processForgetPasswordLink = exports.processForgetPassword = exports.processLogout = exports.processSignUpLink = exports.processSendEmailLink = exports.processVerifyOTP = exports.processSendEmailOTP = exports.processSendSMSOTP = exports.processLogin = exports.processGetOrderDetails = exports.processAddProduct = exports.processGetAllCategories = exports.processGetAllProductsOfSeller = void 0;
+exports.activateAccount = exports.getSellerStatus = exports.deactivateAccount = exports.processChangeEmail = exports.processUpdateSellerDetails = exports.processGetSellerDetails = exports.processGetCustomerOrders = exports.processPackedAndShipped = exports.processGetSellerDelivered = exports.processGetSellerShipped = exports.processGetSellerOrders = exports.processResetPassword = exports.processForgetPasswordLink = exports.processForgetPassword = exports.processLogout = exports.processSignUpLink = exports.processSendEmailLink = exports.processVerifyOTP = exports.processSendEmailOTP = exports.processSendSMSOTP = exports.processLogin = exports.processGetOrderDetails = exports.processUpdateProductActive = exports.processUpdateProductVariationActive = exports.processAddProduct = exports.processGetAllCategories = exports.processGetAllProductsOfSeller = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = __importDefault(require("../../config/config"));
 const sellerModel = __importStar(require("../model/seller.model"));
@@ -68,6 +68,32 @@ const processAddProduct = async (req, res, next) => {
     }
 };
 exports.processAddProduct = processAddProduct;
+// PUT product variation active
+const processUpdateProductVariationActive = async (req, res, next) => {
+    try {
+        const productId = parseInt(req.params.productId);
+        const { active, sku } = req.body;
+        const response = await sellerModel.handleUpdateProductVariationActive(active, productId, sku);
+        return res.json(response);
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.processUpdateProductVariationActive = processUpdateProductVariationActive;
+// PUT product active
+const processUpdateProductActive = async (req, res, next) => {
+    try {
+        const productId = parseInt(req.params.productId);
+        const { active } = req.body;
+        const response = await sellerModel.handleUpdateProductActive(active, productId);
+        return res.json(response);
+    }
+    catch (err) {
+        return next(err);
+    }
+};
+exports.processUpdateProductActive = processUpdateProductActive;
 // GET order details
 const processGetOrderDetails = async (req, res, next) => {
     try {

@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.handleCustomerProfilePhotoEdit = exports.handleCustomerProfileEdit = exports.handlesCustomerDetails = exports.handlesGetCustomerLastViewedCat = exports.handlesUpdateCustomerLastViewedCat = exports.handleGetCustomerAddresses = exports.handleGetCoins = exports.handleActivateAccount = exports.handleGetCustomerStatus = exports.handleDeactivateAccount = exports.handleChangeEmail = exports.handleSendEmailChange = exports.handleUpdateCustomerDetails = exports.handleGetReferralId = exports.handleResetPassword = exports.handleSendEmailForgetPassword = exports.handleForgetPassword = exports.handleLogOut = exports.handleActiveAccount = exports.handleGetCustomerIdByRefId = exports.handleSignUp = exports.handleSendEmailLink = exports.handleVerifyOTP = exports.updateOTP = exports.handleSendEmailOTP = exports.handleSendSMSOTP = exports.handleStoreRefreshToken = exports.handleLogin = void 0;
+exports.handleCustomerAddressDelete = exports.handleCustomerAddressUpdate = exports.handleCustomerAddressAdd = exports.handleCustomerProfilePhotoEdit = exports.handleCustomerProfileEdit = exports.handlesCustomerDetails = exports.handlesGetCustomerLastViewedCat = exports.handlesUpdateCustomerLastViewedCat = exports.handleGetCustomerAddresses = exports.handleGetCoins = exports.handleActivateAccount = exports.handleGetCustomerStatus = exports.handleDeactivateAccount = exports.handleChangeEmail = exports.handleSendEmailChange = exports.handleUpdateCustomerDetails = exports.handleGetReferralId = exports.handleResetPassword = exports.handleSendEmailForgetPassword = exports.handleForgetPassword = exports.handleLogOut = exports.handleActiveAccount = exports.handleGetCustomerIdByRefId = exports.handleSignUp = exports.handleSendEmailLink = exports.handleVerifyOTP = exports.updateOTP = exports.handleSendEmailOTP = exports.handleSendSMSOTP = exports.handleStoreRefreshToken = exports.handleLogin = void 0;
 const database_1 = __importDefault(require("../../config/database"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const sendInBlue_1 = __importDefault(require("../../config/sendInBlue"));
@@ -16,7 +16,9 @@ const handleLogin = async (email, password) => {
     const sql = `SELECT username, password, customer_id, phone_number, email FROM customer WHERE email = ? AND active != 0`;
     try {
         const result = await connection.query(sql, [email]);
-        const encryptrdPassword = result[0].length ? result[0][0].password : "";
+        const encryptrdPassword = result[0].length
+            ? result[0][0].password
+            : "";
         const check = await bcrypt_1.default.compare(password, encryptrdPassword);
         if (check) {
             const customer_id = result[0][0]?.customer_id;
@@ -40,7 +42,10 @@ const handleStoreRefreshToken = async (refreshtoken, customer_id) => {
     const connection = await promisePool.getConnection();
     const sql = `UPDATE customer SET refresh_token =? WHERE customer_id =?`;
     try {
-        const result = await connection.query(sql, [refreshtoken, customer_id]);
+        const result = await connection.query(sql, [
+            refreshtoken,
+            customer_id,
+        ]);
         return result[0].affectedRows;
     }
     catch (err) {
@@ -227,7 +232,9 @@ const handleGetCustomerIdByRefId = async (referral_id) => {
     const sql = `SELECT customer_id FROM customer WHERE referral_id = ?`;
     try {
         const result = await connection.query(sql, [referral_id]);
-        return result[0][0]?.customer_id ? result[0][0].customer_id : null;
+        return result[0][0]?.customer_id
+            ? result[0][0].customer_id
+            : null;
     }
     catch (err) {
         throw new Error(err);
@@ -365,29 +372,47 @@ const handleUpdateCustomerDetails = async (password, email, username, phone_numb
     const connection = await promisePool.getConnection();
     try {
         let sql = `SELECT * FROM customer WHERE email like ? and customer_id != ?`;
-        let result = await connection.query(sql, [email, customer_id]);
+        let result = (await connection.query(sql, [
+            email,
+            customer_id,
+        ]));
         if (result[0].length != 0) {
             return { duplicateEmail: true };
         }
         else {
             let sql = `SELECT * FROM customer WHERE email like ? and customer_id = ?`;
-            let result = await connection.query(sql, [email, customer_id]);
+            let result = (await connection.query(sql, [
+                email,
+                customer_id,
+            ]));
             if (result[0].length === 0) {
-                sql = 'UPDATE update_customer SET new_email = ?, email_sent = utc_timestamp() WHERE customer_id = ?';
+                sql =
+                    "UPDATE update_customer SET new_email = ?, email_sent = utc_timestamp() WHERE customer_id = ?";
                 result = await connection.query(sql, [email, customer_id]);
                 if (result[0].affectedRows === 0) {
-                    sql = 'INSERT INTO update_customer (customer_id, new_email, email_sent) VALUES (?, ?, utc_timestamp())';
+                    sql =
+                        "INSERT INTO update_customer (customer_id, new_email, email_sent) VALUES (?, ?, utc_timestamp())";
                     result = await connection.query(sql, [customer_id, email]);
                 }
                 await (0, exports.handleSendEmailChange)(customer_id, email);
                 if (password) {
                     const encryptedPassword = await bcrypt_1.default.hash(password, 10);
                     sql = `UPDATE customer SET password = ?, username = ?, phone_number = ? WHERE customer_id = ?`;
-                    result = await connection.query(sql, [encryptedPassword, username, phone_number, customer_id]);
+                    result = await connection.query(sql, [
+                        encryptedPassword,
+                        username,
+                        phone_number,
+                        customer_id,
+                    ]);
                 }
                 else {
-                    sql = 'UPDATE customer SET username = ?, phone_number = ? WHERE customer_id = ?';
-                    result = await connection.query(sql, [username, phone_number, customer_id]);
+                    sql =
+                        "UPDATE customer SET username = ?, phone_number = ? WHERE customer_id = ?";
+                    result = await connection.query(sql, [
+                        username,
+                        phone_number,
+                        customer_id,
+                    ]);
                 }
                 return { emailChange: true };
             }
@@ -395,11 +420,21 @@ const handleUpdateCustomerDetails = async (password, email, username, phone_numb
                 if (password) {
                     const encryptedPassword = await bcrypt_1.default.hash(password, 10);
                     sql = `UPDATE customer SET password = ?, username = ?, phone_number = ? WHERE customer_id = ?`;
-                    result = await connection.query(sql, [encryptedPassword, username, phone_number, customer_id]);
+                    result = await connection.query(sql, [
+                        encryptedPassword,
+                        username,
+                        phone_number,
+                        customer_id,
+                    ]);
                 }
                 else {
-                    sql = 'UPDATE customer SET username = ?, phone_number = ? WHERE customer_id = ?';
-                    result = await connection.query(sql, [username, phone_number, customer_id]);
+                    sql =
+                        "UPDATE customer SET username = ?, phone_number = ? WHERE customer_id = ?";
+                    result = await connection.query(sql, [
+                        username,
+                        phone_number,
+                        customer_id,
+                    ]);
                 }
             }
         }
@@ -415,7 +450,7 @@ exports.handleUpdateCustomerDetails = handleUpdateCustomerDetails;
 const handleSendEmailChange = async (customer_id, email) => {
     const changeCustomerEmailToken = jsonwebtoken_1.default.sign({
         customer_id: customer_id,
-    }, config_1.default.emailTokenSecret, { expiresIn: '300s' });
+    }, config_1.default.emailTokenSecret, { expiresIn: "300s" });
     const tranEmailApi = new sendInBlue_1.default.TransactionalEmailsApi();
     const sender = {
         email: "voek.help.centre@gmail.com",
@@ -446,7 +481,7 @@ const handleChangeEmail = async (customer_id) => {
     const connection = await promisePool.getConnection();
     try {
         let sql = `SELECT new_email FROM update_customer WHERE customer_id = ?`;
-        let result = await connection.query(sql, [customer_id]);
+        let result = (await connection.query(sql, [customer_id]));
         const email = result[0][0].new_email;
         sql = `UPDATE customer SET email = ? WHERE customer_id = ?`;
         result = await connection.query(sql, [email, customer_id]);
@@ -465,7 +500,7 @@ exports.handleChangeEmail = handleChangeEmail;
 const handleDeactivateAccount = async (customer_id) => {
     const promisePool = database_1.default.promise();
     const connection = await promisePool.getConnection();
-    const sql = 'UPDATE customer SET active = 0 WHERE customer_id = ?';
+    const sql = "UPDATE customer SET active = 0 WHERE customer_id = ?";
     try {
         const result = await connection.query(sql, [customer_id]);
         return;
@@ -481,9 +516,11 @@ exports.handleDeactivateAccount = handleDeactivateAccount;
 const handleGetCustomerStatus = async (customer_id) => {
     const promisePool = database_1.default.promise();
     const connection = await promisePool.getConnection();
-    const sql = 'SELECT active FROM customer WHERE customer_id = ?';
+    const sql = "SELECT active FROM customer WHERE customer_id = ?";
     try {
-        const result = await connection.query(sql, [customer_id]);
+        const result = (await connection.query(sql, [
+            customer_id,
+        ]));
         return result[0][0].active;
     }
     catch (err) {
@@ -497,7 +534,7 @@ exports.handleGetCustomerStatus = handleGetCustomerStatus;
 const handleActivateAccount = async (customer_id) => {
     const promisePool = database_1.default.promise();
     const connection = await promisePool.getConnection();
-    const sql = 'UPDATE customer SET active = 1 WHERE customer_id = ?';
+    const sql = "UPDATE customer SET active = 1 WHERE customer_id = ?";
     try {
         const result = await connection.query(sql, [customer_id]);
         return;
@@ -562,7 +599,10 @@ const handlesUpdateCustomerLastViewedCat = async (categoryId, customerId) => {
     const connection = await promisePool.getConnection();
     const sql = `UPDATE customer SET last_viewed_cat_id = ? WHERE customer_id = ?;`;
     try {
-        const result = await connection.query(sql, [categoryId, customerId]);
+        const result = await connection.query(sql, [
+            categoryId,
+            customerId,
+        ]);
         return result[0];
     }
     catch (err) {
@@ -654,6 +694,7 @@ const handleCustomerProfileEdit = async (username, email, phoneNumber, customerI
     }
 };
 exports.handleCustomerProfileEdit = handleCustomerProfileEdit;
+//Noah
 const handleCustomerProfilePhotoEdit = async (image_url, customerId) => {
     const promisePool = database_1.default.promise();
     const connection = await promisePool.getConnection();
@@ -678,4 +719,89 @@ const handleCustomerProfilePhotoEdit = async (image_url, customerId) => {
     }
 };
 exports.handleCustomerProfilePhotoEdit = handleCustomerProfilePhotoEdit;
+//Noah
+const handleCustomerAddressAdd = async (postal_code, block, street_name, country, unit_no, customer_id) => {
+    const promisePool = database_1.default.promise();
+    const connection = await promisePool.getConnection();
+    const sql = `
+    INSERT INTO customer_address
+      (postal_code, block, street_name, country, unit_no, customer_id)
+    VALUES
+      (?, ?, ?, ?, ?, ?)
+  `;
+    try {
+        const [result] = await connection.query(sql, [
+            postal_code,
+            block,
+            street_name,
+            country,
+            unit_no,
+            customer_id,
+        ]);
+        return result.insertId;
+    }
+    catch (err) {
+        throw new Error(err);
+    }
+    finally {
+        await connection.release();
+    }
+};
+exports.handleCustomerAddressAdd = handleCustomerAddressAdd;
+const handleCustomerAddressUpdate = async (address_id, postal_code, block, street_name, country, unit_no, customer_id) => {
+    const promisePool = database_1.default.promise();
+    const connection = await promisePool.getConnection();
+    const sql = `
+    UPDATE customer_address
+    SET
+      postal_code = ?,
+      block = ?,
+      street_name = ?,
+      country = ?,
+      unit_no = ?
+    WHERE address_id = ? AND customer_id = ?
+  `;
+    try {
+        const [result] = await connection.query(sql, [
+            postal_code,
+            block,
+            street_name,
+            country,
+            unit_no,
+            address_id,
+            customer_id,
+        ]);
+        return result.affectedRows;
+    }
+    catch (err) {
+        throw new Error(err);
+    }
+    finally {
+        await connection.release();
+    }
+};
+exports.handleCustomerAddressUpdate = handleCustomerAddressUpdate;
+const handleCustomerAddressDelete = async (address_id, customer_id) => {
+    const promisePool = database_1.default.promise();
+    const connection = await promisePool.getConnection();
+    const sql = `
+    DELETE FROM customer_address
+    WHERE address_id = ? AND customer_id = ?
+  `;
+    try {
+        const [result] = await connection.query(sql, [
+            address_id,
+            customer_id,
+        ]);
+        return result.affectedRows;
+    }
+    catch (err) {
+        console.log(err);
+        throw new Error(err);
+    }
+    finally {
+        await connection.release();
+    }
+};
+exports.handleCustomerAddressDelete = handleCustomerAddressDelete;
 //# sourceMappingURL=customer.model.js.map

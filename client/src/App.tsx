@@ -35,6 +35,7 @@ import CategoryResults from "./components/CategoryResults/CategoryResults.js";
 import SellerProfile from "./components/SellerProfile/SellerProfile.js";
 import VerifySellerEmail from "./components/SellerProfile/VerifySellerEmail.js";
 import VerifyCustomerEmail from "./components/Customer/VerifyCustomerEmail.js";
+import RedeemVoucher from "./components/RedeemVoucher/RedeemVoucher.js";
 
 function App() {
   return (
@@ -70,6 +71,7 @@ function App() {
             path="customer/email-verification"
             element={<VerifyCustomerEmail />}
           />
+          <Route path="test" element={<RedeemVoucher seller_id={1} />} />
 
           <Route element={<RequireAuthCustomer />}>
             {/* Protected Routes with persist login */}

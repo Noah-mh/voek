@@ -5,6 +5,10 @@ import client from "../../config/teleSign";
 import { ResultSetHeader } from "mysql2";
 import config from "../../config/config";
 import jwt from "jsonwebtoken";
+import * as dotenv from "dotenv";
+dotenv.config({
+  path: __dirname + "../../env",
+});
 import { connect } from "http2";
 import c from "config";
 
@@ -70,8 +74,8 @@ export const handleSendSMSOTP = async (
         if (err === null) {
           console.log(
             `Messaging response for messaging phone number: ${phoneNumber}` +
-              ` => code: ${res["status"]["code"]}` +
-              `, description: ${res["status"]["description"]}`
+            ` => code: ${res["status"]["code"]}` +
+            `, description: ${res["status"]["description"]}`
           );
         } else {
           console.log("Unable to send message. " + err);
@@ -186,7 +190,9 @@ export const handleSendEmailLink = async (
         sender,
         to: receivers,
         subject: "Verification Link For VOEK Sign Up",
-        textContent: `http://localhost:5173/signup/verify?signupToken=${signUpToken}`,
+        textContent: `${
+          process.env.FRONTEND_BASE_URL || "http://localhost:5173"
+        }/signup/verify?signupToken=${signUpToken}`,
       })
       .then((response: any) => {
         console.log(response);
@@ -345,7 +351,9 @@ export const handleSendEmailForgetPassword = async (
         sender,
         to: receivers,
         subject: "Verification Link For VOEK Sign Up",
-        textContent: `http://localhost:5173/forgetPassword/verify?forgetPasswordToken=${forgetPasswordToken}`,
+        textContent: `${
+          process.env.FRONTEND_BASE_URL || "http://localhost:5173"
+        }/forgetPassword/verify?forgetPasswordToken=${forgetPasswordToken}`,
       })
       .then((response: any) => {
         console.log(response);
@@ -503,7 +511,9 @@ export const handleSendEmailChange = async (
       sender,
       to: receivers,
       subject: "Verification Link For VOEK Email Change",
-      textContent: `http://localhost:5173/customer/email-verification?token=${changeCustomerEmailToken}`,
+      textContent: `${
+        process.env.FRONTEND_BASE_URL || "http://localhost:5173"
+      }/customer/email-verification?token=${changeCustomerEmailToken}`,
     })
     .then((response: any) => {
       console.log(response);
@@ -867,3 +877,84 @@ export const handleCustomerAddressDelete = async (
     await connection.release();
   }
 };
+
+export const handleViewVouchers = async (
+  customer_id: number
+): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT voucher_id FROM customer_voucher WHERE customer_id = ? AND redeemed = 1 OR orders_id IS NOT NULL;`;
+  try {
+    const [result] = await connection.query(sql, [customer_id]);
+    return result as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+}
+
+export const handlePutVouchers = async (
+  customer_id: number,
+  voucher_id: number
+) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `INSERT INTO customer_voucher (customer_id, voucher_id) VALUES (?, ?);`;
+  try {
+    await connection.query(sql, [customer_id, voucher_id]);
+    return;
+  } catch (err: any) {
+    throw new Error(err);
+  }
+}
+
+export const handleCustomerVouchers = async (
+  customer_id: number
+): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `
+  SELECT
+  seller_voucher.voucher_id,
+  seller_voucher.voucher_name,
+  seller_voucher.number_amount,
+  seller_voucher.percentage_amount,
+  seller_voucher.voucher_category,
+  seller_voucher.min_spend,
+  customer_voucher.customer_voucher_id,
+  seller_voucher.active
+FROM
+  seller_voucher
+JOIN
+  customer_voucher ON seller_voucher.voucher_id = customer_voucher.voucher_id
+WHERE 
+  customer_voucher.redeemed = 1
+AND
+	customer_voucher.customer_id = ?
+  `
+  try {
+    const [result] = await connection.query(sql, [customer_id]);
+    return result as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+}
+
+export const handleDeleteVouchers = async (
+  customer_voucher_id: number
+) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `DELETE FROM customer_voucher WHERE customer_voucher_id = ?`;
+  try {
+    await connection.query(sql, [customer_voucher_id]);
+    return;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+}
