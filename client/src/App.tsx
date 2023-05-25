@@ -36,6 +36,7 @@ import SellerProfile from "./components/SellerProfile/SellerProfile.js";
 import VerifySellerEmail from "./components/SellerProfile/VerifySellerEmail.js";
 import VerifyCustomerEmail from "./components/Customer/VerifyCustomerEmail.js";
 import RedeemVoucher from "./components/RedeemVoucher/RedeemVoucher.js";
+import CustomerSellerProfilePage from "./components/Product/CustomerSellerProfilePage.js";
 
 function App() {
   return (
@@ -75,6 +76,8 @@ function App() {
             path="test"
             element={<RedeemVoucher seller_id={1} />}
           />
+
+          <Route path="customerSellerProfile/:seller_id" element={<CustomerSellerProfilePage />} />
 
           <Route element={<RequireAuthCustomer />}>
             {/* Protected Routes with persist login */}
