@@ -1,12 +1,17 @@
 import React, { useEffect, useState, useContext } from "react";
 import axios from "../../api/axios";
 import Loader from "../Loader/Loader";
+import { cld } from "../../Cloudinary/Cloudinary";
+import { AdvancedImage } from "@cloudinary/react";
 import { useParams } from "react-router-dom";
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import AllProducts from "./AllProducts";
 import CategoryProducts from "./CategoryProducts";
+import RedeemVoucher from "../RedeemVoucher/RedeemVoucher";
+import { AiOutlineShop } from "react-icons/ai";
 export interface Product {
     product_id: number;
     name: string;
@@ -131,7 +136,24 @@ const CustomerSellerProfilePage: React.FC = () => {
         );
     } else {
         return (
-            <div >
+            <div>
+                <div className="flex justify-center items-center">
+                    <div className="w-40 h-40 mb-5 mr-5">
+                        <AdvancedImage cldImg={cld.image(sellerData[0].image_url)} />
+                    </div>
+                    <div className="flex flex-col justify-center">
+                        <Typography gutterBottom variant="h5" component="div">
+                            {sellerData[0].shop_name}
+                        </Typography>
+                        <div className="flex">
+                            <AiOutlineShop />
+                            <Typography variant="body2" color="text.primary">
+                                Products: {sellerData[0].total_product}
+                            </Typography>
+                        </div>
+                    </div>
+                </div>
+                <RedeemVoucher seller_id={sellerData[0].seller_id} />
                 <Box sx={{ maxWidth: { xs: 320, sm: 480 }, bgcolor: 'background.paper' }}>
                     <Tabs value={value}
                         onChange={handleChange}
@@ -147,12 +169,14 @@ const CustomerSellerProfilePage: React.FC = () => {
                 <TabPanel value={value} index={0}>
                     <AllProducts productData={productData} />
                 </TabPanel>
-                {categoryData?.map((category, index) => (
-                    <TabPanel key={index} value={value} index={index + 1}>
-                        <CategoryProducts seller_id={sellerData[0].seller_id} category_id={category.category_id} />
-                    </TabPanel>
-                ))}
-            </div>
+                {
+                    categoryData?.map((category, index) => (
+                        <TabPanel key={index} value={value} index={index + 1}>
+                            <CategoryProducts seller_id={sellerData[0].seller_id} category_id={category.category_id} />
+                        </TabPanel>
+                    ))
+                }
+            </div >
         )
     }
 }
