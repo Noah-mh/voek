@@ -1,17 +1,15 @@
 import pool from "../../config/database";
 
-export const handleSellerDetails = async (product_id: number) => {
+export const handleSellerDetails = async (seller_id: number) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `SELECT p.product_id, s.seller_id, s.shop_name, s.image_url, COUNT(lp.product_id) AS total_product
-  FROM products p
-  LEFT JOIN listed_products lp ON p.product_id = lp.product_id
-  INNER JOIN seller s ON lp.seller_id = s.seller_id
-  WHERE p.product_id = ?
-  GROUP BY p.product_id, s.seller_id, s.shop_name, s.image_url;`;
+  const sql = `SELECT s.seller_id, s.shop_name, s.image_url, COUNT(lp.product_id) AS total_product
+  FROM seller s
+  LEFT JOIN listed_products lp ON s.seller_id = lp.seller_id
+  WHERE s.seller_id = ?
+  GROUP BY s.seller_id;`;
   try {
-    const [result] = await connection.query(sql, [product_id]);
-    console.log(result);
+    const [result] = await connection.query(sql, [seller_id]);
     return result as seller[];
   } catch (err: any) {
     throw new Error(err);
@@ -30,7 +28,6 @@ export const handleSellerCategories = async (seller_id: number) => {
   WHERE lp.seller_id = ?;`;
   try {
     const [result] = await connection.query(sql, [seller_id]);
-    console.log(result);
     return result as Category[];
   } catch (err: any) {
     throw new Error(err);
@@ -55,7 +52,6 @@ export const handleSellerProductsDetails = async (
  GROUP BY p.product_id, p.name, pv.price, pv.sku, c.category_id, c.name;`;
   try {
     const [result] = await connection.query(sql, [seller_id]);
-    console.log(result);
     return result as Product[];
   } catch (err: any) {
     throw new Error(err);
@@ -81,7 +77,6 @@ export const handleSellerProductsByCategory = async (
   GROUP BY p.product_id, p.name, pv.price, pv.sku, c.category_id, c.name;`;
   try {
     const [result] = await connection.query(sql, [seller, category]);
-    console.log(result);
     return result as Product[];
   } catch (err: any) {
     throw new Error(err);

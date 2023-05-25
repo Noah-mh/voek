@@ -281,7 +281,7 @@ export default function (app: Express, router: Router) {
   );
 
   router.get(
-    "/sellerDetails/:product_id",
+    "/sellerDetails/:seller_id",
     customer_sellerController.getSellerDetails
   );
 

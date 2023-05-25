@@ -7,13 +7,13 @@ export const getSellerDetails = async (
   next: NextFunction
 ) => {
   try {
-    const { product_id } = req.params;
+    const { seller_id } = req.params;
     const response: Array<object> =
       await customer_sellerModel.handleSellerDetails(
-        parseInt(product_id)
+        parseInt(seller_id)
       );
     if (!response) return res.sendStatus(404);
-    console.log("response", response);
+    console.log("sellerDetails:", response);
     return res.json({ sellerDetails: response });
   } catch (err: any) {
     next(err);
@@ -32,7 +32,7 @@ export const getSellerProductsDetails = async (
         parseInt(seller_id)
       );
     if (!response) return res.sendStatus(404);
-    console.log("response", response);
+    console.log("sellerProductsDetails:", response);
     return res.json({ sellerProductsDetails: response });
   } catch (err: any) {
     next(err);
@@ -51,7 +51,7 @@ export const getSellerCategories = async (
         parseInt(seller_id)
       );
     if (!response) return res.sendStatus(404);
-    console.log("response", response);
+    console.log("sellerCategories:", response);
     return res.json({ sellerCategories: response });
   } catch (err: any) {
     next(err);
@@ -71,7 +71,7 @@ export const getSellerProductsByCategory = async (
         parseInt(category_id)
       );
     if (!response) return res.sendStatus(404);
-    console.log("response", response);
+    console.log("sellerProductsByCategory:", response);
     return res.json({ sellerProductsByCategory: response });
   } catch (err: any) {
     next(err);
