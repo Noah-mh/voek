@@ -122,12 +122,6 @@ const CustomerSellerProfilePage: React.FC = () => {
         setValue(newValue);
     };
 
-    categoryData?.map((category) => (
-        console.log(category.category_name)
-    ));
-
-
-
     if (isLoading) {
         return (
             <div className="flex justify-center items-center">
