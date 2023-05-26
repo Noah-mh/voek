@@ -26,17 +26,20 @@ interface Product {
 }
 
 interface Props {
-  receivedOrders: Product[]
+  receivedOrders: Product[],
+  getAll: () => void;
 }
 
-const ViewReceived = ({ receivedOrders }: Props) => {
+const ViewReceived = ({ receivedOrders, getAll }: Props) => {
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
   const { customer } = useCustomer();
   const customer_id = customer.customer_id;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [order, setOrder] = useState<Product>({} as Product);
+  const [order_product_id, setOrder_product_id] = useState<number>();
   const [orderedReceivedOrders, setOrderedReceivedOrders] = useState<any>();
+  const [ratings, setRatings] = useState<{ [key: number]: boolean }>({});
 
   // ...
 
@@ -48,25 +51,38 @@ const ViewReceived = ({ receivedOrders }: Props) => {
     setIsModalOpen(false);
   };
 
-  const handleSubmit = (rating: number, comment: string, image_url: string) => {
-
+  const handleSubmit = (orders_product_id: number | undefined, customer_id: number, rating: number, comment: string, image_urls: string[]) => {
     axiosPrivateCustomer.post("/addReview", JSON.stringify({ customer_id, product_id: order.product_id, sku: order.sku, rating, comment }),
       {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
       }).then((response) => {
-        axiosPrivateCustomer.post("/addReviewImages", JSON.stringify({ review_id: response.data.response, image_url }),
-          {
-            headers: { "Content-Type": "application/json" },
-            withCredentials: true,
-          })
+        const review_id = response.data.response;
+
+        const imageUploadPromises = image_urls.map(image_url => {
+          return axiosPrivateCustomer.post("/addReviewImages", JSON.stringify({ review_id, image_url }),
+            {
+              headers: { "Content-Type": "application/json" },
+              withCredentials: true,
+            });
+        });
+
+        // Use Promise.all to wait for all promises to resolve
+        return Promise.all(imageUploadPromises);
+
+      }).then(() => {
+        // All image uploads are complete
+        console.log('All images uploaded');
+        console.log(orders_product_id, customer_id, order.orders_product_id)
+        axiosPrivateCustomer.put(`/customer/rated/${orders_product_id}/${customer_id}`)
       }).catch((err) => {
         console.log(err);
       }).finally(() => {
         setIsModalOpen(false);
+        getAll();
       })
-
   };
+
 
   useEffect(() => {
     const orderOrders = () => {
@@ -94,45 +110,23 @@ const ViewReceived = ({ receivedOrders }: Props) => {
     orderOrders()
   }, [receivedOrders]);
 
+  useEffect(() => {
+    axiosPrivateCustomer.get(`/customer/ratedOrNot/${customer_id}`)
+      .then(response => {
+        const newRatings: { [key: number]: boolean } = {};
+
+        response.data.rated.forEach((item: { rated: any; orders_product_id: number; }) => {
+          newRatings[item.orders_product_id] = item.rated !== null;
+        });
+
+        setRatings(newRatings);
+        console.log(newRatings)
+      })
+      .catch(error => console.error(error));
+  }, [receivedOrders]);
+
+
   return (
-    // <div className="flex flex-col items-center justify-center p-8">
-    //   <h1 className="mb-8 text-4xl font-bold">Received Orders</h1>
-    //   {receivedOrders.map((order: Product) => (
-    //     <div key={order.sku} className="mb-8 border border-gray-300 rounded p-4 w-4/5">
-    //       <AdvancedImage cldImg={cld.image(order.image_url)} />
-    //       <Link to={`/productDetailsWithReviews/${order.product_id}`} className="text-blue-500 hover:underline">
-    //         {order.name}
-    //       </Link>
-    //       <p className="mb-2">{order.description}</p>
-    //       <p>Price of Product: {order.price}</p>
-    //       <p>Amount Bought: {order.quantity}</p>
-    //       <h2 className="text-2xl">Total Price: {order.price * order.quantity}</h2>
-    //       <div className="mt-4">
-    //         <p className="font-bold">The Variation You Bought</p>
-    //         <p>
-    //           {order.variation_1 && order.variation_2
-    //             ? `${order.variation_1} and ${order.variation_2}`
-    //             : order.variation_1
-    //               ? order.variation_1
-    //               : order.variation_2
-    //                 ? order.variation_2
-    //                 : "No Variation"}
-    //         </p>
-    //         <h3 className="mt-2 text-lg">Order was received on {convertUtcToLocal(order.shipment_delivered!)}</h3>
-    //       </div>
-    //       <button
-    //         onClick={() => {
-    //           handleOpenModal()
-    //           setOrder(order)
-    //         }}
-    //         className="flex items-center justify-center space-x-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-    //       >
-    //         Rate
-    //       </button>
-    //       <ModalComponent isOpen={isModalOpen} onClose={handleCloseModal} onSubmit={handleSubmit} />
-    //     </div>
-    //   ))}
-    // </div>
     <div className="flex flex-col items-center justify-center p-8">
       <h1 className="mb-8 text-4xl font-bold">Received Orders</h1>
       {
@@ -163,16 +157,28 @@ const ViewReceived = ({ receivedOrders }: Props) => {
                             : "No Variation"}
                     </p>
                     <h3 className="mt-2 text-lg">Order has been shipped on the {convertUtcToLocal(order.shipment_delivered!)}</h3>
-                    <button
-                      onClick={() => {
-                        handleOpenModal()
-                        setOrder(order)
-                      }}
-                      className="flex items-center justify-center space-x-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                    >
-                      Rate
-                    </button>
-                    <ModalComponent isOpen={isModalOpen} onClose={handleCloseModal} onSubmit={handleSubmit} />
+                    {!ratings[order.orders_product_id!] && (
+                      <button
+                        onClick={() => {
+                          handleOpenModal();
+                          setOrder(order);
+                          setOrder_product_id(order.orders_product_id);
+                        }}
+                        className="flex items-center justify-center space-x-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                      >
+                        Rate
+                      </button>
+                    )}
+
+                    <ModalComponent
+                      isOpen={isModalOpen}
+                      onClose={handleCloseModal}
+                      onSubmit={handleSubmit}
+                      orders_product_id={order_product_id}
+                      customer_id={customer_id}
+                    />
+
+
                   </div>
                 </div>
               ))
