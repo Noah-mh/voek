@@ -286,6 +286,11 @@ export default function (app: Express, router: Router) {
   );
 
   router.get(
+    "/sellerDetails/byProduct/:product_id",
+    customer_sellerController.getSellerDetailsByProductId
+  );
+
+  router.get(
     "/sellerCategories/:seller_id",
     customer_sellerController.getSellerCategories
   );
