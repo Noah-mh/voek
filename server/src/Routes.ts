@@ -477,7 +477,7 @@ export default function (app: Express, router: Router) {
     cartController.retrieveCartDetails
   );
 
-  router.post(
+  router.put(
     "/customer/alterQuantCart",
     verifyJWT,
     verifyRoles("customer"),
@@ -502,13 +502,13 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     cartController.insertOrderProduct
   );
-  router.post(
+  router.put(
     "/customer/updateProductStock",
     verifyJWT,
     verifyRoles("customer"),
     cartController.updateProductStock
   );
-  router.post(
+  router.put(
     "/customer/updateCustomerCoins",
     verifyJWT,
     verifyRoles("customer"),
@@ -520,7 +520,7 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     cartController.insertShipment
   );
-  router.post(
+  router.put(
     "/customer/clearCart",
     verifyJWT,
     verifyRoles("customer"),

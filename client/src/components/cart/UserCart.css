@@ -9,4 +9,7 @@ img {
 .right p {
   color: white !important;
 }
-
+.walletsvg {
+  position: relative;
+  top: -10px;
+}

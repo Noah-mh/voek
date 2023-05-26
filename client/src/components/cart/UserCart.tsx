@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import useCustomer from "../../hooks/UseCustomer";
 import noImage from "../../img/product/No_Image_Available.jpg";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
@@ -10,7 +10,11 @@ import { AdvancedImage } from "@cloudinary/react";
 import { cld } from "../../Cloudinary/Cloudinary";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { get } from "http";
+
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
+import Modal from "@mui/material/Modal";
 
 export default function cartPage(): JSX.Element {
   const { customer, setCustomer } = useCustomer();
@@ -52,6 +56,7 @@ export default function cartPage(): JSX.Element {
     unit_no: string;
   }
   interface voucher {
+    seller_id: number;
     voucher_id: string;
     voucher_name: string;
     number_amount: number;
@@ -61,6 +66,31 @@ export default function cartPage(): JSX.Element {
     customer_voucher_id: number;
     active: boolean;
   }
+  const style = {
+    position: "absolute" as "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: 400,
+    bgcolor: "background.paper",
+    border: "2px solid #000",
+    boxShadow: 24,
+    p: 4,
+  };
+
+  const [isModalOpen, setModalOpen] = useState(false);
+
+  const handleOpenModal = () => {
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+  };
+
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
   const [isChecked, setIsChecked] = useState<boolean>(false);
   const [isInputDisabled, setIsInputDisabled] = useState<boolean>(false);
   const [userCoins, setUserCoins] = useState<number>(0);
@@ -251,7 +281,7 @@ export default function cartPage(): JSX.Element {
     }
     const alterQuantFnc = async () => {
       try {
-        await axiosPrivateCustomer.post("/customer/alterQuantCart", {
+        await axiosPrivateCustomer.put("/customer/alterQuantCart", {
           customer_id,
           sku: changedSKU,
           quantity: prodQuantity,
@@ -388,8 +418,22 @@ export default function cartPage(): JSX.Element {
             <div className="text-white">${totalAmt.total}</div>
           </div>
           <div className="activateCoins flex justify-between border-t-2 pt-3">
-            <div className="showCoins text-xs text-white">
-              Coins Available: <span className="font-bold">{userCoins}</span>
+            <Button onClick={handleOpen}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 512 512"
+                width="24"
+                height="24"
+                className="walletsvg"
+              >
+                <path
+                  fill="#ffff"
+                  d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V192c0-35.3-28.7-64-64-64H80c-8.8 0-16-7.2-16-16s7.2-16 16-16H448c17.7 0 32-14.3 32-32s-14.3-32-32-32H64zM416 272a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"
+                />
+              </svg>
+            </Button>
+            <div className="showCoins text-xs text-white ">
+              Coins Available: <span className="font-bold ">{userCoins}</span>
             </div>
             <label className="relative inline-flex items-center mb-5 cursor-pointer">
               <input
@@ -459,6 +503,22 @@ export default function cartPage(): JSX.Element {
         pauseOnHover
         theme="light"
       />
+
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Text in a modal
+          </Typography>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
+          </Typography>
+        </Box>
+      </Modal>
     </div>
   );
 }

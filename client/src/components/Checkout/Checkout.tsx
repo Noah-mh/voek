@@ -57,7 +57,7 @@ export default function CheckOutPage(): JSX.Element {
           );
           await Promise.all(
             customer.cart.cartItems.map(async (item: any) => {
-              const resUpdateStock = await axiosPrivateCustomer.post(
+              const resUpdateStock = await axiosPrivateCustomer.put(
                 `/customer/updateProductStock`,
                 {
                   quantityDeduct: item.quantity,
@@ -69,7 +69,7 @@ export default function CheckOutPage(): JSX.Element {
             })
           );
 
-          await axiosPrivateCustomer.post(`/customer/updateCustomerCoins`, {
+          await axiosPrivateCustomer.put(`/customer/updateCustomerCoins`, {
             customer_id: customer_id,
             coins: coinsRedeemed == 0 ? coinsEarned : -coinsRedeemed,
           });
@@ -92,7 +92,7 @@ export default function CheckOutPage(): JSX.Element {
           cart: {},
         };
       });
-      axiosPrivateCustomer.post(`/customer/clearCart`, {
+      axiosPrivateCustomer.put(`/customer/clearCart`, {
         customer_id: customer_id,
       });
     }
