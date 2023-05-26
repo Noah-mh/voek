@@ -52,7 +52,7 @@ const CategoryProducts: React.FC<CategoryProductsProps> = ({ seller_id, category
                                             ${product.price}
                                         </Typography>
                                         <Typography variant="body2" color="text.secondary">
-                                            <Rating name="half-rating-read" defaultValue={product.rating} precision={0.5} readOnly />
+                                            <Rating name="half-rating-read" value={product.rating} precision={0.5} readOnly />
                                         </Typography>
                                     </CardContent>
                                 </CardActionArea>

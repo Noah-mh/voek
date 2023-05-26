@@ -18,7 +18,7 @@ const AllProducts: React.FC<AllProductProps> = ({ productData }) => {
     return (
         <div className="flex flex-wrap justify-around">
             {productData.map((product) => (
-                <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 mb-4 px-2" key={product.product_id}>
+                <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 mb-4 px-2" key={product.sku}>
                     <Link to={`/productDetailsWithReviews/${product.product_id}`} className="text-blue-500 hover:underline">
                         <Card sx={{ maxWidth: 345 }}>
                             <CardActionArea>
@@ -31,7 +31,7 @@ const AllProducts: React.FC<AllProductProps> = ({ productData }) => {
                                         ${product.price}
                                     </Typography>
                                     <Typography variant="body2" color="text.secondary">
-                                        <Rating name="half-rating-read" defaultValue={product.rating} precision={0.5} readOnly />
+                                        <Rating name="half-rating-read" value={product.rating} precision={0.5} readOnly />
                                     </Typography>
                                 </CardContent>
                             </CardActionArea>
