@@ -62,8 +62,8 @@ export const handlesGetVoucherCategories = async () => {
 export const handlesGetVouchers = async (sellerId: number) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `SELECT v.voucher_id as voucherId, v.voucher_name as name, v.number_amount as amount, v.percentage_amount as percentage, 
-  v.voucher_category as category, v.min_spend as minSpend, v.expiration_date as expiryDate, 
+  const sql = `SELECT v.voucher_id as voucherId, v.voucher_name as name, v.number_amount as amount, (v.percentage_amount * 100) as percentage, 
+  v.voucher_category as category, v.min_spend as minSpend, DATE(v.expiration_date) as expiryDate, 
   v.redemptions_available as redemptionsAvailable, v.active as active
   FROM seller_voucher v 
   WHERE seller_id = ?;`;
