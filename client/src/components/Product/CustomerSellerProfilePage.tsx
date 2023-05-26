@@ -12,6 +12,7 @@ import AllProducts from "./AllProducts";
 import CategoryProducts from "./CategoryProducts";
 import RedeemVoucher from "../RedeemVoucher/RedeemVoucher";
 import { AiOutlineShop } from "react-icons/ai";
+//Noah's code
 export interface Product {
     product_id: number;
     name: string;

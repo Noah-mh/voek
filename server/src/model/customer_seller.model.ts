@@ -1,5 +1,5 @@
 import pool from "../../config/database";
-
+//Noah's code
 export const handleSellerDetailsBySellerId = async (
   seller_id: number
 ) => {
@@ -78,7 +78,7 @@ export const handleSellerProductsDetails = async (
   c.name as category_name,
   (SELECT pi.image_url 
    FROM product_images pi 
-   WHERE pi.product_id = p.product_id 
+   WHERE pi.sku = pv.sku 
    LIMIT 1) as image_url
   FROM listed_products lp
   INNER JOIN products p ON lp.product_id = p.product_id

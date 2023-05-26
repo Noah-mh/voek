@@ -213,6 +213,7 @@ export const deleteWishlistedProduct = async (
   }
 };
 
+//Noah
 export const getProductDetailsWithoutReviews = async (
   req: Request,
   res: Response,
@@ -232,6 +233,7 @@ export const getProductDetailsWithoutReviews = async (
   }
 };
 
+//Noah
 export const getProductReviews = async (
   req: Request,
   res: Response,

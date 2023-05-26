@@ -10,7 +10,7 @@ import Loader from "../Loader/Loader";
 import { Product } from "./CustomerSellerProfilePage";
 import axios from "../../api/axios";
 import { Link } from "react-router-dom";
-
+//Noah's code
 interface CategoryProductsProps {
     seller_id: number;
     category_id: number;
