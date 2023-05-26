@@ -11,7 +11,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion";
 import { AiFillHeart, AiOutlineHeart, AiFillDelete } from "react-icons/ai";
-import StarRating from "./StarRating";
+import Rating from '@mui/material/Rating';
 
 interface ProductDetailProps {
   productData: Product[];
@@ -479,7 +479,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
       {productReview.map((pReview, index) => (
         <div key={index}>
           <h3>Rating: {pReview.rating}</h3>
-          <StarRating rating={pReview.rating} />
+          <Rating name="half-rating-read" defaultValue={pReview.rating} precision={0.5} readOnly />
           <h3>Reviews:</h3>
           {pReview.reviews &&
             pReview.reviews.map((review, reviewIndex) => (
