@@ -1,10 +1,11 @@
 import "./css/Homepage.css";
 import { useState, useEffect, useContext } from "react";
-import Slider from "../Homepage/Slider.js";
-import { Banner } from "../Homepage/Banner.js";
-import Category from "../Homepage/Category.js";
+import Slider from "./Slider.js";
+import { Banner } from "./Banner.js";
+import Category from "./Category.js";
+
 import axios from "../../api/axios.js";
-import CustomerContext from "../../context/CustomerProvider";
+import CustomerContext from "../../context/CustomerProvider.js";
 
 interface Product {
   product_id: number;

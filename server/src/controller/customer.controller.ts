@@ -605,3 +605,59 @@ export const processCustomerAddressUpdate = async (
     return next(err);
   }
 };
+
+export const processViewVouchers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.params;
+    const result = await customerModel.handleViewVouchers(parseInt(customer_id));
+    return res.json({ vouchers: result });
+  } catch (err: any) {
+    return next(err);
+  }
+}
+
+export const processCustomerVouchers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.params;
+    const result = await customerModel.handleCustomerVouchers(parseInt(customer_id));
+    return res.json({ vouchers: result });
+  } catch (err: any) {
+    return next(err);
+  }
+}
+
+export const processPutVouchers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id, voucher_id } = req.params;
+    await customerModel.handlePutVouchers(parseInt(customer_id), parseInt(voucher_id));
+    return res.sendStatus(200);
+  } catch (err: any) {
+    return next(err);
+  }
+}
+
+export const processDeleteVouchers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_voucher_id } = req.params;
+    await customerModel.handleDeleteVouchers(parseInt(customer_voucher_id));
+    return res.sendStatus(200);
+  } catch (err: any) {
+    return next(err);
+  }
+}

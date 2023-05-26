@@ -13,7 +13,7 @@ export default function CheckOutPage(): JSX.Element {
 
   useEffect(() => {
     if (Object.keys(customer.cart).length === 0) {
-      console.log("running");
+      //cart is empty, redirect to homepage
       navigate("/");
     } else {
       const coinsRedeemed = customer.cart.coinsRedeemed;
@@ -52,7 +52,7 @@ export default function CheckOutPage(): JSX.Element {
                 }
               );
 
-              return resOrderProductIDs.data; // Assuming the product ID is in the 'productId' property of the response
+              return resOrderProductIDs.data;
             })
           );
           await Promise.all(
@@ -65,7 +65,7 @@ export default function CheckOutPage(): JSX.Element {
                 }
               );
 
-              return resUpdateStock.data; // Assuming the product ID is in the 'productId' property of the response
+              return resUpdateStock.data;
             })
           );
 

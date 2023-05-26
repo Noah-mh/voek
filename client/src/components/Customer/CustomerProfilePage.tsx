@@ -11,6 +11,7 @@ import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import AddressDisplay from "./Address";
 import Loader from "../Loader/Loader";
+import CustomerVoucher from "../RedeemVoucher/CustomerVoucher";
 
 
 interface Product {
@@ -179,6 +180,7 @@ const CustomerProfilePage = () => {
           <Tab label="Orders" {...a11yProps(2)} />
           <Tab label="Delivered Orders" {...a11yProps(3)} />
           <Tab label="Received Orders" {...a11yProps(4)} />
+          <Tab label="Voucher Wallet" {...a11yProps(5)} />
         </Tabs>
         <TabPanel value={value} index={0}>
           {/* Profile content */}
@@ -199,6 +201,10 @@ const CustomerProfilePage = () => {
         <TabPanel value={value} index={4}>
           {/* Received Orders content */}
           <ViewReceived receivedOrders={receivedOrders} />
+        </TabPanel>
+        <TabPanel value={value} index={5}>
+          {/* Received Orders content */}
+          <CustomerVoucher />
         </TabPanel>
       </Box>
     );
