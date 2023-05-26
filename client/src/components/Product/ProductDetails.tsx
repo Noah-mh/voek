@@ -486,7 +486,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
       {productReview.map((pReview, index) => (
         <div key={index}>
           <h3>Rating: {pReview.rating}</h3>
-          <Rating name="half-rating-read" defaultValue={pReview.rating} precision={0.5} readOnly />
+          <Rating name="half-rating-read" value={Number(pReview.rating)} precision={0.5} readOnly />
           <h3>Reviews:</h3>
           {pReview.reviews &&
             pReview.reviews.map((review, reviewIndex) => (

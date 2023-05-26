@@ -3,6 +3,7 @@ import useAxiosPrivateSeller from '../../hooks/useAxiosPrivateSeller'
 import useSeller from '../../hooks/useSeller'
 import { AdvancedImage } from "@cloudinary/react";
 import { cld } from "../../Cloudinary/Cloudinary";
+import { Link } from "react-router-dom";
 
 interface SellerDetails {
     shop_name?: string;
@@ -14,7 +15,7 @@ interface SellerDetails {
 const SellerProfile = () => {
 
     const axiosPrivateSeller = useAxiosPrivateSeller();
-    const { seller } = useSeller();
+    const { seller, setSeller } = useSeller();
     const [sellerDetails, setSellerDetails] = useState<SellerDetails>()
     const [disabled, setDisabled] = useState<boolean>(true)
     const [errMsg, setErrMsg] = useState<string>()
@@ -56,6 +57,15 @@ const SellerProfile = () => {
         try {
             await axiosPrivateSeller.put(`/seller/activate/${seller.seller_id}`)
             setStatus(true)
+        } catch (err: any) {
+            console.log(err)
+        }
+    }
+
+    const handleLogout = async () => {
+        try {
+            await axiosPrivateSeller.put(`/seller/logout`)
+            setSeller({});
         } catch (err: any) {
             console.log(err)
         }
@@ -139,6 +149,7 @@ const SellerProfile = () => {
                         ></div>
                     </label>
                     {status ? <p className="text-green-600">Active</p> : <p className="text-red-600">Inactive</p>}
+                    <Link to="/seller/login" onClick={handleLogout}><h1>Logout</h1></Link>
                 </div>
             </div>
             <div>
