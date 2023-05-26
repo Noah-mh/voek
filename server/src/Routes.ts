@@ -22,7 +22,7 @@ export default function (app: Express, router: Router) {
     customerController.processLogout
   );
   router.put(
-    "/customer/seller",
+    "/seller/logout",
     verifyJWT,
     verifyRoles("seller"),
     sellerController.processLogout
@@ -249,7 +249,7 @@ export default function (app: Express, router: Router) {
     customerController.processCustomerVouchers
   )
   router.delete(
-    "/customer/vouchers/:customer_voucher_id",
+    "/customer/vouchers/:customer_voucher_id/:voucher_id",
     verifyJWT,
     verifyRoles("customer"),
     customerController.processDeleteVouchers

@@ -206,10 +206,6 @@ const CustomerProfilePage = () => {
           {/* Received Orders content */}
           <CustomerVoucher />
         </TabPanel>
-        <TabPanel value={value} index={5}>
-          {/* Received Orders content */}
-          <CustomerVoucher />
-        </TabPanel>
       </Box>
     );
   }
