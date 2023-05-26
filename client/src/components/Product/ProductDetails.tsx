@@ -13,7 +13,7 @@ import { motion } from "framer-motion";
 import { AiFillHeart, AiOutlineHeart, AiFillDelete } from "react-icons/ai";
 import Rating from '@mui/material/Rating';
 import RedeemVoucher from "../RedeemVoucher/RedeemVoucher";
-
+//Noah's code
 
 interface ProductDetailProps {
   productData: Product[];

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import CloudinaryUploader from "../../Cloudinary/CloudinaryUploader";
 import { AdvancedImage } from '@cloudinary/react';
 import { cld } from '../../Cloudinary/Cloudinary';
+//Noah's code
 interface ModalProps {
     isOpen: boolean;
     onClose: () => void;
