@@ -65,12 +65,10 @@ const ManageProducts = () => {
           sku: "",
           subRows: [],
         };
-        // console.log("hi");
         let currentProductId: number = 0;
         let sellerProducts: Product[] = [];
         let currentIdx: number = -1;
         let newIsCheckedMap: boolean[][] = [];   
-        // let arr: Boolean[] = [];
 
         await Promise.all (response.data.map((item: any) => {
           // if current item is not a variation of the previous item, they will not have the same product_id. 
@@ -194,8 +192,6 @@ const ManageProducts = () => {
 
   // update isCheckedMap
   const handleToggle = async (row: any) => {
-    const productId = row.original.productId - 1;
-    // console.log("productId", productId)
     // update row.original.active
     row.original.active = !row.original.active;
     // console.log("row", row.original.active)
@@ -210,11 +206,11 @@ const ManageProducts = () => {
         
         setIsCheckedMap((prevMap: boolean[][]) => {
           const updatedMap = [...prevMap];
-          updatedMap[productId][0] = !prevMap[productId][0];
+          updatedMap[row.id][0] = !prevMap[row.id][0];
           // if subrows exist, update productVariation.active to change accordingly
           if (row.originalSubRows.length > 0) {
             for (var i = 1; i <= row.originalSubRows.length; i++) {
-              updatedMap[productId][i] = updatedMap[productId][0];
+              updatedMap[row.id][i] = updatedMap[row.id][0];
             }
           }
           // console.log("updatedMap", updatedMap)
@@ -241,7 +237,7 @@ const ManageProducts = () => {
           // console.log("no product variations")
           setIsCheckedMap((prevMap: boolean[][]) => {
             const updatedMap = [...prevMap];
-            updatedMap[productId][0] = !prevMap[productId][0];
+            updatedMap[row.id][0] = !prevMap[row.id][0];
             return updatedMap;
           });
         } else if (row.original.active && row.getParentRow()) {
@@ -249,9 +245,9 @@ const ManageProducts = () => {
           // console.log("productVariation becomes active but product inactive")
           setIsCheckedMap((prevMap: boolean[][]) => {
             const updatedMap = [...prevMap];
-            updatedMap[productId][row.index+1] = !prevMap[productId][row.index+1];
+            updatedMap[row.id][row.index+1] = !prevMap[row.id][row.index+1];
             if (!row.getParentRow().original.active) {
-              updatedMap[productId][0] = true;
+              updatedMap[row.id][0] = true;
               row.getParentRow().original.active = true;
             }
             // console.log("updatedMap", updatedMap)
@@ -269,9 +265,9 @@ const ManageProducts = () => {
           }
           setIsCheckedMap((prevMap: boolean[][]) => {
             const updatedMap = [...prevMap];
-            updatedMap[productId][row.index+1] = !prevMap[productId][row.index+1];
+            updatedMap[row.id][row.index+1] = !prevMap[row.id][row.index+1];
             if (row.getParentRow().original.active && productVariationsAllInactive) {
-              updatedMap[productId][0] = false;
+              updatedMap[row.id][0] = false;
               row.getParentRow().original.active = false;
             }
             // console.log("updatedMap", updatedMap)
@@ -339,12 +335,16 @@ const ManageProducts = () => {
         header: 'Edit',
         size: 80,
         Cell: ({ row }: { row: MRT_Row<Product> }) => (
-          <Link 
-            to="/seller/editProduct/" 
-            state={{ Product: row.original }} 
-          >
-            Edit
-          </Link>
+          <>
+            {!row.getParentRow() && (
+              <Link 
+                to="/seller/editProduct/" 
+                state={{ Product: row.original }} 
+              >
+                Edit
+              </Link>
+            )}
+          </>
         ),
       },
     ],
