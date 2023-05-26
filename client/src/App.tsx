@@ -2,7 +2,7 @@ import "./App.css";
 import { Route, Routes } from "react-router-dom";
 import Missing from "./components/Missing/Missing";
 import LoginBannerSeller from "./components/LoginBannerSeller/LoginBannerSeller.js";
-import LoginBanner from "./components/LoginBanner/Loginbanner.js";
+import LoginBanner from "./components/LoginBanner/LoginBanner.js";
 import SignupBannerCustomer from "./components/SignupBannerCustomer/SignupBannerCustomer.js";
 import Layout from "./components/Layout/Layout";
 import Homepage from "./components/Homepage/Homepage.js";

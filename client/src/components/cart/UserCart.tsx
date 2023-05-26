@@ -10,6 +10,7 @@ import { AdvancedImage } from "@cloudinary/react";
 import { cld } from "../../Cloudinary/Cloudinary";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { get } from "http";
 
 export default function cartPage(): JSX.Element {
   const { customer, setCustomer } = useCustomer();
@@ -50,11 +51,22 @@ export default function cartPage(): JSX.Element {
     country: string;
     unit_no: string;
   }
+  interface voucher {
+    voucher_id: string;
+    voucher_name: string;
+    number_amount: number;
+    percentage_amount: number;
+    voucher_category: string;
+    min_spend: number;
+    customer_voucher_id: number;
+    active: boolean;
+  }
   const [isChecked, setIsChecked] = useState<boolean>(false);
   const [isInputDisabled, setIsInputDisabled] = useState<boolean>(false);
   const [userCoins, setUserCoins] = useState<number>(0);
   const [userAddresses, setUserAddresses] = useState<userAddress[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<userAddress>();
+  const [customerVoucher, setCustomerVouchers] = useState<any[]>([]);
   const [userCart, setUserCart] = useState<cartItem[]>([]);
   const [prodQuantity, setProdQuantity] = useState<number>(0);
   const [changedSKU, setChangedSKU] = useState<string>("");
@@ -139,6 +151,16 @@ export default function cartPage(): JSX.Element {
       console.log(err);
     }
   };
+  const getCustomerVouchers = async () => {
+    try {
+      return await axiosPrivateCustomer.get(
+        `/customer/vouchers/wallet/${customer_id}`
+      );
+    } catch (err: any) {
+      console.log(err);
+    }
+  };
+
   const handleQuantityChange = (item: cartItem, change: number) => {
     const updatedCart = userCart.map((cartItem) => {
       if (cartItem.sku === item.sku) {
@@ -162,6 +184,7 @@ export default function cartPage(): JSX.Element {
         getCoins(),
         getUserCart(),
         getAddress(),
+        getCustomerVouchers(),
       ]);
       if (result[0].data.result < 10) {
         setIsInputDisabled(true);
@@ -171,6 +194,7 @@ export default function cartPage(): JSX.Element {
         setIsInputDisabled(true);
       }
       setUserAddresses(result[2].data);
+      setCustomerVouchers(result[3].data);
     } catch (err: any) {
       console.log(err);
     }
