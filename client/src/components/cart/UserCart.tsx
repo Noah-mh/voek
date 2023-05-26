@@ -10,6 +10,7 @@ import { AdvancedImage } from "@cloudinary/react";
 import { cld } from "../../Cloudinary/Cloudinary";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import VoucherModal from "./VoucherModal";
 
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -78,15 +79,15 @@ export default function cartPage(): JSX.Element {
     p: 4,
   };
 
-  const [isModalOpen, setModalOpen] = useState(false);
+  // const [isModalOpen, setModalOpen] = useState(false);
 
-  const handleOpenModal = () => {
-    setModalOpen(true);
-  };
+  // const handleOpenModal = () => {
+  //   setModalOpen(true);
+  // };
 
-  const handleCloseModal = () => {
-    setModalOpen(false);
-  };
+  // const handleCloseModal = () => {
+  //   setModalOpen(false);
+  // };
 
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
@@ -96,7 +97,7 @@ export default function cartPage(): JSX.Element {
   const [userCoins, setUserCoins] = useState<number>(0);
   const [userAddresses, setUserAddresses] = useState<userAddress[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<userAddress>();
-  const [customerVoucher, setCustomerVouchers] = useState<any[]>([]);
+  const [customerVouchers, setCustomerVouchers] = useState<any[]>([]);
   const [userCart, setUserCart] = useState<cartItem[]>([]);
   const [prodQuantity, setProdQuantity] = useState<number>(0);
   const [changedSKU, setChangedSKU] = useState<string>("");
@@ -504,7 +505,15 @@ export default function cartPage(): JSX.Element {
         theme="light"
       />
 
-      <Modal
+      {open && (
+        <VoucherModal
+          vouchers={customerVouchers}
+          open={open}
+          setOpen={setOpen}
+        />
+      )}
+
+      {/* <Modal
         open={open}
         onClose={handleClose}
         aria-labelledby="modal-modal-title"
@@ -518,7 +527,7 @@ export default function cartPage(): JSX.Element {
             Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
           </Typography>
         </Box>
-      </Modal>
+      </Modal> */}
     </div>
   );
 }
