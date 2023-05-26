@@ -3,7 +3,7 @@ import { ToastContainer, toast } from "react-toastify";
 import useAxiosPrivateCustomer from '../../hooks/useAxiosPrivateCustomer';
 import useCustomer from "../../hooks/UseCustomer"
 
-interface SellerVoucher {
+interface CustomerVoucher {
     voucher_id: number;
     voucher_name: string;
     number_amount?: number;
@@ -15,7 +15,7 @@ interface SellerVoucher {
 }
 
 interface Props {
-    voucher: SellerVoucher;
+    voucher: CustomerVoucher;
     getVouchers: () => void;
 }
 
@@ -25,7 +25,7 @@ const MyVouchers = ({ voucher, getVouchers }: Props) => {
 
     const onClickHandler = async () => {
         try {
-            await axiosPrivateCustomer.delete(`/customer/vouchers/${voucher.customer_voucher_id}`);
+            await axiosPrivateCustomer.delete(`/customer/vouchers/${voucher.customer_voucher_id}/${voucher.voucher_id}`);
             getVouchers();
         } catch (err: any) {
             console.log(err)

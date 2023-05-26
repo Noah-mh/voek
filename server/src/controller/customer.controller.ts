@@ -654,8 +654,8 @@ export const processDeleteVouchers = async (
   next: NextFunction
 ) => {
   try {
-    const { customer_voucher_id } = req.params;
-    await customerModel.handleDeleteVouchers(parseInt(customer_voucher_id));
+    const { customer_voucher_id, voucher_id } = req.params;
+    await customerModel.handleDeleteVouchers(parseInt(customer_voucher_id), parseInt(voucher_id));
     return res.sendStatus(200);
   } catch (err: any) {
     return next(err);

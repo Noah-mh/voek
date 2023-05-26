@@ -10,6 +10,7 @@ import * as cartController from "./controller/cart.controller";
 import * as orderController from "./controller/order.controller";
 import * as paypalController from "./controller/paypal.controller";
 import * as reviewController from "./controller/review.controller";
+import * as customer_sellerController from "./controller/customer_seller.controller";
 
 export default function (app: Express, router: Router) {
   // KANG RUI ENDPOINTS - user management system
@@ -21,7 +22,7 @@ export default function (app: Express, router: Router) {
     customerController.processLogout
   );
   router.put(
-    "/customer/seller",
+    "/seller/logout",
     verifyJWT,
     verifyRoles("seller"),
     sellerController.processLogout
@@ -248,7 +249,7 @@ export default function (app: Express, router: Router) {
     customerController.processCustomerVouchers
   )
   router.delete(
-    "/customer/vouchers/:customer_voucher_id",
+    "/customer/vouchers/:customer_voucher_id/:voucher_id",
     verifyJWT,
     verifyRoles("customer"),
     customerController.processDeleteVouchers
@@ -272,6 +273,33 @@ export default function (app: Express, router: Router) {
     productController.getCart
   );
 
+  router.get(
+    "/customer/ratedOrNot/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    reviewController.processGetCustomerRated
+  );
+
+  router.get(
+    "/sellerDetails/:seller_id",
+    customer_sellerController.getSellerDetails
+  );
+
+  router.get(
+    "/sellerCategories/:seller_id",
+    customer_sellerController.getSellerCategories
+  );
+
+  router.get(
+    "/sellerProducts/:seller_id",
+    customer_sellerController.getSellerProductsDetails
+  );
+
+  router.get(
+    "/sellerProducts/:seller_id/category/:category_id",
+    customer_sellerController.getSellerProductsByCategory
+  );
+
   router.post(
     "/addToCart",
     verifyJWT,
@@ -291,6 +319,13 @@ export default function (app: Express, router: Router) {
     verifyJWT,
     verifyRoles("customer"),
     reviewController.addingReviewImages
+  );
+
+  router.put(
+    "/customer/rated/:orders_product_id/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    reviewController.processCustomerRated
   );
 
   router.delete(
@@ -362,7 +397,7 @@ export default function (app: Express, router: Router) {
   router.put(
     "/updateProduct/active/:productId",
     sellerController.processUpdateProductActive
-  )
+  );
 
   // NHAT TIEN ENDPOINTS - Homepage, Last Viewed, Wishlist, Product Details
   router.post(
