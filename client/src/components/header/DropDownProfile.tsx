@@ -4,10 +4,7 @@ import useCustomer from "../../hooks/UseCustomer";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import { useNavigate } from "react-router-dom";
 
-interface Props {
-  setOpenProfile: React.Dispatch<React.SetStateAction<boolean>>
-}
-const DropDownProfile = ({ setOpenProfile }: Props) => {
+const DropDownProfile = () => {
 
   const { setCustomer } = useCustomer();
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
@@ -18,11 +15,11 @@ const DropDownProfile = ({ setOpenProfile }: Props) => {
       setCustomer({});
       await axiosPrivateCustomer.put("/customer/logout");
       navigate('/login', { replace: true });
-      setOpenProfile(false);
     } catch (err: any) {
       console.log(err)
     }
   }
+
 
   return (
     <div className="flex flex-col">

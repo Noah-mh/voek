@@ -35,6 +35,7 @@ import CategoryResults from "./components/CategoryResults/CategoryResults.js";
 import SellerProfile from "./components/SellerProfile/SellerProfile.js";
 import VerifySellerEmail from "./components/SellerProfile/VerifySellerEmail.js";
 import VerifyCustomerEmail from "./components/Customer/VerifyCustomerEmail.js";
+import SellerVouchers from "./components/SellerVouchers/SellerVouchers.js";
 import RedeemVoucher from "./components/RedeemVoucher/RedeemVoucher.js";
 import CustomerSellerProfilePage from "./components/Product/CustomerSellerProfilePage.js";
 
@@ -74,7 +75,10 @@ function App() {
           />
           <Route path="test" element={<RedeemVoucher seller_id={1} />} />
 
-          <Route path="customerSellerProfile/:seller_id" element={<CustomerSellerProfilePage />} />
+          <Route
+            path="customerSellerProfile/:seller_id"
+            element={<CustomerSellerProfilePage />}
+          />
 
           <Route element={<RequireAuthCustomer />}>
             {/* Protected Routes with persist login */}
@@ -109,12 +113,13 @@ function App() {
           <Route path="seller/signup" element={<SignupBannerSeller />} />
           <Route element={<RequireAuthSeller />}>
             <Route path="seller/home" element={<HomepageSeller />} />
-            <Route path="seller/manageProducts" element={<ManageProducts />} />
+            {/* <Route path="seller/manageProducts" element={<ManageProducts />} /> */}
             <Route path="seller/editProduct" element={<EditProduct />} />
-            <Route path="seller/addProduct" element={<AddProduct />} />
-            <Route path="seller/manageOrders" element={<ManageOrders />} />
+            {/* <Route path="seller/addProduct" element={<AddProduct />} />
+            <Route path="seller/manageOrders" element={<ManageOrders />} /> */}
             <Route path="seller/orders" element={<ViewCustomerOrders />} />
             <Route path="seller/profile" element={<SellerProfile />} />
+            <Route path="seller/vouchers" element={<SellerVouchers />} />
           </Route>
         </Route>
       </Route>

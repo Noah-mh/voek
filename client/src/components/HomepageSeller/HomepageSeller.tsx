@@ -21,9 +21,6 @@ const HomepageSeller = () => {
   return (
     <div className="flex flex-row">
       <SellerSidebar />
-      <div>HomepageSeller</div>
-
-      
     </div>
   )
 }

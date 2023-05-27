@@ -131,25 +131,27 @@ const SellerProfile = () => {
                 <div className="ml-4">
                     <h1 className="text-3xl font-bold">Seller Profile</h1>
                     <h2 className="text-xl">{sellerDetails?.shop_name}</h2>
-                </div>
-                <div className="flex">
-                    Account Status: &nbsp;
-                    <label className="inline-flex relative items-center mr-5 cursor-pointer">
-                        <input
-                            type="checkbox"
-                            className="sr-only peer"
-                            checked={status}
-                            readOnly
-                        />
-                        <div
-                            onClick={() => {
-                                !status ? activateAccount() : setModal(true)
-                            }}
-                            className="w-11 h-6 bg-gray-200 rounded-full peer  peer-focus:ring-green-300  peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"
-                        ></div>
-                    </label>
-                    {status ? <p className="text-green-600">Active</p> : <p className="text-red-600">Inactive</p>}
-                    <Link to="/seller/login" onClick={handleLogout}><h1>Logout</h1></Link>
+                    <div className="flex">
+                        Account Status: &nbsp;
+                        <label className="inline-flex relative items-center mr-5 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                className="sr-only peer"
+                                checked={status}
+                                readOnly
+                            />
+                            <div
+                                onClick={() => {
+                                    !status ? activateAccount() : setModal(true)
+                                }}
+                                className="w-11 h-6 bg-gray-200 rounded-full peer  peer-focus:ring-green-300  peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"
+                            ></div>
+                        </label>
+                        {status ? <p className="text-green-600">Active</p> : <p className="text-red-600">Inactive</p>}
+                    </div>
+                    <Link to="/seller/login" onClick={handleLogout} className="text-blue-500 hover:text-blue-700">
+                        <h1 className="text-lg font-bold">Logout</h1>
+                    </Link>
                 </div>
             </div>
             <div>

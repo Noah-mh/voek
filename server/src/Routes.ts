@@ -10,6 +10,7 @@ import * as cartController from "./controller/cart.controller";
 import * as orderController from "./controller/order.controller";
 import * as paypalController from "./controller/paypal.controller";
 import * as reviewController from "./controller/review.controller";
+import * as voucherController from "./controller/voucher.controller";
 import * as customer_sellerController from "./controller/customer_seller.controller";
 
 export default function (app: Express, router: Router) {
@@ -185,31 +186,31 @@ export default function (app: Express, router: Router) {
   router.get(
     "/seller/vouchers/:seller_id",
     sellerController.processViewVouchers
-  )
+  );
   router.get(
     "/customer/vouchers/:customer_id",
     verifyJWT,
     verifyRoles("customer"),
     customerController.processViewVouchers
-  )
+  );
   router.put(
     "/customer/vouchers/:customer_id/:voucher_id",
     verifyJWT,
     verifyRoles("customer"),
     customerController.processPutVouchers
-  )
+  );
   router.get(
     "/customer/vouchers/wallet/:customer_id",
     verifyJWT,
     verifyRoles("customer"),
     customerController.processCustomerVouchers
-  )
+  );
   router.delete(
     "/customer/vouchers/:customer_voucher_id/:voucher_id",
     verifyJWT,
     verifyRoles("customer"),
     customerController.processDeleteVouchers
-  )
+  );
 
   // NOAH ENDPOINTS - reviews, customer profile, customer address, add to cart, ratings, product details, seller details, seller categories
   router.get(
@@ -358,8 +359,8 @@ export default function (app: Express, router: Router) {
   );
 
   // NHAT TIEN ENDPOINTS - Homepage, Last Viewed, Wishlist, Product Details
-  router.post(
-    "/getWishlistItems",
+  router.get(
+    "/getWishlistItems/:customerId",
     verifyJWT,
     verifyRoles("customer"),
     productController.getWishlistItems
@@ -372,13 +373,16 @@ export default function (app: Express, router: Router) {
     productController.getLastViewedProductExistence
   );
 
-  router.post(
+  router.get(
     "/getLastViewed",
     verifyJWT,
     verifyRoles("customer"),
     productController.getLastViewed
   );
-  router.post("/productDetails", productController.processPublicProductDetails);
+  // router.post(
+  //   "/productDetails",
+  //   productController.processPublicProductDetails
+  // );
 
   router.get(
     "/getRecommendedProductsBasedOnCat/:category_id",
@@ -402,11 +406,11 @@ export default function (app: Express, router: Router) {
     "/searchBarPredictions",
     productController.getSearchBarPredictions
   );
-  router.post("/searchResult", productController.getSearchResult);
-  router.get(
-    "/productsBasedOnCategory",
-    productController.getProductsBasedOnCategory
-  );
+  router.get("/searchResult/:input", productController.getSearchResult);
+  // router.get(
+  //   "/productsBasedOnCategory",
+  //   productController.getProductsBasedOnCategory
+  // );
   router.post(
     "/insertWishlistedProduct",
     verifyJWT,
@@ -419,7 +423,7 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     productController.deleteWishlistedProduct
   );
-  router.post(
+  router.get(
     "/checkWishlistProductExistence",
     verifyJWT,
     verifyRoles("customer"),
@@ -452,15 +456,6 @@ export default function (app: Express, router: Router) {
     productController.insertLastViewedProduct
   );
 
-  router.post(
-    "/insertLastViewedProduct",
-    // verifyJWT,
-    // verifyRoles("customer"),
-    productController.insertLastViewedProduct
-  );
-
-  router.get("/getProductCat/:product_id", productController.getProductCat);
-
   router.put(
     "/updateCustomerLastViewedCat",
     // verifyJWT,
@@ -472,6 +467,22 @@ export default function (app: Express, router: Router) {
     "/getCustomerLastViewedCat/:customer_id",
     customerController.getCustomerLastViewedCat
   );
+
+  router.post("/insertVoucher", voucherController.insertVoucher);
+  router.put(
+    "/updateRedemptionsAvailable",
+    voucherController.updateRedemptionsAvailable
+  );
+  router.put("/updateVoucher", voucherController.updateVoucher);
+  router.delete("/deleteVoucher", voucherController.deleteVoucher);
+  router.get("/getVoucherCategories", voucherController.getVoucherCategories);
+  router.get("/getVouchers/:sellerId", voucherController.getVouchers);
+  router.get(
+    "/getProductRating/:product_id",
+    productController.getProductRating
+  );
+
+  // router.get("/getProductCat/:product_id", productController.getProductCat);
 
   // ALLISON'S ENDPOINTS get Cart details, altering quantity, insert payment, insert order, insert order product, update product stock, deleting cart
 

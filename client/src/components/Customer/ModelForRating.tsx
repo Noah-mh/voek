@@ -24,7 +24,20 @@ const ModalComponent: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, order
         setUploadedImageUrls(previousImageUrls => [...previousImageUrls, imageUrl]);
     };
 
+    const [error, setError] = useState({
+        rating: false,
+        comment: false
+    });
+
     const handleSubmit = () => {
+        const hasError = !rating || !comment;
+        if (hasError) {
+            setError({
+                rating: !rating,
+                comment: !comment
+            });
+            return;
+        }
         onSubmit(orders_product_id, customer_id, rating, comment, image_urls);
         onClose();
         setComment("");

@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import SellerSidebar from "../SellerSidebar/SellerSidebar.js";
 // import useSeller from "../../hooks/useSeller.js";
 
 import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller.js";
@@ -103,7 +102,6 @@ const CreateProduct = () => {
 
   return (
     <div className="flex flex-row">
-      <SellerSidebar />
 
       <div className="flex flex-column">
       <h1>Add Product</h1>
