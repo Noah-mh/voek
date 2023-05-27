@@ -68,46 +68,50 @@ const ViewSellerShipped = ({ shippedOrders }: Props) => {
                   <th className="px-4 py-3">Order Details</th>
                 </tr>
               </thead>
-              <tbody className="bg-white">
-                {
-                  orderedOrders?.map((order: any) => (
-                    <tr key={order[0].orders_id} className="text-gray-700">
-                      <td className="px-4 py-3 border">
-                        <div className="flex items-center text-sm">
-                          <div>
-                            <p className="font-semibold text-black">{order[0].username}</p>
-                            <p className="font-semibold text-black">{order[0].email}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-ms font-semibold border">{convertUtcToLocal(order[0].shipment_created)}</td>
-                      <td className="px-4 py-3 text-xs border">
-                        {
-                          order.map((order: Order) => (
-                            <div key={order.orders_product_id} className="flex items-center text-sm mb-3">
+              {
+                orderedOrders?.length ?
+                  <tbody className="bg-white">
+                    {
+                      orderedOrders?.map((order: any) => (
+                        <tr key={order[0].orders_id} className="text-gray-700">
+                          <td className="px-4 py-3 border">
+                            <div className="flex items-center text-sm">
                               <div>
-                                <h1>{order.name}</h1>
-                                {
-                                  order.variation_1 || order.variation_2 ? (
-                                    <p className="font-semibold text-black">Variation: {order.variation_1 ? order.variation_1 : null} {order.variation_2 ? '| ' + order.variation_2 : null}</p>
-                                  ) : null
-                                }
-                                <p className="text-xs text-gray-600">${order.total_price} x Qty: {order.quantity}</p>
+                                <p className="font-semibold text-black">{order[0].username}</p>
+                                <p className="font-semibold text-black">{order[0].email}</p>
                               </div>
                             </div>
-                          ))
-                        }
-                        <h1>Total Price ${getTotalAmt(order)}</h1>
-                        <Link to={`/seller/orders?orders_id=${order[0].orders_id}`}>
-                          <button className="font-bold text-sm bg-cyan-dark-blue py-2">
-                            View Order Detail
-                          </button>
-                        </Link>
-                      </td>
-                    </tr>
-                  ))
-                }
-              </tbody>
+                          </td>
+                          <td className="px-4 py-3 text-ms font-semibold border">{convertUtcToLocal(order[0].shipment_created)}</td>
+                          <td className="px-4 py-3 text-xs border">
+                            {
+                              order.map((order: Order) => (
+                                <div key={order.orders_product_id} className="flex items-center text-sm mb-3">
+                                  <div>
+                                    <h1>{order.name}</h1>
+                                    {
+                                      order.variation_1 || order.variation_2 ? (
+                                        <p className="font-semibold text-black">Variation: {order.variation_1 ? order.variation_1 : null} {order.variation_2 ? '| ' + order.variation_2 : null}</p>
+                                      ) : null
+                                    }
+                                    <p className="text-xs text-gray-600">${order.total_price} x Qty: {order.quantity}</p>
+                                  </div>
+                                </div>
+                              ))
+                            }
+                            <h1>Total Price ${getTotalAmt(order)}</h1>
+                            <Link to={`/seller/orders?orders_id=${order[0].orders_id}`}>
+                              <button className="font-bold text-sm bg-cyan-dark-blue py-2">
+                                View Order Detail
+                              </button>
+                            </Link>
+                          </td>
+                        </tr>
+                      ))
+                    }
+                  </tbody>
+                  : <h1>No Shipped Orders</h1>
+              }
             </table>
           </div>
         </div>

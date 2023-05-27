@@ -50,6 +50,7 @@ const ViewSellerOrders = ({ orders, getAll }: Props) => {
       setOrderedOrders(orderedOrdersArray)
     };
     orderOrders()
+    getAll();
   }, [orders])
 
   const getTotalAmt = (order: any) => {
@@ -87,7 +88,7 @@ const ViewSellerOrders = ({ orders, getAll }: Props) => {
                   <th className="px-4 py-3">Order Details</th>
                 </tr>
               </thead>
-              { orderedOrders?.length ? 
+              {orderedOrders?.length ?
                 <tbody className="bg-white">
                   {
                     orderedOrders?.map((order: any) => (
@@ -123,7 +124,7 @@ const ViewSellerOrders = ({ orders, getAll }: Props) => {
                               View Order Detail
                             </button>
                           </Link>
-                          <button className="ms-7 font-bold text-sm bg-cyan" onClick={() => { onClickHandler(order[0].orders_id, order[0].customer_id) }}>Pack And Ship</button>
+                          <button className="ms-7 font-bold text-sm bg-cyan" onClick={(e: any) => { e.preventDefault(); onClickHandler(order[0].orders_id, order[0].customer_id) }}>Pack And Ship</button>
                         </td>
                       </tr>
                     ))
