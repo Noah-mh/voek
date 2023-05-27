@@ -8,8 +8,7 @@ export const handlesInsertingVoucher = async (
   voucher_category: number,
   min_spend: number,
   expiration_date: string,
-  redemptions_available: number,
-  active: number
+  redemptions_available: number
 ): Promise<number> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
@@ -19,9 +18,11 @@ export const handlesInsertingVoucher = async (
   VALUES (?, ?, ?, ?, ?, ?, CAST(? AS datetime), ?, ?);`;
   let percentage_amount = null;
   let number_amount = null;
-  if (type === 1) {
+  console.log("type: ", type);
+  console.log("amount: ", amount);
+  if (type === 2) {
     percentage_amount = amount / 100;
-  } else {
+  } else if (type === 1) {
     number_amount = amount;
   }
 
@@ -35,7 +36,7 @@ export const handlesInsertingVoucher = async (
       min_spend,
       expiration_date,
       redemptions_available,
-      active,
+      1,
     ]);
     return (result[0] as any).affectedRows as number;
   } catch (err: any) {

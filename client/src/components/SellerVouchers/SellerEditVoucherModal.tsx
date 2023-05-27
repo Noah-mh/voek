@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Modal from "@mui/material/Modal";
 import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller";
 import "./css/SellerVoucherModal.css";
@@ -58,7 +58,7 @@ const SellerVoucherModal = ({
             theme: "light",
           });
         } else if (response.status === 400) {
-          toast.warn("Please Fill Up All The Text Field!", {
+          toast.warn("Please Fill Up All The Text Fields!", {
             position: "top-center",
             autoClose: 5000,
             hideProgressBar: false,
@@ -206,7 +206,7 @@ const SellerVoucherModal = ({
             {/* expiryDate */}
             <div className="relative z-0 w-full mb-6 group">
               <input
-                type="text"
+                type="date"
                 name="floating_email"
                 id="floating_email"
                 className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-softerPurple peer"
@@ -214,15 +214,19 @@ const SellerVoucherModal = ({
                 required
                 value={editedVoucher?.expiryDate}
                 onChange={(text) => {
-                  const inputDate = text.target.value;
-                  const cleanedDate = inputDate.replace(/[^0-9]/g, "");
-                  const formattedDate = cleanedDate
-                    .slice(0, 8)
-                    .replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3");
+                  // const inputDate = text.target.value;
+                  // const cleanedDate = inputDate.replace(/[^0-9]/g, "");
+                  // const formattedDate = cleanedDate
+                  //   .slice(0, 8)
+                  //   .replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3");
 
+                  // setEditedVoucher({
+                  //   ...editedVoucher,
+                  //   expiryDate: formattedDate,
+                  // });
                   setEditedVoucher({
                     ...editedVoucher,
-                    expiryDate: formattedDate,
+                    expiryDate: text.target.value,
                   });
                 }}
               />
