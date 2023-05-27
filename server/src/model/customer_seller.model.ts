@@ -69,24 +69,24 @@ export const handleSellerProductsDetails = async (
 ) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `SELECT p.product_id, 
-  p.name, 
-  pv.price,
-  pv.sku,
-  ROUND(AVG(r.rating), 2) as rating,
-  c.category_id, 
-  c.name as category_name,
-  (SELECT pi.image_url 
-   FROM product_images pi 
-   WHERE pi.sku = pv.sku 
-   LIMIT 1) as image_url
-  FROM listed_products lp
-  INNER JOIN products p ON lp.product_id = p.product_id
-  INNER JOIN product_variations pv ON p.product_id = pv.product_id
-  INNER JOIN category c ON p.category_id = c.category_id
-  LEFT JOIN review r ON pv.sku = r.sku
-  WHERE lp.seller_id = ?
-  GROUP BY p.product_id, p.name, pv.price, pv.sku, c.category_id, c.name;
+  const sql = `
+  SELECT p.product_id, 
+    p.name, 
+    ROUND(AVG(r.rating), 2) as rating,
+    (SELECT pv.price 
+     FROM product_variations pv 
+     WHERE pv.product_id = p.product_id 
+     LIMIT 1) as price,
+    (SELECT pi.image_url 
+     FROM product_images pi 
+     WHERE pi.product_id = p.product_id 
+     LIMIT 1) as image_url
+    FROM listed_products lp
+    INNER JOIN products p ON lp.product_id = p.product_id            
+    LEFT JOIN product_variations pv ON pv.product_id = p.product_id
+    LEFT JOIN review r ON pv.sku = r.sku
+    WHERE lp.seller_id = ?
+    GROUP BY p.product_id, p.name;
 `;
   try {
     const [result] = await connection.query(sql, [seller_id]);
@@ -104,24 +104,23 @@ export const handleSellerProductsByCategory = async (
 ) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `SELECT p.product_id, 
+  const sql = `  SELECT p.product_id, 
   p.name, 
-  pv.price,
-  pv.sku,
   ROUND(AVG(r.rating), 2) as rating,
-  c.category_id, 
-  c.name as category_name,
+  (SELECT pv.price 
+   FROM product_variations pv 
+   WHERE pv.product_id = p.product_id 
+   LIMIT 1) as price,
   (SELECT pi.image_url 
    FROM product_images pi 
    WHERE pi.product_id = p.product_id 
    LIMIT 1) as image_url
   FROM listed_products lp
-  INNER JOIN products p ON lp.product_id = p.product_id
-  INNER JOIN product_variations pv ON p.product_id = pv.product_id
-  INNER JOIN category c ON p.category_id = c.category_id
+  INNER JOIN products p ON lp.product_id = p.product_id            
+  LEFT JOIN product_variations pv ON pv.product_id = p.product_id
   LEFT JOIN review r ON pv.sku = r.sku
-  WHERE lp.seller_id = ? AND c.category_id =?
-  GROUP BY p.product_id, p.name, pv.price, pv.sku, c.category_id, c.name;
+  WHERE lp.seller_id = ? AND p.category_id = ?
+  GROUP BY p.product_id, p.name;
 `;
   try {
     const [result] = await connection.query(sql, [seller, category]);
