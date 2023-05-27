@@ -30,7 +30,7 @@ function TabPanel(props: TabPanelProps) {
             p: 3,
             flexGrow: 1, // make it take up the remaining space
 
-            width: "80%",
+            width: "150%",
           }}
         >
           {children}

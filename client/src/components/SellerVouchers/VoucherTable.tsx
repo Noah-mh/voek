@@ -46,7 +46,7 @@ const VoucherTable = () => {
 
   return (
     <>
-      <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+      <div className="relative overflow-x-auto shadow-md sm:rounded-lg w-full">
         <table className="w-full text-sm text-left text-gray-500">
           <caption className="p-5 text-lg font-semibold text-left text-gray-900 bg-white">
             Your Vouchers
