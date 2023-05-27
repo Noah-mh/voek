@@ -6,6 +6,7 @@ import LiveSearch from "../header/LiveSearch.js";
 import DropDownProfile from "../header/DropDownProfile.js";
 import { Link } from "react-router-dom";
 import axios from "../../api/axios.js";
+import { useLocation } from "react-router-dom";
 
 interface Props {
   isCustomer?: boolean;
@@ -41,6 +42,12 @@ const Header = ({ isCustomer, isSeller }: Props) => {
         console.log(err);
       });
   }, []);
+
+  const location = useLocation();
+  useEffect(() => {
+    setOpenProfile(false);
+  }, [location])
+
 
   return (
     <nav
@@ -121,7 +128,7 @@ const Header = ({ isCustomer, isSeller }: Props) => {
           ) : null}
         </div>
       </div>
-      {openProfile && <DropDownProfile setOpenProfile={setOpenProfile} />}
+      {openProfile && <DropDownProfile />}
     </nav>
   );
 };
