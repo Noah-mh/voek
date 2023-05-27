@@ -191,6 +191,24 @@ export const clearCart = async (
   }
 };
 
+export const processRedeemVoucher = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  console.log("Connected to processRedeemVoucher Controller");
+  try {
+    const { order_id, customer_voucher_id } = req.body;
+    console.log(req.body);
+    const response: Array<object> = await cartModel.handleRedeemVoucher(
+      order_id,
+      customer_voucher_id
+    );
+    return res.sendStatus(200);
+  } catch (err: any) {
+    return next(err);
+  }
+};
 // export const alterSKUCartDetails = async (
 //   req: Request,
 //   res: Response,

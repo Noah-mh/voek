@@ -12,10 +12,9 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import VoucherModal from "./VoucherModal";
 
-import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
-import Modal from "@mui/material/Modal";
+import { faCommentsDollar } from "@fortawesome/free-solid-svg-icons";
+import Voucher from "../RedeemVoucher/Voucher";
 
 export default function cartPage(): JSX.Element {
   const { customer, setCustomer } = useCustomer();
@@ -79,31 +78,32 @@ export default function cartPage(): JSX.Element {
     p: 4,
   };
 
-  // const [isModalOpen, setModalOpen] = useState(false);
-
-  // const handleOpenModal = () => {
-  //   setModalOpen(true);
-  // };
-
-  // const handleCloseModal = () => {
-  //   setModalOpen(false);
-  // };
-
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+
   const [isChecked, setIsChecked] = useState<boolean>(false);
   const [isInputDisabled, setIsInputDisabled] = useState<boolean>(false);
   const [userCoins, setUserCoins] = useState<number>(0);
   const [userAddresses, setUserAddresses] = useState<userAddress[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<userAddress>();
-  const [customerVouchers, setCustomerVouchers] = useState<any[]>([]);
+  const [customerVouchers, setCustomerVouchers] = useState<voucher[]>([]);
+  const [groupItems, setGroupItems] = useState<{ [key: number]: cartItem[] }>(
+    {}
+  );
+  const [groupItemsPrice, setGroupItemsPrice] = useState<{
+    [key: number]: number;
+  }>({});
   const [userCart, setUserCart] = useState<cartItem[]>([]);
   const [prodQuantity, setProdQuantity] = useState<number>(0);
   const [changedSKU, setChangedSKU] = useState<string>("");
   const [paypalCN, setPaypalCN] = useState<string>(
     "pointer-events-none opacity-50"
   );
+  const [claimedVouchers, setClaimedVouchers] = useState<{
+    [key: string]: { [key: number]: boolean };
+  }>({});
+
   const [changedQuantState, setChangedQuantState] = useState<boolean>(false);
   const [cartisEmpty, setCartisEmpty] = useState<boolean>(false);
 
@@ -124,7 +124,7 @@ export default function cartPage(): JSX.Element {
   const getCoins = async () => {
     try {
       return await axiosPrivateCustomer.get(
-        `/customer/getUserCoins/${customer_id}`
+        `/customer/cart/getUserCoins/${customer_id}`
       );
     } catch (err: any) {
       console.log(err);
@@ -133,41 +133,31 @@ export default function cartPage(): JSX.Element {
   const getUserCart = async () => {
     try {
       return await axiosPrivateCustomer
-        .get(`/customer/getCart/${customer_id}`)
+        .get(`/customer/cart/getCart/${customer_id}`)
         .then((res) => {
-          const sum = res.data
-            .reduce((acc: number, item: cartItem) => {
-              return acc + item.price * item.quantity;
-            }, 0)
+          // const sum = res.data
+          //   .reduce((acc: number, item: cartItem) => {
+          //     return acc + item.price * item.quantity;
+          //   }, 0)
 
-            .toFixed(2);
+          //   .toFixed(2);
           if (res.data.length === 0) {
             setCartisEmpty(true);
             setIsInputDisabled(true);
             setPaypalCN("pointer-events-none opacity-50");
           }
-          setTotalAmt({
-            subTotal: Number(sum),
-            shippingFee:
-              sum == 0
-                ? 0
-                : Number(
-                    (Math.round((8.95 + sum * 0.1) * 100) / 100).toFixed(2)
-                  ),
 
-            total:
-              sum == 0
-                ? 0
-                : Number(
-                    (
-                      Math.round(Number(sum) * 100) / 100 +
-                      Math.round((8.95 + sum * 0.1) * 100) / 100
-                    ).toFixed(2)
-                  ),
-            coins: Number(Math.ceil(sum * 0.1)),
-          });
-
-          setUserCart(res.data);
+          if (res.data.length > 0) {
+            const tempGroupedItems: { [key: number]: cartItem[] } = {};
+            res.data.forEach((item: cartItem) => {
+              const seller_id = item.seller_id;
+              if (!tempGroupedItems[seller_id]) {
+                tempGroupedItems[seller_id] = [];
+              }
+              tempGroupedItems[seller_id].push(item);
+            });
+            setGroupItems(tempGroupedItems);
+          }
         });
     } catch (err: any) {
       console.log(err);
@@ -193,20 +183,25 @@ export default function cartPage(): JSX.Element {
   };
 
   const handleQuantityChange = (item: cartItem, change: number) => {
-    const updatedCart = userCart.map((cartItem) => {
-      if (cartItem.sku === item.sku) {
-        const newItem: cartItem = {
-          ...cartItem,
-          quantity: cartItem.quantity + change,
-        };
-        setChangedSKU(newItem.sku);
-        setProdQuantity(newItem.quantity);
-        setChangedQuantState(true);
-        return newItem;
-      }
-      return cartItem;
+    const updatedGroupedCart = Object.keys(groupItems).map((sellerId) => {
+      const updatedItems = groupItems[parseInt(sellerId)].map(
+        (cartItem: cartItem) => {
+          if (cartItem.sku === item.sku) {
+            const newItem: cartItem = {
+              ...cartItem,
+              quantity: cartItem.quantity + change,
+            };
+            setChangedSKU(newItem.sku);
+            setProdQuantity(newItem.quantity);
+            setChangedQuantState(true);
+            return newItem;
+          }
+          return cartItem;
+        }
+      );
+      return { [sellerId]: updatedItems }; // Return the updated items within an object
     });
-    setUserCart(updatedCart);
+    setGroupItems(Object.assign({}, ...updatedGroupedCart)); // Merge the updated items into a single object
   };
 
   const getAll = async () => {
@@ -225,7 +220,8 @@ export default function cartPage(): JSX.Element {
         setIsInputDisabled(true);
       }
       setUserAddresses(result[2].data);
-      setCustomerVouchers(result[3].data);
+
+      setCustomerVouchers(result[3].data.vouchers);
     } catch (err: any) {
       console.log(err);
     }
@@ -241,6 +237,7 @@ export default function cartPage(): JSX.Element {
             cartItems: userCart, // sku, product_id, name, quantity, price, image_url, variation_1, variation_2, stock
             coinsRedeemed: userCoins, //coins existing in user
             addressSelected: selectedAddress,
+            claimedVouchers: claimedVouchers,
           },
         };
       });
@@ -253,6 +250,7 @@ export default function cartPage(): JSX.Element {
             cartItems: userCart,
             coinsRedeemed: 0,
             addressSelected: selectedAddress,
+            claimedVouchers: claimedVouchers,
           },
         };
       });
@@ -282,7 +280,7 @@ export default function cartPage(): JSX.Element {
     }
     const alterQuantFnc = async () => {
       try {
-        await axiosPrivateCustomer.put("/customer/alterQuantCart", {
+        await axiosPrivateCustomer.put("/customer/cart/alterQuantCart", {
           customer_id,
           sku: changedSKU,
           quantity: prodQuantity,
@@ -313,6 +311,153 @@ export default function cartPage(): JSX.Element {
     }
   }, [isChecked]);
 
+  useEffect(() => {
+    let sum = 0;
+    Object.keys(groupItems).map((sellerId) => {
+      const sumOfSeller = groupItems[parseInt(sellerId)].reduce(
+        (total, item) => total + item.price * item.quantity,
+        0
+      );
+      sum += sumOfSeller;
+      setGroupItemsPrice((prevState) => {
+        return {
+          ...prevState,
+          [sellerId]: Number(sumOfSeller.toFixed(2)),
+        };
+      });
+    });
+    setTotalAmt({
+      subTotal: Number(sum),
+      shippingFee:
+        sum == 0
+          ? 0
+          : Number((Math.round((8.95 + sum * 0.1) * 100) / 100).toFixed(2)),
+
+      total: sum == 0 ? 0 : Number(Number(sum + (8.95 + sum * 0.1)).toFixed(2)),
+      coins: Number(Math.ceil(sum * 0.1)),
+    });
+  }, [groupItems]);
+
+  useEffect(() => {
+    if (totalAmt.subTotal < 0) {
+      setTotalAmt({
+        ...totalAmt,
+        subTotal: 0,
+      });
+    }
+    if (totalAmt.total < 0) {
+      setTotalAmt({
+        ...totalAmt,
+        total: 0,
+      });
+    }
+  }, [totalAmt]);
+  useEffect(() => {
+    console.log(claimedVouchers);
+    console.log("^^");
+    if (customerVouchers.length !== 0) {
+      const claimedVoucherKeys = Object.keys(claimedVouchers);
+      claimedVoucherKeys.map((sellerId) => {
+        const voucher = customerVouchers.find((voucher: voucher) => {
+          return (
+            voucher.customer_voucher_id ===
+            parseInt(Object.keys(claimedVouchers[sellerId])[0])
+          );
+        });
+        if (totalAmt.subTotal)
+          if (voucher) {
+            switch (voucher.voucher_category) {
+              case "Shipping": {
+                if (voucher.number_amount) {
+                  const discAmt = voucher.number_amount;
+
+                  setTotalAmt((prevState) => ({
+                    ...prevState,
+                    shippingFee: Number(
+                      (prevState.shippingFee - discAmt).toFixed(2)
+                    ),
+
+                    total: Number((prevState.total - discAmt).toFixed(2)),
+                  }));
+                } else {
+                  setTotalAmt((prevState) => {
+                    const newShippingAmt =
+                      prevState.shippingFee * (1 - voucher.percentage_amount);
+                    return {
+                      ...prevState,
+                      shippingFee: Number(newShippingAmt.toFixed(2)),
+
+                      total: Number(
+                        (
+                          prevState.total - Number(newShippingAmt.toFixed(2))
+                        ).toFixed(2)
+                      ),
+                    };
+                  });
+                }
+                break;
+              }
+              case "Coins": {
+                const discAmt = voucher.number_amount;
+                setTotalAmt((prevState) => ({
+                  ...prevState,
+                  coins: Number((prevState.coins + discAmt).toFixed(2)),
+                }));
+                break;
+              }
+              case "Price": {
+                if (voucher.number_amount) {
+                  const discAmt = voucher.number_amount;
+                  setGroupItemsPrice((prevState) => ({
+                    ...prevState,
+                    [sellerId]:
+                      Number(
+                        (prevState[parseInt(sellerId)] - discAmt).toFixed(2)
+                      ) || 0,
+                  }));
+                  setTotalAmt((prevState) => {
+                    return {
+                      ...prevState,
+                      subTotal: Number(
+                        (prevState.subTotal - discAmt).toFixed(2)
+                      ),
+                      total: Number((prevState.total - discAmt).toFixed(2)),
+                    };
+                  });
+                } else {
+                  let discAmt = 0;
+                  setGroupItemsPrice((prevState) => {
+                    const newTotalPriceAmt =
+                      prevState[parseInt(sellerId)] *
+                      (1 - voucher.percentage_amount);
+                    discAmt =
+                      prevState[parseInt(sellerId)] * voucher.percentage_amount;
+                    return {
+                      ...prevState,
+                      [sellerId]: Number(newTotalPriceAmt.toFixed(2)),
+                    };
+                  });
+                  setTotalAmt((prevState) => {
+                    return {
+                      ...prevState,
+                      subTotal: Number(
+                        (prevState.subTotal - discAmt).toFixed(2)
+                      ),
+                      total: Number((prevState.total - discAmt).toFixed(2)),
+                    };
+                  });
+                }
+                break;
+              }
+              default: {
+                console.log("useEffect voucher problems bro");
+              }
+            }
+          }
+      });
+    }
+  }, [claimedVouchers]);
+
   return (
     <div className="container flex">
       <div className="w-2/3 bg-white rounded-lg shadow-lg p-2">
@@ -329,73 +474,92 @@ export default function cartPage(): JSX.Element {
             </div>
           </div>
         )}
-        {cartisEmpty && (
+        {cartisEmpty && ( //CHANGE: can remove
           <div className="font-bold text-xl text-gray-300 flex justify-center h-full items-center">
             No cart items to retrieve.
           </div>
         )}
-
-        {userCart.map((item: cartItem) => (
-          <Link
-            to={"/productDetailsWithReviews/" + item.product_id}
-            className="grid grid-cols-5 gap-4 py-4 prodCont"
-            key={item.sku}
-          >
-            <div className="col-span-2 sm:col-span-1">
-              {item.image_url == null ? (
-                <img src={noImage} alt="product Image" />
+        {Object.keys(groupItems).map((sellerId) => (
+          <div key={sellerId} className="border-b-2 mb-2">
+            SELLER: {sellerId}
+            {groupItems[parseInt(sellerId)].map((item: cartItem) => (
+              <Link
+                to={"/productDetailsWithReviews/" + item.product_id}
+                className="grid grid-cols-5 gap-4 py-4 prodCont"
+                key={item.sku}
+              >
+                <div className="col-span-2 sm:col-span-1">
+                  {item.image_url == null ? (
+                    <img src={noImage} alt="product Image" />
+                  ) : (
+                    <AdvancedImage
+                      cldImg={cld.image(item.image_url)}
+                      alt="product image"
+                      draggable={false}
+                      className="rounded-xl object-cover cartImg"
+                    />
+                  )}
+                </div>
+                <div className="col-span-2 sm:col-span-1">{item.name}</div>
+                <div className="col-span-2 sm:flex-row sm:col-span-1">
+                  <div className="mr-4">
+                    {item.variation_1 ? item.variation_1 : "-"}
+                  </div>
+                  <div>{item.variation_2 ? item.variation_2 : "-"}</div>
+                </div>
+                <div className="col-span-2 sm:col-span-1">${item.price}</div>
+                <div className="col-span-3 sm:col-span-1">
+                  <button
+                    className="text-sm border px-1 py-0.5 mx-2"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      handleQuantityChange(item, -1);
+                    }}
+                  >
+                    -
+                  </button>
+                  {item.quantity}
+                  <button
+                    className="text-sm border  px-2 py-1 mx-2"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      if (item.quantity >= item.stock) {
+                        toast.warn("Max Stock reached", {
+                          position: "top-center",
+                          autoClose: 5000,
+                          hideProgressBar: false,
+                          closeOnClick: true,
+                          pauseOnHover: true,
+                          draggable: true,
+                          progress: undefined,
+                          theme: "light",
+                        });
+                      } else {
+                        handleQuantityChange(item, 1);
+                      }
+                    }}
+                  >
+                    +
+                  </button>
+                </div>
+              </Link>
+            ))}
+            <div className="justify-between flex border-t-2 font-semibold">
+              {claimedVouchers[sellerId] ? (
+                <div className="font-bold text-xs text-center pt-1">
+                  * Discount Applied
+                </div>
               ) : (
-                <AdvancedImage
-                  cldImg={cld.image(item.image_url)}
-                  alt="product image"
-                  draggable={false}
-                  className="rounded-xl object-cover cartImg"
-                />
+                <div></div>
               )}
+              ${groupItemsPrice[parseInt(sellerId)]}
             </div>
-            <div className="col-span-2 sm:col-span-1">{item.name}</div>
-            <div className="col-span-2 sm:flex-row sm:col-span-1">
-              <div className="mr-4">
-                {item.variation_1 ? item.variation_1 : "-"}
+            {/* {claimedVouchers[sellerId] && (
+              <div className="flex justify-center uppercase bg-gray-500 text-white font-barlow text-xs font-semibold">
+                *Voucher Discount Has been applied
               </div>
-              <div>{item.variation_2 ? item.variation_2 : "-"}</div>
-            </div>
-            <div className="col-span-2 sm:col-span-1">${item.price}</div>
-            <div className="col-span-3 sm:col-span-1">
-              <button
-                className="text-sm border px-2 py-1 mx-2"
-                onClick={(event) => {
-                  event.preventDefault();
-                  handleQuantityChange(item, -1);
-                }}
-              >
-                -
-              </button>
-              {item.quantity}
-              <button
-                className="text-sm border  px-2 py-1 mx-2"
-                onClick={(event) => {
-                  event.preventDefault();
-                  if (item.quantity >= item.stock) {
-                    toast.warn("Max Stock reached", {
-                      position: "top-center",
-                      autoClose: 5000,
-                      hideProgressBar: false,
-                      closeOnClick: true,
-                      pauseOnHover: true,
-                      draggable: true,
-                      progress: undefined,
-                      theme: "light",
-                    });
-                  } else {
-                    handleQuantityChange(item, 1);
-                  }
-                }}
-              >
-                +
-              </button>
-            </div>
-          </Link>
+            )} */}
+          </div>
         ))}
       </div>
       <div className="right w-1/3 p-5 bg-softerPurple">
@@ -463,6 +627,10 @@ export default function cartPage(): JSX.Element {
                       }
                     : null
                 }
+                styles={{
+                  // Fixes the overlapping problem of the component
+                  menu: (provided) => ({ ...provided, zIndex: 9999 }),
+                }}
                 onChange={(option) => {
                   setSelectedAddress(option?.value || userAddresses[0]);
                   if (totalAmt.total != 0) {
@@ -510,24 +678,13 @@ export default function cartPage(): JSX.Element {
           vouchers={customerVouchers}
           open={open}
           setOpen={setOpen}
+          totalAmt={totalAmt}
+          claimedVouchers={claimedVouchers}
+          setClaimedVouchers={setClaimedVouchers}
+          groupItems={groupItems}
+          getUserCart={getUserCart}
         />
       )}
-
-      {/* <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
-        <Box sx={style}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            Text in a modal
-          </Typography>
-          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-            Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-          </Typography>
-        </Box>
-      </Modal> */}
     </div>
   );
 }

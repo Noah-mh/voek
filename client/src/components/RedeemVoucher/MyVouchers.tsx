@@ -4,31 +4,32 @@ import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import useCustomer from "../../hooks/UseCustomer";
 
 interface CustomerVoucher {
-    voucher_id: number;
-    voucher_name: string;
-    number_amount?: number;
-    percentage_amount?: number;
-    voucher_category: string;
-    min_spend: number;
-    customer_voucher_id: number;
-    active: number;
+  voucher_id: number;
+  voucher_name: string;
+  number_amount?: number;
+  percentage_amount?: number;
+  voucher_category: string;
+  min_spend: number;
+  customer_voucher_id: number;
+  active: number;
 }
 
 interface Props {
-    voucher: CustomerVoucher;
-    getVouchers: () => void;
+  voucher: CustomerVoucher;
+  getVouchers: () => void;
 }
 
 const MyVouchers = ({ voucher, getVouchers }: Props) => {
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
 
-    const onClickHandler = async () => {
-        try {
-            await axiosPrivateCustomer.delete(`/customer/vouchers/${voucher.customer_voucher_id}/${voucher.voucher_id}`);
-            getVouchers();
-        } catch (err: any) {
-            console.log(err)
-        }
+  const onClickHandler = async () => {
+    try {
+      await axiosPrivateCustomer.delete(
+        `/customer/vouchers/${voucher.customer_voucher_id}/${voucher.voucher_id}`
+      );
+      getVouchers();
+    } catch (err: any) {
+      console.log(err);
     }
   };
 

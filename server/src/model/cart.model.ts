@@ -238,6 +238,28 @@ export const handleClearCart = async (customer_id: number): Promise<any> => {
     await connection.release();
   }
 };
+
+export const handleRedeemVoucher = async (
+  customer_voucher_id: number,
+  order_id: number
+): Promise<any> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `UPDATE customer_voucher SET orders_id = ?, redeemed = 0  WHERE customer_voucher_id = ? `;
+
+  try {
+    const [result] = await connection.query(sql, [
+      order_id,
+      customer_voucher_id,
+    ]);
+    console.log("Handle Redeem Voucher Successful ");
+    return (result as OkPacket).affectedRows as number;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
 // NHAT TIEN :D
 export const handlesInsertCart = async (
   quantity: number,

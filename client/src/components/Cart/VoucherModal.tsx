@@ -3,6 +3,8 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import { useEffect, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import { get } from "http";
 
 interface Voucher {
   seller_id: number;
@@ -20,33 +22,40 @@ interface VoucherModalProps {
   vouchers: any;
   open: boolean;
   setOpen: (bool: boolean) => void;
+  totalAmt: {
+    subTotal: number;
+    shippingFee: number;
+    coins: number;
+    total: number;
+  };
+  claimedVouchers: { [key: string]: { [key: number]: boolean } }; // Updated type definition
+  setClaimedVouchers: (claimedVouchers: {
+    [key: string]: { [key: number]: boolean };
+  }) => void; // Updated type definition
+  groupItems: any;
+  getUserCart: () => void;
 }
 
-const style = {
-  position: "absolute" as "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: 400,
-  bgcolor: "background.paper",
-  border: "2px solid #000",
-  boxShadow: 24,
-  p: 4,
-  overflow: "hidden",
-};
-
-const VoucherModal = ({ vouchers, open, setOpen }: VoucherModalProps) => {
-  // const groupedVouchers: { [key: number]: Voucher[] } = {};
-
+const VoucherModal = ({
+  vouchers,
+  open,
+  setOpen,
+  totalAmt,
+  claimedVouchers,
+  setClaimedVouchers,
+  groupItems,
+  getUserCart,
+}: VoucherModalProps) => {
   const [groupedVouchers, setGroupedVouchers] = useState<{
     [key: number]: Voucher[];
   }>({});
 
   useEffect(() => {
+    //if have time, get seller username and display it instead of the id
     console.log("VoucherModal vouchers: ", vouchers);
-    if (vouchers.vouchers.length > 0) {
+    if (vouchers.length > 0) {
       const tempGroupedVouchers: { [key: number]: Voucher[] } = {};
-      vouchers.vouchers.forEach((voucher: Voucher) => {
+      vouchers.forEach((voucher: Voucher) => {
         const seller_id = voucher.seller_id;
         if (!tempGroupedVouchers[seller_id]) {
           tempGroupedVouchers[seller_id] = [];
@@ -57,6 +66,61 @@ const VoucherModal = ({ vouchers, open, setOpen }: VoucherModalProps) => {
     }
     console.log(groupedVouchers);
   }, [vouchers]);
+
+  const voucherClaimed = (voucher: Voucher, sellerId: number) => () => {
+    console.log("voucher claimed: ", voucher);
+    if (
+      claimedVouchers[sellerId] &&
+      claimedVouchers[sellerId]?.[voucher.customer_voucher_id]
+    ) {
+      const {
+        [voucher.customer_voucher_id]: removedVoucher,
+        ...updatedVouchers
+      } = claimedVouchers[sellerId];
+
+      setClaimedVouchers({
+        ...claimedVouchers,
+        [sellerId]: updatedVouchers,
+      });
+
+      if (Object.keys(updatedVouchers).length === 0) {
+        // If there are no more vouchers claimed for this seller, remove the seller from claimedVouchers
+        const { [sellerId]: _, ...updatedClaimedVouchers } = claimedVouchers;
+        setClaimedVouchers(updatedClaimedVouchers);
+        toast.warn("Voucher has been unclaimed.", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+        getUserCart();
+        return;
+      }
+    } else {
+      // Voucher is being claimed, mark it as claimed in claimedVouchers
+      setClaimedVouchers({
+        ...claimedVouchers,
+        [sellerId]: {
+          ...(claimedVouchers[sellerId] || {}),
+          [voucher.customer_voucher_id]: true,
+        },
+      });
+      toast.success("Voucher claimed!", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
+  };
 
   return (
     <>
@@ -73,7 +137,7 @@ const VoucherModal = ({ vouchers, open, setOpen }: VoucherModalProps) => {
             id="modal-modal-title"
             variant="h6"
             component="h2"
-            className="text-purpleAccent font-Barlow font-extrabold "
+            className="text-purpleAccent font-Barlow font-extrabold  "
           >
             Voucher Wallet:
           </Typography>
@@ -82,10 +146,9 @@ const VoucherModal = ({ vouchers, open, setOpen }: VoucherModalProps) => {
             sx={{ mt: 2 }}
             className="modalBoxValues"
           >
-            hello
-            {vouchers.vouchers.length > 0 ? (
+            {vouchers.length > 0 ? (
               Object.keys(groupedVouchers).map((sellerId) => (
-                <div key={sellerId} className="shadow-md rounded-lg p-2">
+                <div key={sellerId} className=" border-2 rounded-lg p-2 mb-4">
                   <Typography
                     variant="subtitle1"
                     component="h3"
@@ -94,39 +157,72 @@ const VoucherModal = ({ vouchers, open, setOpen }: VoucherModalProps) => {
                     Seller ID: {sellerId}
                   </Typography>
                   {groupedVouchers[parseInt(sellerId)].map((voucher, index) => (
-                    <div key={index} className="p-3">
-                      <h1 className="font-bold">
-                        {index + 1}. {voucher.voucher_name}
-                      </h1>
-                      <h2 className="text-md text-gray-500">
-                        {voucher.voucher_category}
-                      </h2>
-                      {voucher.number_amount ? (
-                        <h2 className="text-lg mb-3">
-                          Get ${voucher.number_amount} off
+                    <div
+                      key={index}
+                      className="grid grid-cols-3 gap-4 border-b-2 pb-2 p-3"
+                    >
+                      <div className="col-span-2">
+                        <h1 className="font-bold">
+                          {index + 1}. {voucher.voucher_name}
+                        </h1>
+                        <h2 className="text-sm text-gray-500">
+                          {voucher.voucher_category}
                         </h2>
+                        {voucher.voucher_category === "Coins" ? (
+                          <h2 className="text-lg mb">
+                            Get {voucher.number_amount} coins after your
+                            purchase!
+                          </h2>
+                        ) : voucher.voucher_category === "Price" ? (
+                          voucher.number_amount ? (
+                            <h2 className="text-lg mb">
+                              Get ${voucher.number_amount} off
+                            </h2>
+                          ) : (
+                            <h2 className="text-lg mb">
+                              Get {voucher.percentage_amount * 100} off
+                            </h2>
+                          )
+                        ) : (
+                          <h2 className="text-lg mb">
+                            Get{" "}
+                            {voucher.percentage_amount &&
+                              voucher.percentage_amount * 100}
+                            % off
+                          </h2>
+                        )}
+
+                        <div className="font-sans text-black">
+                          Min. spend of ${voucher.min_spend}
+                        </div>
+                      </div>
+                      {voucher.min_spend > totalAmt.subTotal ||
+                      !groupItems.hasOwnProperty(voucher.seller_id) ? (
+                        <button className="opacity-40" disabled>
+                          <span className="bg-purpleAccent  p-2 px-4 font-Barlow font-semibold uppercase text-white rounded-sm text-xs">
+                            Claim
+                          </span>
+                        </button>
                       ) : (
-                        <h2 className="text-lg mb-3">
-                          Get{" "}
-                          {voucher.percentage_amount &&
-                            voucher.percentage_amount * 100}
-                          % off
-                        </h2>
+                        <button
+                          className={
+                            claimedVouchers[voucher.seller_id]?.[
+                              voucher.customer_voucher_id
+                            ]
+                              ? "opacity-40"
+                              : ""
+                          }
+                          onClick={voucherClaimed(voucher, parseInt(sellerId))}
+                        >
+                          <span className="bg-purpleAccent  p-2 px-4 font-Barlow font-semibold uppercase text-white rounded-sm text-xs">
+                            {claimedVouchers[voucher.seller_id]?.[
+                              voucher.customer_voucher_id
+                            ]
+                              ? "Claimed"
+                              : "Claim"}
+                          </span>
+                        </button>
                       )}
-                      {/* <div className="font-semibold">
-                        {voucher.percentage_amount && (
-                          <div>
-                            Get {voucher.number_amount * 100}% off your order!
-                          </div>
-                        )}
-                        {voucher.number_amount && (
-                          <div>
-                            Earn {voucher.number_amount} more coins from your
-                            order!
-                          </div>
-                        )}
-                      </div> */}
-                      <div className="">Min. spend of ${voucher.min_spend}</div>
                     </div>
                   ))}
                 </div>
@@ -137,6 +233,18 @@ const VoucherModal = ({ vouchers, open, setOpen }: VoucherModalProps) => {
           </Typography>
         </Box>
       </Modal>
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </>
   );
 };

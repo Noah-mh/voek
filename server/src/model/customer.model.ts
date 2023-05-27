@@ -897,20 +897,6 @@ export const handleRedeemVoucher = async (voucher_id: number) => {
   }
 };
 
-export const handleRedeemVoucher = async (voucher_id: number) => {
-  const promisePool = pool.promise();
-  const connection = await promisePool.getConnection();
-  const sql = `UPDATE seller_voucher SET redemptions_available = redemptions_available - 1 WHERE voucher_id = ?;`;
-  try {
-    await connection.query(sql, [voucher_id]);
-    return;
-  } catch (err: any) {
-    throw new Error(err);
-  } finally {
-    await connection.release();
-  }
-};
-
 export const handleCustomerVouchers = async (
   customer_id: number
 ): Promise<Object[]> => {
@@ -975,7 +961,7 @@ export const handleRefundVouchers = async (customer_voucher_id: number) => {
   try {
     await Promise.all([
       connection.query(sql, [customer_voucher_id]),
-      handleRefundVouchers(voucher_id),
+      handleRefundVouchers(customer_voucher_id),
     ]);
     return;
   } catch (err: any) {

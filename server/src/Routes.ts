@@ -484,66 +484,66 @@ export default function (app: Express, router: Router) {
 
   // router.get("/getProductCat/:product_id", productController.getProductCat);
 
-  // ALLISON'S ENDPOINTS get Cart details, altering quantity, insert payment, insert order, insert order product, update product stock, deleting cart
+  // ALLISON'S ENDPOINTS get Cart details, altering quantity, insert payment, insert order, insert order product, update product stock, deleting cart, redeem voucher
 
   router.get(
-    "/customer/getCart/:customer_id",
+    "/customer/cart/getCart/:customer_id",
     verifyJWT,
     verifyRoles("customer"),
     cartController.retrieveCartDetails
   );
 
   router.put(
-    "/customer/alterQuantCart",
+    "/customer/cart/alterQuantCart",
     verifyJWT,
     verifyRoles("customer"),
     cartController.alterQuantCartDetails
   );
   router.post(
-    "/customer/insertPayment",
+    "/customer/order/insertPayment",
     verifyJWT,
     verifyRoles("customer"),
     cartController.insertPayment
   );
 
   router.post(
-    "/customer/insertOrder",
+    "/customer/order/insertOrder",
     verifyJWT,
     verifyRoles("customer"),
     cartController.insertOrder
   );
   router.post(
-    "/customer/insertOrderProduct",
+    "/customer/order/insertOrderProduct",
     verifyJWT,
     verifyRoles("customer"),
     cartController.insertOrderProduct
   );
   router.put(
-    "/customer/updateProductStock",
+    "/customer/order/updateProductStock",
     verifyJWT,
     verifyRoles("customer"),
     cartController.updateProductStock
   );
   router.put(
-    "/customer/updateCustomerCoins",
+    "/customer/order/updateCustomerCoins",
     verifyJWT,
     verifyRoles("customer"),
     cartController.updateCustomerCoins
   );
   router.post(
-    "/customer/insertShipment",
+    "/customer/order/insertShipment",
     verifyJWT,
     verifyRoles("customer"),
     cartController.insertShipment
   );
   router.put(
-    "/customer/clearCart",
+    "/customer/order/clearCart",
     verifyJWT,
     verifyRoles("customer"),
     cartController.clearCart
   );
   router.get(
-    "/customer/getUserCoins/:customer_id",
+    "/customer/cart/getUserCoins/:customer_id",
     verifyJWT,
     verifyRoles("customer"),
     customerController.processGetCoins
@@ -565,5 +565,11 @@ export default function (app: Express, router: Router) {
     verifyJWT,
     verifyRoles("customer"),
     paypalController.processCapturePaypalOrder
+  );
+  router.put(
+    "/customer/order/redeemVoucher",
+    verifyJWT,
+    verifyRoles("customer"),
+    cartController.processRedeemVoucher
   );
 }
