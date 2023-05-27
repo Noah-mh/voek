@@ -67,7 +67,6 @@ const ManageOrders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [shippedOrders, setShippedOrders] = useState<Order[]>([]);
   const [deliveredOrders, setDeliveredOrders] = useState<Order[]>([]);
-  const [activeComponent, setActiveComponent] = useState<string>('orders');
   const [value, setValue] = useState<number>(0);
 
 
