@@ -721,6 +721,7 @@ GROUP BY
   }
 };
 
+//Noah
 export const handleCustomerProfileEdit = async (
   username: string,
   email: string,
@@ -812,6 +813,7 @@ export const handleCustomerAddressAdd = async (
   }
 };
 
+//Noah
 export const handleCustomerAddressUpdate = async (
   address_id: number,
   postal_code: string,
@@ -851,6 +853,7 @@ export const handleCustomerAddressUpdate = async (
   }
 };
 
+//Noah
 export const handleCustomerAddressDelete = async (
   address_id: number,
   customer_id: number

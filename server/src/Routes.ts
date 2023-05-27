@@ -255,7 +255,7 @@ export default function (app: Express, router: Router) {
     customerController.processDeleteVouchers
   )
 
-  // NOAH ENDPOINTS - reviews, customer profile, customer address, add to cart
+  // NOAH ENDPOINTS - reviews, customer profile, customer address, add to cart, ratings, product details, seller details, seller categories
   router.get(
     "/productDetailsWithoutReviews/:product_id",
     productController.getProductDetailsWithoutReviews

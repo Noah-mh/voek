@@ -13,7 +13,7 @@ import { motion } from "framer-motion";
 import { AiFillHeart, AiOutlineHeart, AiFillDelete } from "react-icons/ai";
 import Rating from '@mui/material/Rating';
 import RedeemVoucher from "../RedeemVoucher/RedeemVoucher";
-
+//Noah's code
 
 interface ProductDetailProps {
   productData: Product[];
@@ -39,10 +39,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
   const { customer } = useCustomer();
   const customer_id = customer.customer_id;
-
-  const [selectedVariation, setSelectedVariation] = useState<string | null>(
-    null
-  );
   const [quantity, setQuantity] = useState<number>(1);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [price, setPrice] = useState<number | null>(
@@ -53,6 +49,24 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
   );
   const [heart, setHeart] = useState<boolean>(false);
 
+  const options = productData[0].variations!.reduce<{ label: string; value: string; sku: string }[]>(
+    (options, variation: ProductVariation) => {
+      if (variation.variation_1) {
+        const compoundKey = variation.variation_2
+          ? `${variation.variation_1} / ${variation.variation_2}`
+          : variation.variation_1;
+
+        options.push({
+          value: compoundKey,
+          label: compoundKey,
+          sku: variation.sku,
+        });
+      }
+
+      return options;
+    }, []);
+
+  const [selectedVariation, setSelectedVariation] = useState(options[0]?.value || null);
   useEffect(() => {
     if (customer_id != undefined) {
       axiosPrivateCustomer.get(`getCartDetails/${customer_id}?sku=${selectedSku}`)
@@ -63,9 +77,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
     }
 
     if (selectedVariation) {
-
-
-
       const selectedProduct = productData.find((product) =>
         product.variations?.some((variation) => {
           const combinedKey = variation.variation_2
@@ -395,7 +406,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             </Carousel>
           )}
           <h3>Description: {pData.description}</h3>
-          <h2>Price: {price}</h2>
+          <h2>Price: $ {price}</h2>
 
           <div>
             {hasValidVariation && (
@@ -405,7 +416,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                     ? {
                       label: selectedVariation,
                       value: selectedVariation,
-                      sku: "",
+                      sku: selectedSku,
                     }
                     : null
                 }
@@ -413,24 +424,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                   setSelectedVariation(option?.value || null);
                   setSelectedSku(option?.sku || null);
                 }}
-                options={pData.variations!.reduce<
-                  { label: string; value: string; sku: string }[]
-                >((options, variation: ProductVariation) => {
-                  if (variation.variation_1) {
-                    const compoundKey = variation.variation_2
-                      ? `${variation.variation_1} / ${variation.variation_2}`
-                      : variation.variation_1;
-
-                    options.push({
-                      value: compoundKey,
-                      label: compoundKey,
-                      sku: variation.sku,
-                    });
-                  }
-
-                  return options;
-                }, [])}
+                options={options}
               />
+
             )}
           </div>
         </div>
@@ -493,7 +489,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
 
               <div key={reviewIndex}>
                 <h1>{review.customerName}</h1>
-                {review.image_urls && (
+                {/* {review.image_urls && (
                   <Carousel showThumbs={false}>
                     {review.image_urls.map((imageUrl, imageIndex) => (
                       <div className="w-64 h-64" key={imageIndex}>
@@ -501,8 +497,18 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                       </div>
                     ))}
                   </Carousel>
-                )}{" "}
-                <div className="flex flex-row justify-between">
+                )}{" "} */}
+                {review.image_urls && (
+                  <div className="flex space-x-2">
+                    {review.image_urls.map((imageUrl, imageIndex) => (
+                      <div className="w-16 h-16" key={imageIndex}>
+                        <AdvancedImage cldImg={cld.image(imageUrl)} />
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div className="flex flex-row justify-between mt-5">
                   <p>{review.comment}</p>
                   {review.customer_id === customer_id && (
                     <button className="justify-content-center align-item-center" onClick={() => handleDeleteReview(review.review_id, review.sku)}>

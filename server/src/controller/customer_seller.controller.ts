@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import * as customer_sellerModel from "../model/customer_seller.model";
-
+//Noah's code
 export const getSellerDetails = async (
   req: Request,
   res: Response,

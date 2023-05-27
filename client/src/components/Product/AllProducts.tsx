@@ -8,13 +8,13 @@ import { CardActionArea } from '@mui/material';
 import Rating from '@mui/material/Rating';
 import { Product } from "./CustomerSellerProfilePage";
 import { Link } from "react-router-dom";
-
+//Noah's code
 interface AllProductProps {
     productData: Product[];
 }
 
 const AllProducts: React.FC<AllProductProps> = ({ productData }) => {
-
+console.log(productData)
     return (
         <div className="flex flex-wrap justify-around">
             {productData.map((product) => (

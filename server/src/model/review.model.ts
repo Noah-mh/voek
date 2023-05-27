@@ -1,6 +1,6 @@
 import pool from "../../config/database";
 import { OkPacket, ResultSetHeader } from "mysql2";
-
+//Noah's code
 export const handleAddingReview = async (
   product_id: number,
   customer_id: number,

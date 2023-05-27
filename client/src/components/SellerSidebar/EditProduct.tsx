@@ -14,7 +14,6 @@ const EditProduct = () => {
 
   return (
     <div className="flex flex-row">
-      <SellerSidebar />
 
       <h1>Edit Product</h1>
 

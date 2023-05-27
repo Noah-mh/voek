@@ -22,7 +22,7 @@ export const handlesGetProductDetails = async (
     await connection.release();
   }
 };
-
+//Noah
 export const handlesGetCartDetails = async (
   customerId: number
 ): Promise<ProductDetails[]> => {
