@@ -118,11 +118,11 @@ const Header = ({ isCustomer, isSeller }: Props) => {
           ) : isSeller ? (
             seller?.seller_id ? (
               <Link to="/seller/profile">
-                <p>Profile</p>
+                <p className="text-purpleAccent">Profile</p>
               </Link>
             ) : (
               <Link to="/seller/login">
-                <p>Login</p>
+                <p className="text-purpleAccent">Login</p>
               </Link>
             )
           ) : null}

@@ -6,8 +6,10 @@ const LayoutSeller = () => {
   return (
     <main className="App flex flex-col min-h-screen">
       <Header isSeller={true} />
-      <Outlet />
-      <Footer />
+      <div className="flex-grow">
+        <Outlet />
+      </div>
+      <Footer className="mt-auto" />
     </main>
   );
 };

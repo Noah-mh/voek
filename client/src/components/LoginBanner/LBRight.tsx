@@ -16,7 +16,7 @@ interface ResponseData {
   email: string;
 }
 
-const LBRight =  ({ setLogin, setUserDetails }: props): JSX.Element => {
+const LBRight = ({ setLogin, setUserDetails }: props): JSX.Element => {
 
   const [inputEmail, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -32,23 +32,23 @@ const LBRight =  ({ setLogin, setUserDetails }: props): JSX.Element => {
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const response: AxiosResponse<ResponseData> = await axios.post<ResponseData>('/login', 
-        JSON.stringify({email: inputEmail, password}),
+      const response: AxiosResponse<ResponseData> = await axios.post<ResponseData>('/login',
+        JSON.stringify({ email: inputEmail, password }),
         {
           headers: { 'Content-Type': 'application/json' },
           withCredentials: true
         })
-        setUserDetails(response.data);
-        setLogin(true);
+      setUserDetails(response.data);
+      setLogin(true);
     } catch (err: any) {
       console.log(err)
       if (!err?.response) {
         setErrMsg('No Server Response');
-    } else if (err?.response.status === 401) {
+      } else if (err?.response.status === 401) {
         setErrMsg("Incorrect Username/Password");
-    } else {
+      } else {
         setErrMsg('Login Failed');
-    }
+      }
     }
   }
 
@@ -79,8 +79,12 @@ const LBRight =  ({ setLogin, setUserDetails }: props): JSX.Element => {
           />
         </div>
         {/* change to link create route for this */}
-        <Link to='/forgetpassword'>Forget Password?</Link>
-        <Link to='/signup'>Sign Up</Link>
+        <div className="field-wrapper flex justify-center">
+          <Link to='/forgetpassword'>Forget Password?</Link>
+        </div>
+        <div className="field-wrapper flex justify-center">
+          <Link to='/signup'>Sign Up</Link>
+        </div>
         <p>{errMsg}</p>
         <input disabled={disabled} type="submit" value="LOG IN" className="submitLogin" />
       </form>

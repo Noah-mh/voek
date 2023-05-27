@@ -6,8 +6,10 @@ const Layout = () => {
   return (
     <main className="App flex flex-col min-h-screen">
       <Header isCustomer={true} />
-      <Outlet />
-      <Footer />
+      <div className="flex-grow">
+        <Outlet />
+      </div>
+      <Footer className="mt-auto" />
     </main>
   );
 };
