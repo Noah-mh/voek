@@ -11,7 +11,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion";
 import { AiFillHeart, AiOutlineHeart, AiFillDelete } from "react-icons/ai";
-import Rating from '@mui/material/Rating';
+import Rating from "@mui/material/Rating";
 import RedeemVoucher from "../RedeemVoucher/RedeemVoucher";
 //Noah's code
 
@@ -20,7 +20,6 @@ interface ProductDetailProps {
   productReview: Review[];
   seller_id: number;
   getAllData: () => void;
-
 }
 interface CartItem {
   cart_id: number;
@@ -34,7 +33,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
   productData,
   productReview,
   seller_id,
-  getAllData
+  getAllData,
 }) => {
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
   const { customer } = useCustomer();
@@ -49,31 +48,34 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
   );
   const [heart, setHeart] = useState<boolean>(false);
 
-  const options = productData[0].variations!.reduce<{ label: string; value: string; sku: string }[]>(
-    (options, variation: ProductVariation) => {
-      if (variation.variation_1) {
-        const compoundKey = variation.variation_2
-          ? `${variation.variation_1} / ${variation.variation_2}`
-          : variation.variation_1;
+  const options = productData[0].variations!.reduce<
+    { label: string; value: string; sku: string }[]
+  >((options, variation: ProductVariation) => {
+    if (variation.variation_1) {
+      const compoundKey = variation.variation_2
+        ? `${variation.variation_1} / ${variation.variation_2}`
+        : variation.variation_1;
 
-        options.push({
-          value: compoundKey,
-          label: compoundKey,
-          sku: variation.sku,
-        });
-      }
+      options.push({
+        value: compoundKey,
+        label: compoundKey,
+        sku: variation.sku,
+      });
+    }
 
-      return options;
-    }, []);
+    return options;
+  }, []);
 
-  const [selectedVariation, setSelectedVariation] = useState(options[0]?.value || null);
+  const [selectedVariation, setSelectedVariation] = useState(
+    options[0]?.value || null
+  );
   useEffect(() => {
     if (customer_id != undefined) {
-      axiosPrivateCustomer.get(`getCartDetails/${customer_id}?sku=${selectedSku}`)
+      axiosPrivateCustomer
+        .get(`getCartDetails/${customer_id}?sku=${selectedSku}`)
         .then((response) => {
           setCart(response.data.cartDetails);
-        })
-
+        });
     }
 
     if (selectedVariation) {
@@ -104,19 +106,12 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
   }, [selectedVariation, productData]);
 
   useEffect(() => {
+    // Nhat Tien (Wishlist) :D
     const checkWishlistProductExistence = async () => {
       if (customer_id != undefined) {
         try {
-          const response = await axiosPrivateCustomer.post(
-            `/checkWishlistProductExistence`,
-            JSON.stringify({
-              customerId: customer_id,
-              productId: productData[0].product_id,
-            }),
-            {
-              headers: { "Content-Type": "application/json" },
-              withCredentials: true,
-            }
+          const response = await axiosPrivateCustomer.get(
+            `/checkWishlistProductExistence/?customerId=${customer_id}&productId=${productData[0].product_id}`
           );
           if (response.data.length > 0) {
             setHeart(true);
@@ -131,7 +126,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
     checkWishlistProductExistence();
   }, []);
 
-  // Nhat Tien (Wishlist) :D
   const handleAddToWishlist = () => {
     if (customer_id == undefined) {
       toast.warn("Please Log in to add into wishlist", {
@@ -262,9 +256,16 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
     );
 
     setQuantity((prevQuantity) => {
-      if (cart.length == 0 && (productVariation && prevQuantity < productVariation.quantity!)) {
+      if (
+        cart.length == 0 &&
+        productVariation &&
+        prevQuantity < productVariation.quantity!
+      ) {
         return prevQuantity + 1;
-      } else if (productVariation && (prevQuantity + cart[0]?.quantity) < productVariation.quantity!) {
+      } else if (
+        productVariation &&
+        prevQuantity + cart[0]?.quantity < productVariation.quantity!
+      ) {
         return prevQuantity + 1;
       } else {
         // Show notification
@@ -414,10 +415,10 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                 value={
                   selectedVariation
                     ? {
-                      label: selectedVariation,
-                      value: selectedVariation,
-                      sku: selectedSku,
-                    }
+                        label: selectedVariation,
+                        value: selectedVariation,
+                        sku: selectedSku,
+                      }
                     : null
                 }
                 onChange={(option) => {
@@ -426,7 +427,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                 }}
                 options={options}
               />
-
             )}
           </div>
         </div>
@@ -482,11 +482,15 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
       {productReview.map((pReview, index) => (
         <div key={index}>
           <h3>Rating: {pReview.rating}</h3>
-          <Rating name="half-rating-read" value={Number(pReview.rating)} precision={0.5} readOnly />
+          <Rating
+            name="half-rating-read"
+            value={Number(pReview.rating)}
+            precision={0.5}
+            readOnly
+          />
           <h3>Reviews:</h3>
           {pReview.reviews &&
             pReview.reviews.map((review, reviewIndex) => (
-
               <div key={reviewIndex}>
                 <h1>{review.customerName}</h1>
                 {/* {review.image_urls && (
@@ -511,9 +515,15 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                 <div className="flex flex-row justify-between mt-5">
                   <p>{review.comment}</p>
                   {review.customer_id === customer_id && (
-                    <button className="justify-content-center align-item-center" onClick={() => handleDeleteReview(review.review_id, review.sku)}>
+                    <button
+                      className="justify-content-center align-item-center"
+                      onClick={() =>
+                        handleDeleteReview(review.review_id, review.sku)
+                      }
+                    >
                       <AiFillDelete />
-                    </button>)}
+                    </button>
+                  )}
                 </div>
               </div>
             ))}

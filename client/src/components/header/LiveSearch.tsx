@@ -1,4 +1,4 @@
-import { FormEvent, ChangeEvent, FC, useState } from "react";
+import { FormEvent, ChangeEvent, FC, useState, useEffect } from "react";
 import ListPage from "../header/ListPage";
 import { Link } from "react-router-dom";
 
@@ -17,6 +17,12 @@ const LiveSearch: FC<LiveSearchProps> = ({
   searchResults,
 }) => {
   const [userInput, setUserInput] = useState<string>("");
+
+  useEffect(() => {
+    console.log("userInput", userInput);
+    console.log("userInput", typeof userInput);
+  }, [userInput]);
+
   let link = `/searchResults/${userInput}`;
   const [focus, setFocus] = useState(false);
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -35,14 +41,14 @@ const LiveSearch: FC<LiveSearchProps> = ({
     }
 
     const serachValue: string = e.target.value.toLowerCase();
-    const resultsArray = results.filter((result) =>
-      result.name.toLowerCase().includes(serachValue)
+    const resultsArray = results.filter(
+      (result) =>
+        result.name.toLowerCase().includes(serachValue) && result.active != 0
     );
     setUserInput(e.target.value);
     link = `/searchResults/${userInput}`;
     console.log("link", link);
 
-    console.log("resultsArray", resultsArray);
     setSearchResults(resultsArray);
   };
 
@@ -62,7 +68,10 @@ const LiveSearch: FC<LiveSearchProps> = ({
             setFocus(false);
           }}
         />
-        <Link to={link}>
+        <Link
+          to={link}
+          className={userInput === "" ? "opacity-50 pointer-events-none" : ""}
+        >
           <button
             type="submit"
             className="text-white absolute right-2.5 bottom-5 bg-transparent hover:bg-transparent hover:cursor-pointer4 focus:ring-1 focus:outline-none focus:ring-softerPurple font-medium rounded-lg text-sm px-4 py-2"

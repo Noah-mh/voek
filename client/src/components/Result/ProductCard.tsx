@@ -11,6 +11,7 @@ interface ProductCardProps {
     name: string;
     description: string;
     image: string;
+    rating: number;
   };
 }
 
@@ -29,9 +30,22 @@ const ProductCard = ({ product }: ProductCardProps) => {
       `/getProductVariationsPricing/${product.product_id}`
     );
     const image = axios.get(`/getProductImage/${product.product_id}`);
-    Promise.all([pricingRange, image]).then((responses) => {
+    const rating = axios.get(`/getProductRating/${product.product_id}`);
+    Promise.all([pricingRange, image, rating]).then((responses) => {
+      if (responses[1].data[0] === undefined) {
+        setImageUrl("/test/No_Image_Available_hyxfvc.jpg");
+      } else {
+        setImageUrl(responses[1].data[0].imageURL);
+      }
+
+      // if (responses[2].data[0].rating === null) {
+      //   product.rating = 0;
+      // } else {
+      //   product.rating = responses[2].data[0].rating;
+      // }
+
+      product.rating = responses[2].data[0].rating;
       setPricingRange(responses[0].data[0]);
-      setImageUrl(responses[1].data[0].imageURL);
     });
   };
 
@@ -61,7 +75,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
           </Link>
           <div className="flex items-center mt-2.5 mb-5">
             <span className="bg-softerPurple text-lighterGreyAccent text-xs font-semibold mr-2 px-2.5 py-0.5 rounded ml-3">
-              5.0
+              {product.rating === null ? 0 : product.rating}
             </span>
           </div>
           <div className="flex items-center justify-between">
