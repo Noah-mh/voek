@@ -11,11 +11,15 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion";
 import { AiFillHeart, AiOutlineHeart, AiFillDelete } from "react-icons/ai";
-import StarRating from "./StarRating";
+import Rating from "@mui/material/Rating";
+import RedeemVoucher from "../RedeemVoucher/RedeemVoucher";
+//Noah's code
 
 interface ProductDetailProps {
   productData: Product[];
   productReview: Review[];
+  seller_id: number;
+  getAllData: () => void;
 }
 interface CartItem {
   cart_id: number;
@@ -28,6 +32,8 @@ interface CartItem {
 const ProductDetail: React.FC<ProductDetailProps> = ({
   productData,
   productReview,
+  seller_id,
+  getAllData,
 }) => {
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
   const { customer } = useCustomer();
@@ -48,20 +54,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
 
   useEffect(() => {
     if (customer_id != undefined) {
-      // const checkCart = async () => {
-      //   try {
-      //     const response = await axiosPrivateCustomer.get(
-      //       `/getCartDetails?customer_id=${customer_id}`,{ data : { sku :selectedSku } }
-      //     );
-      //     if (response.data.length > 0) {
-      //       setCartQuantity(response.data[0].quantity);
-      //     } else {
-      //       setCartQuantity(0);
-      //     }
-      //   } catch (err: any) {
-      //     setCartQuantity(0);
-      //   }
-      // };
       axiosPrivateCustomer
         .get(`getCartDetails/${customer_id}?sku=${selectedSku}`)
         .then((response) => {
@@ -353,7 +345,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             progress: undefined,
             theme: "light",
           });
-          window.location.reload();
+          getAllData();
         }
       })
       .catch((error) => {
@@ -485,16 +477,21 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
           )}
         </motion.button>
       </span>
-
+      <RedeemVoucher seller_id={seller_id} />
       {productReview.map((pReview, index) => (
         <div key={index}>
           <h3>Rating: {pReview.rating}</h3>
-          <StarRating rating={pReview.rating} />
+          <Rating
+            name="half-rating-read"
+            value={Number(pReview.rating)}
+            precision={0.5}
+            readOnly
+          />
           <h3>Reviews:</h3>
           {pReview.reviews &&
             pReview.reviews.map((review, reviewIndex) => (
               <div key={reviewIndex}>
-                <h4>{review.customerName}</h4>
+                <h1>{review.customerName}</h1>
                 {review.image_urls && (
                   <Carousel showThumbs={false}>
                     {review.image_urls.map((imageUrl, imageIndex) => (

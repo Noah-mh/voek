@@ -21,7 +21,7 @@ export const handlesGetProductDetails = async (
     await connection.release();
   }
 };
-
+//Noah
 export const handlesGetCartDetails = async (
   customerId: number
 ): Promise<ProductDetails[]> => {
@@ -597,7 +597,6 @@ export const handleCartDetails = async (customer_id: number, sku: string) => {
   const sql = `SELECT * FROM cart WHERE customer_id=? AND sku=?;`;
   try {
     const [result] = await connection.query(sql, [customer_id, sku]);
-    console.log("handle", result);
     return result as CartItem[];
   } catch (err: any) {
     throw new Error(err);

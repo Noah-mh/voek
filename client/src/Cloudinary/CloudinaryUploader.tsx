@@ -1,5 +1,6 @@
 import React, { useEffect, useCallback, useState } from 'react';
-
+//Noah's code 
+//Every getting , rendering and uploading image is done by Noah
 interface CloudinaryUploaderProps {
     onSuccess: (resultInfo: any) => void;
     caption:String;

@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 import loginPhoto from "../../img/login/loginVec.png";
 
-import Header from "../Header/header.js"
-import Footer from "../Footer/Footer.js"
+import Header from "../header/header.js"
+import Footer from "../footer/footer.js"
 
 const Missing = () => {
   return (

@@ -211,6 +211,7 @@ export const deleteWishlistedProduct = async (
   }
 };
 
+//Noah
 export const getProductDetailsWithoutReviews = async (
   req: Request,
   res: Response,
@@ -228,6 +229,7 @@ export const getProductDetailsWithoutReviews = async (
   }
 };
 
+//Noah
 export const getProductReviews = async (
   req: Request,
   res: Response,
@@ -439,6 +441,7 @@ export const addToCart = async (
   }
 };
 
+//Noah
 export const getCart = async (
   req: Request,
   res: Response,
@@ -447,14 +450,12 @@ export const getCart = async (
   try {
     const { customer_id } = req.params;
     const { sku } = req.query;
-    console.log("sku", sku);
     if (!customer_id || !sku) return res.sendStatus(404);
     const response: Array<object> = await productModel.handleCartDetails(
       parseInt(customer_id),
       sku as string
     );
     if (!response) return res.sendStatus(404);
-    console.log("response", response);
     return res.json({ cartDetails: response });
   } catch (err: any) {
     return next(err);
