@@ -432,6 +432,10 @@ export default function (app: Express, router: Router) {
   router.delete("/deleteVoucher", voucherController.deleteVoucher);
   router.get("/getVoucherCategories", voucherController.getVoucherCategories);
   router.get("/getVouchers/:sellerId", voucherController.getVouchers);
+  router.get(
+    "/getProductRating/:product_id",
+    productController.getProductRating
+  );
 
   // router.get("/getProductCat/:product_id", productController.getProductCat);
 

@@ -576,6 +576,20 @@ export const handlesGetProductsUsingCategory = async (categoryId: number) => {
   }
 };
 
+export const handlesGetProductRating = async (productId: number) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT ROUND(AVG(rating), 1) as rating FROM review WHERE product_id = ?;`;
+  try {
+    const result = await connection.query(sql, [productId]);
+    return result[0] as Array<Object>;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
 //Noah
 export const handleCartDetails = async (customer_id: number, sku: string) => {
   const promisePool = pool.promise();

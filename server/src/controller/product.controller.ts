@@ -398,6 +398,23 @@ export const getProductCat = async (
   }
 };
 
+export const getProductRating = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { product_id } = req.params;
+    const productId: number = parseInt(product_id);
+    const response: Array<object> = await productModel.handlesGetProductRating(
+      productId
+    );
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
 //Noah
 export const addToCart = async (
   req: Request,

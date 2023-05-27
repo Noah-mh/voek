@@ -92,25 +92,37 @@ export const updateVoucher = async (
   try {
     const {
       name,
-      type,
       amount,
-      voucher_category,
-      min_spend,
-      expiration_date,
-      redemptions_available,
+      percentage,
+      category,
+      minSpend,
+      expiryDate,
+      redemptionsAvailable,
       active,
-      voucher_id,
+      voucherId,
     } = req.body;
+    if (
+      name === undefined ||
+      amount === undefined ||
+      percentage === undefined ||
+      category === undefined ||
+      minSpend === undefined ||
+      expiryDate === undefined ||
+      redemptionsAvailable === undefined ||
+      active === undefined ||
+      voucherId === undefined
+    )
+      return res.sendStatus(400);
     const response: number = await voucherModel.handlesUpdateVoucher(
       name,
-      type,
       amount,
-      voucher_category,
-      min_spend,
-      expiration_date,
-      redemptions_available,
+      percentage,
+      category,
+      minSpend,
+      expiryDate,
+      redemptionsAvailable,
       active,
-      voucher_id
+      voucherId
     );
     if (response === 0) return res.sendStatus(404);
     return res.sendStatus(204);

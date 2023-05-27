@@ -20,7 +20,7 @@ export const handlesInsertingVoucher = async (
   let percentage_amount = null;
   let number_amount = null;
   if (type === 1) {
-    percentage_amount = amount;
+    percentage_amount = amount / 100;
   } else {
     number_amount = amount;
   }
@@ -99,8 +99,8 @@ export const handlesUpdateRedemptionsAvailable = async (
 
 export const handlesUpdateVoucher = async (
   name: string,
-  type: number,
-  amount: number,
+  number_amount: number,
+  percentage_amount: number,
   voucher_category: number,
   min_spend: number,
   expiration_date: string,
@@ -114,13 +114,7 @@ export const handlesUpdateVoucher = async (
   SET voucher_name = ?, number_amount = ?, percentage_amount = ?, voucher_category = ?, 
   min_spend = ?, expiration_date = CAST(? as datetime), redemptions_available = ?, active = ?
   WHERE voucher_id = ?;`;
-  let percentage_amount = null;
-  let number_amount = null;
-  if (type === 1) {
-    percentage_amount = amount;
-  } else {
-    number_amount = amount;
-  }
+  if (percentage_amount !== null) percentage_amount = percentage_amount / 100;
   try {
     const result = await connection.query(sql, [
       name,

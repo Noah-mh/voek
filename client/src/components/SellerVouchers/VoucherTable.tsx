@@ -132,7 +132,11 @@ const VoucherTable = () => {
       </div>
       {openModal && (
         <SellerVoucherModal
-          voucher={selectedVoucher}
+          voucher={selectedVoucher as Voucher}
+          category={categories?.find(
+            (category: Category) =>
+              category.categoryId === selectedVoucher?.category
+          )}
           openModal={openModal}
           setOpenModal={setOpenModal}
         />

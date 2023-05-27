@@ -28,7 +28,12 @@ const WishlistCard = () => {
             `/getProductVariationsPricing/${product.product_id}`
           );
           return Promise.all([image, pricing]).then((responses) => {
-            product.image = responses[0].data[0].imageURL;
+            console.log("response.data[0]: ", responses[0].data[0]);
+            if (responses[0].data[0] === undefined) {
+              product.image = "/test/No_Image_Available_hyxfvc.jpg";
+            } else {
+              product.image = responses[0].data[0].imageURL;
+            }
             product.lowestPrice = responses[1].data[0].lowestPrice;
             product.highestPrice = responses[1].data[0].highestPrice;
             return product;
