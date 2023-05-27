@@ -4,7 +4,7 @@ import useCustomer from "../../hooks/UseCustomer"
 import { v4 as uuidv4 } from 'uuid';
 import MyVouchers from './MyVouchers';
 
-interface SellerVoucher {
+interface CustomerVoucher {
     voucher_id: number;
     voucher_name: string;
     number_amount?: number;
@@ -20,7 +20,7 @@ const CustomerVoucher = () => {
 
     const { customer } = useCustomer();
     const axiosPrivateCustomer = useAxiosPrivateCustomer()
-    const [myVouchers, setMyVouchers] = useState<SellerVoucher[]>([]);
+    const [myVouchers, setMyVouchers] = useState<CustomerVoucher[]>([]);
 
     const getVouchers = async () => {
         const { data } = await axiosPrivateCustomer.get(`customer/vouchers/wallet/${customer.customer_id}`);
@@ -29,11 +29,12 @@ const CustomerVoucher = () => {
 
     useEffect(() => {
         getVouchers();
+        console.log(myVouchers)
     }, [])
 
     return (
-        <div className="grid grid-cols-3 gap-40">
-            {myVouchers.map((voucher: SellerVoucher) => (
+        <div>
+            {myVouchers.map((voucher: CustomerVoucher) => (
                 <div key={uuidv4()}>
                     <MyVouchers voucher={voucher} getVouchers={getVouchers} />
                 </div>

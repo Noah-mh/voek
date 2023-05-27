@@ -3,33 +3,32 @@ import { ToastContainer, toast } from "react-toastify";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import useCustomer from "../../hooks/UseCustomer";
 
-interface SellerVoucher {
-  voucher_id: number;
-  voucher_name: string;
-  number_amount?: number;
-  percentage_amount?: number;
-  voucher_category: string;
-  min_spend: number;
-  customer_voucher_id: number;
-  active: number;
+interface CustomerVoucher {
+    voucher_id: number;
+    voucher_name: string;
+    number_amount?: number;
+    percentage_amount?: number;
+    voucher_category: string;
+    min_spend: number;
+    customer_voucher_id: number;
+    active: number;
 }
 
 interface Props {
-  voucher: SellerVoucher;
-  getVouchers: () => void;
+    voucher: CustomerVoucher;
+    getVouchers: () => void;
 }
 
 const MyVouchers = ({ voucher, getVouchers }: Props) => {
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
 
-  const onClickHandler = async () => {
-    try {
-      await axiosPrivateCustomer.delete(
-        `/customer/vouchers/${voucher.customer_voucher_id}`
-      );
-      getVouchers();
-    } catch (err: any) {
-      console.log(err);
+    const onClickHandler = async () => {
+        try {
+            await axiosPrivateCustomer.delete(`/customer/vouchers/${voucher.customer_voucher_id}/${voucher.voucher_id}`);
+            getVouchers();
+        } catch (err: any) {
+            console.log(err)
+        }
     }
   };
 

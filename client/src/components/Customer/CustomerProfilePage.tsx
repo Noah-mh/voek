@@ -12,7 +12,7 @@ import Box from "@mui/material/Box";
 import AddressDisplay from "./Address";
 import Loader from "../Loader/Loader";
 import CustomerVoucher from "../RedeemVoucher/CustomerVoucher";
-
+//Noah's code
 
 interface Product {
   description: string;

@@ -1,6 +1,8 @@
 import pool from "../../config/database";
-
-export const handleSellerDetails = async (seller_id: number) => {
+//Noah's code
+export const handleSellerDetailsBySellerId = async (
+  seller_id: number
+) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT s.seller_id, s.shop_name, s.image_url, COUNT(lp.product_id) AS total_product
@@ -12,6 +14,32 @@ export const handleSellerDetails = async (seller_id: number) => {
     const [result] = await connection.query(sql, [seller_id]);
     return result as seller[];
   } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handleSellerDetailsByProductId = async (
+  product_id: number
+) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT s.seller_id, s.shop_name, s.image_url, COUNT(lp.product_id) AS total_product
+  FROM seller s
+  INNER JOIN listed_products lp ON s.seller_id = lp.seller_id
+  WHERE s.seller_id = (
+      SELECT seller_id 
+      FROM listed_products
+      WHERE product_id = ?
+  )GROUP BY s.seller_id, s.shop_name, s.image_url;
+  `;
+  console.log("product_id:", product_id);
+  try {
+    const [result] = await connection.query(sql, [product_id]);
+    return result as seller[];
+  } catch (err: any) {
+    console.log("err:", err);
     throw new Error(err);
   } finally {
     await connection.release();
@@ -50,7 +78,7 @@ export const handleSellerProductsDetails = async (
   c.name as category_name,
   (SELECT pi.image_url 
    FROM product_images pi 
-   WHERE pi.product_id = p.product_id 
+   WHERE pi.sku = pv.sku 
    LIMIT 1) as image_url
   FROM listed_products lp
   INNER JOIN products p ON lp.product_id = p.product_id

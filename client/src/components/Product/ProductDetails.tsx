@@ -12,10 +12,15 @@ import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion";
 import { AiFillHeart, AiOutlineHeart, AiFillDelete } from "react-icons/ai";
 import Rating from '@mui/material/Rating';
+import RedeemVoucher from "../RedeemVoucher/RedeemVoucher";
+//Noah's code
 
 interface ProductDetailProps {
   productData: Product[];
   productReview: Review[];
+  seller_id: number;
+  getAllData: () => void;
+
 }
 interface CartItem {
   cart_id: number;
@@ -28,6 +33,8 @@ interface CartItem {
 const ProductDetail: React.FC<ProductDetailProps> = ({
   productData,
   productReview,
+  seller_id,
+  getAllData
 }) => {
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
   const { customer } = useCustomer();
@@ -343,7 +350,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             progress: undefined,
             theme: "light",
           });
-          window.location.reload();
+          getAllData();
         }
       })
       .catch((error) => {
@@ -475,17 +482,17 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
           )}
         </motion.button>
       </span>
-
+      <RedeemVoucher seller_id={seller_id} />
       {productReview.map((pReview, index) => (
         <div key={index}>
           <h3>Rating: {pReview.rating}</h3>
-          <Rating name="half-rating-read" defaultValue={pReview.rating} precision={0.5} readOnly />
+          <Rating name="half-rating-read" value={Number(pReview.rating)} precision={0.5} readOnly />
           <h3>Reviews:</h3>
           {pReview.reviews &&
             pReview.reviews.map((review, reviewIndex) => (
 
               <div key={reviewIndex}>
-                <h4>{review.customerName}</h4>
+                <h1>{review.customerName}</h1>
                 {review.image_urls && (
                   <Carousel showThumbs={false}>
                     {review.image_urls.map((imageUrl, imageIndex) => (

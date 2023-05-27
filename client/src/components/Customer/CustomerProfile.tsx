@@ -10,7 +10,7 @@ import Button from "@mui/material/Button";
 import { ToastContainer, toast } from "react-toastify";
 import useCustomer from "../../hooks/UseCustomer";
 import ReferralLink from '../ReferralLink/ReferralLink';
-
+//Noah's code + Kang Rui
 export interface Customer {
   customer_id: number;
   username: string;
