@@ -25,7 +25,7 @@ const ReferralLink = () => {
         <div className="flex flex-row items-center">
             <p className="mr-2">{link}</p>
             <CopyToClipboard text={link}>
-                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                <button onClick={(e) => {e.preventDefault()}} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                     Copy Link
                 </button>
             </CopyToClipboard>
