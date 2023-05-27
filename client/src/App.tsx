@@ -112,10 +112,10 @@ function App() {
           <Route path="seller/signup" element={<SignupBannerSeller />} />
           <Route element={<RequireAuthSeller />}>
             <Route path="seller/home" element={<HomepageSeller />} />
-            <Route path="seller/manageProducts" element={<ManageProducts />} />
+            {/* <Route path="seller/manageProducts" element={<ManageProducts />} /> */}
             <Route path="seller/editProduct" element={<EditProduct />} />
-            <Route path="seller/addProduct" element={<AddProduct />} />
-            <Route path="seller/manageOrders" element={<ManageOrders />} />
+            {/* <Route path="seller/addProduct" element={<AddProduct />} />
+            <Route path="seller/manageOrders" element={<ManageOrders />} /> */}
             <Route path="seller/orders" element={<ViewCustomerOrders />} />
             <Route path="seller/profile" element={<SellerProfile />} />
           </Route>
