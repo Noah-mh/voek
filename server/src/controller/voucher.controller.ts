@@ -9,25 +9,34 @@ export const insertVoucher = async (
   try {
     const {
       name,
-      seller_id,
+      sellerId,
       type,
       amount,
-      voucher_category,
-      min_spend,
-      expiration_date,
-      redemptions_available,
-      active,
+      Category,
+      minSpend,
+      expiryDate,
+      redemptionsAvailable,
     } = req.body;
+    if (
+      name === undefined ||
+      sellerId === undefined ||
+      type === undefined ||
+      amount === undefined ||
+      Category === undefined ||
+      minSpend === undefined ||
+      expiryDate === undefined ||
+      redemptionsAvailable === undefined
+    )
+      return res.sendStatus(400);
     const response: number = await voucherModel.handlesInsertingVoucher(
       name,
-      seller_id,
+      sellerId,
       type,
       amount,
-      voucher_category,
-      min_spend,
-      expiration_date,
-      redemptions_available,
-      active
+      Category,
+      minSpend,
+      expiryDate,
+      redemptionsAvailable
     );
     if (response === 0) return res.sendStatus(404);
     return res.sendStatus(201);
