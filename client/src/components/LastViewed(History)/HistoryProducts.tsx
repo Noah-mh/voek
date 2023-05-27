@@ -24,13 +24,8 @@ const HistoryProducts = ({ selected }: HistoryProductsProps) => {
     // fetch products from selected date
     console.log("selected: ", selected);
     axiosPrivateCustomer
-      .post(
-        `/getLastViewed`,
-        JSON.stringify({ customerId, dateViewed: selected, timezone }),
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        }
+      .get(
+        `/getLastViewed/?customerId=${customerId}&dateViewed=${selected}&timezone=${timezone}`
       )
       .then((response) => response.data)
       .then((data) => {
