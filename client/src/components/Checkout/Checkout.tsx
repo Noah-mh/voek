@@ -63,8 +63,8 @@ export default function CheckOutPage(): JSX.Element {
                   const claimedVoucherID = await axiosPrivateCustomer.put(
                     `/customer/order/redeemVoucher`,
                     {
+                      order_id: resOrderId.data,
                       customer_voucher_id: customer_voucher_id,
-                      order_id: resOrderId,
                     }
                   );
                   return claimedVoucherID;

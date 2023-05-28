@@ -199,10 +199,10 @@ export const processRedeemVoucher = async (
   console.log("Connected to processRedeemVoucher Controller");
   try {
     const { order_id, customer_voucher_id } = req.body;
-    console.log(req.body);
+    console.log(order_id, customer_voucher_id);
     const response: Array<object> = await cartModel.handleRedeemVoucher(
-      order_id,
-      customer_voucher_id
+      customer_voucher_id,
+      order_id
     );
     return res.sendStatus(200);
   } catch (err: any) {

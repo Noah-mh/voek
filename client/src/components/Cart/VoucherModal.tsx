@@ -1,10 +1,8 @@
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
-import { get } from "http";
 
 interface Voucher {
   seller_id: number;
@@ -34,6 +32,8 @@ interface VoucherModalProps {
   }) => void; // Updated type definition
   groupItems: any;
   getUserCart: () => void;
+  setWasAVVoucherClaimed: (bool: boolean) => void;
+  setLastClaimedVoucher: (voucher: Voucher) => void;
 }
 
 const VoucherModal = ({
@@ -44,8 +44,10 @@ const VoucherModal = ({
   claimedVouchers,
   setClaimedVouchers,
   groupItems,
-  getUserCart,
-}: VoucherModalProps) => {
+  setWasAVVoucherClaimed,
+  setLastClaimedVoucher,
+}: // getUserCart,
+VoucherModalProps) => {
   const [groupedVouchers, setGroupedVouchers] = useState<{
     [key: number]: Voucher[];
   }>({});
@@ -69,6 +71,8 @@ const VoucherModal = ({
 
   const voucherClaimed = (voucher: Voucher, sellerId: number) => () => {
     console.log("voucher claimed: ", voucher);
+    setLastClaimedVoucher(voucher);
+    setWasAVVoucherClaimed(false);
     if (
       claimedVouchers[sellerId] &&
       claimedVouchers[sellerId]?.[voucher.customer_voucher_id]
@@ -97,7 +101,7 @@ const VoucherModal = ({
           progress: undefined,
           theme: "light",
         });
-        getUserCart();
+        // getUserCart();
         return;
       }
     } else {
@@ -109,6 +113,7 @@ const VoucherModal = ({
           [voucher.customer_voucher_id]: true,
         },
       });
+      setWasAVVoucherClaimed(true);
       toast.success("Voucher claimed!", {
         position: "top-center",
         autoClose: 5000,
@@ -196,8 +201,11 @@ const VoucherModal = ({
                           Min. spend of ${voucher.min_spend}
                         </div>
                       </div>
-                      {voucher.min_spend > totalAmt.subTotal ||
-                      !groupItems.hasOwnProperty(voucher.seller_id) ? (
+                      {(voucher.min_spend > totalAmt.subTotal ||
+                        !groupItems.hasOwnProperty(voucher.seller_id)) &&
+                      !claimedVouchers[voucher.seller_id]?.[
+                        voucher.customer_voucher_id
+                      ] ? (
                         <button className="opacity-40" disabled>
                           <span className="bg-purpleAccent  p-2 px-4 font-Barlow font-semibold uppercase text-white rounded-sm text-xs">
                             Claim

@@ -13,8 +13,6 @@ import "react-toastify/dist/ReactToastify.css";
 import VoucherModal from "./VoucherModal";
 
 import Button from "@mui/material/Button";
-import { faCommentsDollar } from "@fortawesome/free-solid-svg-icons";
-import Voucher from "../RedeemVoucher/Voucher";
 
 export default function cartPage(): JSX.Element {
   const { customer, setCustomer } = useCustomer();
@@ -66,21 +64,9 @@ export default function cartPage(): JSX.Element {
     customer_voucher_id: number;
     active: boolean;
   }
-  const style = {
-    position: "absolute" as "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: 400,
-    bgcolor: "background.paper",
-    border: "2px solid #000",
-    boxShadow: 24,
-    p: 4,
-  };
 
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
 
   const [isChecked, setIsChecked] = useState<boolean>(false);
   const [isInputDisabled, setIsInputDisabled] = useState<boolean>(false);
@@ -91,6 +77,9 @@ export default function cartPage(): JSX.Element {
   const [groupItems, setGroupItems] = useState<{ [key: number]: cartItem[] }>(
     {}
   );
+  const [wasAVVoucherClaimed, setWasAVVoucherClaimed] =
+    useState<boolean>(false);
+  const [lastClaimedVoucher, setLastClaimedVoucher] = useState<voucher>();
   const [groupItemsPrice, setGroupItemsPrice] = useState<{
     [key: number]: number;
   }>({});
@@ -105,7 +94,6 @@ export default function cartPage(): JSX.Element {
   }>({});
 
   const [changedQuantState, setChangedQuantState] = useState<boolean>(false);
-  const [cartisEmpty, setCartisEmpty] = useState<boolean>(false);
 
   const [totalAmt, setTotalAmt] = useState<totalCart>({
     subTotal: 0,
@@ -135,14 +123,7 @@ export default function cartPage(): JSX.Element {
       return await axiosPrivateCustomer
         .get(`/customer/cart/getCart/${customer_id}`)
         .then((res) => {
-          // const sum = res.data
-          //   .reduce((acc: number, item: cartItem) => {
-          //     return acc + item.price * item.quantity;
-          //   }, 0)
-
-          //   .toFixed(2);
           if (res.data.length === 0) {
-            setCartisEmpty(true);
             setIsInputDisabled(true);
             setPaypalCN("pointer-events-none opacity-50");
           }
@@ -157,6 +138,7 @@ export default function cartPage(): JSX.Element {
               tempGroupedItems[seller_id].push(item);
             });
             setGroupItems(tempGroupedItems);
+            setUserCart(res.data);
           }
         });
     } catch (err: any) {
@@ -352,116 +334,212 @@ export default function cartPage(): JSX.Element {
       });
     }
   }, [totalAmt]);
+
   useEffect(() => {
-    console.log(claimedVouchers);
-    console.log("^^");
-    if (customerVouchers.length !== 0) {
-      const claimedVoucherKeys = Object.keys(claimedVouchers);
-      claimedVoucherKeys.map((sellerId) => {
-        const voucher = customerVouchers.find((voucher: voucher) => {
-          return (
-            voucher.customer_voucher_id ===
-            parseInt(Object.keys(claimedVouchers[sellerId])[0])
-          );
-        });
-        if (totalAmt.subTotal)
-          if (voucher) {
-            switch (voucher.voucher_category) {
-              case "Shipping": {
-                if (voucher.number_amount) {
-                  const discAmt = voucher.number_amount;
-
-                  setTotalAmt((prevState) => ({
-                    ...prevState,
-                    shippingFee: Number(
-                      (prevState.shippingFee - discAmt).toFixed(2)
-                    ),
-
-                    total: Number((prevState.total - discAmt).toFixed(2)),
-                  }));
-                } else {
-                  setTotalAmt((prevState) => {
-                    const newShippingAmt =
-                      prevState.shippingFee * (1 - voucher.percentage_amount);
-                    return {
-                      ...prevState,
-                      shippingFee: Number(newShippingAmt.toFixed(2)),
-
-                      total: Number(
-                        (
-                          prevState.total - Number(newShippingAmt.toFixed(2))
-                        ).toFixed(2)
-                      ),
-                    };
-                  });
-                }
-                break;
-              }
-              case "Coins": {
+    if (lastClaimedVoucher !== null) {
+      const voucher = lastClaimedVoucher;
+      if (voucher) {
+        if (wasAVVoucherClaimed) {
+          switch (voucher.voucher_category) {
+            case "Shipping": {
+              if (voucher.number_amount) {
                 const discAmt = voucher.number_amount;
+
                 setTotalAmt((prevState) => ({
                   ...prevState,
-                  coins: Number((prevState.coins + discAmt).toFixed(2)),
+                  shippingFee: Number(
+                    (prevState.shippingFee - Number(discAmt)).toFixed(2)
+                  ),
+
+                  total: Number((prevState.total - Number(discAmt)).toFixed(2)),
                 }));
-                break;
-              }
-              case "Price": {
-                if (voucher.number_amount) {
-                  const discAmt = voucher.number_amount;
-                  setGroupItemsPrice((prevState) => ({
+              } else {
+                setTotalAmt((prevState) => {
+                  const newShippingAmt =
+                    prevState.shippingFee *
+                    (1 - Number(voucher.percentage_amount));
+
+                  return {
                     ...prevState,
-                    [sellerId]:
-                      Number(
-                        (prevState[parseInt(sellerId)] - discAmt).toFixed(2)
-                      ) || 0,
-                  }));
-                  setTotalAmt((prevState) => {
-                    return {
-                      ...prevState,
-                      subTotal: Number(
-                        (prevState.subTotal - discAmt).toFixed(2)
-                      ),
-                      total: Number((prevState.total - discAmt).toFixed(2)),
-                    };
-                  });
-                } else {
-                  let discAmt = 0;
-                  setGroupItemsPrice((prevState) => {
-                    const newTotalPriceAmt =
-                      prevState[parseInt(sellerId)] *
-                      (1 - voucher.percentage_amount);
-                    discAmt =
-                      prevState[parseInt(sellerId)] * voucher.percentage_amount;
-                    return {
-                      ...prevState,
-                      [sellerId]: Number(newTotalPriceAmt.toFixed(2)),
-                    };
-                  });
-                  setTotalAmt((prevState) => {
-                    return {
-                      ...prevState,
-                      subTotal: Number(
-                        (prevState.subTotal - discAmt).toFixed(2)
-                      ),
-                      total: Number((prevState.total - discAmt).toFixed(2)),
-                    };
-                  });
-                }
-                break;
+                    shippingFee: Number(newShippingAmt.toFixed(2)),
+
+                    total: Number(
+                      (
+                        prevState.total - Number(newShippingAmt.toFixed(2))
+                      ).toFixed(2)
+                    ),
+                  };
+                });
               }
-              default: {
-                console.log("useEffect voucher problems bro");
+              break;
+            }
+            case "Coins": {
+              const discAmt = voucher.number_amount;
+              setTotalAmt((prevState) => ({
+                ...prevState,
+                coins: Number((prevState.coins + Number(discAmt)).toFixed(2)),
+              }));
+              break;
+            }
+            case "Price": {
+              if (voucher.number_amount) {
+                const discAmt = voucher.number_amount;
+                setGroupItemsPrice((prevState) => ({
+                  ...prevState,
+                  [voucher.seller_id]:
+                    Number(
+                      (prevState[voucher.seller_id] - Number(discAmt)).toFixed(
+                        2
+                      )
+                    ) || 0,
+                }));
+                setTotalAmt((prevState) => {
+                  return {
+                    ...prevState,
+                    subTotal: Number(
+                      (prevState.subTotal - Number(discAmt)).toFixed(2)
+                    ),
+                    total: Number(
+                      (prevState.total - Number(discAmt)).toFixed(2)
+                    ),
+                  };
+                });
+              } else {
+                let discAmt = 0;
+                setGroupItemsPrice((prevState) => {
+                  const newTotalPriceAmt =
+                    prevState[voucher.seller_id] *
+                    (1 - Number(voucher.percentage_amount));
+                  discAmt =
+                    prevState[voucher.seller_id] *
+                    Number(voucher.percentage_amount);
+                  return {
+                    ...prevState,
+                    [voucher.seller_id]: Number(newTotalPriceAmt.toFixed(2)),
+                  };
+                });
+                setTotalAmt((prevState) => {
+                  return {
+                    ...prevState,
+                    subTotal: Number(
+                      (prevState.subTotal - Number(discAmt)).toFixed(2)
+                    ),
+                    total: Number(
+                      (prevState.total - Number(discAmt)).toFixed(2)
+                    ),
+                  };
+                });
               }
+              break;
+            }
+            default: {
+              console.log("useEffect voucher problems bro");
             }
           }
-      });
+        } else {
+          switch (voucher.voucher_category) {
+            case "Shipping": {
+              if (voucher.number_amount) {
+                const discAmt = 1 - Number(voucher.number_amount);
+
+                setTotalAmt((prevState) => ({
+                  ...prevState,
+                  shippingFee: Number(
+                    (prevState.shippingFee + discAmt).toFixed(2)
+                  ),
+
+                  total: Number((prevState.total + discAmt).toFixed(2)),
+                }));
+              } else {
+                setTotalAmt((prevState) => {
+                  const newShippingAmt = Number(
+                    Number(prevState.shippingFee) /
+                      (1 - Number(voucher.percentage_amount))
+                  );
+
+                  return {
+                    ...prevState,
+                    shippingFee: Number(newShippingAmt.toFixed(2)),
+
+                    total: Number(
+                      (
+                        prevState.subTotal + Number(newShippingAmt.toFixed(2))
+                      ).toFixed(2)
+                    ),
+                  };
+                });
+              }
+              break;
+            }
+            case "Coins": {
+              const discAmt = voucher.number_amount;
+              setTotalAmt((prevState) => ({
+                ...prevState,
+                coins: Number((prevState.coins - Number(discAmt)).toFixed(2)),
+              }));
+              break;
+            }
+            case "Price": {
+              if (voucher.number_amount) {
+                const discAmt = voucher.number_amount;
+                setGroupItemsPrice((prevState) => ({
+                  ...prevState,
+                  [voucher.seller_id]: Number(
+                    (prevState[voucher.seller_id] + Number(discAmt)).toFixed(2)
+                  ),
+                }));
+                setTotalAmt((prevState) => {
+                  return {
+                    ...prevState,
+                    subTotal: Number(
+                      (prevState.subTotal + Number(discAmt)).toFixed(2)
+                    ),
+                    total: Number(
+                      (prevState.total + Number(discAmt)).toFixed(2)
+                    ),
+                  };
+                });
+              } else {
+                let discAmt = 0;
+                setGroupItemsPrice((prevState) => {
+                  const newTotalPriceAmt =
+                    prevState[voucher.seller_id] *
+                    Number(1 + Number(voucher.percentage_amount));
+                  discAmt =
+                    prevState[voucher.seller_id] *
+                    Number(voucher.percentage_amount);
+                  return {
+                    ...prevState,
+                    [voucher.seller_id]: Number(newTotalPriceAmt.toFixed(2)),
+                  };
+                });
+                setTotalAmt((prevState) => {
+                  return {
+                    ...prevState,
+                    subTotal: Number(
+                      (prevState.subTotal + Number(discAmt)).toFixed(2)
+                    ),
+                    total: Number(
+                      (prevState.total + Number(discAmt)).toFixed(2)
+                    ),
+                  };
+                });
+              }
+              break;
+            }
+            default: {
+              console.log("useEffect voucher problems bro");
+            }
+          }
+        }
+      }
     }
   }, [claimedVouchers]);
 
   return (
     <div className="container flex">
       <div className="w-2/3 bg-white rounded-lg shadow-lg p-2">
-        {!cartisEmpty && (
+        {groupItems && (
           <div className="grid grid-cols-5 gap-2">
             <div className="col-span-2 sm:col-span-1"></div>
             <div className="col-span-2 sm:col-span-1 font-semibold">Name</div>
@@ -474,7 +552,7 @@ export default function cartPage(): JSX.Element {
             </div>
           </div>
         )}
-        {cartisEmpty && ( //CHANGE: can remove
+        {userCart.length == 0 && ( //CHANGE: can remove
           <div className="font-bold text-xl text-gray-300 flex justify-center h-full items-center">
             No cart items to retrieve.
           </div>
@@ -554,11 +632,6 @@ export default function cartPage(): JSX.Element {
               )}
               ${groupItemsPrice[parseInt(sellerId)]}
             </div>
-            {/* {claimedVouchers[sellerId] && (
-              <div className="flex justify-center uppercase bg-gray-500 text-white font-barlow text-xs font-semibold">
-                *Voucher Discount Has been applied
-              </div>
-            )} */}
           </div>
         ))}
       </div>
@@ -683,6 +756,8 @@ export default function cartPage(): JSX.Element {
           setClaimedVouchers={setClaimedVouchers}
           groupItems={groupItems}
           getUserCart={getUserCart}
+          setWasAVVoucherClaimed={setWasAVVoucherClaimed}
+          setLastClaimedVoucher={setLastClaimedVoucher}
         />
       )}
     </div>
