@@ -3,7 +3,7 @@ import React, { useEffect, useCallback, useState } from 'react';
 //Every getting , rendering and uploading image is done by Noah
 interface CloudinaryUploaderProps {
     onSuccess: (resultInfo: any) => void;
-    caption:String;
+    caption: String;
 }
 
 const CloudinaryUploader: React.FC<CloudinaryUploaderProps> = ({ onSuccess, caption }) => {
@@ -18,8 +18,6 @@ const CloudinaryUploader: React.FC<CloudinaryUploaderProps> = ({ onSuccess, capt
                     onSuccess(result.info);
                 }
             }))
-
-            // You can remove this line if you don't want the widget to open automatically
         }
     }, [onSuccess]);
     const handleUploadClick = useCallback(() => {
@@ -30,7 +28,7 @@ const CloudinaryUploader: React.FC<CloudinaryUploaderProps> = ({ onSuccess, capt
     return (
         <div>
             <button className="cloudinary-button" onClick={handleUploadClick}>
-               {caption}
+                {caption}
             </button>
 
         </div>
