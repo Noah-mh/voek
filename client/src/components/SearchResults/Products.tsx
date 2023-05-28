@@ -13,10 +13,7 @@ const Products = ({ userInput }: ProductsProps) => {
 
   useEffect(() => {
     axios
-      .post(`/searchResult`, JSON.stringify({ input: userInput }), {
-        headers: { "Content-Type": "application/json" },
-        withCredentials: true,
-      })
+      .get(`/searchResult/${userInput}`)
       .then((response: any) => response.data)
       .then((data: Array<object>) => {
         setStatus(true);

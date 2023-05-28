@@ -14,7 +14,7 @@ interface AllProductProps {
 }
 
 const AllProducts: React.FC<AllProductProps> = ({ productData }) => {
-
+console.log(productData)
     return (
         <div className="flex flex-wrap justify-around">
             {productData.map((product) => (

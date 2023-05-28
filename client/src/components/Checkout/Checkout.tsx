@@ -19,17 +19,18 @@ export default function CheckOutPage(): JSX.Element {
       const coinsRedeemed = customer.cart.coinsRedeemed;
       const coinsEarned = customer.cart.totalAmt.coins;
       const address_id = customer.cart.addressSelected.address_id;
+      const claimedVouchers = customer.cart.claimedVouchers;
       const insertOrder = async () => {
         try {
           const resPaymentId = await axiosPrivateCustomer.post(
-            `/customer/insertPayment`,
+            `/customer/order/insertPayment`,
             {
               customer_id: customer_id,
               amount: customer.cart.totalAmt.total,
             }
           );
           const resOrderId = await axiosPrivateCustomer.post(
-            `/customer/insertOrder`,
+            `/customer/order/insertOrder`,
             {
               customer_id: customer_id,
               payment_id: resPaymentId.data,
@@ -42,7 +43,7 @@ export default function CheckOutPage(): JSX.Element {
           await Promise.all(
             customer.cart.cartItems.map(async (item: any) => {
               const resOrderProductIDs = await axiosPrivateCustomer.post(
-                `/customer/insertOrderProduct`,
+                `/customer/order/insertOrderProduct`,
                 {
                   orders_id: resOrderId.data,
                   product_id: item.product_id,
@@ -56,9 +57,26 @@ export default function CheckOutPage(): JSX.Element {
             })
           );
           await Promise.all(
+            Object.keys(claimedVouchers).map(async (sellerId: any) => {
+              Object.keys(claimedVouchers[sellerId]).map(
+                async (customer_voucher_id: any) => {
+                  const claimedVoucherID = await axiosPrivateCustomer.put(
+                    `/customer/order/redeemVoucher`,
+                    {
+                      order_id: resOrderId.data,
+                      customer_voucher_id: customer_voucher_id,
+                    }
+                  );
+                  return claimedVoucherID;
+                }
+              );
+            })
+          );
+
+          await Promise.all(
             customer.cart.cartItems.map(async (item: any) => {
-              const resUpdateStock = await axiosPrivateCustomer.post(
-                `/customer/updateProductStock`,
+              const resUpdateStock = await axiosPrivateCustomer.put(
+                `/customer/order/updateProductStock`,
                 {
                   quantityDeduct: item.quantity,
                   sku: item.sku,
@@ -69,10 +87,13 @@ export default function CheckOutPage(): JSX.Element {
             })
           );
 
-          await axiosPrivateCustomer.post(`/customer/updateCustomerCoins`, {
-            customer_id: customer_id,
-            coins: coinsRedeemed == 0 ? coinsEarned : -coinsRedeemed,
-          });
+          await axiosPrivateCustomer.put(
+            `/customer/order/updateCustomerCoins`,
+            {
+              customer_id: customer_id,
+              coins: coinsRedeemed == 0 ? coinsEarned : -coinsRedeemed,
+            }
+          );
           setPaymentSuccess(true);
         } catch (err) {
           console.log(err);
@@ -92,7 +113,7 @@ export default function CheckOutPage(): JSX.Element {
           cart: {},
         };
       });
-      axiosPrivateCustomer.post(`/customer/clearCart`, {
+      axiosPrivateCustomer.put(`/customer/order/clearCart`, {
         customer_id: customer_id,
       });
     }

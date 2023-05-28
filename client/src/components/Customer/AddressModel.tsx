@@ -103,7 +103,7 @@ const AddressModal :React.FC<AddressModalProps>=({ getAll })=> {
             getAll();
         } catch (error) {
             console.error(error);
-            toast.error("Error Uploading Photo", {
+            toast.error("Error adding address", {
                 position: "top-center",
                 autoClose: 5000,
                 hideProgressBar: false,
