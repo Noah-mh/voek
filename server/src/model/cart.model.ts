@@ -2,6 +2,7 @@ import { connect } from "http2";
 import { OkPacket } from "mysql2";
 import pool from "../../config/database";
 import { NumberSchema, StringSchema } from "yup";
+import { query } from "express";
 
 export const handlesGetCartDetails = async (
   customer_id: string
@@ -9,7 +10,7 @@ export const handlesGetCartDetails = async (
   console.log("Connected to getCart Model");
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `SELECT cart.product_id, cart.customer_id, cart.quantity, product_variations.price, product_variations.sku, products.name, product_variations.variation_1, product_variations.variation_2,product_images.image_url,  product_variations.quantity AS stock FROM cart JOIN products ON cart.product_id = products.product_id LEFT JOIN product_images ON cart.sku = product_images.sku JOIN product_variations ON products.product_id = product_variations.product_id WHERE cart.sku = product_variations.sku AND customer_id = ?`;
+  const sql = `SELECT listed_products.seller_id, cart.product_id, cart.customer_id, cart.quantity, product_variations.price, product_variations.sku, products.name, product_variations.variation_1, product_variations.variation_2,product_images.image_url,  product_variations.quantity AS stock FROM cart JOIN products ON cart.product_id = products.product_id LEFT JOIN product_images ON cart.sku = product_images.sku JOIN product_variations ON products.product_id = product_variations.product_id JOIN listed_products ON listed_products.product_id = cart.product_id WHERE cart.sku = product_variations.sku AND customer_id = ?`;
   try {
     const result = await connection.query(sql, [customer_id]);
     console.log("successfully handle got cart details");
@@ -233,6 +234,31 @@ export const handleClearCart = async (customer_id: number): Promise<any> => {
     console.log("Handle Clear Cart Successful ");
     return (result as OkPacket).affectedRows as number;
   } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handleRedeemVoucher = async (
+  customer_voucher_id: number,
+  order_id: number
+): Promise<any> => {
+  console.log(customer_voucher_id, order_id);
+  console.log("**EJKDF");
+  let test = order_id.toString();
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `UPDATE customer_voucher SET redeemed = 0, orders_id = ? WHERE customer_voucher_id = ? `;
+
+  try {
+    const [result] = await connection.query(sql, [
+      order_id,
+      customer_voucher_id,
+    ]);
+    return (result as OkPacket).affectedRows as number;
+  } catch (err: any) {
+    console.log(err);
     throw new Error(err);
   } finally {
     await connection.release();
