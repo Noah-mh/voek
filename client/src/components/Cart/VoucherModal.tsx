@@ -92,7 +92,7 @@ VoucherModalProps) => {
         const { [sellerId]: _, ...updatedClaimedVouchers } = claimedVouchers;
         setClaimedVouchers(updatedClaimedVouchers);
         toast.warn("Voucher has been unclaimed.", {
-          position: "top-center",
+          position: "top-left",
           autoClose: 5000,
           hideProgressBar: false,
           closeOnClick: true,
@@ -115,7 +115,7 @@ VoucherModalProps) => {
       });
       setWasAVVoucherClaimed(true);
       toast.success("Voucher claimed!", {
-        position: "top-center",
+        position: "top-left",
         autoClose: 5000,
         hideProgressBar: false,
         closeOnClick: true,
@@ -185,7 +185,7 @@ VoucherModalProps) => {
                             </h2>
                           ) : (
                             <h2 className="text-lg mb">
-                              Get {voucher.percentage_amount * 100} off
+                              Get {voucher.percentage_amount * 100}% off
                             </h2>
                           )
                         ) : (
