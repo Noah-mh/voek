@@ -469,8 +469,8 @@ export default function (app: Express, router: Router) {
 
   router.put(
     "/updateCustomerLastViewedCat",
-    // verifyJWT,
-    // verifyRoles("customer"),
+    verifyJWT,
+    verifyRoles("customer"),
     customerController.updateCustomerLastViewedCat
   );
 
@@ -480,10 +480,7 @@ export default function (app: Express, router: Router) {
   );
 
   router.post("/insertVoucher", voucherController.insertVoucher);
-  router.put(
-    "/updateRedemptionsAvailable",
-    voucherController.updateRedemptionsAvailable
-  );
+  router.put("/updateActive", voucherController.updateActive);
   router.put("/updateVoucher", voucherController.updateVoucher);
   router.delete("/deleteVoucher/:voucherId", voucherController.deleteVoucher);
   router.get("/getVoucherCategories", voucherController.getVoucherCategories);

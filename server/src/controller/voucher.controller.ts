@@ -74,19 +74,18 @@ export const getVouchers = async (
   }
 };
 
-export const updateRedemptionsAvailable = async (
+export const updateActive = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const { voucher_id, redemptions_available } = req.body;
-    const response: number =
-      await voucherModel.handlesUpdateRedemptionsAvailable(
-        voucher_id,
-        redemptions_available
-      );
-    if (response === 0) return res.sendStatus(404);
+    const { voucherId, active } = req.body;
+    const response: number = await voucherModel.handlesUpdateActive(
+      voucherId,
+      active
+    );
+    if (response === 0) return res.sendStatus(400);
     return res.sendStatus(204);
   } catch (err: any) {
     return next(err);
