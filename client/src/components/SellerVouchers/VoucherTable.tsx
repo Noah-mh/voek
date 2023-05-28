@@ -3,10 +3,16 @@ import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller";
 import useSeller from "../../hooks/useSeller";
 import SellerEditVoucherModal from "./SellerEditVoucherModal";
 import SellerAddVoucherModal from "./SellerAddVoucherModal";
+import SellerDeleteVoucherModal from "./SellerDeleteVoucherModal";
 
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import {
+  faPlus,
+  faTrash,
+  faToggleOn,
+  faToggleOff,
+} from "@fortawesome/free-solid-svg-icons";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -39,10 +45,36 @@ const VoucherTable = () => {
   const [openDeleteVoucherModal, setOpenDeleteVoucherModal] =
     useState<boolean>(false);
   const [addVoucherStatus, setAddVoucherStatus] = useState<number>();
+  const [deleteVoucherStatus, setDeleteVoucherStatus] = useState<number>();
 
   const axiosPrivateSeller = useAxiosPrivateSeller();
   const { seller } = useSeller();
   const sellerId = seller.seller_id;
+
+  const handleUpdateActive = (voucherId: number, active: number) => {
+    axiosPrivateSeller
+      .put(`/updateActive`, { voucherId, active })
+      .then((response) => {
+        if (response.status === 204) {
+          axiosPrivateSeller
+            .get(`/getVouchers/${sellerId}`)
+            .then((response) => {
+              setVouchers(response.data);
+            });
+        } else {
+          toast.error("Uh-oh! Error! 😔", {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+        }
+      });
+  };
 
   useEffect(() => {
     axiosPrivateSeller.get(`/getVouchers/${sellerId}`).then((response) => {
@@ -53,10 +85,6 @@ const VoucherTable = () => {
       setCategories(response.data);
     });
   }, []);
-
-  useEffect(() => {
-    console.log("vouchers: ", vouchers);
-  }, [vouchers]);
 
   useEffect(() => {
     if (addVoucherStatus === undefined) {
@@ -101,6 +129,38 @@ const VoucherTable = () => {
     setAddVoucherStatus(undefined);
   }, [addVoucherStatus]);
 
+  useEffect(() => {
+    if (deleteVoucherStatus === undefined) {
+      return;
+    } else if (deleteVoucherStatus === 202) {
+      axiosPrivateSeller.get(`/getVouchers/${sellerId}`).then((response) => {
+        setVouchers(response.data);
+      });
+      toast.success("Voucher Deleted! 😊", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    } else {
+      toast.error("Uh-oh! Error! 😔", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
+    setAddVoucherStatus(undefined);
+  }, [deleteVoucherStatus]);
+
   return (
     <>
       <div className="relative overflow-x-auto shadow-md sm:rounded-lg w-full">
@@ -131,25 +191,28 @@ const VoucherTable = () => {
           </caption>
           <thead className="text-xs text-gray-700 uppercase bg-gray-50">
             <tr>
-              <th scope="col" className="px-6 py-3">
+              <th scope="col" className="px-3 py-3">
                 Voucher Name
               </th>
-              <th scope="col" className="px-6 py-3">
+              <th scope="col" className="px-3 py-3">
                 Category
               </th>
-              <th scope="col" className="px-6 py-3">
+              <th scope="col" className="px-3 py-3">
                 Price
               </th>
-              <th scope="col" className="px-6 py-3">
+              <th scope="col" className="px-3 py-3">
                 Min-Spend
               </th>
-              <th scope="col" className="px-6 py-3">
+              <th scope="col" className="px-3 py-3">
                 Expiry Date
               </th>
-              <th scope="col" className="px-6 py-3">
+              <th scope="col" className="px-3 py-3">
                 Redemptions Available
               </th>
-              <th scope="col" className="px-6 py-3">
+              <th scope="col" className="px-3 py-3">
+                Active
+              </th>
+              <th scope="col" className="px-3 py-3">
                 <span className="sr-only">Edit</span>
               </th>
             </tr>
@@ -162,33 +225,75 @@ const VoucherTable = () => {
                     key={index}
                     className="border-t border-gray-200 hover:bg-gray-50"
                   >
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">
+                    <td className="px-3 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">
                       {voucher.name}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
+                    <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap">
                       {categories?.map((category: Category) => {
                         if (category.categoryId === voucher.category) {
                           return category.category;
                         }
                       })}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
+                    <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap">
                       {voucher.amount
                         ? `$${voucher.amount}`
                         : `${voucher.percentage}%`}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
+                    <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap">
                       ${voucher.minSpend}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
+                    <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap">
                       {voucher.expiryDate}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
+                    <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap">
                       {voucher.redemptionsAvailable}
                     </td>
-                    <td className="px-6 py-4 text-sm font-medium text-right whitespace-nowrap">
+                    <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap">
+                      {voucher.active === 1 ? (
+                        <div
+                          className="hover:cursor-pointer"
+                          onClick={() => {
+                            handleUpdateActive(voucher.voucherId, 0);
+                          }}
+                        >
+                          <FontAwesomeIcon
+                            icon={faToggleOn}
+                            size="2xl"
+                            style={{ color: "#5c4444" }}
+                          />
+                        </div>
+                      ) : (
+                        <div
+                          className="hover:cursor-pointer"
+                          onClick={() => {
+                            handleUpdateActive(voucher.voucherId, 1);
+                          }}
+                        >
+                          <FontAwesomeIcon
+                            icon={faToggleOff}
+                            size="2xl"
+                            style={{ color: "#5c4444" }}
+                          />
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-3 py-4 text-sm font-medium text-right whitespace-nowrap flex">
                       <div
-                        className="text-indigo-600 hover:text-indigo-900 hover:cursor-pointer"
+                        className="mx-1 hover:cursor-pointer"
+                        onClick={() => {
+                          setSelectedVoucher(voucher);
+                          setOpenDeleteVoucherModal(true);
+                        }}
+                      >
+                        <FontAwesomeIcon
+                          icon={faTrash}
+                          size="lg"
+                          style={{ color: "#5c4444" }}
+                        />
+                      </div>
+                      <div
+                        className="text-softerPurple hover:text-purpleAccent hover:cursor-pointer mx-1"
                         onClick={() => {
                           setSelectedVoucher(voucher);
                           setOpenEditVoucherModal(true);
@@ -224,6 +329,16 @@ const VoucherTable = () => {
           setAddVoucherStatus={setAddVoucherStatus}
         />
       )}
+
+      {openDeleteVoucherModal && (
+        <SellerDeleteVoucherModal
+          voucher={selectedVoucher as Voucher}
+          openModal={openDeleteVoucherModal}
+          setOpenModal={setOpenDeleteVoucherModal}
+          setDeleteVoucherStatus={setDeleteVoucherStatus}
+        />
+      )}
+
       <ToastContainer />
     </>
   );
