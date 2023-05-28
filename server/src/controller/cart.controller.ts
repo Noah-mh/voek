@@ -18,8 +18,6 @@ export const retrieveCartDetails = async (
       customer_id
     );
 
-    // if (!response?.length)
-    //   return res.status(200).json({ message: "No cart details found" });
     return res.json(response);
   } catch (err: any) {
     return next(err);
@@ -193,6 +191,24 @@ export const clearCart = async (
   }
 };
 
+export const processRedeemVoucher = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  console.log("Connected to processRedeemVoucher Controller");
+  try {
+    const { order_id, customer_voucher_id } = req.body;
+    console.log(order_id, customer_voucher_id);
+    const response: Array<object> = await cartModel.handleRedeemVoucher(
+      customer_voucher_id,
+      order_id
+    );
+    return res.sendStatus(200);
+  } catch (err: any) {
+    return next(err);
+  }
+};
 // export const alterSKUCartDetails = async (
 //   req: Request,
 //   res: Response,
