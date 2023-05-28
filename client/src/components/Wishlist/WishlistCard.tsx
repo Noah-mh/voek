@@ -147,7 +147,7 @@ const WishlistCard = () => {
               </div>
             </div>
           )}
-          <div className="wishlistCardRecommendedProducts right w-5/12 p-5 bg-softerPurple flex flex-col items-center">
+          <div className="wishlistCardRecommendedProducts w-5/12 p-5 bg-softerPurple flex flex-col items-center">
             <h1 className="tracking-wider">Recommended Products</h1>
             {categoryProducts.length > 0 ? (
               categoryProducts.map((item: any, index: number) => {
