@@ -31,19 +31,27 @@ export const processGetAllCategories = async (req: Request, res: Response, next:
 export const processAddProduct = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const sellerId: number = parseInt(req.params.sellerId);
-        console.log("sellerId", sellerId);
-        const { name, description, categoryId, variations, quantity, price } = req.body;
-        console.log(name);
-        console.log(!name);
-        console.log(categoryId);
-        console.log(!categoryId);
-        console.log(quantity);
-        console.log(!quantity);
-        console.log(price);
-        console.log(!price);
+        const { name, description, categoryId, variations, quantity, price, imageUrl } = req.body;
+        if (!name || !categoryId || !quantity || !price || !imageUrl) {console.log("check"); return res.sendStatus(400);}
+        const response: any = await sellerModel.handleAddProduct(sellerId, name, description, categoryId, variations, quantity, price, imageUrl);
+        return res.json(response);
+    } catch (err: any) {
+        return next(err);
+    }
+}
 
-        if (!name || !categoryId || !quantity || !price) {console.log("check"); return res.sendStatus(400);}
-        const response: any = await sellerModel.handleAddProduct(sellerId, name, description, categoryId, variations, quantity, price);
+// POST update product
+export const processEditProduct = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const sellerId: number = parseInt(req.params.productId);
+        const { columns, values, variations } = req.body;
+        console.log("start")
+        console.log("col", columns)
+        console.log("val", values)
+        console.log("var", variations)
+        console.log("end")
+        if (!columns || !values || columns.length !== values.length || !variations) {console.log("?check"); return res.sendStatus(400);}
+        const response: any = await sellerModel.handleEditProduct(sellerId, columns, values, variations);
         return res.json(response);
     } catch (err: any) {
         return next(err);

@@ -1,38 +1,15 @@
-import React from 'react';
-
-import SellerSidebar from "../SellerSidebar/SellerSidebar.js";
-import ProductForm from "./ProductForm.tsx";
+import { useState } from 'react';
 import { axiosPrivateSeller } from '../../api/axios.tsx';
 import useSeller from '../../hooks/useSeller.tsx';
 
-// type Props = {}
-
-// interface SubmitVariationsInterface {
-//   var1: string; 
-//   var2: string;
-//   price: number;
-//   quantity: number;
-// }
-
-// interface SubmitInterface {
-// name: string;
-// description: string;
-// price: number;
-// quantity: number;
-// categoryId: number;
-// category: string;
-// variations: Array<SubmitVariationsInterface>;
-
-// // optional properties
-// // edit product only
-// productId?: number;
-// sku?: string;
-// }
+import SellerSidebar from "../SellerSidebar/SellerSidebar.js";
+import ProductForm from "./ProductForm.tsx";
 
 const AddProduct = () => {
 
   const { seller } = useSeller();
   const sellerId = seller.seller_id;
+  const [duplicateExists, setDuplicateExists] = useState<string>("");
 
   const handleSubmit = async (e: any) => {
     console.log(e);
@@ -40,10 +17,17 @@ const AddProduct = () => {
 
     const addProduct = async () => {
       try {
-        await axiosPrivateSeller.post(
+        const response = await axiosPrivateSeller.post(
           `/addProduct/${sellerId}`,
           e
-        )
+        );
+        console.log("duplicate", duplicateExists)
+        console.log("response", response)
+
+        if (response.data === 0) {
+          setDuplicateExists("Product could not be created as it already exists.");
+        }
+        console.log("duplicate", duplicateExists)
       } catch (err) {
         console.log(err);
       }
@@ -62,6 +46,8 @@ const AddProduct = () => {
         <ProductForm 
           onSubmit={handleSubmit}
         />
+
+        {duplicateExists}
       </div>
     </div>
   )

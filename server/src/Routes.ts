@@ -323,10 +323,10 @@ export default function (app: Express, router: Router) {
     "/addProduct/:sellerId",
     sellerController.processAddProduct
   );
-  // router.put(
-  //   "/editProduct/:productId",
-  //   sellerController.processEditProduct
-  // )
+  router.post(
+    "/editProduct/:productId",
+    sellerController.processEditProduct
+  );
   router.put(
     "/updateProductVariation/active/:productId",
     sellerController.processUpdateProductVariationActive

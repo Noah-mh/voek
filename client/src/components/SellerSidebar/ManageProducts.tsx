@@ -20,6 +20,7 @@ interface Product {
   quantity: number;
   sku: string;
   subRows: Array<Product>;
+  imageUrl: string[]
 
   // optional properties
   // product only
@@ -30,7 +31,7 @@ interface Product {
 
   // product variations only
   variation1?: string;
-  varitation2?: string;
+  variation2?: string;
 }
 
 const ManageProducts = () => {
@@ -64,17 +65,21 @@ const ManageProducts = () => {
           quantity: 0,
           sku: "",
           subRows: [],
+          imageUrl: [],
         };
         let currentProductId: number = 0;
+        let currentProductSku: string = "";
         let sellerProducts: Product[] = [];
         let currentIdx: number = -1;
         let newIsCheckedMap: boolean[][] = [];   
 
         await Promise.all (response.data.map((item: any) => {
+          // console.log("item image_url", item.image_url)
           // if current item is not a variation of the previous item, they will not have the same product_id. 
           // hence, this would be a new product, so sellerProduct would need to be reinitialised
           if (currentProductId != item.product_id) {
             currentProductId = item.product_id;
+            currentProductSku = item.sku;
             // console.log(currentProductId)
 
             currentIdx++;
@@ -91,6 +96,7 @@ const ManageProducts = () => {
               subRows: [],
               sku: "",
               quantity: 0,
+              imageUrl: [],
             }
 
             // check for existing product variation
@@ -98,12 +104,13 @@ const ManageProducts = () => {
               let sellerProductVariation: Product = {
                 productId: item.product_id,
                 active: item.availability,
-                name: `${item.variation_1} + ${item.variation_2}`,
+                name: item.variation_2 ? `${item.variation_1} + ${item.variation_2}` : item.variation_1,
                 price: item.price,
                 sku: item.sku,
                 variation1: item.variation_1,
-                varitation2: item.variation_2,
+                variation2: item.variation_2,
                 quantity: item.quantity,
+                imageUrl: [item.image_url],
                 subRows: [],
               }
               sellerProduct.subRows.push(sellerProductVariation);
@@ -115,7 +122,8 @@ const ManageProducts = () => {
               newIsCheckedMap.push([item.active, item.availability]);
             } else {
               sellerProduct.sku = item.sku;
-              sellerProduct.quantity = item.quantity
+              sellerProduct.quantity = item.quantity;
+              sellerProduct.imageUrl.push(item.image_url);
               newIsCheckedMap.push([item.active]);
             }
 
@@ -124,18 +132,21 @@ const ManageProducts = () => {
             sellerProducts.push(sellerProduct);
             // console.log("sellerProducts:", sellerProducts.map(obj => JSON.stringify(obj)));
 
-          } else { 
+          } else if (currentProductSku != item.sku) { 
             // same product_id means that this is a product variation
             // add subRow to sellerProducts[currentIdx]
+            currentProductSku = item.sku;
+
             let sellerProductVariation: Product = {
               productId: item.product_id,
               active: item.availability,
-              name: `${item.variation_1} + ${item.variation_2}`,
+              name: item.variation_2 ? `${item.variation_1} + ${item.variation_2}` : item.variation_1,
               price: item.price,
               sku: item.sku,
               variation1: item.variation_1,
-              varitation2: item.variation_2,
+              variation2: item.variation_2,
               quantity: item.quantity,
+              imageUrl: [item.image_url],
               subRows: [],
             }
             sellerProducts[currentIdx].subRows.push(sellerProductVariation);              
@@ -146,7 +157,9 @@ const ManageProducts = () => {
             // finding lowest price among all variations
             if (item.price < sellerProducts[currentIdx].price) sellerProducts[currentIdx].price = item.price
           
-            newIsCheckedMap[currentProductId-1].push(item.availability);
+            newIsCheckedMap[currentIdx-1].push(item.availability);
+          } else {
+            sellerProducts[currentIdx].subRows[sellerProducts[currentIdx].subRows.length-1].imageUrl.push(item.image_url);
           }
 
         }))

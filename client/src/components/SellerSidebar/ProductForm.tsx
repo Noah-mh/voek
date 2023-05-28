@@ -1,16 +1,11 @@
-// import { useState, useEffect } from 'react'
-// import useSeller from "../../hooks/useSeller.js";
-// import ProductVariationsTable from './ProductVariationsTable.js';
-
 import React, { useMemo, useState, useEffect } from 'react';
 import MaterialReactTable, {
   MRT_Cell,
   type MRT_ColumnDef,
-  type MRT_Row,
 } from 'material-react-table';
 
 import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller.js";
-import { TableCell, TableRow, Tooltip } from '@mui/material';
+import CloudinaryUploader from "../../Cloudinary/CloudinaryUploader";
 
 interface Category {
   category_id: number;
@@ -23,7 +18,8 @@ interface ProductVariations {
   var2: string;
   price: number;
   quantity: number;
-  sku?: string;
+  imageUrl: string[];
+  // sku?: string;
 }
 
 interface SubmitVariationsInterface {
@@ -31,7 +27,8 @@ interface SubmitVariationsInterface {
   var2: string;
   price: number;
   quantity: number;
-  sku?: string;
+  imageUrl: string[];
+  // sku?: string;
 }
 
 interface SubmitInterface {
@@ -39,6 +36,7 @@ interface SubmitInterface {
   description: string;
   price: number;
   quantity: number;
+  imageUrl: string[];
   categoryId: number;
   category: string;
   variations: Array<SubmitVariationsInterface>;
@@ -46,7 +44,7 @@ interface SubmitInterface {
   // optional properties
   // edit product only
   productId?: number;
-  sku?: string;
+  // sku?: string;
 }
 
 interface Product {
@@ -55,19 +53,20 @@ interface Product {
   name: string;
   price: number;
   quantity: number;
-  sku: string;
+  imageUrl: string[];
+  // sku: string;
   subRows: Array<Product>;
 
   // optional properties
   // product only
-  showSubrows?: boolean;
+  // showSubrows?: boolean;
   description?: string;
   categoryId?: number;
   category?: string;
 
   // product variations only
   variation1?: string;
-  varitation2?: string;
+  variation2?: string;
 }
 
 interface ProductFormProps {
@@ -75,31 +74,26 @@ interface ProductFormProps {
   onSubmit: (data: SubmitInterface) => void;
 }
 
-// const validateRequired = (value: string) => !!value.length;
-// const validateEmail = (email: string) =>
-//   !!email.length &&
-//   email
-//     .toLowerCase()
-//     .match(
-//       /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-//     );
-// const validateAge = (age: number) => age >= 18 && age <= 50;
-
 const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
 
   const axiosPrivateSeller = useAxiosPrivateSeller();
 
-  // const { seller } = useSeller();
-  // const sellerId = seller.seller_id;
+  const [currentProduct, setCurrentProduct] = useState<Product>();
 
-  // const [showVariations, setShowVariations] = useState(false);
+  useEffect(() => {
+    if (product) {
+      setCurrentProduct(Object.values(product)[0]);
+    }
+  }, [])
 
-  // const handleToggleVariations = () => {
-  //   setShowVariations(!showVariations);
-  // };
+  useEffect(() => {
+    console.log("currentProduct", currentProduct);
+    currentProduct ? console.log("currentProduct name", currentProduct.name) : "";
+  }, [currentProduct])
 
-  const maximumVariations = 2; // Maximum number of variations allowed
-  const [variations, setVariations] = useState([{ name: '', values: [''] }]);
+  // maximum number of variations allowed
+  const maximumVariations = 2; 
+  const [variations, setVariations] = useState([{ name: "", values: [""] }]);
 
   const [var1Arr, setVar1Arr] = useState<string[]>([]);
   const [var2Arr, setVar2Arr] = useState<string[]>([]);
@@ -107,6 +101,45 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
   const capitaliseFirstLetter = (str: string): string => {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
+
+  useEffect(() => {
+    let defaultVariation: { name: string; values: string[]; }[] = [];
+    if (currentProduct && currentProduct?.subRows.length > 0) {
+      if (currentProduct?.subRows[0].variation1) {
+        const variationName1 = currentProduct?.subRows[0].variation1?.split(": ")[0];
+        console.log("var name", variationName1) 
+        let variation1Arr: string[] = [];
+
+        if (currentProduct?.subRows[0].variation2) {
+          const variationName2 = currentProduct?.subRows[0].variation2?.split(": ")[0];
+          console.log("var name", variationName2) 
+          
+          let variation2Arr: string[] = [];
+          currentProduct?.subRows.forEach((variation) => {
+            variation.variation1 ? variation1Arr.push(variation.variation1.split(": ")[1]) : "";
+            variation.variation2 ? variation2Arr.push(variation.variation2.split(": ")[1]) : "";
+          });    
+          defaultVariation.push({
+            name: variationName1,
+            values: Array.from(new Set(variation1Arr)),
+          });
+          defaultVariation.push({
+            name: variationName2,
+            values: Array.from(new Set(variation2Arr)),
+          });
+        } else {
+          currentProduct?.subRows.forEach((variation) => {
+            variation.variation1 ? variation1Arr.push(variation.variation1.split(": ")[1]) : "";
+          })
+          defaultVariation.push({
+            name: variationName1,
+            values: Array.from(new Set(variation1Arr)),
+          })  
+        }
+      }
+    }
+    setVariations(defaultVariation);
+  }, [currentProduct])
 
   useEffect(() => {
     let arr1: string[] = [];
@@ -200,28 +233,71 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
   useEffect(() => {
     let updatedProductVariations: ProductVariations[] = [];
 
+    if (currentProduct) {
+      currentProduct.subRows.forEach((variation) => {
+        updatedProductVariations.push({
+          name: variation.name,
+          var1: variation.variation1 ? variation.variation1 : "",
+          var2: variation.variation2 ? variation.variation2 : "",
+          price: variation.price,
+          quantity: variation.quantity,
+          imageUrl: variation.imageUrl, 
+        })
+      });
+    }
+    
+    setProductVariations(updatedProductVariations);
+  }, [currentProduct])
+
+  useEffect(() => {
+    let updatedProductVariations: ProductVariations[] = [];
+
     if (var2Arr.length > 0) {
       var1Arr.forEach((var1) => {
           var2Arr.forEach((var2) => {
-              let newVar: ProductVariations = {
-                  name: `${var1} + ${var2}`,
-                  var1: var1,
-                  var2: var2,
-                  price: 0,
-                  quantity: 0
-              }
-              updatedProductVariations.push(newVar);
+            let currentVariation1: Product | undefined = currentProduct?.subRows.find(
+              (variation) =>
+                variation.variation1 === var1 && variation.variation2 === var2
+            );
+            let currentVariation2: ProductVariations | undefined;
+            if (!currentVariation1 && productVariations) {
+              currentVariation2 = productVariations.find(
+                (variation) =>
+                  variation.var1 === var1 && variation.var2 === var2
+              );
+            }
+            let newVar: ProductVariations = {
+              name: `${var1} + ${var2}`,
+              var1: var1,
+              var2: var2,
+              price: currentVariation1 ? currentVariation1.price : currentVariation2 ? currentVariation2.price : 0,
+              quantity: currentVariation1 ? currentVariation1.quantity : currentVariation2 ? currentVariation2.quantity : 0,
+              imageUrl: currentVariation1 ? currentVariation1.imageUrl : currentVariation2 ? currentVariation2.imageUrl : [],
+            };
+            updatedProductVariations.push(newVar);
           })
       })
     } else {
       var1Arr.forEach((var1) => {
+        let currentVariation1: Product | undefined = currentProduct?.subRows.find(
+          (variation) =>
+            variation.variation1 === var1 && !variation.variation2
+        );
+        let currentVariation2: ProductVariations | undefined;      
+        if (!currentVariation1 && productVariations) {
+          currentVariation2 = productVariations.find(
+            (variation) =>
+              variation.var1 === var1 && !variation.var2
+          );
+        }
         let newVar: ProductVariations = {
           name: `${var1}`,
           var1: var1,
           var2: "",
-          price: 0,
-          quantity: 0
-        }
+          price: currentVariation1 ? currentVariation1.price : currentVariation2 ? currentVariation2.price : 0,
+          quantity: currentVariation1 ? currentVariation1.quantity : currentVariation2 ? currentVariation2.quantity : 0,
+          imageUrl: currentVariation1 ? currentVariation1.imageUrl : currentVariation2 ? currentVariation2.imageUrl : [],
+        };
         updatedProductVariations.push(newVar);
       })
     }
@@ -229,19 +305,15 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     setProductVariations(updatedProductVariations);
   }, [var1Arr, var2Arr]);
 
-  // const handleVariationsData = async (variationsData: SubmitVariationsInterface[]) => {
-  //   setProductVariations(variationsData);
-  // }
-
   const [priceForAll, setPriceForAll] = useState<number>(0);
   const [quantityForAll, setQuantityForAll] = useState<number>(0);
 
   const handlePriceForAllChange = (event: any) => {
-      setPriceForAll(event.target.value);
+      setPriceForAll(parseFloat(event.target.value));
   };
   
   const handleQuantityForAllChange = (event: any) => {
-      setQuantityForAll(event.target.value);
+      setQuantityForAll(parseInt(event.target.value));
   };
 
   const handleApplyToAll = (event: any) => {
@@ -280,7 +352,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
       productVariations[row.index].quantity = parseInt(value);
     }
     setProductVariations([...productVariations]); //re-render with new data
-
     console.log("productVariations", productVariations)
   }
 
@@ -305,9 +376,34 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
         enableClickToCopy: true,
         size: 80,
       },
+      {
+        accessorKey: 'imageUrl',
+        header: 'Image',
+        size: 80,
+        enableEditing: false,
+        Cell: ({row}) => (
+          <CloudinaryUploader 
+            // onSuccess={handleProductVariationImageUpload} 
+            onSuccess={(resultInfo: any) => {
+              console.log("Successfully uploaded:", resultInfo.public_id);
+              row.original.imageUrl.push(resultInfo.public_id);
+            }} 
+            caption={"Upload Image"}
+          />
+        )
+      },
     ],
     []
   );
+
+  const [imageURL, setImageURL] = useState<string[]>([]);
+  const [imageError, setImageError] = useState<string>("");
+
+  const handleUpload = async (resultInfo: any) => {
+    console.log("Successfully uploaded:", resultInfo.public_id);
+    setImageURL(resultInfo.public_id);
+    return;
+  }
 
   const [nameError, setNameError] = useState("");
   const [priceError, setPriceError] = useState("");
@@ -319,6 +415,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
 
     setSubmitStatus("Please try again.");
     setRowErrors("");
+    // if (rowErrors != "") return;
 
     const form = e.target as HTMLFormElement;
     
@@ -340,14 +437,21 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     if (!price.disabled && (isNaN(parseFloat(price.value)) || parseFloat(price.value) <= 0)) {
       setPriceError("Please input a valid price that is more than 0 cents.");
       return;
-    } else if (priceError !== "") setPriceError("")
+    } else if (priceError !== "") setPriceError("");
 
     const quantity = form.elements.namedItem('quantityNoVariation') as HTMLInputElement;
 
     if (!quantity.disabled && (isNaN(parseInt(quantity.value)) || parseInt(quantity.value) <= 0)) {
       setQuantityError("Please input a valid quantity that is more than 0.");
       return;
-    } else if (quantityError !== "") setQuantityError("")
+    } else if (quantityError !== "") setQuantityError("");
+
+    if (variations.length === 0 && imageURL.length === 0) {
+      setImageError("Please upload an image.");
+      return;
+    } else if (imageError != "") setImageError("");
+
+    let validVariationInput = true;
 
     if (variations.length > 0 && productVariations.length === 0) {
       console.log("check")
@@ -357,18 +461,42 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
       productVariations.forEach((variation) => {
         if (isNaN(variation.price) || isNaN(variation.quantity) || variation.price <= 0 || variation.quantity <= 0) {
           setRowErrors("Please input valid values greater than zero.");
+          // console.log("check")
+          console.log(rowErrors)
+          validVariationInput = false;
+          console.log("valid1", validVariationInput)
           return;
-        } else setRowErrors("")
-      })  
+        } 
+      }) 
+  
+      console.log("valid", validVariationInput)
+  
+      if (validVariationInput) {
+        console.log("help");
+        productVariations.forEach((variation) => {
+          if (variation.imageUrl.length === 0) {
+            setRowErrors("Please upload at least 1 image for each variation.");
+            console.log(rowErrors)
+            validVariationInput = false;
+            console.log("valid2", validVariationInput) 
+            return; 
+          }
+        })
+        if (validVariationInput) {
+          console.log("valid3", validVariationInput) 
+          setRowErrors("");
+        }
+      }
     }
 
-    if (rowErrors != "") return;
+    if (!validVariationInput) return;
 
     const formData: SubmitInterface = {
       name: name.value,
       description: description.value,
       price: Number.isNaN(parseFloat(price.value)) ? -1 : parseFloat(price.value),
       quantity: Number.isNaN(parseFloat(quantity.value)) ? -1 : parseFloat(quantity.value),
+      imageUrl: imageURL,
       categoryId: categoryId,
       category: categoryName,
       variations: productVariations,
@@ -378,6 +506,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
       formData.productId = product.productId;
     }
 
+    console.log("string or num", productVariations)
     onSubmit(formData);
     setSubmitStatus("Success!");
   };
@@ -394,6 +523,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
             className="text-black border-gray-300 rounded-md shadow-sm" 
             type="text" 
             name="name"
+            defaultValue={currentProduct ? currentProduct.name : ""}
             required 
           />
         </label>
@@ -409,11 +539,15 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
           <textarea 
             className="text-black border-gray-300 rounded-md shadow-sm" 
             name="description" 
+            defaultValue={currentProduct ? currentProduct.description : ""}
           />
         </label>
 
         <label>
-          <select name="category">
+          <select 
+            name="category"
+            defaultValue={currentProduct ? currentProduct.categoryId : 1}
+          >
             {categories.map(item => (
               <option key={item.category_id} value={item.category_id}>{item.name}</option>
             ))}
@@ -429,6 +563,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
             step=".01"
             disabled={variations.length > 0}
             name="priceNoVariation"
+            defaultValue={currentProduct ? currentProduct.price : ""}
           />
           <br />
           {variations.length === 0 && (
@@ -447,6 +582,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
             type="number"
             disabled={variations.length > 0}
             name="quantityNoVariation"
+            defaultValue={currentProduct ? currentProduct.quantity : ""}
           />
           <br />
           {variations.length === 0 && (
@@ -455,6 +591,24 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
           <br />
           {quantityError && (
             <span className="tooltip">{quantityError}</span>
+          )}
+        </label>
+
+        <label>
+          {variations.length === 0 && (
+            <>
+              <br />
+              <CloudinaryUploader 
+                onSuccess={handleUpload} 
+                caption={"Upload Image"} 
+              />
+              <br />
+              <span className="tooltip">This field is required for products without variations.</span>
+              <br />
+              {imageError && (
+                <span className="tooltip">{imageError}</span>
+              )}
+            </>
           )}
         </label>
 
@@ -532,7 +686,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
       <section>
         <br />
         
-        <MaterialReactTable
+          {(variations.length !== 0 && <MaterialReactTable
             key={productVariations.map((item) => item.name + item.price + item.quantity).join("-")}
             displayColumnDefOptions={{
             'mrt-row-actions': {
@@ -581,16 +735,11 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                     </button>
                 </div>
             )}
-        />
+        />)}        
         <br />
         {rowErrors && (
           <span className="tooltip">{rowErrors}</span>
         )}
-        {/* <ProductVariationsTable
-          var1Arr={var1Arr}
-          var2Arr={var2Arr}
-          onSubmit={handleVariationsData}
-        /> */}
       </section>
 
         <br />
