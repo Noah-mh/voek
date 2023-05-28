@@ -500,27 +500,28 @@ export default function cartPage(): JSX.Element {
                   };
                 });
               } else {
-                let discAmt = 0;
+                let difference = 0;
                 setGroupItemsPrice((prevState) => {
-                  const newTotalPriceAmt =
-                    prevState[voucher.seller_id] *
-                    Number(1 + Number(voucher.percentage_amount));
-                  discAmt =
-                    prevState[voucher.seller_id] *
-                    Number(voucher.percentage_amount);
+                  let nowPercentage = 1 - Number(voucher.percentage_amount);
+                  let previousPrice = prevState[voucher.seller_id];
+                  const newTotalPriceAmt = Number(
+                    prevState[voucher.seller_id] / Number(nowPercentage)
+                  );
+                  difference = Number(newTotalPriceAmt) - Number(previousPrice);
                   return {
                     ...prevState,
                     [voucher.seller_id]: Number(newTotalPriceAmt.toFixed(2)),
                   };
                 });
                 setTotalAmt((prevState) => {
+                  let subtotalAmt = Number(
+                    (prevState.subTotal + Number(difference)).toFixed(2)
+                  );
                   return {
                     ...prevState,
-                    subTotal: Number(
-                      (prevState.subTotal + Number(discAmt)).toFixed(2)
-                    ),
+                    subTotal: Number(subtotalAmt.toFixed(2)),
                     total: Number(
-                      (prevState.total + Number(discAmt)).toFixed(2)
+                      (prevState.total + Number(difference)).toFixed(2)
                     ),
                   };
                 });
@@ -641,7 +642,7 @@ export default function cartPage(): JSX.Element {
         <div className=" text-sm summary">
           <div className="subTotal flex justify-between">
             <div className=" text-white">Subtotal</div>
-            <div className="text-white">${totalAmt.subTotal}</div>
+            <div className="text-white">${totalAmt.subTotal.toFixed(2)}</div>
           </div>
           <div className="total flex justify-between">
             <div className=" text-white">Shipping</div>
@@ -734,7 +735,7 @@ export default function cartPage(): JSX.Element {
         </div>
       </div>
       <ToastContainer
-        position="top-center"
+        position="left"
         autoClose={5000}
         hideProgressBar={false}
         newestOnTop={false}
