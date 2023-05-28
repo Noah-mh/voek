@@ -485,7 +485,7 @@ export default function (app: Express, router: Router) {
     voucherController.updateRedemptionsAvailable
   );
   router.put("/updateVoucher", voucherController.updateVoucher);
-  router.delete("/deleteVoucher", voucherController.deleteVoucher);
+  router.delete("/deleteVoucher/:voucherId", voucherController.deleteVoucher);
   router.get("/getVoucherCategories", voucherController.getVoucherCategories);
   router.get("/getVouchers/:sellerId", voucherController.getVouchers);
   router.get(

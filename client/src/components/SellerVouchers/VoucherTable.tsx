@@ -3,10 +3,11 @@ import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller";
 import useSeller from "../../hooks/useSeller";
 import SellerEditVoucherModal from "./SellerEditVoucherModal";
 import SellerAddVoucherModal from "./SellerAddVoucherModal";
+import SellerDeleteVoucherModal from "./SellerDeleteVoucherModal";
 
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -39,6 +40,7 @@ const VoucherTable = () => {
   const [openDeleteVoucherModal, setOpenDeleteVoucherModal] =
     useState<boolean>(false);
   const [addVoucherStatus, setAddVoucherStatus] = useState<number>();
+  const [deleteVoucherStatus, setDeleteVoucherStatus] = useState<number>();
 
   const axiosPrivateSeller = useAxiosPrivateSeller();
   const { seller } = useSeller();
@@ -53,10 +55,6 @@ const VoucherTable = () => {
       setCategories(response.data);
     });
   }, []);
-
-  useEffect(() => {
-    console.log("vouchers: ", vouchers);
-  }, [vouchers]);
 
   useEffect(() => {
     if (addVoucherStatus === undefined) {
@@ -100,6 +98,38 @@ const VoucherTable = () => {
     }
     setAddVoucherStatus(undefined);
   }, [addVoucherStatus]);
+
+  useEffect(() => {
+    if (deleteVoucherStatus === undefined) {
+      return;
+    } else if (deleteVoucherStatus === 202) {
+      axiosPrivateSeller.get(`/getVouchers/${sellerId}`).then((response) => {
+        setVouchers(response.data);
+      });
+      toast.success("Voucher Deleted! 😊", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    } else {
+      toast.error("Uh-oh! Error! 😔", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
+    setAddVoucherStatus(undefined);
+  }, [deleteVoucherStatus]);
 
   return (
     <>
@@ -186,9 +216,22 @@ const VoucherTable = () => {
                     <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
                       {voucher.redemptionsAvailable}
                     </td>
-                    <td className="px-6 py-4 text-sm font-medium text-right whitespace-nowrap">
+                    <td className="px-6 py-4 text-sm font-medium text-right whitespace-nowrap flex">
                       <div
-                        className="text-indigo-600 hover:text-indigo-900 hover:cursor-pointer"
+                        className="mx-1 hover:cursor-pointer"
+                        onClick={() => {
+                          setSelectedVoucher(voucher);
+                          setOpenDeleteVoucherModal(true);
+                        }}
+                      >
+                        <FontAwesomeIcon
+                          icon={faTrash}
+                          size="lg"
+                          style={{ color: "#310d20" }}
+                        />
+                      </div>
+                      <div
+                        className="text-softerPurple hover:text-purpleAccent hover:cursor-pointer mx-1"
                         onClick={() => {
                           setSelectedVoucher(voucher);
                           setOpenEditVoucherModal(true);
@@ -224,6 +267,16 @@ const VoucherTable = () => {
           setAddVoucherStatus={setAddVoucherStatus}
         />
       )}
+
+      {openDeleteVoucherModal && (
+        <SellerDeleteVoucherModal
+          voucher={selectedVoucher as Voucher}
+          openModal={openDeleteVoucherModal}
+          setOpenModal={setOpenDeleteVoucherModal}
+          setDeleteVoucherStatus={setDeleteVoucherStatus}
+        />
+      )}
+
       <ToastContainer />
     </>
   );

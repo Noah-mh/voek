@@ -146,9 +146,11 @@ export const deleteVoucher = async (
   next: NextFunction
 ) => {
   try {
-    const { voucherId } = req.body;
-    const response: number = await voucherModel.handlesDeleteVoucher(voucherId);
-    if (response === 0) return res.sendStatus(404);
+    const { voucherId } = req.params;
+    const response: number = await voucherModel.handlesDeleteVoucher(
+      parseInt(voucherId)
+    );
+    if (response === 0) return res.sendStatus(400);
     return res.sendStatus(202);
   } catch (err: any) {
     return next(err);

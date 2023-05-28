@@ -162,7 +162,7 @@ export const handlesDeleteVoucher = async (
   const sql = `DELETE FROM customer_voucher WHERE voucher_id = ?;`;
   try {
     const result = await connection.query(sql, [voucher_id]);
-    return (result[0] as any).affectedRows as number;
+    return deletedFromSeller;
   } catch (err: any) {
     throw new Error(err);
   } finally {
