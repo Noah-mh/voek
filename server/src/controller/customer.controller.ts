@@ -368,29 +368,6 @@ export const getCustomerDetails = async (
   }
 };
 
-// export const updateCustomerDetails = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     const { customer_id } = req.params;
-//     const { username, email, phone_number } = req.body;
-//     const customerId = parseInt(customer_id);
-//     const response: number =
-//       await customerModel.handleCustomerProfileEdit(
-//         username,
-//         email,
-//         phone_number,
-//         customerId
-//       );
-//     if (!response) return res.sendStatus(404);
-//     return res.sendStatus(200);
-//   } catch (err: any) {
-//     return next(err);
-//   }
-// };
-
 //Noah
 export const updateCustomerDetails = async (
   req: Request,
@@ -605,3 +582,59 @@ export const processCustomerAddressUpdate = async (
     return next(err);
   }
 };
+
+export const processViewVouchers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.params;
+    const result = await customerModel.handleViewVouchers(parseInt(customer_id));
+    return res.json({ vouchers: result });
+  } catch (err: any) {
+    return next(err);
+  }
+}
+
+export const processCustomerVouchers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.params;
+    const result = await customerModel.handleCustomerVouchers(parseInt(customer_id));
+    return res.json({ vouchers: result });
+  } catch (err: any) {
+    return next(err);
+  }
+}
+
+export const processPutVouchers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id, voucher_id } = req.params;
+    await customerModel.handlePutVouchers(parseInt(customer_id), parseInt(voucher_id));
+    return res.sendStatus(200);
+  } catch (err: any) {
+    return next(err);
+  }
+}
+
+export const processDeleteVouchers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_voucher_id, voucher_id } = req.params;
+    await customerModel.handleDeleteVouchers(parseInt(customer_voucher_id), parseInt(voucher_id));
+    return res.sendStatus(200);
+  } catch (err: any) {
+    return next(err);
+  }
+}

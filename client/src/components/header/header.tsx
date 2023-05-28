@@ -1,11 +1,12 @@
 import "./css/header.css";
 import { useRef, useState, useEffect } from "react";
-import useCustomer from "../../hooks/UseCustomer";
-import useSeller from "../../hooks/useSeller";
-import LiveSearch from "../Header/LiveSearch.js";
-import DropDownProfile from "../Header/DropDownProfile.js";
+import useCustomer from "../../hooks/UseCustomer.js";
+import useSeller from "../../hooks/useSeller.js";
+import LiveSearch from "../header/LiveSearch.js";
+import DropDownProfile from "../header/DropDownProfile.js";
 import { Link } from "react-router-dom";
-import axios from "../../api/axios";
+import axios from "../../api/axios.js";
+import { useLocation } from "react-router-dom";
 
 interface Props {
   isCustomer?: boolean;
@@ -41,6 +42,12 @@ const Header = ({ isCustomer, isSeller }: Props) => {
         console.log(err);
       });
   }, []);
+
+  const location = useLocation();
+  useEffect(() => {
+    setOpenProfile(false);
+  }, [location])
+
 
   return (
     <nav
@@ -111,17 +118,17 @@ const Header = ({ isCustomer, isSeller }: Props) => {
           ) : isSeller ? (
             seller?.seller_id ? (
               <Link to="/seller/profile">
-                <p>Profile</p>
+                <p className="text-purpleAccent">Profile</p>
               </Link>
             ) : (
               <Link to="/seller/login">
-                <p>Login</p>
+                <p className="text-purpleAccent">Login</p>
               </Link>
             )
           ) : null}
         </div>
       </div>
-      {openProfile && <DropDownProfile setOpenProfile={setOpenProfile} />}
+      {openProfile && <DropDownProfile />}
     </nav>
   );
 };

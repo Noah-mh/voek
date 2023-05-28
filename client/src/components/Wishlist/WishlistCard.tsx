@@ -20,10 +20,7 @@ const WishlistCard = () => {
 
   useEffect(() => {
     axiosPrivateCustomer
-      .post(`/getWishlistItems`, JSON.stringify({ customerId }), {
-        headers: { "Content-Type": "application/json" },
-        withCredentials: true,
-      })
+      .get(`/getWishlistItems/${customerId}`)
       .then((response) => {
         const products = response.data.map((product: any) => {
           const image = axios.get(`/getProductImage/${product.product_id}`);
@@ -31,7 +28,12 @@ const WishlistCard = () => {
             `/getProductVariationsPricing/${product.product_id}`
           );
           return Promise.all([image, pricing]).then((responses) => {
-            product.image = responses[0].data[0].imageURL;
+            console.log("response.data[0]: ", responses[0].data[0]);
+            if (responses[0].data[0] === undefined) {
+              product.image = "/test/No_Image_Available_hyxfvc.jpg";
+            } else {
+              product.image = responses[0].data[0].imageURL;
+            }
             product.lowestPrice = responses[1].data[0].lowestPrice;
             product.highestPrice = responses[1].data[0].highestPrice;
             return product;

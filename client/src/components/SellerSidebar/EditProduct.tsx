@@ -3,10 +3,10 @@ import { useLocation } from 'react-router-dom';
 import { axiosPrivateSeller } from '../../api/axios.tsx';
 // import useSeller from '../../hooks/useSeller.tsx';
 
-import SellerSidebar from "../SellerSidebar/SellerSidebar.js";
+// import SellerSidebar from "../SellerSidebar/SellerSidebar.js";
 import ProductForm from "./ProductForm.tsx";
 // import { useState, useEffect } from 'react';
-import Product from '../Header/Product.tsx';
+// import Product from '../Header/Product.tsx';
 
 // interface ProductVariations {
 //   name: string;
@@ -151,7 +151,6 @@ const EditProduct = () => {
 
   return (
     <div className="flex flex-row">
-      <SellerSidebar />
 
       <div className="flex flex-col w-max">
         <div>Edit Product</div>

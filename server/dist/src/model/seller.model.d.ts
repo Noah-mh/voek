@@ -1,6 +1,8 @@
 export declare const handleGetAllProducts: (sellerId: number) => Promise<any[]>;
 export declare const handleGetAllCategories: () => Promise<any[]>;
 export declare const handleAddProduct: (sellerId: number, name: string, description: string, category_id: number, variation_1: string, variation_2: string, quantity: number, price: number) => Promise<void>;
+export declare const handleUpdateProductVariationActive: (active: boolean, productId: number, sku: string) => Promise<number>;
+export declare const handleUpdateProductActive: (active: boolean, productId: number) => Promise<number>;
 export declare const handleGetOrderDetails: (ordersId: number) => Promise<Orders>;
 export declare const handleLogin: (email: string, password: string) => Promise<Seller | null>;
 export declare const handleStoreRefreshToken: (refreshtoken: string, seller_id: number) => Promise<number>;

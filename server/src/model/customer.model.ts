@@ -5,6 +5,10 @@ import client from "../../config/teleSign";
 import { ResultSetHeader } from "mysql2";
 import config from "../../config/config";
 import jwt from "jsonwebtoken";
+import * as dotenv from "dotenv";
+dotenv.config({
+  path: __dirname + "../../env",
+});
 import { connect } from "http2";
 import c from "config";
 
@@ -17,9 +21,7 @@ export const handleLogin = async (
   const sql = `SELECT username, password, customer_id, phone_number, email FROM customer WHERE email = ? AND active != 0`;
   try {
     const result: any = await connection.query(sql, [email]);
-    const encryptrdPassword = result[0].length
-      ? result[0][0].password
-      : "";
+    const encryptrdPassword = result[0].length ? result[0][0].password : "";
     const check = await bcrypt.compare(password, encryptrdPassword);
     if (check) {
       const customer_id: number = result[0][0]?.customer_id;
@@ -44,10 +46,7 @@ export const handleStoreRefreshToken = async (
   const connection = await promisePool.getConnection();
   const sql = `UPDATE customer SET refresh_token =? WHERE customer_id =?`;
   try {
-    const result = await connection.query(sql, [
-      refreshtoken,
-      customer_id,
-    ]);
+    const result = await connection.query(sql, [refreshtoken, customer_id]);
     return (result[0] as any).affectedRows as number;
   } catch (err: any) {
     throw new Error(err);
@@ -186,7 +185,9 @@ export const handleSendEmailLink = async (
         sender,
         to: receivers,
         subject: "Verification Link For VOEK Sign Up",
-        textContent: `http://localhost:5173/signup/verify?signupToken=${signUpToken}`,
+        textContent: `${
+          process.env.FRONTEND_BASE_URL || "http://localhost:5173"
+        }/signup/verify?signupToken=${signUpToken}`,
       })
       .then((response: any) => {
         console.log(response);
@@ -257,9 +258,7 @@ export const handleGetCustomerIdByRefId = async (
   const sql = `SELECT customer_id FROM customer WHERE referral_id = ?`;
   try {
     const result: any = await connection.query(sql, [referral_id]);
-    return result[0][0]?.customer_id
-      ? result[0][0].customer_id
-      : null;
+    return result[0][0]?.customer_id ? result[0][0].customer_id : null;
   } catch (err: any) {
     throw new Error(err);
   } finally {
@@ -292,9 +291,7 @@ export const handleActiveAccount = async (
   }
 };
 
-export const handleLogOut = async (
-  refreshToken: string
-): Promise<number> => {
+export const handleLogOut = async (refreshToken: string): Promise<number> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `UPDATE customer SET refresh_token = NULL WHERE refresh_token = ?`;
@@ -345,7 +342,9 @@ export const handleSendEmailForgetPassword = async (
         sender,
         to: receivers,
         subject: "Verification Link For VOEK Sign Up",
-        textContent: `http://localhost:5173/forgetPassword/verify?forgetPasswordToken=${forgetPasswordToken}`,
+        textContent: `${
+          process.env.FRONTEND_BASE_URL || "http://localhost:5173"
+        }/forgetPassword/verify?forgetPasswordToken=${forgetPasswordToken}`,
       })
       .then((response: any) => {
         console.log(response);
@@ -407,18 +406,12 @@ export const handleUpdateCustomerDetails = async (
   const connection = await promisePool.getConnection();
   try {
     let sql = `SELECT * FROM customer WHERE email like ? and customer_id != ?`;
-    let result = (await connection.query(sql, [
-      email,
-      customer_id,
-    ])) as any;
+    let result = (await connection.query(sql, [email, customer_id])) as any;
     if (result[0].length != 0) {
       return { duplicateEmail: true };
     } else {
       let sql = `SELECT * FROM customer WHERE email like ? and customer_id = ?`;
-      let result = (await connection.query(sql, [
-        email,
-        customer_id,
-      ])) as any;
+      let result = (await connection.query(sql, [email, customer_id])) as any;
       if (result[0].length === 0) {
         sql =
           "UPDATE update_customer SET new_email = ?, email_sent = utc_timestamp() WHERE customer_id = ?";
@@ -503,7 +496,9 @@ export const handleSendEmailChange = async (
       sender,
       to: receivers,
       subject: "Verification Link For VOEK Email Change",
-      textContent: `http://localhost:5173/customer/email-verification?token=${changeCustomerEmailToken}`,
+      textContent: `${
+        process.env.FRONTEND_BASE_URL || "http://localhost:5173"
+      }/customer/email-verification?token=${changeCustomerEmailToken}`,
     })
     .then((response: any) => {
       console.log(response);
@@ -533,9 +528,7 @@ export const handleChangeEmail = async (customer_id: number) => {
   }
 };
 
-export const handleDeactivateAccount = async (
-  customer_id: number
-) => {
+export const handleDeactivateAccount = async (customer_id: number) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = "UPDATE customer SET active = 0 WHERE customer_id = ?";
@@ -549,16 +542,12 @@ export const handleDeactivateAccount = async (
   }
 };
 
-export const handleGetCustomerStatus = async (
-  customer_id: number
-) => {
+export const handleGetCustomerStatus = async (customer_id: number) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = "SELECT active FROM customer WHERE customer_id = ?";
   try {
-    const result = (await connection.query(sql, [
-      customer_id,
-    ])) as any;
+    const result = (await connection.query(sql, [customer_id])) as any;
     return result[0][0].active;
   } catch (err: any) {
     throw new Error(err);
@@ -607,9 +596,7 @@ interface LoginResult {
 
 //ALLISON :D
 
-export const handleGetCoins = async (
-  customer_id: string
-): Promise<number> => {
+export const handleGetCoins = async (customer_id: string): Promise<number> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT coins FROM customer WHERE customer_id = ?`;
@@ -649,10 +636,7 @@ export const handlesUpdateCustomerLastViewedCat = async (
   const connection = await promisePool.getConnection();
   const sql = `UPDATE customer SET last_viewed_cat_id = ? WHERE customer_id = ?;`;
   try {
-    const result = await connection.query(sql, [
-      categoryId,
-      customerId,
-    ]);
+    const result = await connection.query(sql, [categoryId, customerId]);
     return result[0] as Array<Object>;
   } catch (err: any) {
     throw new Error(err);
@@ -661,9 +645,7 @@ export const handlesUpdateCustomerLastViewedCat = async (
   }
 };
 
-export const handlesGetCustomerLastViewedCat = async (
-  customerId: number
-) => {
+export const handlesGetCustomerLastViewedCat = async (customerId: number) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT last_viewed_cat_id as categoryId FROM customer WHERE customer_id = ?;`;
@@ -714,6 +696,7 @@ GROUP BY
   }
 };
 
+//Noah
 export const handleCustomerProfileEdit = async (
   username: string,
   email: string,
@@ -759,10 +742,7 @@ export const handleCustomerProfilePhotoEdit = async (
     WHERE customer_id = ?
   `;
   try {
-    const [result] = await connection.query(sql, [
-      image_url,
-      customerId,
-    ]);
+    const [result] = await connection.query(sql, [image_url, customerId]);
     return (result as ResultSetHeader).affectedRows as number;
   } catch (err: any) {
     throw new Error(err);
@@ -805,6 +785,7 @@ export const handleCustomerAddressAdd = async (
   }
 };
 
+//Noah
 export const handleCustomerAddressUpdate = async (
   address_id: number,
   postal_code: string,
@@ -844,6 +825,7 @@ export const handleCustomerAddressUpdate = async (
   }
 };
 
+//Noah
 export const handleCustomerAddressDelete = async (
   address_id: number,
   customer_id: number
@@ -855,13 +837,134 @@ export const handleCustomerAddressDelete = async (
     WHERE address_id = ? AND customer_id = ?
   `;
   try {
-    const [result] = await connection.query(sql, [
-      address_id,
-      customer_id,
-    ]);
+    const [result] = await connection.query(sql, [address_id, customer_id]);
     return (result as ResultSetHeader).affectedRows as number;
   } catch (err: any) {
     console.log(err);
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handleViewVouchers = async (
+  customer_id: number
+): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT voucher_id FROM customer_voucher WHERE customer_id = ? AND redeemed = 1 OR orders_id IS NOT NULL;`;
+  try {
+    const [result] = await connection.query(sql, [customer_id]);
+    return result as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handlePutVouchers = async (
+  customer_id: number,
+  voucher_id: number
+) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `INSERT INTO customer_voucher (customer_id, voucher_id) VALUES (?, ?);`;
+  try {
+    await Promise.all([
+      connection.query(sql, [customer_id, voucher_id]),
+      handleRedeemVoucher(voucher_id),
+    ]);
+    return;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handleRedeemVoucher = async (voucher_id: number) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `UPDATE seller_voucher SET redemptions_available = redemptions_available - 1 WHERE voucher_id = ?;`;
+  try {
+    await connection.query(sql, [voucher_id]);
+    return;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handleCustomerVouchers = async (
+  customer_id: number
+): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `
+  SELECT
+  seller_voucher.seller_id,
+  seller_voucher.voucher_id,
+  seller_voucher.voucher_name,
+  seller_voucher.number_amount,
+  seller_voucher.percentage_amount,
+  voucher_category.voucher_category,
+  seller_voucher.min_spend,
+  customer_voucher.customer_voucher_id,
+  seller_voucher.active
+FROM
+  seller_voucher
+JOIN
+  customer_voucher ON seller_voucher.voucher_id = customer_voucher.voucher_id
+JOIN 
+  voucher_category ON seller_voucher.voucher_category = voucher_category.voucher_category_id
+WHERE 
+  customer_voucher.redeemed = 1
+AND
+	customer_voucher.customer_id = ?
+  `;
+  try {
+    const [result] = await connection.query(sql, [customer_id]);
+    return result as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handleDeleteVouchers = async (
+  customer_voucher_id: number,
+  voucher_id: number
+) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `DELETE FROM customer_voucher WHERE customer_voucher_id = ?`;
+  try {
+    await Promise.all([
+      connection.query(sql, [customer_voucher_id]),
+      handleRefundVouchers(voucher_id),
+    ]);
+    return;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handleRefundVouchers = async (customer_voucher_id: number) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `UPDATE seller_voucher SET redemptions_available = redemptions_available + 1 WHERE voucher_id = ?`;
+  try {
+    await Promise.all([
+      connection.query(sql, [customer_voucher_id]),
+      handleRefundVouchers(customer_voucher_id),
+    ]);
+    return;
+  } catch (err: any) {
     throw new Error(err);
   } finally {
     await connection.release();

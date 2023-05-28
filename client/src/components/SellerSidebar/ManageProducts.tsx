@@ -4,7 +4,6 @@ import MaterialReactTable, {
   type MRT_Row,
 } from 'material-react-table';
 
-import SellerSidebar from "../SellerSidebar/SellerSidebar.js";
 import useSeller from "../../hooks/useSeller.js";
 import Active from "./Active.tsx"
 
@@ -366,7 +365,6 @@ const ManageProducts = () => {
 
   return (
     <div className="flex flex-row">
-        <SellerSidebar />
 
         <MaterialReactTable
         displayColumnDefOptions={{

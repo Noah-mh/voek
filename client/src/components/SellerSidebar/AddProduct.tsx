@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { axiosPrivateSeller } from '../../api/axios.tsx';
 import useSeller from '../../hooks/useSeller.tsx';
 
-import SellerSidebar from "../SellerSidebar/SellerSidebar.js";
 import ProductForm from "./ProductForm.tsx";
 
 const AddProduct = () => {
@@ -38,7 +37,6 @@ const AddProduct = () => {
 
   return (
     <div className="flex flex-row">
-      <SellerSidebar />
 
       <div className="flex flex-col w-max">
         <div>AddProduct</div>

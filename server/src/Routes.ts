@@ -10,6 +10,8 @@ import * as cartController from "./controller/cart.controller";
 import * as orderController from "./controller/order.controller";
 import * as paypalController from "./controller/paypal.controller";
 import * as reviewController from "./controller/review.controller";
+import * as voucherController from "./controller/voucher.controller";
+import * as customer_sellerController from "./controller/customer_seller.controller";
 
 export default function (app: Express, router: Router) {
   // KANG RUI ENDPOINTS - user management system
@@ -21,23 +23,17 @@ export default function (app: Express, router: Router) {
     customerController.processLogout
   );
   router.put(
-    "/customer/seller",
+    "/seller/logout",
     verifyJWT,
     verifyRoles("seller"),
     sellerController.processLogout
   );
-  router.post(
-    "/customer/auth/SMS/OTP",
-    customerController.processSendSMSOTP
-  );
+  router.post("/customer/auth/SMS/OTP", customerController.processSendSMSOTP);
   router.post(
     "/customer/auth/email/OTP",
     customerController.processSendEmailOTP
   );
-  router.post(
-    "/customer/auth/verify/OTP",
-    customerController.processVerifyOTP
-  );
+  router.post("/customer/auth/verify/OTP", customerController.processVerifyOTP);
   router.post(
     "/customer/signup/link/:referral_id",
     customerController.processSendEmailLink
@@ -46,10 +42,7 @@ export default function (app: Express, router: Router) {
     "/customer/signup/verify/link",
     customerController.processSignUpLink
   );
-  router.get(
-    "/refresh/customer",
-    authController.processRefreshTokenCustomer
-  );
+  router.get("/refresh/customer", authController.processRefreshTokenCustomer);
   router.post(
     "/customer/forget/password",
     customerController.processForgetPassword
@@ -64,26 +57,11 @@ export default function (app: Express, router: Router) {
   );
 
   router.post("/login/seller", sellerController.processLogin);
-  router.post(
-    "/seller/auth/SMS/OTP",
-    sellerController.processSendSMSOTP
-  );
-  router.post(
-    "/seller/auth/email/OTP",
-    sellerController.processSendEmailOTP
-  );
-  router.post(
-    "/seller/auth/verify/OTP",
-    sellerController.processVerifyOTP
-  );
-  router.post(
-    "/seller/signup/link",
-    sellerController.processSendEmailLink
-  );
-  router.post(
-    "/seller/signup/verify/link",
-    sellerController.processSignUpLink
-  );
+  router.post("/seller/auth/SMS/OTP", sellerController.processSendSMSOTP);
+  router.post("/seller/auth/email/OTP", sellerController.processSendEmailOTP);
+  router.post("/seller/auth/verify/OTP", sellerController.processVerifyOTP);
+  router.post("/seller/signup/link", sellerController.processSendEmailLink);
+  router.post("/seller/signup/verify/link", sellerController.processSignUpLink);
   router.get("/refresh/seller", authController.processRefreshSeller);
   router.post(
     "/seller/forget/password",
@@ -93,10 +71,7 @@ export default function (app: Express, router: Router) {
     "/seller/verify/reset/password",
     sellerController.processForgetPasswordLink
   );
-  router.post(
-    "/seller/reset/password",
-    sellerController.processResetPassword
-  );
+  router.post("/seller/reset/password", sellerController.processResetPassword);
   router.get(
     "/customer/orders/:customer_id",
     verifyJWT,
@@ -121,18 +96,7 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     orderController.processOrderReceived
   );
-  router.post(
-    "/create-paypal-order",
-    verifyJWT,
-    verifyRoles("customer"),
-    paypalController.processCreatePaypalOrder
-  );
-  router.post(
-    "/capture-paypal-order",
-    verifyJWT,
-    verifyRoles("customer"),
-    paypalController.processCapturePaypalOrder
-  );
+
   router.get(
     "/customer/referral-id/:customer_id",
     verifyJWT,
@@ -181,14 +145,8 @@ export default function (app: Express, router: Router) {
     verifyRoles("seller"),
     sellerController.processUpdateSellerDetails
   );
-  router.put(
-    "/seller/email/verify",
-    sellerController.processChangeEmail
-  );
-  router.put(
-    "/customer/email/verify",
-    customerController.processChangeEmail
-  );
+  router.put("/seller/email/verify", sellerController.processChangeEmail);
+  router.put("/customer/email/verify", customerController.processChangeEmail);
   router.put(
     "/customer/deactivate/:customer_id",
     verifyJWT,
@@ -225,8 +183,36 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     customerController.activateAccount
   );
+  router.get(
+    "/seller/vouchers/:seller_id",
+    sellerController.processViewVouchers
+  );
+  router.get(
+    "/customer/vouchers/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processViewVouchers
+  );
+  router.put(
+    "/customer/vouchers/:customer_id/:voucher_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processPutVouchers
+  );
+  router.get(
+    "/customer/vouchers/wallet/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processCustomerVouchers
+  );
+  router.delete(
+    "/customer/vouchers/:customer_voucher_id/:voucher_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processDeleteVouchers
+  );
 
-  // NOAH ENDPOINTS - reviews, customer profile, customer address, add to cart
+  // NOAH ENDPOINTS - reviews, customer profile, customer address, add to cart, ratings, product details, seller details, seller categories
   router.get(
     "/productDetailsWithoutReviews/:product_id",
     productController.getProductDetailsWithoutReviews
@@ -242,6 +228,38 @@ export default function (app: Express, router: Router) {
     verifyJWT,
     verifyRoles("customer"),
     productController.getCart
+  );
+
+  router.get(
+    "/customer/ratedOrNot/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    reviewController.processGetCustomerRated
+  );
+
+  router.get(
+    "/sellerDetails/:seller_id",
+    customer_sellerController.getSellerDetails
+  );
+
+  router.get(
+    "/sellerDetails/byProduct/:product_id",
+    customer_sellerController.getSellerDetailsByProductId
+  );
+
+  router.get(
+    "/sellerCategories/:seller_id",
+    customer_sellerController.getSellerCategories
+  );
+
+  router.get(
+    "/sellerProducts/:seller_id",
+    customer_sellerController.getSellerProductsDetails
+  );
+
+  router.get(
+    "/sellerProducts/:seller_id/category/:category_id",
+    customer_sellerController.getSellerProductsByCategory
   );
 
   router.post(
@@ -263,6 +281,13 @@ export default function (app: Express, router: Router) {
     verifyJWT,
     verifyRoles("customer"),
     reviewController.addingReviewImages
+  );
+
+  router.put(
+    "/customer/rated/:orders_product_id/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    reviewController.processCustomerRated
   );
 
   router.delete(
@@ -334,11 +359,11 @@ export default function (app: Express, router: Router) {
   router.put(
     "/updateProduct/active/:productId",
     sellerController.processUpdateProductActive
-  )
+  );
 
   // NHAT TIEN ENDPOINTS - Homepage, Last Viewed, Wishlist, Product Details
-  router.post(
-    "/getWishlistItems",
+  router.get(
+    "/getWishlistItems/:customerId",
     verifyJWT,
     verifyRoles("customer"),
     productController.getWishlistItems
@@ -351,16 +376,16 @@ export default function (app: Express, router: Router) {
     productController.getLastViewedProductExistence
   );
 
-  router.post(
+  router.get(
     "/getLastViewed",
     verifyJWT,
     verifyRoles("customer"),
     productController.getLastViewed
   );
-  router.post(
-    "/productDetails",
-    productController.processPublicProductDetails
-  );
+  // router.post(
+  //   "/productDetails",
+  //   productController.processPublicProductDetails
+  // );
 
   router.get(
     "/getRecommendedProductsBasedOnCat/:category_id",
@@ -379,22 +404,16 @@ export default function (app: Express, router: Router) {
     productController.getProductsUsingCategory
   );
 
-  router.get(
-    "/cartDetails",
-    verifyJWT,
-    verifyRoles("customer"),
-    cartController.retrieveCartDetails
-  );
   router.get("/topProducts", productController.getTopProducts);
   router.get(
     "/searchBarPredictions",
     productController.getSearchBarPredictions
   );
-  router.post("/searchResult", productController.getSearchResult);
-  router.get(
-    "/productsBasedOnCategory",
-    productController.getProductsBasedOnCategory
-  );
+  router.get("/searchResult/:input", productController.getSearchResult);
+  // router.get(
+  //   "/productsBasedOnCategory",
+  //   productController.getProductsBasedOnCategory
+  // );
   router.post(
     "/insertWishlistedProduct",
     verifyJWT,
@@ -407,16 +426,13 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     productController.deleteWishlistedProduct
   );
-  router.post(
+  router.get(
     "/checkWishlistProductExistence",
     verifyJWT,
     verifyRoles("customer"),
     productController.checkWishListProductExistence
   );
-  router.get(
-    "/getAllListedProducts",
-    productController.getAllListedProducts
-  );
+  router.get("/getAllListedProducts", productController.getAllListedProducts);
   router.get(
     "/getProductVariations/:product_Id",
     productController.getProductVariations
@@ -427,10 +443,7 @@ export default function (app: Express, router: Router) {
     productController.getProductVariationsPricing
   );
 
-  router.get(
-    "/getProductImage/:product_Id",
-    productController.getProductImage
-  );
+  router.get("/getProductImage/:product_Id", productController.getProductImage);
 
   router.get(
     "/getProductVariationImage/:sku",
@@ -445,29 +458,11 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     productController.insertLastViewedProduct
   );
-  router.get(
-    "/customer/getCart/:customer_id",
-    verifyJWT,
-    verifyRoles("customer"),
-    cartController.retrieveCartDetails
-  );
-
-  router.post(
-    "/insertLastViewedProduct",
-    // verifyJWT,
-    // verifyRoles("customer"),
-    productController.insertLastViewedProduct
-  );
-
-  router.get(
-    "/getProductCat/:product_id",
-    productController.getProductCat
-  );
 
   router.put(
     "/updateCustomerLastViewedCat",
-    // verifyJWT,
-    // verifyRoles("customer"),
+    verifyJWT,
+    verifyRoles("customer"),
     customerController.updateCustomerLastViewedCat
   );
 
@@ -475,63 +470,80 @@ export default function (app: Express, router: Router) {
     "/getCustomerLastViewedCat/:customer_id",
     customerController.getCustomerLastViewedCat
   );
-  router.post(
-    "/customer/getCart",
+
+  router.post("/insertVoucher", voucherController.insertVoucher);
+  router.put("/updateActive", voucherController.updateActive);
+  router.put("/updateVoucher", voucherController.updateVoucher);
+  router.delete("/deleteVoucher/:voucherId", voucherController.deleteVoucher);
+  router.get("/getVoucherCategories", voucherController.getVoucherCategories);
+  router.get("/getVouchers/:sellerId", voucherController.getVouchers);
+  router.get(
+    "/getProductRating/:product_id",
+    productController.getProductRating
+  );
+
+  // router.get("/getProductCat/:product_id", productController.getProductCat);
+
+  // ALLISON'S ENDPOINTS get Cart details, altering quantity, insert payment, insert order, insert order product, update product stock, deleting cart, redeem voucher
+
+  router.get(
+    "/customer/cart/getCart/:customer_id",
     verifyJWT,
     verifyRoles("customer"),
     cartController.retrieveCartDetails
   );
-  router.post(
-    "/customer/alterQuantCart",
+
+  router.put(
+    "/customer/cart/alterQuantCart",
     verifyJWT,
     verifyRoles("customer"),
     cartController.alterQuantCartDetails
   );
   router.post(
-    "/customer/insertPayment",
+    "/customer/order/insertPayment",
     verifyJWT,
     verifyRoles("customer"),
     cartController.insertPayment
   );
 
   router.post(
-    "/customer/insertOrder",
+    "/customer/order/insertOrder",
     verifyJWT,
     verifyRoles("customer"),
     cartController.insertOrder
   );
   router.post(
-    "/customer/insertOrderProduct",
+    "/customer/order/insertOrderProduct",
     verifyJWT,
     verifyRoles("customer"),
     cartController.insertOrderProduct
   );
-  router.post(
-    "/customer/updateProductStock",
+  router.put(
+    "/customer/order/updateProductStock",
     verifyJWT,
     verifyRoles("customer"),
     cartController.updateProductStock
   );
-  router.post(
-    "/customer/updateCustomerCoins",
+  router.put(
+    "/customer/order/updateCustomerCoins",
     verifyJWT,
     verifyRoles("customer"),
     cartController.updateCustomerCoins
   );
   router.post(
-    "/customer/insertShipment",
+    "/customer/order/insertShipment",
     verifyJWT,
     verifyRoles("customer"),
     cartController.insertShipment
   );
-  router.post(
-    "/customer/clearCart",
+  router.put(
+    "/customer/order/clearCart",
     verifyJWT,
     verifyRoles("customer"),
     cartController.clearCart
   );
   router.get(
-    "/customer/getUserCoins/:customer_id",
+    "/customer/cart/getUserCoins/:customer_id",
     verifyJWT,
     verifyRoles("customer"),
     customerController.processGetCoins
@@ -541,5 +553,23 @@ export default function (app: Express, router: Router) {
     verifyJWT,
     verifyRoles("customer"),
     customerController.processGetAddress
+  );
+  router.post(
+    "/create-paypal-order",
+    verifyJWT,
+    verifyRoles("customer"),
+    paypalController.processCreatePaypalOrder
+  );
+  router.post(
+    "/capture-paypal-order",
+    verifyJWT,
+    verifyRoles("customer"),
+    paypalController.processCapturePaypalOrder
+  );
+  router.put(
+    "/customer/order/redeemVoucher",
+    verifyJWT,
+    verifyRoles("customer"),
+    cartController.processRedeemVoucher
   );
 }

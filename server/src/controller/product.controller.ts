@@ -60,11 +60,10 @@ export const getWishlistItems = async (
   next: NextFunction
 ) => {
   try {
-    const { customerId } = req.body;
+    const { customerId } = req.params;
     const response: Array<object> = await productModel.handlesGetWishlistItems(
-      customerId
+      parseInt(customerId as string)
     );
-    console.log("resonse", response);
     return res.send(response);
   } catch (err: any) {
     return next(err);
@@ -97,12 +96,12 @@ export const getLastViewed = async (
   next: NextFunction
 ) => {
   try {
-    const { customerId, dateViewed, timezone } = req.body;
+    const { customerId, dateViewed, timezone } = req.query;
     console.log("timezone:", timezone);
     const response: Array<object> = await productModel.handlesGetLastViewed(
-      customerId,
-      timezone,
-      dateViewed
+      parseInt(customerId as string),
+      timezone as string,
+      dateViewed as string
     );
     return res.send(response);
   } catch (err: any) {
@@ -145,7 +144,7 @@ export const getSearchResult = async (
   next: NextFunction
 ) => {
   try {
-    const { input } = req.body;
+    const { input } = req.params;
     const response: Array<object> = await productModel.handlesSearchResult(
       input
     );
@@ -212,6 +211,7 @@ export const deleteWishlistedProduct = async (
   }
 };
 
+//Noah
 export const getProductDetailsWithoutReviews = async (
   req: Request,
   res: Response,
@@ -229,6 +229,7 @@ export const getProductDetailsWithoutReviews = async (
   }
 };
 
+//Noah
 export const getProductReviews = async (
   req: Request,
   res: Response,
@@ -253,11 +254,11 @@ export const checkWishListProductExistence = async (
   next: NextFunction
 ) => {
   try {
-    const { customerId, productId } = req.body;
+    const { customerId, productId } = req.query;
     const response: Array<object> =
       await productModel.handlesCheckWishlistProductExistence(
-        customerId,
-        productId
+        parseInt(customerId as string),
+        parseInt(productId as string)
       );
     // if (response.length === 0) return res.sendStatus(404);
     // return res.sendStatus(response[0]["COUNT(*)"] === 0 ? 404 : 200);
@@ -399,6 +400,23 @@ export const getProductCat = async (
   }
 };
 
+export const getProductRating = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { product_id } = req.params;
+    const productId: number = parseInt(product_id);
+    const response: Array<object> = await productModel.handlesGetProductRating(
+      productId
+    );
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
 //Noah
 export const addToCart = async (
   req: Request,
@@ -423,6 +441,7 @@ export const addToCart = async (
   }
 };
 
+//Noah
 export const getCart = async (
   req: Request,
   res: Response,
@@ -431,15 +450,12 @@ export const getCart = async (
   try {
     const { customer_id } = req.params;
     const { sku } = req.query;
-    console.log("sku", sku);
     if (!customer_id || !sku) return res.sendStatus(404);
-    const response: Array<object> =
-      await productModel.handleCartDetails(
-        parseInt(customer_id),
-        sku as string
-      );
+    const response: Array<object> = await productModel.handleCartDetails(
+      parseInt(customer_id),
+      sku as string
+    );
     if (!response) return res.sendStatus(404);
-    console.log("response", response);
     return res.json({ cartDetails: response });
   } catch (err: any) {
     return next(err);

@@ -9,7 +9,13 @@ import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-export default function AddressModal() {
+//Noah's code
+interface AddressModalProps {
+    getAll: () => void;
+
+}
+
+const AddressModal :React.FC<AddressModalProps>=({ getAll })=> {
     const { customer } = useCustomer();
     const customer_id = customer.customer_id;
     const axiosPrivateCustomer = useAxiosPrivateCustomer();
@@ -94,10 +100,10 @@ export default function AddressModal() {
                 progress: undefined,
                 theme: "light",
             });
-
+            getAll();
         } catch (error) {
             console.error(error);
-            toast.error("Error Uploading Photo", {
+            toast.error("Error adding address", {
                 position: "top-center",
                 autoClose: 5000,
                 hideProgressBar: false,
@@ -160,3 +166,5 @@ export default function AddressModal() {
         </div>
     );
 }
+
+export default AddressModal;
