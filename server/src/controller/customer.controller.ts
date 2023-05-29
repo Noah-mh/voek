@@ -518,7 +518,7 @@ export const processCustomerAddressAdd = async (
       );
     if (!response) return res.sendStatus(404);
     console.log("Successfully added address with id ", response);
-    return res.sendStatus(200);
+    return res.json(response);
   } catch (err: any) {
     return next(err);
   }

@@ -39,7 +39,7 @@ const ModalComponent: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, order
                 comment: !comment
             });
             console.log(error);
-            toast.error("Error adding address", {
+            toast.error("Error! Cannot add rating", {
                 position: "top-center",
                 autoClose: 5000,
                 hideProgressBar: false,
