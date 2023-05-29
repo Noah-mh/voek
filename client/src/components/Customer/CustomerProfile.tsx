@@ -11,7 +11,6 @@ import { ToastContainer, toast } from "react-toastify";
 import useCustomer from "../../hooks/UseCustomer";
 import ReferralLink from '../ReferralLink/ReferralLink';
 import { AiFillDelete } from 'react-icons/ai';
-import { get } from "http";
 //Noah's code + Kang Rui
 export interface Customer {
   customer_id: number;

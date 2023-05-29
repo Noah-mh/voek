@@ -114,6 +114,7 @@ const AddressModal: React.FC<AddressModalProps> = ({ getAll, addAddress }) => {
                 theme: "light",
             });
             addAddress(addressWithId);
+            getAll();
         } catch (error) {
             console.error(error);
             toast.error("Error adding address", {
