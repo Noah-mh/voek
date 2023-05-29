@@ -3,8 +3,11 @@ import MaterialReactTable, {
   MRT_Cell,
   type MRT_ColumnDef,
 } from 'material-react-table';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller.js";
+import { cld } from "../../Cloudinary/Cloudinary";
+import { AdvancedImage } from "@cloudinary/react";
 import CloudinaryUploader from "../../Cloudinary/CloudinaryUploader";
 
 interface Category {
@@ -82,6 +85,26 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
 
   useEffect(() => {
     if (product) {
+      // const data = Object.values(product)[0];
+      // if (Array.isArray(data)) {
+      //   // Process each item in the data array
+      //   data.forEach((item) => {
+      //     if (typeof item.price === 'string') {
+      //       item.price = parseFloat(item.price);
+      //     }
+  
+      //     if (item.subRows && Array.isArray(item.subRows)) {
+      //       // Process each subItem in the subRows array
+      //       item.subRows.forEach((subItem: Product) => {
+      //         if (typeof subItem.price === 'string') {
+      //           subItem.price = parseFloat(subItem.price);
+      //         }
+      //       });
+      //     }
+      //   });
+      // }
+      // setCurrentProduct(data);
+      console.log(product)
       setCurrentProduct(Object.values(product)[0]);
     }
   }, [])
@@ -239,7 +262,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
           name: variation.name,
           var1: variation.variation1 ? variation.variation1 : "",
           var2: variation.variation2 ? variation.variation2 : "",
-          price: variation.price,
+          price: variation.price ? parseFloat(variation.price.toString()) : 0,
           quantity: variation.quantity,
           imageUrl: variation.imageUrl, 
         })
@@ -382,14 +405,35 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
         size: 80,
         enableEditing: false,
         Cell: ({row}) => (
-          <CloudinaryUploader 
-            // onSuccess={handleProductVariationImageUpload} 
-            onSuccess={(resultInfo: any) => {
-              console.log("Successfully uploaded:", resultInfo.public_id);
-              row.original.imageUrl.push(resultInfo.public_id);
-            }} 
-            caption={"Upload Image"}
-          />
+          <>
+            {/* {imageURLMap[row.index] && imageURLMap[row.index].map((imageUrl: string, index: number) => (
+              <div key={index} className="flex flex-row w-40 h-40 mb-5">
+                <AdvancedImage cldImg={cld.image(imageUrl)} />
+                <button 
+                  className="flex"
+                  onClick={() => {
+                    row.original.imageUrl.splice(index, 1);
+                    const updatedImageURLMap = [...imageURLMap];
+                    updatedImageURLMap[row.index] = updatedImageURLMap[row.index].filter(
+                      (_, i) => i !== index
+                    );
+                    setImageURLMap(updatedImageURLMap);
+                  }}
+                >
+                  <DeleteIcon />
+                </button>
+              </div>
+            ))}
+            <CloudinaryUploader 
+              onSuccess={(resultInfo: any) => {
+                console.log("Successfully uploaded:", resultInfo.public_id);
+                const updatedImageURLMap = [...imageURLMap];
+                updatedImageURLMap[row.index].push(resultInfo.public_id);
+                setImageURLMap(updatedImageURLMap);
+              }} 
+              caption={"Upload Image"}
+            /> */}
+          </>
         )
       },
     ],
@@ -397,17 +441,48 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
   );
 
   const [imageURL, setImageURL] = useState<string[]>([]);
-  const [imageError, setImageError] = useState<string>("");
+  const [imageURLMap, setImageURLMap] = useState<string[][]>([]);
+
+  useEffect(() => {
+    console.log("imageURL", imageURL);
+  }, [imageURL])
+
+  useEffect(() => {
+    console.log("imageURLMap", imageURLMap);
+  }, [imageURLMap])
+
+  useEffect(() => {
+    if (currentProduct) {
+      if (currentProduct.subRows.length === 0) setImageURL(currentProduct.imageUrl);
+      else {
+        let urlArr: string[][] = [];
+        currentProduct.subRows.forEach((variation) => {
+          urlArr.push(variation.imageUrl);
+        })
+        setImageURLMap(urlArr);
+      }
+    }
+  }, [currentProduct])
 
   const handleUpload = async (resultInfo: any) => {
     console.log("Successfully uploaded:", resultInfo.public_id);
-    setImageURL(resultInfo.public_id);
+    // setImageURL([resultInfo.public_id]);
+    imageURL.push(resultInfo.public_id);
     return;
   }
+
+  const handleDeleteImage = (index: number) => {
+    setImageURL((prevImageURL) => {
+      const updatedImageURL = [...prevImageURL];
+      updatedImageURL.splice(index, 1); // Remove the image at the specified index
+      return updatedImageURL;
+    });
+  };
 
   const [nameError, setNameError] = useState("");
   const [priceError, setPriceError] = useState("");
   const [quantityError, setQuantityError] = useState("");
+  const [imageError, setImageError] = useState<string>("");
   const [submitStatus, setSubmitStatus] = useState("");
 
   const handleProductFormSubmit = (e: React.FormEvent) => {
@@ -446,10 +521,11 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
       return;
     } else if (quantityError !== "") setQuantityError("");
 
-    if (variations.length === 0 && imageURL.length === 0) {
-      setImageError("Please upload an image.");
-      return;
-    } else if (imageError != "") setImageError("");
+    // IMAGE OFF
+    // if (variations.length === 0 && imageURL.length === 0) {
+    //   setImageError("Please upload an image.");
+    //   return;
+    // } else if (imageError != "") setImageError("");
 
     let validVariationInput = true;
 
@@ -473,15 +549,16 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
   
       if (validVariationInput) {
         console.log("help");
-        productVariations.forEach((variation) => {
-          if (variation.imageUrl.length === 0) {
-            setRowErrors("Please upload at least 1 image for each variation.");
-            console.log(rowErrors)
-            validVariationInput = false;
-            console.log("valid2", validVariationInput) 
-            return; 
-          }
-        })
+        // IMAGE OFF
+        // productVariations.forEach((variation) => {
+        //   if (variation.imageUrl.length === 0) {
+        //     setRowErrors("Please upload at least 1 image for each variation.");
+        //     console.log(rowErrors)
+        //     validVariationInput = false;
+        //     console.log("valid2", validVariationInput) 
+        //     return; 
+        //   }
+        // })
         if (validVariationInput) {
           console.log("valid3", validVariationInput) 
           setRowErrors("");
@@ -502,8 +579,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
       variations: productVariations,
     };
 
-    if (product != undefined) {
-      formData.productId = product.productId;
+    if (currentProduct) {
+      formData.productId = currentProduct.productId;
     }
 
     console.log("string or num", productVariations)
@@ -555,6 +632,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
         </label>
         <br />
         
+        {variations.length === 0 && (
+          <span className="tooltip">This field is required for products without variations.</span>
+        )}  
+
         <label>
           Price:
           <input
@@ -565,10 +646,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
             name="priceNoVariation"
             defaultValue={currentProduct ? currentProduct.price : ""}
           />
-          <br />
-          {variations.length === 0 && (
-            <span className="tooltip">This field is required for products without variations.</span>
-          )}           
           <br />
           {priceError && (
             <span className="tooltip">{priceError}</span>
@@ -585,10 +662,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
             defaultValue={currentProduct ? currentProduct.quantity : ""}
           />
           <br />
-          {variations.length === 0 && (
-            <span className="tooltip">This field is required for products without variations.</span>
-          )}
-          <br />
           {quantityError && (
             <span className="tooltip">{quantityError}</span>
           )}
@@ -598,16 +671,26 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
           {variations.length === 0 && (
             <>
               <br />
+              {/* {imageURL && imageURL.map((imageUrl: string, index: number) => (
+                <div key={index} className="flex flex-row w-40 h-40 mb-5">
+                  <AdvancedImage cldImg={cld.image(imageUrl)} />
+                  <button 
+                    className="flex"
+                    onClick={() => handleDeleteImage(index)}
+                  >
+                    <DeleteIcon />
+                  </button>
+                </div>
+              ))}
               <CloudinaryUploader 
                 onSuccess={handleUpload} 
                 caption={"Upload Image"} 
               />
-              <br />
-              <span className="tooltip">This field is required for products without variations.</span>
-              <br />
               {imageError && (
                 <span className="tooltip">{imageError}</span>
               )}
+              <br />
+              <br /> */}
             </>
           )}
         </label>
