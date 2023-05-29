@@ -9,13 +9,25 @@ import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+
 //Noah's code
+
+interface newAddress {
+    address_id?: number;
+    block: string;
+    country: string;
+    unit_no: string;
+    postal_code: string;
+    street_name: string;
+}
+
 interface AddressModalProps {
     getAll: () => void;
+    addAddress: (newAddress: newAddress) => void;
 
 }
 
-const AddressModal :React.FC<AddressModalProps>=({ getAll })=> {
+const AddressModal: React.FC<AddressModalProps> = ({ getAll, addAddress }) => {
     const { customer } = useCustomer();
     const customer_id = customer.customer_id;
     const axiosPrivateCustomer = useAxiosPrivateCustomer();
@@ -90,6 +102,7 @@ const AddressModal :React.FC<AddressModalProps>=({ getAll })=> {
                     country: address.country
                 });
             console.log(response);
+            const addressWithId = { ...address, address_id: response.data };
             toast.success("Added New Address", {
                 position: "top-center",
                 autoClose: 5000,
@@ -100,7 +113,7 @@ const AddressModal :React.FC<AddressModalProps>=({ getAll })=> {
                 progress: undefined,
                 theme: "light",
             });
-            getAll();
+            addAddress(addressWithId);
         } catch (error) {
             console.error(error);
             toast.error("Error adding address", {
