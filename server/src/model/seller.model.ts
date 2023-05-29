@@ -9,6 +9,7 @@ import dotenv from 'dotenv'
 dotenv.config({
   path: __dirname + '../../env'
 });
+
 interface SubmitVariationsInterface {
   var1: string;
   var2: string;
@@ -34,7 +35,9 @@ interface Product {
 }
 
 // GET all products from 1 seller
-export const handleGetAllProducts = async (sellerId: number): Promise<any[]> => {
+export const handleGetAllProductsOfSeller = async (
+  sellerId: number
+): Promise<any[]> => {
     const promisePool = pool.promise();
     const connection = await promisePool.getConnection();
     const sql = 
@@ -45,10 +48,36 @@ export const handleGetAllProducts = async (sellerId: number): Promise<any[]> => 
     ON pv.product_id = p.product_id
     INNER JOIN category c
     ON c.category_id = p.category_id
-    INNER JOIN product_images pi
+    LEFT JOIN product_images pi
     ON pi.sku = pv.sku    
     WHERE lp.seller_id = 1
+    AND pv.valid_variation = 1 
     ORDER BY p.product_id ASC; `;
+  try {
+    const result: any = await connection.query(sql, [sellerId]);
+    return result[0] as any[];
+  } catch (err: any) {
+    console.log(err);
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+// GET best sellers
+export const handleGetBestSellers = async (
+  sellerId: number
+): Promise<any[]> => {
+    const promisePool = pool.promise();
+    const connection = await promisePool.getConnection();
+    const sql = 
+    `SELECT op.product_id, SUM(op.quantity) AS total_quantity
+    FROM orders_product op
+    INNER JOIN listed_products lp ON op.product_id = lp.product_id
+    WHERE lp.seller_id = ?
+    GROUP BY op.product_id
+    ORDER BY total_quantity DESC
+    LIMIT 5;`;
   try {
     const result: any = await connection.query(sql, [sellerId]);
     return result[0] as any[];
@@ -78,7 +107,16 @@ export const handleGetAllCategories = async (): Promise<any[]> => {
 };
 
 // POST insert a new product
-export const handleAddProduct = async (sellerId: number, name: string, description: string, categoryId: number, variations: Array<SubmitVariationsInterface>, quantity: number, price: number, imageUrl: string[]) => {
+export const handleAddProduct = async (
+  sellerId: number, 
+  name: string, 
+  description: string, 
+  categoryId: number, 
+  variations: Array<SubmitVariationsInterface>, 
+  quantity: number, 
+  price: number, 
+  imageUrl: string[]
+) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql1 =
@@ -89,13 +127,13 @@ export const handleAddProduct = async (sellerId: number, name: string, descripti
     `INSERT INTO listed_products (product_id, seller_id)
     VALUES (?, ?);`;
   const sql3 =
-    `SELECT UUID() AS sku;`
+    `SELECT UUID() AS sku;`;
   const sql4 = 
     `INSERT INTO product_variations (sku, product_id, variation_1, variation_2, quantity, price)
     VALUES (?, ?, ?, ?, ?, ?)`;
   const sql5 = 
     `INSERT INTO product_images (product_id, image_url, sku)
-    VALUES (?, ?, ?);`
+    VALUES (?, ?, ?);`;
 
   try {
 
@@ -156,28 +194,50 @@ export const handleAddProduct = async (sellerId: number, name: string, descripti
 };
 
 // POST update product
-export const handleEditProduct = async (productId: number, columns: string[], values: string[], variations: Array<SubmitVariationsInterface>) => {
+export const handleEditProduct = async (
+  productId: number, 
+  columns: string[], 
+  values: string[], 
+  variations: Array<SubmitVariationsInterface>
+) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql1 =
     `UPDATE products SET name = ?, description = ?, category_id = ? WHERE product_id = ?;`;
-    
   const sql2 =
-    `UPDATE product_variations pv SET pv.quantity = ?, pv.price = ? WHERE pv.sku = ?;`;
-
+    `UPDATE product_variations SET valid_variation = 0 WHERE product_id = ?;`;
   const sql3 =
-    `SELECT UUID() AS sku;`
-  const sql4 =
+    `UPDATE product_variations SET quantity = ?, price = ?, valid_variation = 1 WHERE sku = ?;`;
+  const sql4 = 
+    `DELETE FROM product_images WHERE sku = ? AND image_url = ?;`;
+  const sql5 =
+    `SELECT
+    IF(COUNT(*) > 0, 'Table', 'UUID') AS source,
+    IF(COUNT(*) > 0, (SELECT sku FROM product_variations WHERE product_id = ? 
+                      AND (variation_1 = ? OR variation_1 IS NULL) 
+                      AND (variation_2 = ? OR variation_2 IS NULL)), UUID()) AS sku
+    FROM (
+      SELECT 1
+      FROM product_variations
+      WHERE product_id = ? 
+        AND (variation_1 = ? OR variation_1 IS NULL) 
+        AND (variation_2 = ? OR variation_2 IS NULL)
+      LIMIT 1
+    ) AS subquery;`;
+  const sql6 =
+      `DELETE FROM product_images WHERE sku = ?;`;
+  const sql7 =
     `INSERT INTO product_variations (sku, product_id, variation_1, variation_2, quantity, price)
-    VALUES (?, ?, ?, ?, ?, ?);`
-  const sql5 = 
+    VALUES (?, ?, ?, ?, ?, ?);`;
+  const sql8 = 
     `INSERT INTO product_images (product_id, image_url, sku)
-    VALUES (?, ?, ?);`
+    VALUES (?, ?, ?);`;
 
   try {
     connection.beginTransaction();
 
     const result1: any = await connection.query(sql1, [values[0], values[1], values[2], productId]);
+    const result2: any = await connection.query(sql2, [productId]);
 
     await Promise.all(variations.map(async (variation) => {
       console.log("quantity", variation.quantity)
@@ -185,16 +245,29 @@ export const handleEditProduct = async (productId: number, columns: string[], va
       console.log("sku", variation.sku)
       if (variation.sku !== "") {
         console.log("check");
-        const result2: any = await connection.query(sql2, [variation.quantity, variation.price, variation.sku]);
+        const result3: any = await connection.query(sql3, [variation.quantity, variation.price, variation.sku]);
       } else {
-        const result3 = await connection.query(sql3)
+        const result5 = await connection.query(sql5, [productId, variation.var1, variation.var2, productId, variation.var1, variation.var2])
         .then(async (response) => {
+          console.log("response", Object.values(response[0])[0])
+          let exists = Object.values(response[0])[0].source;
           let sku = Object.values(response[0])[0].sku;
+          console.log(exists)
           console.log(sku)
-          const result4 = connection.query(sql4, [sku, productId, variation.var1, variation.var2 ? variation.var2 : null, variation.quantity, variation.price]);
-          variation.imageUrl.forEach((url) => {
-            const result5 = connection.query(sql5, [productId, url, sku]);
-          })
+          if (exists === "Table") {
+            const result3: any = await connection.query(sql3, [variation.quantity, variation.price, sku]);
+            // const result6: any = await connection.query(sql6, [sku])
+            // .then((response) => {
+            //   variation.imageUrl.forEach((url) => {
+            //     const result8 = connection.query(sql8, [productId, url, sku]);
+            //   })
+            // })
+          } else {
+            const result7 = connection.query(sql7, [sku, productId, variation.var1, variation.var2 ? variation.var2 : null, variation.quantity, variation.price]);
+            // variation.imageUrl.forEach((url) => {
+            //   const result8 = connection.query(sql8, [productId, url, sku]);
+            // })
+          }
           return productId;
         })
       }
@@ -211,7 +284,11 @@ export const handleEditProduct = async (productId: number, columns: string[], va
 }
 
 // PUT product variation active
-export const handleUpdateProductVariationActive = async (active: boolean, productId: number, sku: string) => {
+export const handleUpdateProductVariationActive = async (
+  active: boolean, 
+  productId: number, 
+  sku: string
+) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql1 = 

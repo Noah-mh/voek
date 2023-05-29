@@ -91,7 +91,7 @@ const ManageProducts = () => {
               description: item.description,
               categoryId: item.category_id,
               category: item.category,
-              price: item.price,
+              price: parseFloat(item.price),
               subRows: [],
               sku: "",
               quantity: 0,
@@ -104,7 +104,7 @@ const ManageProducts = () => {
                 productId: item.product_id,
                 active: item.availability,
                 name: item.variation_2 ? `${item.variation_1} + ${item.variation_2}` : item.variation_1,
-                price: item.price,
+                price: parseFloat(item.price),
                 sku: item.sku,
                 variation1: item.variation_1,
                 variation2: item.variation_2,
@@ -115,7 +115,7 @@ const ManageProducts = () => {
               sellerProduct.subRows.push(sellerProductVariation);
 
               // tallying total quantity including all variations
-              if (sellerProduct.quantity == undefined) sellerProduct.quantity = item.price;
+              if (sellerProduct.quantity == undefined) sellerProduct.quantity = item.quantity;
               else sellerProduct.quantity += item.quantity
 
               newIsCheckedMap.push([item.active, item.availability]);
@@ -140,7 +140,7 @@ const ManageProducts = () => {
               productId: item.product_id,
               active: item.availability,
               name: item.variation_2 ? `${item.variation_1} + ${item.variation_2}` : item.variation_1,
-              price: item.price,
+              price: parseFloat(item.price),
               sku: item.sku,
               variation1: item.variation_1,
               variation2: item.variation_2,
@@ -150,11 +150,11 @@ const ManageProducts = () => {
             }
             sellerProducts[currentIdx].subRows.push(sellerProductVariation);              
 
-            if (sellerProducts[currentIdx].quantity == undefined) sellerProducts[currentIdx].quantity = item.price;
+            if (sellerProducts[currentIdx].quantity == undefined) sellerProducts[currentIdx].quantity = item.quantity;
             else sellerProducts[currentIdx].quantity += item.quantity
 
             // finding lowest price among all variations
-            if (item.price < sellerProducts[currentIdx].price) sellerProducts[currentIdx].price = item.price
+            if (parseFloat(item.price) < sellerProducts[currentIdx].price) sellerProducts[currentIdx].price =  parseFloat(item.price);
           
             newIsCheckedMap[currentIdx-1].push(item.availability);
           } else {
