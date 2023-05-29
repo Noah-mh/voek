@@ -46,8 +46,7 @@ const Header = ({ isCustomer, isSeller }: Props) => {
   const location = useLocation();
   useEffect(() => {
     setOpenProfile(false);
-  }, [location])
-
+  }, [location]);
 
   return (
     <nav
