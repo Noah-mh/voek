@@ -19,6 +19,7 @@ interface Product {
   quantity: number;
   sku: string;
   subRows: Array<Product>;
+  imageUrl: string[]
 
   // optional properties
   // product only
@@ -29,7 +30,7 @@ interface Product {
 
   // product variations only
   variation1?: string;
-  varitation2?: string;
+  variation2?: string;
 }
 
 const ManageProducts = () => {
@@ -63,19 +64,21 @@ const ManageProducts = () => {
           quantity: 0,
           sku: "",
           subRows: [],
+          imageUrl: [],
         };
-        // console.log("hi");
         let currentProductId: number = 0;
+        let currentProductSku: string = "";
         let sellerProducts: Product[] = [];
         let currentIdx: number = -1;
         let newIsCheckedMap: boolean[][] = [];   
-        // let arr: Boolean[] = [];
 
         await Promise.all (response.data.map((item: any) => {
+          // console.log("item image_url", item.image_url)
           // if current item is not a variation of the previous item, they will not have the same product_id. 
           // hence, this would be a new product, so sellerProduct would need to be reinitialised
           if (currentProductId != item.product_id) {
             currentProductId = item.product_id;
+            currentProductSku = item.sku;
             // console.log(currentProductId)
 
             currentIdx++;
@@ -88,10 +91,11 @@ const ManageProducts = () => {
               description: item.description,
               categoryId: item.category_id,
               category: item.category,
-              price: item.price,
+              price: parseFloat(item.price),
               subRows: [],
               sku: "",
               quantity: 0,
+              imageUrl: [],
             }
 
             // check for existing product variation
@@ -99,24 +103,26 @@ const ManageProducts = () => {
               let sellerProductVariation: Product = {
                 productId: item.product_id,
                 active: item.availability,
-                name: `${item.variation_1} + ${item.variation_2}`,
-                price: item.price,
+                name: item.variation_2 ? `${item.variation_1} + ${item.variation_2}` : item.variation_1,
+                price: parseFloat(item.price),
                 sku: item.sku,
                 variation1: item.variation_1,
-                varitation2: item.variation_2,
+                variation2: item.variation_2,
                 quantity: item.quantity,
+                imageUrl: [item.image_url],
                 subRows: [],
               }
               sellerProduct.subRows.push(sellerProductVariation);
 
               // tallying total quantity including all variations
-              if (sellerProduct.quantity == undefined) sellerProduct.quantity = item.price;
+              if (sellerProduct.quantity == undefined) sellerProduct.quantity = item.quantity;
               else sellerProduct.quantity += item.quantity
 
               newIsCheckedMap.push([item.active, item.availability]);
             } else {
               sellerProduct.sku = item.sku;
-              sellerProduct.quantity = item.quantity
+              sellerProduct.quantity = item.quantity;
+              sellerProduct.imageUrl.push(item.image_url);
               newIsCheckedMap.push([item.active]);
             }
 
@@ -125,29 +131,34 @@ const ManageProducts = () => {
             sellerProducts.push(sellerProduct);
             // console.log("sellerProducts:", sellerProducts.map(obj => JSON.stringify(obj)));
 
-          } else { 
+          } else if (currentProductSku != item.sku) { 
             // same product_id means that this is a product variation
             // add subRow to sellerProducts[currentIdx]
+            currentProductSku = item.sku;
+
             let sellerProductVariation: Product = {
               productId: item.product_id,
               active: item.availability,
-              name: `${item.variation_1} + ${item.variation_2}`,
-              price: item.price,
+              name: item.variation_2 ? `${item.variation_1} + ${item.variation_2}` : item.variation_1,
+              price: parseFloat(item.price),
               sku: item.sku,
               variation1: item.variation_1,
-              varitation2: item.variation_2,
+              variation2: item.variation_2,
               quantity: item.quantity,
+              imageUrl: [item.image_url],
               subRows: [],
             }
             sellerProducts[currentIdx].subRows.push(sellerProductVariation);              
 
-            if (sellerProducts[currentIdx].quantity == undefined) sellerProducts[currentIdx].quantity = item.price;
+            if (sellerProducts[currentIdx].quantity == undefined) sellerProducts[currentIdx].quantity = item.quantity;
             else sellerProducts[currentIdx].quantity += item.quantity
 
             // finding lowest price among all variations
-            if (item.price < sellerProducts[currentIdx].price) sellerProducts[currentIdx].price = item.price
+            if (parseFloat(item.price) < sellerProducts[currentIdx].price) sellerProducts[currentIdx].price =  parseFloat(item.price);
           
-            newIsCheckedMap[currentProductId-1].push(item.availability);
+            newIsCheckedMap[currentIdx-1].push(item.availability);
+          } else {
+            sellerProducts[currentIdx].subRows[sellerProducts[currentIdx].subRows.length-1].imageUrl.push(item.image_url);
           }
 
         }))
@@ -193,8 +204,6 @@ const ManageProducts = () => {
 
   // update isCheckedMap
   const handleToggle = async (row: any) => {
-    const productId = row.original.productId - 1;
-    // console.log("productId", productId)
     // update row.original.active
     row.original.active = !row.original.active;
     // console.log("row", row.original.active)
@@ -209,11 +218,11 @@ const ManageProducts = () => {
         
         setIsCheckedMap((prevMap: boolean[][]) => {
           const updatedMap = [...prevMap];
-          updatedMap[productId][0] = !prevMap[productId][0];
+          updatedMap[row.id][0] = !prevMap[row.id][0];
           // if subrows exist, update productVariation.active to change accordingly
           if (row.originalSubRows.length > 0) {
             for (var i = 1; i <= row.originalSubRows.length; i++) {
-              updatedMap[productId][i] = updatedMap[productId][0];
+              updatedMap[row.id][i] = updatedMap[row.id][0];
             }
           }
           // console.log("updatedMap", updatedMap)
@@ -240,7 +249,7 @@ const ManageProducts = () => {
           // console.log("no product variations")
           setIsCheckedMap((prevMap: boolean[][]) => {
             const updatedMap = [...prevMap];
-            updatedMap[productId][0] = !prevMap[productId][0];
+            updatedMap[row.id][0] = !prevMap[row.id][0];
             return updatedMap;
           });
         } else if (row.original.active && row.getParentRow()) {
@@ -248,9 +257,9 @@ const ManageProducts = () => {
           // console.log("productVariation becomes active but product inactive")
           setIsCheckedMap((prevMap: boolean[][]) => {
             const updatedMap = [...prevMap];
-            updatedMap[productId][row.index+1] = !prevMap[productId][row.index+1];
+            updatedMap[row.id][row.index+1] = !prevMap[row.id][row.index+1];
             if (!row.getParentRow().original.active) {
-              updatedMap[productId][0] = true;
+              updatedMap[row.id][0] = true;
               row.getParentRow().original.active = true;
             }
             // console.log("updatedMap", updatedMap)
@@ -268,9 +277,9 @@ const ManageProducts = () => {
           }
           setIsCheckedMap((prevMap: boolean[][]) => {
             const updatedMap = [...prevMap];
-            updatedMap[productId][row.index+1] = !prevMap[productId][row.index+1];
+            updatedMap[row.id][row.index+1] = !prevMap[row.id][row.index+1];
             if (row.getParentRow().original.active && productVariationsAllInactive) {
-              updatedMap[productId][0] = false;
+              updatedMap[row.id][0] = false;
               row.getParentRow().original.active = false;
             }
             // console.log("updatedMap", updatedMap)
@@ -338,12 +347,16 @@ const ManageProducts = () => {
         header: 'Edit',
         size: 80,
         Cell: ({ row }: { row: MRT_Row<Product> }) => (
-          <Link 
-            to="/seller/editProduct/" 
-            state={{ Product: row.original }} 
-          >
-            Edit
-          </Link>
+          <>
+            {!row.getParentRow() && (
+              <Link 
+                to="/seller/editProduct/" 
+                state={{ Product: row.original }} 
+              >
+                Edit
+              </Link>
+            )}
+          </>
         ),
       },
     ],

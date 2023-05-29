@@ -96,18 +96,7 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     orderController.processOrderReceived
   );
-  router.post(
-    "/create-paypal-order",
-    verifyJWT,
-    verifyRoles("customer"),
-    paypalController.processCreatePaypalOrder
-  );
-  router.post(
-    "/capture-paypal-order",
-    verifyJWT,
-    verifyRoles("customer"),
-    paypalController.processCapturePaypalOrder
-  );
+
   router.get(
     "/customer/referral-id/:customer_id",
     verifyJWT,
@@ -354,12 +343,19 @@ export default function (app: Express, router: Router) {
     "/products/:sellerId",
     sellerController.processGetAllProductsOfSeller
   );
+  router.get(
+    "/bestSellers/:sellerId",
+    sellerController.processGetBestSellers
+  );
   router.get("/categories", sellerController.processGetAllCategories);
-  router.post("/addProduct/:sellerId", sellerController.processAddProduct);
-  // router.put(
-  //   "/editProduct/:productId",
-  //   sellerController.processEditProduct
-  // )
+  router.post(
+    "/addProduct/:sellerId",
+    sellerController.processAddProduct
+  );
+  router.post(
+    "/editProduct/:productId",
+    sellerController.processEditProduct
+  );
   router.put(
     "/updateProductVariation/active/:productId",
     sellerController.processUpdateProductVariationActive
@@ -469,8 +465,8 @@ export default function (app: Express, router: Router) {
 
   router.put(
     "/updateCustomerLastViewedCat",
-    // verifyJWT,
-    // verifyRoles("customer"),
+    verifyJWT,
+    verifyRoles("customer"),
     customerController.updateCustomerLastViewedCat
   );
 
@@ -480,12 +476,9 @@ export default function (app: Express, router: Router) {
   );
 
   router.post("/insertVoucher", voucherController.insertVoucher);
-  router.put(
-    "/updateRedemptionsAvailable",
-    voucherController.updateRedemptionsAvailable
-  );
+  router.put("/updateActive", voucherController.updateActive);
   router.put("/updateVoucher", voucherController.updateVoucher);
-  router.delete("/deleteVoucher", voucherController.deleteVoucher);
+  router.delete("/deleteVoucher/:voucherId", voucherController.deleteVoucher);
   router.get("/getVoucherCategories", voucherController.getVoucherCategories);
   router.get("/getVouchers/:sellerId", voucherController.getVouchers);
   router.get(
@@ -495,66 +488,66 @@ export default function (app: Express, router: Router) {
 
   // router.get("/getProductCat/:product_id", productController.getProductCat);
 
-  // ALLISON'S ENDPOINTS get Cart details, altering quantity, insert payment, insert order, insert order product, update product stock, deleting cart
+  // ALLISON'S ENDPOINTS get Cart details, altering quantity, insert payment, insert order, insert order product, update product stock, deleting cart, redeem voucher
 
   router.get(
-    "/customer/getCart/:customer_id",
+    "/customer/cart/getCart/:customer_id",
     verifyJWT,
     verifyRoles("customer"),
     cartController.retrieveCartDetails
   );
 
-  router.post(
-    "/customer/alterQuantCart",
+  router.put(
+    "/customer/cart/alterQuantCart",
     verifyJWT,
     verifyRoles("customer"),
     cartController.alterQuantCartDetails
   );
   router.post(
-    "/customer/insertPayment",
+    "/customer/order/insertPayment",
     verifyJWT,
     verifyRoles("customer"),
     cartController.insertPayment
   );
 
   router.post(
-    "/customer/insertOrder",
+    "/customer/order/insertOrder",
     verifyJWT,
     verifyRoles("customer"),
     cartController.insertOrder
   );
   router.post(
-    "/customer/insertOrderProduct",
+    "/customer/order/insertOrderProduct",
     verifyJWT,
     verifyRoles("customer"),
     cartController.insertOrderProduct
   );
-  router.post(
-    "/customer/updateProductStock",
+  router.put(
+    "/customer/order/updateProductStock",
     verifyJWT,
     verifyRoles("customer"),
     cartController.updateProductStock
   );
-  router.post(
-    "/customer/updateCustomerCoins",
+  router.put(
+    "/customer/order/updateCustomerCoins",
     verifyJWT,
     verifyRoles("customer"),
     cartController.updateCustomerCoins
   );
   router.post(
-    "/customer/insertShipment",
+    "/customer/order/insertShipment",
     verifyJWT,
     verifyRoles("customer"),
     cartController.insertShipment
   );
-  router.post(
-    "/customer/clearCart",
+  router.put(
+    "/customer/order/clearCart",
     verifyJWT,
     verifyRoles("customer"),
     cartController.clearCart
   );
   router.get(
-    "/customer/getUserCoins/:customer_id",
+    "/customer/cart/getUserCoins/:customer_id",
     verifyJWT,
     verifyRoles("customer"),
     customerController.processGetCoins
@@ -564,5 +557,23 @@ export default function (app: Express, router: Router) {
     verifyJWT,
     verifyRoles("customer"),
     customerController.processGetAddress
+  );
+  router.post(
+    "/create-paypal-order",
+    verifyJWT,
+    verifyRoles("customer"),
+    paypalController.processCreatePaypalOrder
+  );
+  router.post(
+    "/capture-paypal-order",
+    verifyJWT,
+    verifyRoles("customer"),
+    paypalController.processCapturePaypalOrder
+  );
+  router.put(
+    "/customer/order/redeemVoucher",
+    verifyJWT,
+    verifyRoles("customer"),
+    cartController.processRedeemVoucher
   );
 }

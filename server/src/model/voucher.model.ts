@@ -78,18 +78,15 @@ export const handlesGetVouchers = async (sellerId: number) => {
   }
 };
 
-export const handlesUpdateRedemptionsAvailable = async (
+export const handlesUpdateActive = async (
   voucher_id: number,
-  redemptions_available: number
+  active: number
 ): Promise<number> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `UPDATE seller_voucher SET redemptions_available = ? WHERE voucher_id = ?;`;
+  const sql = `UPDATE seller_voucher SET active = ? WHERE voucher_id = ?;`;
   try {
-    const result = await connection.query(sql, [
-      redemptions_available,
-      voucher_id,
-    ]);
+    const result = await connection.query(sql, [active, voucher_id]);
     return (result[0] as any).affectedRows as number;
   } catch (err: any) {
     throw new Error(err);
@@ -162,7 +159,7 @@ export const handlesDeleteVoucher = async (
   const sql = `DELETE FROM customer_voucher WHERE voucher_id = ?;`;
   try {
     const result = await connection.query(sql, [voucher_id]);
-    return (result[0] as any).affectedRows as number;
+    return deletedFromSeller;
   } catch (err: any) {
     throw new Error(err);
   } finally {
