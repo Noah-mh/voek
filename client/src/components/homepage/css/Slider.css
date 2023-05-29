@@ -19,3 +19,11 @@
   width: 480px !important;
   height: 270px !important;
 }
+
+.sliderImageLink {
+  pointer-events: none;
+}
+
+.sliderImageLink > * {
+  pointer-events: auto;
+}
