@@ -133,8 +133,13 @@ const AddressDisplay: React.FC<AddressDisplayProps> = ({ customerData, getAll })
         }
     };
 
+    const addAddress = (newAddress : any) => {
+        setAddressUpdates((prevAddresses) => [...prevAddresses, { ...newAddress, editing: false }]);
+    };
+
     useEffect(() => {
         getAll();
+        console.log("Address updates", addressUpdates);
     }, [addressUpdates]);
 
 
@@ -153,7 +158,7 @@ const AddressDisplay: React.FC<AddressDisplayProps> = ({ customerData, getAll })
             >
                 <ToastContainer />
                 <div className="flex justify-center item-center">
-                    <AddressModal getAll={getAll} />
+                    <AddressModal getAll={getAll} addAddress={addAddress} />
                 </div>
             </Box>
         </div>
@@ -245,7 +250,7 @@ const AddressDisplay: React.FC<AddressDisplayProps> = ({ customerData, getAll })
                     ))}
                     <ToastContainer />
 
-                    <div className="flex justify-center"> <AddressModal getAll={getAll} /></div>
+                    <div className="flex justify-center"> <AddressModal getAll={getAll} addAddress={addAddress} /></div>
 
                 </Box>
             </div>
