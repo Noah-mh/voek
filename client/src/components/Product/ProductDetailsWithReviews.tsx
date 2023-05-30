@@ -5,7 +5,7 @@ import axios from "../../api/axios";
 import Loader from "../Loader/Loader";
 import { cld } from "../../Cloudinary/Cloudinary";
 import { AdvancedImage } from "@cloudinary/react";
-import Typography from '@mui/material/Typography';
+import Typography from "@mui/material/Typography";
 import { AiOutlineShop } from "react-icons/ai";
 import "./ProductDetailsWithReviews.css";
 import ProductDetail from "./ProductDetails";
@@ -73,25 +73,29 @@ const ProductDetailWithReview: React.FC = () => {
     } catch (err: any) {
       console.log(err);
     }
-  }
+  };
   const getProductData = async () => {
     try {
       return await axios.get(`/productDetailsWithoutReviews/${product_id}`);
     } catch (err: any) {
       console.log(err);
     }
-  }
+  };
   const getProductReviews = async () => {
     try {
       return await axios.get(`/productReviews/${product_id}`);
     } catch (err: any) {
       console.log(err);
     }
-  }
+  };
 
   const getALlData = async () => {
     try {
-      const result: any = await Promise.all([getSellerData(), getProductData(), getProductReviews()]);
+      const result: any = await Promise.all([
+        getSellerData(),
+        getProductData(),
+        getProductReviews(),
+      ]);
       setSellerData(result[0].data.sellerDetailsByProductId);
       setProductData(result[1].data.products);
       setProductReview(result[2].data.reviews);
@@ -99,15 +103,13 @@ const ProductDetailWithReview: React.FC = () => {
     } catch (err: any) {
       console.log(err);
     }
-  }
+  };
 
   useEffect(() => {
     // Noah
     getALlData();
 
     // Nhat Tien :D
-    console.log("customerId", customerId);
-
     if (customerId != undefined) {
       axiosPrivateCustomer
         .post(
@@ -124,7 +126,6 @@ const ProductDetailWithReview: React.FC = () => {
           }
         )
         .then((response) => {
-          console.log("Data...", response.data);
           axiosPrivateCustomer.put(
             `/updateCustomerLastViewedCat`,
             JSON.stringify({
@@ -148,7 +149,10 @@ const ProductDetailWithReview: React.FC = () => {
   } else {
     return (
       <div>
-        <Link to={`/customerSellerProfile/${sellerData[0].seller_id}`} className="text-blue-500 hover:underline">
+        <Link
+          to={`/customerSellerProfile/${sellerData[0].seller_id}`}
+          className="text-blue-500 hover:underline"
+        >
           <div className="flex justify-center items-center">
             <div className="w-40 h-40 mb-5 mr-5">
               <AdvancedImage cldImg={cld.image(sellerData[0].image_url)} />
@@ -166,9 +170,13 @@ const ProductDetailWithReview: React.FC = () => {
             </div>
           </div>
         </Link>
-        <ProductDetail productData={productData} productReview={productReview} seller_id={sellerData[0].seller_id} getAllData={getALlData} />
+        <ProductDetail
+          productData={productData}
+          productReview={productReview}
+          seller_id={sellerData[0].seller_id}
+          getAllData={getALlData}
+        />
       </div>
-
     );
   }
 };

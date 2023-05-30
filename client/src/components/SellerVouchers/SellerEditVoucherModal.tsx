@@ -82,7 +82,7 @@ const SellerVoucherModal = ({
         }
       })
       .catch((error) => {
-        console.log("error: ", error);
+        console.error("error: ", error);
       });
   };
 
@@ -108,7 +108,6 @@ const SellerVoucherModal = ({
                 required
                 value={editedVoucher?.name}
                 onChange={(text) => {
-                  console.log("text: ", text.target.value);
                   setEditedVoucher({
                     ...editedVoucher,
                     name: text.target.value,

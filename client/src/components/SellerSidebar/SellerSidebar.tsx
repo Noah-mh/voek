@@ -104,7 +104,7 @@ const Sidebar: React.FC = () => {
         <Tab label="Add Product" {...a11yProps(1)} />
         <Tab label="Manage Product" {...a11yProps(2)} />
         <Tab label="Manage Orders" {...a11yProps(3)} />
-        <Tab label="Manager Vouchers" {...a11yProps(4)} />
+        <Tab label="Manage Vouchers" {...a11yProps(4)} />
       </Tabs>
       <TabPanel value={value} index={0}>
         <HomePage />

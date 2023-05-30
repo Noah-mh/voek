@@ -52,7 +52,7 @@ const SellerAddVoucherModal = ({
         setAddVoucherStatus(response.status);
       })
       .catch((error) => {
-        console.log("error: ", error);
+        console.error("error: ", error);
       });
     setOpenModal(false);
   };
@@ -85,7 +85,6 @@ const SellerAddVoucherModal = ({
                   required
                   value={voucher?.name || ""}
                   onChange={(text) => {
-                    console.log("text: ", text.target.value);
                     setVoucher({
                       ...voucher,
                       name: text.target.value,
@@ -106,7 +105,6 @@ const SellerAddVoucherModal = ({
                   id="type"
                   value={voucher?.type || ""}
                   onChange={(text) => {
-                    console.log("text: ", text.target.value);
                     setVoucher({
                       ...voucher,
                       type: parseInt(text.target.value),
@@ -134,7 +132,6 @@ const SellerAddVoucherModal = ({
                     required
                     value={voucher?.amount || ""}
                     onChange={(text) => {
-                      console.log("text: ", text.target.value);
                       setVoucher({
                         ...voucher,
                         amount: parseInt(text.target.value),
@@ -162,7 +159,6 @@ const SellerAddVoucherModal = ({
                     required
                     value={voucher?.amount || ""}
                     onChange={(text) => {
-                      console.log("text: ", text.target.value);
                       if (
                         parseInt(text.target.value) < 101 &&
                         parseInt(text.target.value) > 0
@@ -205,7 +201,6 @@ const SellerAddVoucherModal = ({
                   placeholder=""
                   value={voucher?.Category || ""}
                   onChange={(text) => {
-                    console.log("text: ", text.target.value);
                     setVoucher({
                       ...voucher,
                       Category: parseInt(text.target.value),
@@ -236,7 +231,6 @@ const SellerAddVoucherModal = ({
                   required
                   value={voucher?.minSpend || ""}
                   onChange={(text) => {
-                    console.log("text: ", text.target.value);
                     setVoucher({
                       ...voucher,
                       minSpend: parseInt(text.target.value),
@@ -262,7 +256,6 @@ const SellerAddVoucherModal = ({
                   required
                   value={voucher?.expiryDate || ""}
                   onChange={(text) => {
-                    console.log("text: ", text.target.value);
                     setVoucher({
                       ...voucher,
                       expiryDate: text.target.value,
@@ -288,7 +281,6 @@ const SellerAddVoucherModal = ({
                   required
                   value={voucher?.redemptionsAvailable || ""}
                   onChange={(text) => {
-                    console.log("text: ", text.target.value);
                     setVoucher({
                       ...voucher,
                       redemptionsAvailable: parseInt(text.target.value),
