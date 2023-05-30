@@ -169,7 +169,6 @@ const ManageProducts = () => {
   const [isCheckedMap, setIsCheckedMap] = useState<boolean[][]>([]);
 
   useEffect(() => {
-    console.log("Updated isCheckedMap:", isCheckedMap);
     isCheckedMap.forEach((item) => console.log(item));
   }, [isCheckedMap]);
 

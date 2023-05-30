@@ -15,7 +15,6 @@ const PayPalPayment = ({ paypalAmount, setSuccess }: Props) => {
     console.log(amount)
     setAmount(paypalAmount);
     amountRef.current = paypalAmount; // Update the ref value whenever the state changes
-    console.log(paypalAmount);
   }, [paypalAmount]);
 
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
