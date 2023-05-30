@@ -62,33 +62,6 @@ export const handleAlterQuantCart = async (
   }
 };
 
-// export const handleAlterSKUCart = async (
-//   customer_id: number,
-//   sku: string,
-//   new_sku: string,
-//   product_id: number
-// ): Promise<any> => {
-//   const promisePool = pool.promise();
-//   const connection = await promisePool.getConnection();
-//   //new product variation has changed.
-//   const sql = `UPDATE cart SET sku = ? WHERE customer_id = ? AND sku = ? AND product_id = ?`;
-
-//   try {
-//     const result = await connection.query(sql, [
-//       new_sku,
-//       customer_id,
-//       sku,
-//       product_id,
-//     ]);
-//     console.log(result);
-//     return result;
-//   } catch (err: any) {
-//     throw new Error(err);
-//   } finally {
-//     await connection.release();
-//   }
-// };
-
 export const handleInsertPayment = async (
   customer_id: number,
   amount: number
@@ -202,28 +175,6 @@ export const handleAlterCustomerCoins = async (
   }
 };
 
-export const handleInsertShipment = async (
-  orders_product_id: number,
-  customer_id: number
-): Promise<any> => {
-  const promisePool = pool.promise();
-  console.log("entered handle insert shipment");
-  const connection = await promisePool.getConnection();
-  const sql = `INSERT INTO shipment (orders_product_id, customer_id) VALUES (?,?) `;
-
-  try {
-    const [result] = await connection.query(sql, [
-      orders_product_id,
-      customer_id,
-    ]);
-    console.log("Handle Insert Shipment Successful ");
-    return (result as OkPacket).insertId as number;
-  } catch (err: any) {
-    throw new Error(err);
-  } finally {
-    await connection.release();
-  }
-};
 export const handleClearCart = async (customer_id: number): Promise<any> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
