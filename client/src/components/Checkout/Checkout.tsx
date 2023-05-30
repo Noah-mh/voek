@@ -9,7 +9,6 @@ export default function CheckOutPage(): JSX.Element {
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
   const customer_id = customer.customer_id;
   const navigate = useNavigate();
-  console.log(Object.keys(customer.cart).length);
 
   useEffect(() => {
     if (Object.keys(customer.cart).length === 0) {
