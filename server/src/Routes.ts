@@ -489,13 +489,19 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     cartController.retrieveCartDetails
   );
-
-  router.put(
-    "/customer/cart/alterQuantCart",
+  router.get(
+    "/customer/cart/getUserCoins/:customer_id",
     verifyJWT,
     verifyRoles("customer"),
-    cartController.alterQuantCartDetails
+    customerController.processGetCoins
   );
+  router.get(
+    "/customer/getUserAddress/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processGetAddress
+  );
+
   router.post(
     "/customer/order/insertPayment",
     verifyJWT,
@@ -515,42 +521,6 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     cartController.insertOrderProduct
   );
-  router.put(
-    "/customer/order/updateProductStock",
-    verifyJWT,
-    verifyRoles("customer"),
-    cartController.updateProductStock
-  );
-  router.put(
-    "/customer/order/updateCustomerCoins",
-    verifyJWT,
-    verifyRoles("customer"),
-    cartController.updateCustomerCoins
-  );
-  router.post(
-    "/customer/order/insertShipment",
-    verifyJWT,
-    verifyRoles("customer"),
-    cartController.insertShipment
-  );
-  router.put(
-    "/customer/order/clearCart",
-    verifyJWT,
-    verifyRoles("customer"),
-    cartController.clearCart
-  );
-  router.get(
-    "/customer/cart/getUserCoins/:customer_id",
-    verifyJWT,
-    verifyRoles("customer"),
-    customerController.processGetCoins
-  );
-  router.get(
-    "/customer/getUserAddress/:customer_id",
-    verifyJWT,
-    verifyRoles("customer"),
-    customerController.processGetAddress
-  );
   router.post(
     "/create-paypal-order",
     verifyJWT,
@@ -564,9 +534,35 @@ export default function (app: Express, router: Router) {
     paypalController.processCapturePaypalOrder
   );
   router.put(
+    "/customer/order/updateProductStock",
+    verifyJWT,
+    verifyRoles("customer"),
+    cartController.updateProductStock
+  );
+  router.put(
+    "/customer/cart/alterQuantCart",
+    verifyJWT,
+    verifyRoles("customer"),
+    cartController.alterQuantCartDetails
+  );
+
+  router.put(
+    "/customer/order/updateCustomerCoins",
+    verifyJWT,
+    verifyRoles("customer"),
+    cartController.updateCustomerCoins
+  );
+
+  router.put(
     "/customer/order/redeemVoucher",
     verifyJWT,
     verifyRoles("customer"),
     cartController.processRedeemVoucher
+  );
+  router.put(
+    "/customer/order/clearCart",
+    verifyJWT,
+    verifyRoles("customer"),
+    cartController.clearCart
   );
 }
