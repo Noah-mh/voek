@@ -435,7 +435,7 @@ export default function cartPage(): JSX.Element {
               break;
             }
             default: {
-              console.log("useEffect voucher problems bro");
+              console.log("Voucher Update (Insertion) Error");
             }
           }
         } else {
@@ -531,7 +531,7 @@ export default function cartPage(): JSX.Element {
               break;
             }
             default: {
-              console.log("useEffect voucher problems bro");
+              console.log("Voucher Update (Removal) Error");
             }
           }
         }
@@ -555,7 +555,7 @@ export default function cartPage(): JSX.Element {
             </div>
           </div>
         )}
-        {userCart.length == 0 && ( //CHANGE: can remove
+        {userCart.length == 0 && (
           <div className="font-bold text-xl text-gray-300 flex justify-center h-full items-center">
             No cart items to retrieve.
           </div>
@@ -704,7 +704,6 @@ export default function cartPage(): JSX.Element {
                     : null
                 }
                 styles={{
-                  // Fixes the overlapping problem of the component
                   menu: (provided) => ({ ...provided, zIndex: 9999 }),
                 }}
                 onChange={(option) => {
