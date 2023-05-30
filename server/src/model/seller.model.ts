@@ -5,11 +5,10 @@ import client from "../../config/teleSign";
 import config from "../../config/config";
 import jwt from "jsonwebtoken";
 import e from "express";
-import dotenv from 'dotenv'
+import * as dotenv from 'dotenv';
 dotenv.config({
   path: __dirname + '../../env'
 });
-
 interface SubmitVariationsInterface {
   var1: string;
   var2: string;
