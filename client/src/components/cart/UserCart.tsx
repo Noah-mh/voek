@@ -126,6 +126,8 @@ export default function cartPage(): JSX.Element {
           if (res.data.length === 0) {
             setIsInputDisabled(true);
             setPaypalCN("pointer-events-none opacity-50");
+            setUserCart([]);
+            setGroupItems({});
           }
 
           if (res.data.length > 0) {
@@ -636,7 +638,7 @@ export default function cartPage(): JSX.Element {
           </div>
         ))}
       </div>
-      <div className="w-1/3 p-5 bg-softerPurple">
+      <div className="right w-1/3 p-5 bg-softerPurple">
         <div className="text-xl font-bold text-white mb-7">Order Summary</div>
 
         <div className=" text-sm summary">
@@ -735,7 +737,7 @@ export default function cartPage(): JSX.Element {
         </div>
       </div>
       <ToastContainer
-        position="left"
+        position="top-left"
         autoClose={5000}
         hideProgressBar={false}
         newestOnTop={false}
