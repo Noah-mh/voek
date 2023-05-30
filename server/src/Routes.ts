@@ -343,12 +343,19 @@ export default function (app: Express, router: Router) {
     "/products/:sellerId",
     sellerController.processGetAllProductsOfSeller
   );
+  router.get(
+    "/bestSellers/:sellerId",
+    sellerController.processGetBestSellers
+  );
   router.get("/categories", sellerController.processGetAllCategories);
-  router.post("/addProduct/:sellerId", sellerController.processAddProduct);
-  // router.put(
-  //   "/editProduct/:productId",
-  //   sellerController.processEditProduct
-  // )
+  router.post(
+    "/addProduct/:sellerId",
+    sellerController.processAddProduct
+  );
+  router.post(
+    "/editProduct/:productId",
+    sellerController.processEditProduct
+  );
   router.put(
     "/updateProductVariation/active/:productId",
     sellerController.processUpdateProductVariationActive
