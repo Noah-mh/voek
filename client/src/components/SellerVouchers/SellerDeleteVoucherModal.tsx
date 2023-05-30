@@ -1,7 +1,5 @@
-import { useState } from "react";
 import Modal from "@mui/material/Modal";
 import "./css/SellerVoucherModal.css";
-import useSeller from "../../hooks/useSeller.js";
 import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller";
 
 interface Voucher {
@@ -35,7 +33,6 @@ const SellerDeleteVoucherModal = ({
     axiosPrivateSeller
       .delete(`/deleteVoucher/${voucher.voucherId}`)
       .then((response) => {
-        console.log(response);
         setDeleteVoucherStatus(response.status);
         setOpenModal(false);
       });

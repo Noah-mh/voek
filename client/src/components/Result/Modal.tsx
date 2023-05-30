@@ -97,7 +97,7 @@ const Modal = ({ setModalOpen, product, pricingRange }: ModalProps) => {
           }
         })
         .catch((err: any) => {
-          console.log(err);
+          console.error(err);
         });
     } else {
       toast.warn("Please Login to Add to Cart!", {
@@ -152,7 +152,7 @@ const Modal = ({ setModalOpen, product, pricingRange }: ModalProps) => {
         setStatus(true);
       })
       .catch((err: any) => {
-        console.log(err);
+        console.error(err);
         setStatus(false);
       });
   }, []);

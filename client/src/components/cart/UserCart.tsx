@@ -638,7 +638,7 @@ export default function cartPage(): JSX.Element {
           </div>
         ))}
       </div>
-      <div className="right w-1/3 p-5 bg-softerPurple">
+      <div className="w-1/3 p-5 bg-softerPurple">
         <div className="text-xl font-bold text-white mb-7">Order Summary</div>
 
         <div className=" text-sm summary">

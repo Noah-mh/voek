@@ -7,7 +7,6 @@ export const processPublicProductDetails = async (
   next: NextFunction
 ) => {
   try {
-    console.log();
     const { productId } = req.body;
     if (!productId) return res.sendStatus(404);
     const response: Array<object> = await productModel.handlesGetProductDetails(
@@ -97,7 +96,6 @@ export const getLastViewed = async (
 ) => {
   try {
     const { customerId, dateViewed, timezone } = req.query;
-    console.log("timezone:", timezone);
     const response: Array<object> = await productModel.handlesGetLastViewed(
       parseInt(customerId as string),
       timezone as string,
@@ -176,7 +174,6 @@ export const insertWishlistedProduct = async (
   next: NextFunction
 ) => {
   try {
-    console.log("test");
     const { customerId, productId } = req.body;
     const response: number =
       await productModel.handlesInsertingWishlistedProduct(

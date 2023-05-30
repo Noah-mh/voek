@@ -18,8 +18,6 @@ export const handlesInsertingVoucher = async (
   VALUES (?, ?, ?, ?, ?, ?, CAST(? AS datetime), ?, ?);`;
   let percentage_amount = null;
   let number_amount = null;
-  console.log("type: ", type);
-  console.log("amount: ", amount);
   if (type === 2) {
     percentage_amount = amount / 100;
   } else if (type === 1) {
