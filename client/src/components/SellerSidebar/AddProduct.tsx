@@ -22,8 +22,9 @@ const AddProduct = () => {
         );
         console.log("duplicate", duplicateExists)
         console.log("response", response)
+        console.log("response.data", Object.values(response.data))
 
-        if (response.data === 0) {
+        if (response.data.productId === 0) {
           setDuplicateExists("Product could not be created as it already exists.");
         }
         console.log("duplicate", duplicateExists)
@@ -39,7 +40,7 @@ const AddProduct = () => {
     <div className="flex flex-row">
 
       <div className="flex flex-col w-max">
-        <div>AddProduct</div>
+        <h1 className="text-xl font-medium mb-2">Add Product</h1>
 
         <ProductForm 
           onSubmit={handleSubmit}

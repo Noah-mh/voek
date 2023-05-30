@@ -43,9 +43,9 @@ export const processAddProduct = async (req: Request, res: Response, next: NextF
     try {
         const sellerId: number = parseInt(req.params.sellerId);
         const { name, description, categoryId, variations, quantity, price, imageUrl } = req.body;
-        if (!name || !categoryId || !quantity || !price || !imageUrl) {console.log("check"); return res.sendStatus(400);}
+        if (!name || !categoryId || !quantity || !price || !imageUrl) return res.sendStatus(400);
         const response: any = await sellerModel.handleAddProduct(sellerId, name, description, categoryId, variations, quantity, price, imageUrl);
-        return res.json(response);
+        return res.json({ productId: response });
     } catch (err: any) {
         return next(err);
     }
@@ -55,14 +55,9 @@ export const processAddProduct = async (req: Request, res: Response, next: NextF
 export const processEditProduct = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const sellerId: number = parseInt(req.params.productId);
-        const { columns, values, variations } = req.body;
-        console.log("start")
-        console.log("col", columns)
-        console.log("val", values)
-        console.log("var", variations)
-        console.log("end")
-        if (!columns || !values || columns.length !== values.length || !variations) {console.log("?check"); return res.sendStatus(400);}
-        const response: any = await sellerModel.handleEditProduct(sellerId, columns, values, variations);
+        const { values, variations, imageURLMap, deleteImageURLMap } = req.body;
+        if (!values || !variations || !imageURLMap || !deleteImageURLMap) return res.sendStatus(400);
+        const response: any = await sellerModel.handleEditProduct(sellerId, values, variations, imageURLMap, deleteImageURLMap);
         return res.json(response);
     } catch (err: any) {
         return next(err);

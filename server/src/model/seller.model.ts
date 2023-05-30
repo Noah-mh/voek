@@ -71,12 +71,14 @@ export const handleGetBestSellers = async (
     const promisePool = pool.promise();
     const connection = await promisePool.getConnection();
     const sql = 
-    `SELECT op.product_id, SUM(op.quantity) AS total_quantity
+    `SELECT op.product_id AS productId, p.name, c.name AS category, SUM(op.quantity) AS totalQuantity
     FROM orders_product op
+    INNER JOIN products p ON p.product_id = op.product_id
+    INNER JOIN category c ON p.category_id = c.category_id
     INNER JOIN listed_products lp ON op.product_id = lp.product_id
-    WHERE lp.seller_id = ?
+    WHERE lp.seller_id = 1
     GROUP BY op.product_id
-    ORDER BY total_quantity DESC
+    ORDER BY totalQuantity DESC
     LIMIT 5;`;
   try {
     const result: any = await connection.query(sql, [sellerId]);
@@ -93,8 +95,9 @@ export const handleGetBestSellers = async (
 export const handleGetAllCategories = async (): Promise<any[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `SELECT category_id, name FROM category
-  ORDER BY name ASC;`;
+  const sql = 
+    `SELECT category_id AS categoryId, name FROM category
+    ORDER BY name ASC;`;
   try {
     const result: any = await connection.query(sql);
     return result[0] as any[];
@@ -142,11 +145,10 @@ export const handleAddProduct = async (
 
     const result1 = Promise.resolve(connection.query(sql1, [name, description, categoryId, name, description, categoryId]))
     .then(async (response) => {
-      console.log(response)
-      let affectedRows = Object.values(response[0])[1];
-      if (affectedRows === 0) {
-        console.log("Product already exists.");
-        return affectedRows;
+      let lastInsertId = Object.values(response[0])[2];
+      if (lastInsertId === 0) {
+        // console.log("Product already exists.");
+        return lastInsertId;
       } else {
         let lastInsertId = Object.values(response[0])[2];
         const result2: any = await connection.query(sql2, [lastInsertId, sellerId]);
@@ -155,7 +157,6 @@ export const handleAddProduct = async (
             const result3 = await connection.query(sql3)
             .then(async (response) => {
               let sku = Object.values(response[0])[0].sku;
-              console.log(sku)
               const result4 = connection.query(sql4, [sku, lastInsertId, variation.var1, variation.var2 ? variation.var2 : null, variation.quantity, variation.price]);
               variation.imageUrl.forEach((url) => {
                 const result5 = connection.query(sql5, [lastInsertId, url, sku]);
@@ -167,21 +168,19 @@ export const handleAddProduct = async (
           const result3 = await connection.query(sql3)
           .then(async (response) => {
             let sku = Object.values(response[0])[0].sku;
-            console.log(sku)
             const result4 = connection.query(sql4, [sku, lastInsertId, null, null, quantity, price]);
             imageUrl.forEach((url) => {
               const result5 = connection.query(sql5, [lastInsertId, url, sku]);
             })
           })
         }
-        console.log("Product has been inserted.");
+        // console.log("Product has been inserted.");
         return lastInsertId;
       }
     })
     .then((response) => {
       return response as number;  
     })
-
   } catch (err: any) {
     connection.rollback();
     connection.release();
@@ -196,9 +195,10 @@ export const handleAddProduct = async (
 // POST update product
 export const handleEditProduct = async (
   productId: number, 
-  columns: string[], 
   values: string[], 
-  variations: Array<SubmitVariationsInterface>
+  variations: Array<SubmitVariationsInterface>,
+  imageURLMap: string[][],
+  deleteImageURLMap: string[][]
 ) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
@@ -225,7 +225,7 @@ export const handleEditProduct = async (
       LIMIT 1
     ) AS subquery;`;
   const sql6 =
-      `DELETE FROM product_images WHERE sku = ?;`;
+    `DELETE FROM product_images WHERE sku = ?;`;
   const sql7 =
     `INSERT INTO product_variations (sku, product_id, variation_1, variation_2, quantity, price)
     VALUES (?, ?, ?, ?, ?, ?);`;
@@ -239,34 +239,39 @@ export const handleEditProduct = async (
     const result1: any = await connection.query(sql1, [values[0], values[1], values[2], productId]);
     const result2: any = await connection.query(sql2, [productId]);
 
+    let currentIdx = 0;
     await Promise.all(variations.map(async (variation) => {
-      console.log("quantity", variation.quantity)
-      console.log("price", variation.price)
-      console.log("sku", variation.sku)
+      const imageURL = imageURLMap[currentIdx];
+      const deleteImageURL = deleteImageURLMap[currentIdx];
+      currentIdx++;
+
       if (variation.sku !== "") {
-        console.log("check");
         const result3: any = await connection.query(sql3, [variation.quantity, variation.price, variation.sku]);
+        deleteImageURL.forEach((url) => {
+          const result4: any = connection.query(sql4, [variation.sku, url]);
+        })
+        imageURL.forEach((url) => {
+          const result8: any = connection.query(sql8, [productId, url, variation.sku])
+        })
+        currentIdx++;
       } else {
         const result5 = await connection.query(sql5, [productId, variation.var1, variation.var2, productId, variation.var1, variation.var2])
         .then(async (response) => {
-          console.log("response", Object.values(response[0])[0])
           let exists = Object.values(response[0])[0].source;
           let sku = Object.values(response[0])[0].sku;
-          console.log(exists)
-          console.log(sku)
           if (exists === "Table") {
             const result3: any = await connection.query(sql3, [variation.quantity, variation.price, sku]);
-            // const result6: any = await connection.query(sql6, [sku])
-            // .then((response) => {
-            //   variation.imageUrl.forEach((url) => {
-            //     const result8 = connection.query(sql8, [productId, url, sku]);
-            //   })
-            // })
+            const result6: any = await connection.query(sql6, [sku])
+            .then((response) => {
+              imageURL.forEach((url) => {
+                const result8 = connection.query(sql8, [productId, url, sku]);
+              })
+            })
           } else {
             const result7 = connection.query(sql7, [sku, productId, variation.var1, variation.var2 ? variation.var2 : null, variation.quantity, variation.price]);
-            // variation.imageUrl.forEach((url) => {
-            //   const result8 = connection.query(sql8, [productId, url, sku]);
-            // })
+            imageURL.forEach((url) => {
+              const result8 = connection.query(sql8, [productId, url, sku]);
+            })
           }
           return productId;
         })
@@ -308,10 +313,7 @@ export const handleUpdateProductVariationActive = async (
     if (active) {
       const result2: any = await connection.query(sql2, [productId]);
     } else {
-      const result3: any = await connection.query(sql3, [
-        productId,
-        productId,
-      ]);
+      const result3: any = await connection.query(sql3, [productId, productId]);
     }
 
     return result1[0].affectedRows as number;
@@ -338,14 +340,8 @@ export const handleUpdateProductActive = async (
   try {
     connection.beginTransaction();
 
-    const result1: any = await connection.query(sql1, [
-      active,
-      productId,
-    ]);
-    const result2: any = await connection.query(sql2, [
-      active,
-      productId,
-    ]);
+    const result1: any = await connection.query(sql1, [active, productId]);
+    const result2: any = await connection.query(sql2, [active, productId]);
 
     return result1[0].affectedRows as number;
   } catch (err: any) {
