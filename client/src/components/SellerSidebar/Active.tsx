@@ -7,9 +7,7 @@ interface ActiveProps {
 }
 
 const Active: React.FC<ActiveProps> = ({ row, isChecked, onToggle }) => {
-    // console.log("active renders")
-    // console.log("isChecked", isChecked);
-
+    
     const handleCheckboxChange = () => {
         onToggle(row);
     };

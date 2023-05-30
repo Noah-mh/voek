@@ -11,7 +11,7 @@ import { AdvancedImage } from "@cloudinary/react";
 import CloudinaryUploader from "../../Cloudinary/CloudinaryUploader";
 
 interface Category {
-  category_id: number;
+  categoryId: number;
   name: string;
 }
 
@@ -47,7 +47,7 @@ interface SubmitInterface {
   // optional properties
   // edit product only
   productId?: number;
-  // sku?: string;
+  sku?: string;
 }
 
 interface Product {
@@ -57,7 +57,7 @@ interface Product {
   price: number;
   quantity: number;
   imageUrl: string[];
-  // sku: string;
+  sku: string;
   subRows: Array<Product>;
 
   // optional properties
@@ -85,26 +85,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
 
   useEffect(() => {
     if (product) {
-      // const data = Object.values(product)[0];
-      // if (Array.isArray(data)) {
-      //   // Process each item in the data array
-      //   data.forEach((item) => {
-      //     if (typeof item.price === 'string') {
-      //       item.price = parseFloat(item.price);
-      //     }
-  
-      //     if (item.subRows && Array.isArray(item.subRows)) {
-      //       // Process each subItem in the subRows array
-      //       item.subRows.forEach((subItem: Product) => {
-      //         if (typeof subItem.price === 'string') {
-      //           subItem.price = parseFloat(subItem.price);
-      //         }
-      //       });
-      //     }
-      //   });
-      // }
-      // setCurrentProduct(data);
-      console.log(product)
       setCurrentProduct(Object.values(product)[0]);
     }
   }, [])
@@ -130,12 +110,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     if (currentProduct && currentProduct?.subRows.length > 0) {
       if (currentProduct?.subRows[0].variation1) {
         const variationName1 = currentProduct?.subRows[0].variation1?.split(": ")[0];
-        console.log("var name", variationName1) 
         let variation1Arr: string[] = [];
 
         if (currentProduct?.subRows[0].variation2) {
           const variationName2 = currentProduct?.subRows[0].variation2?.split(": ")[0];
-          console.log("var name", variationName2) 
           
           let variation2Arr: string[] = [];
           currentProduct?.subRows.forEach((variation) => {
@@ -246,12 +224,24 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     getAllCategories();
   }, []);
 
-  const [productVariations, setProductVariations] = useState<ProductVariations[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<number>(1);
 
-  // useEffect(() => {
-  //   console.log("Updated productVariations:", productVariations);
-  //   // productVariations.forEach((item) => console.log(item));
-  // }, [productVariations]);
+  useEffect(() => {
+    console.log(selectedCategory)
+  }, [selectedCategory])
+
+  useEffect(() => {
+    if (currentProduct && currentProduct.categoryId) {
+      setSelectedCategory(currentProduct.categoryId);
+    }
+  }, [currentProduct])
+
+  const handleCategoryChange = (event: any) => {
+    const selectedValue = event.target.value;
+    setSelectedCategory(selectedValue);
+  };
+
+  const [productVariations, setProductVariations] = useState<ProductVariations[]>([]);
 
   useEffect(() => {
     let updatedProductVariations: ProductVariations[] = [];
@@ -332,17 +322,15 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
   const [quantityForAll, setQuantityForAll] = useState<number>(0);
 
   const handlePriceForAllChange = (event: any) => {
-      setPriceForAll(parseFloat(event.target.value));
+    setPriceForAll(parseFloat(event.target.value));
   };
   
   const handleQuantityForAllChange = (event: any) => {
-      setQuantityForAll(parseInt(event.target.value));
+    setQuantityForAll(parseInt(event.target.value));
   };
 
   const handleApplyToAll = (event: any) => {
     event.preventDefault();
-    console.log(priceForAll)
-    console.log(quantityForAll)
 
     const updatedProductVariations = productVariations.map((variation) => ({
         ...variation,
@@ -359,24 +347,49 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     const { column, row } = cell;
 
     if (column.id === "price") {
-      // const parsedValue = parseFloat(value);
-      // console.log(isNaN(parsedValue))
-      // if (isNaN(parsedValue) || parsedValue <= 0) {
-      //   setRowErrors(`Invalid price for ${row.original.name}`);
-      //   return;
-      // }
       productVariations[row.index].price = parseFloat(value);
     } else if (column.id === "quantity") {
-      // const parsedValue = parseFloat(value);
-      // if (isNaN(parsedValue) || parsedValue <= 0) {
-      //   setRowErrors(`Invalid quantity for ${row.original.name}`);
-      //   return;
-      // }
       productVariations[row.index].quantity = parseInt(value);
     }
-    setProductVariations([...productVariations]); //re-render with new data
-    console.log("productVariations", productVariations)
+    setProductVariations([...productVariations]);
   }
+
+  const [imageURL, setImageURL] = useState<string[]>([]);
+  const [imageURLMap, setImageURLMap] = useState<string[][]>([]);
+
+  useEffect(() => {
+    console.log("imageURL", imageURL);
+  }, [imageURL])
+
+  useEffect(() => {
+    console.log("imageURLMap", imageURLMap);
+  }, [imageURLMap])
+
+  useEffect(() => {
+    if (currentProduct) {
+      if (currentProduct.subRows.length === 0) setImageURL(currentProduct.imageUrl);
+      else {
+        let urlArr: string[][] = [];
+        currentProduct.subRows.forEach((variation) => {
+          urlArr.push(variation.imageUrl);
+        })
+        setImageURLMap(urlArr);
+      }
+    }
+  }, [currentProduct])
+
+  const handleUpload = async (resultInfo: any) => {
+    console.log("Successfully uploaded:", resultInfo.public_id);
+    setImageURL((prevImageURL) => [...prevImageURL, resultInfo.public_id]);
+  }
+
+  const handleDeleteImage = (index: number) => {
+    setImageURL((prevImageURL) => {
+      const updatedImageURL = [...prevImageURL];
+      updatedImageURL.splice(index, 1);
+      return updatedImageURL;
+    });
+  };
 
   const columns = useMemo<MRT_ColumnDef<ProductVariations>[]>(
     () => [
@@ -406,17 +419,17 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
         enableEditing: false,
         Cell: ({row}) => (
           <>
-            {/* {imageURLMap[row.index] && imageURLMap[row.index].map((imageUrl: string, index: number) => (
+            {imageURLMap[productVariations.findIndex(variation => variation.name === row.original.name)] && 
+              imageURLMap[productVariations.findIndex(variation => variation.name === row.original.name)].map((imageUrl: string, index: number) => (
               <div key={index} className="flex flex-row w-40 h-40 mb-5">
                 <AdvancedImage cldImg={cld.image(imageUrl)} />
                 <button 
+                  type="button"
                   className="flex"
                   onClick={() => {
                     row.original.imageUrl.splice(index, 1);
                     const updatedImageURLMap = [...imageURLMap];
-                    updatedImageURLMap[row.index] = updatedImageURLMap[row.index].filter(
-                      (_, i) => i !== index
-                    );
+                    updatedImageURLMap[row.index] = row.original.imageUrl;
                     setImageURLMap(updatedImageURLMap);
                   }}
                 >
@@ -426,58 +439,19 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
             ))}
             <CloudinaryUploader 
               onSuccess={(resultInfo: any) => {
-                console.log("Successfully uploaded:", resultInfo.public_id);
+                row.original.imageUrl.push(resultInfo.public_id);
                 const updatedImageURLMap = [...imageURLMap];
-                updatedImageURLMap[row.index].push(resultInfo.public_id);
+                updatedImageURLMap[row.index] = row.original.imageUrl;
                 setImageURLMap(updatedImageURLMap);
               }} 
               caption={"Upload Image"}
-            /> */}
+            />
           </>
         )
       },
     ],
-    []
+    [imageURLMap]
   );
-
-  const [imageURL, setImageURL] = useState<string[]>([]);
-  const [imageURLMap, setImageURLMap] = useState<string[][]>([]);
-
-  useEffect(() => {
-    console.log("imageURL", imageURL);
-  }, [imageURL])
-
-  useEffect(() => {
-    console.log("imageURLMap", imageURLMap);
-  }, [imageURLMap])
-
-  useEffect(() => {
-    if (currentProduct) {
-      if (currentProduct.subRows.length === 0) setImageURL(currentProduct.imageUrl);
-      else {
-        let urlArr: string[][] = [];
-        currentProduct.subRows.forEach((variation) => {
-          urlArr.push(variation.imageUrl);
-        })
-        setImageURLMap(urlArr);
-      }
-    }
-  }, [currentProduct])
-
-  const handleUpload = async (resultInfo: any) => {
-    console.log("Successfully uploaded:", resultInfo.public_id);
-    // setImageURL([resultInfo.public_id]);
-    imageURL.push(resultInfo.public_id);
-    return;
-  }
-
-  const handleDeleteImage = (index: number) => {
-    setImageURL((prevImageURL) => {
-      const updatedImageURL = [...prevImageURL];
-      updatedImageURL.splice(index, 1); // Remove the image at the specified index
-      return updatedImageURL;
-    });
-  };
 
   const [nameError, setNameError] = useState("");
   const [priceError, setPriceError] = useState("");
@@ -490,7 +464,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
 
     setSubmitStatus("Please try again.");
     setRowErrors("");
-    // if (rowErrors != "") return;
 
     const form = e.target as HTMLFormElement;
     
@@ -502,10 +475,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     }
 
     const description = form.elements.namedItem('description') as HTMLTextAreaElement;
+
     const category = form.elements.namedItem('category') as HTMLSelectElement;
-    const selectedCategoryOption = category.options[category.selectedIndex];
-    const categoryId = parseInt(selectedCategoryOption.value);
-    const categoryName = selectedCategoryOption.text;
+    const categoryName = category.options[category.selectedIndex].text;
 
     const price = form.elements.namedItem('priceNoVariation') as HTMLInputElement;
 
@@ -521,46 +493,34 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
       return;
     } else if (quantityError !== "") setQuantityError("");
 
-    // IMAGE OFF
-    // if (variations.length === 0 && imageURL.length === 0) {
-    //   setImageError("Please upload an image.");
-    //   return;
-    // } else if (imageError != "") setImageError("");
+    if (variations.length === 0 && imageURL.length === 0) {
+      setImageError("Please upload an image.");
+      return;
+    } else if (imageError != "") setImageError("");
 
     let validVariationInput = true;
 
     if (variations.length > 0 && productVariations.length === 0) {
-      console.log("check")
       setRowErrors("Please either enter a variation or delete the variation field.");
       return;
     } else {
       productVariations.forEach((variation) => {
         if (isNaN(variation.price) || isNaN(variation.quantity) || variation.price <= 0 || variation.quantity <= 0) {
           setRowErrors("Please input valid values greater than zero.");
-          // console.log("check")
-          console.log(rowErrors)
           validVariationInput = false;
-          console.log("valid1", validVariationInput)
           return;
         } 
       }) 
-  
-      console.log("valid", validVariationInput)
-  
+    
       if (validVariationInput) {
-        console.log("help");
-        // IMAGE OFF
-        // productVariations.forEach((variation) => {
-        //   if (variation.imageUrl.length === 0) {
-        //     setRowErrors("Please upload at least 1 image for each variation.");
-        //     console.log(rowErrors)
-        //     validVariationInput = false;
-        //     console.log("valid2", validVariationInput) 
-        //     return; 
-        //   }
-        // })
+        productVariations.forEach((variation) => {
+          if (variation.imageUrl.length === 0) {
+            setRowErrors("Please upload at least 1 image for each variation.");
+            validVariationInput = false;
+            return; 
+          }
+        })
         if (validVariationInput) {
-          console.log("valid3", validVariationInput) 
           setRowErrors("");
         }
       }
@@ -574,16 +534,16 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
       price: Number.isNaN(parseFloat(price.value)) ? -1 : parseFloat(price.value),
       quantity: Number.isNaN(parseFloat(quantity.value)) ? -1 : parseFloat(quantity.value),
       imageUrl: imageURL,
-      categoryId: categoryId,
+      categoryId: selectedCategory ? selectedCategory : 1,
       category: categoryName,
       variations: productVariations,
     };
 
     if (currentProduct) {
       formData.productId = currentProduct.productId;
+      formData.sku = currentProduct.sku;
     }
 
-    console.log("string or num", productVariations)
     onSubmit(formData);
     setSubmitStatus("Success!");
   };
@@ -623,11 +583,22 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
         <label>
           <select 
             name="category"
-            defaultValue={currentProduct ? currentProduct.categoryId : 1}
+            value={selectedCategory}
+            onChange={handleCategoryChange}
           >
-            {categories.map(item => (
-              <option key={item.category_id} value={item.category_id}>{item.name}</option>
-            ))}
+            {categories.map((category: Category) => {
+              return (
+                <>
+                  {category.categoryId === selectedCategory ? (
+                    <option key={category.categoryId} value={category.categoryId} selected>
+                    {category.name}
+                  </option>
+                  ): (<option key={category.categoryId} value={category.categoryId}>
+                    {category.name}
+                  </option>)}
+                </>
+              );
+            })}
           </select>
         </label>
         <br />
@@ -671,10 +642,11 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
           {variations.length === 0 && (
             <>
               <br />
-              {/* {imageURL && imageURL.map((imageUrl: string, index: number) => (
+              {imageURL && imageURL.map((imageUrl: string, index: number) => (
                 <div key={index} className="flex flex-row w-40 h-40 mb-5">
                   <AdvancedImage cldImg={cld.image(imageUrl)} />
                   <button 
+                    type="button"
                     className="flex"
                     onClick={() => handleDeleteImage(index)}
                   >
@@ -690,7 +662,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                 <span className="tooltip">{imageError}</span>
               )}
               <br />
-              <br /> */}
+              <br />
             </>
           )}
         </label>
@@ -714,7 +686,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                     className="text-black border-gray-300 rounded-md shadow-sm"
                     type="text"
                     value={variation.name}
-                    onChange={(e) => {console.log(e);handleVariationNameChange(variationIndex, e.target.value)}}
+                    onChange={(e) => handleVariationNameChange(variationIndex, e.target.value)}
                   />
                 </label>
 
@@ -795,7 +767,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                     <input 
                         className="text-black placeholder-gray-800 border-gray-300 rounded-md shadow-sm" 
                         type="number" 
-                        // step=".01"
                         name="price" 
                         value={priceForAll}
                         placeholder="Price"
@@ -835,7 +806,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
           type="submit" 
           name="submit" 
           value="Submit"
-          // onClick={ProductForm}
         >
           Submit
         </button>
@@ -854,71 +824,3 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
 
 export default ProductForm
 
-  // edit
-  // const [validationErrors, setValidationErrors] = useState<{
-  //   [cellId: string]: string;
-  // }>({});
-
-  // const handleSaveRowEdits: MaterialReactTableProps<Product>['onEditingRowSave'] =
-  // async ({ exitEditingMode, row, values }) => {
-  //   if (!Object.keys(validationErrors).length) {
-  //     const updatedData = {
-  //       id: row.original.productId, 
-  //       ...values,
-  //     };
-
-  //     console.log("updatedData", updatedData)
-
-  //     try {
-  //       // Make an API call to send the updated data to the backend
-  //       await axiosPrivateSeller.put(`/editProduct/` + updatedData.id, updatedData);
-
-  //       // If the API call is successful, update the local table data and exit editing mode
-  //       tableData[row.index] = values;
-  //       console.log(tableData[row.index])
-
-  //       setTableData([...tableData]);
-  //       exitEditingMode(); // Required to exit editing mode and close the modal
-  //     } catch (error) {
-  //       // Handle any error that occurred during the API call
-  //       console.error('Error updating data:', error);
-  //     }
-  //   }
-  // };
-
-  // const handleCancelRowEdits = () => {
-  //   setValidationErrors({});
-  // };
-
-  // const getCommonEditTextFieldProps = useCallback(
-  //   (
-  //     cell: MRT_Cell<Product>,
-  //   ): MRT_ColumnDef<Product>['muiTableBodyCellEditTextFieldProps'] => {
-  //     return {
-  //       error: !!validationErrors[cell.id],
-  //       helperText: validationErrors[cell.id],
-  //       onBlur: (event) => {
-  //         const isValid =
-  //           cell.column.id === 'email'
-  //             ? validateEmail(event.target.value)
-  //             : cell.column.id === 'age'
-  //             ? validateAge(+event.target.value)
-  //             : validateRequired(event.target.value);
-  //         if (!isValid) {
-  //           //set validation error for cell if invalid
-  //           setValidationErrors({
-  //             ...validationErrors,
-  //             [cell.id]: `${cell.column.columnDef.header} is required`,
-  //           });
-  //         } else {
-  //           //remove validation error for cell if valid
-  //           delete validationErrors[cell.id];
-  //           setValidationErrors({
-  //             ...validationErrors,
-  //           });
-  //         }
-  //       },
-  //     };
-  //   },
-  //   [validationErrors],
-  // );

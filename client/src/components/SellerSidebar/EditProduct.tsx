@@ -1,21 +1,31 @@
 import { useLocation } from 'react-router-dom';
-
 import { axiosPrivateSeller } from '../../api/axios.tsx';
-// import useSeller from '../../hooks/useSeller.tsx';
-
-// import SellerSidebar from "../SellerSidebar/SellerSidebar.js";
 import ProductForm from "./ProductForm.tsx";
-// import { useState, useEffect } from 'react';
-// import Product from '../Header/Product.tsx';
 
-// interface ProductVariations {
-//   name: string;
-//   var1: string;
-//   var2: string;
-//   price: number;
-//   quantity: number;
-//   sku: string;
-// }
+interface SubmitVariationsInterface {
+  var1: string; 
+  var2: string;
+  price: number;
+  quantity: number;
+  imageUrl: string[];
+  sku?: string;
+}
+
+interface SubmitInterface {
+  name: string;
+  description: string;
+  price: number;
+  quantity: number;
+  imageUrl: string[];
+  categoryId: number;
+  category: string;
+  variations: Array<SubmitVariationsInterface>;
+
+  // optional properties
+  // edit product only
+  productId?: number;
+  sku?: string;
+}
 
 interface Product {
   productId: number;
@@ -44,101 +54,72 @@ const EditProduct = () => {
   let { state } = useLocation();
   
   let product: Product = state;
-  console.log(product);
 
-  const currentProduct: Product = (Object.values(product)[0]);
+  const originalProduct: Product = JSON.parse(JSON.stringify(Object.values(product)[0]));
 
-  // useEffect(() => {
-  //   if (product) {
-  //     setCurrentProduct(Object.values(product)[0]);
-  //   }
-  // }, [])
-
-  // let productWithoutSku = {
-  //   productId: product.productId,
-  //   active: product.active,
-  //   name: product.name,
-  //   price: product.price,
-  //   quantity: product.quantity,
-  //   subRows: product.subRows,
-  
-  //   // optional properties
-  //   // product only
-  //   // showSubrows?: product.showSubrows,
-  //   description: product.description,
-  //   categoryId: product.categoryId,
-  //   category: product.category,
-  // }
-
-  // const { seller } = useSeller();
-  // const sellerId = seller.seller_id;
-
-  const handleSubmit = async (e: any) => {
-    console.log(e);
-    console.log(e.variations);
-
+  const handleSubmit = async (e: SubmitInterface) => {
     let columns: string[] = [];
-    let values: string[] = [];
+    let values: Array<string | number> = [e.name, e.description, e.categoryId];
 
-    if (product.name != e.name) {
-      columns.push("name");
-      values.push(e.name);
-    }
-
-    if (product.description != e.description) {
-      columns.push("description");
-      values.push(e.description);
-    }
-
-    if (product.categoryId != e.categoryId) {
-      columns.push("category_id");
-      values.push(e.categoryId);
-    }
-
-    // e.variations.forEach.find(())
-    // product.subRows.find(
-    //   (variation) =>
-    //     variation.var1 === var1 && variation.var2 === var2
-    // );
-
-    // console.log("e.variations", e.variations)
-    // console.log("current", currentProduct)
-    // console.log("current sub", currentProduct.subRows)
-
-    let existingVariation;
+    let imageURLMap: string[][] = [];
+    let deleteImageURLMap: string[][] = [];
     
-    e.variations.forEach((variation: any) => {
-      // console.log("variation", variation)
-      // console.log(variation.var1)
-      // console.log(variation.var2)
-      // variation.var2 ? console.log("yes") : console.log("no")
-
-      existingVariation = currentProduct.subRows.find(
-        (existingVar: any) => {
-          // console.log("test", existingVar.variation1 === variation.var1 && (variation.var2 ? existingVar.variation2 === variation.var2 : true));
-          return existingVar.variation1 === variation.var1 && (variation.var2 ? existingVar.variation2 === variation.var2 : true);
-        }
+    if (e.variations.length === 0) {
+      const newURLs = e.imageUrl.filter((url: string) =>
+        !originalProduct?.imageUrl.includes(url)
       );
+      imageURLMap.push(newURLs);
 
-      // console.log("existing", existingVariation)
-      if (existingVariation) {
-        variation.sku = existingVariation.sku
-      } else variation.sku = "";
-      // console.log("sku", variation.sku)
-    });    
+      const missingURLs = originalProduct.imageUrl.filter((url: string) =>
+        !e.imageUrl.includes(url)
+      );
+      deleteImageURLMap.push(missingURLs);
 
-    console.log("col", columns)
-    console.log("val", values)
-    console.log("var", e.variations)
+      e.variations = [{
+        var1: "",
+        var2: "",
+        price: e.price,
+        quantity: e.quantity,
+        imageUrl: e.imageUrl,
+        sku: e.sku,
+      }]
+    } else {
+      e.variations.forEach((variation: SubmitVariationsInterface) => {
+        let existingVariation = originalProduct.subRows.find((existingVar: any) => {
+            return existingVar.variation1 === variation.var1 && (variation.var2 ? existingVar.variation2 === variation.var2 : true);
+          }
+        );
+
+        if (existingVariation) {
+          variation.sku = existingVariation.sku
+
+          const newURLs = variation.imageUrl.filter((url: string) =>
+            !existingVariation?.imageUrl.includes(url)
+          );
+          imageURLMap.push(newURLs);
+
+          const missingURLs = existingVariation.imageUrl.filter((url: string) =>
+            !variation.imageUrl.includes(url)
+          );
+          deleteImageURLMap.push(missingURLs);
+        } else {
+          variation.sku = "";
+          imageURLMap.push(variation.imageUrl);
+          deleteImageURLMap.push([]);
+        }
+      });    
+    }
 
     const editProduct = async () => {
       try {
         await axiosPrivateSeller.post(
-          `/editProduct/${currentProduct.productId}`,
+          `/editProduct/${originalProduct.productId}`,
           {
             columns: columns,
             values: values,
             variations: e.variations,
+            imageURLMap: imageURLMap,
+            deleteImageURLMap: deleteImageURLMap
           }
         )
       } catch (err) {
@@ -153,7 +134,7 @@ const EditProduct = () => {
     <div className="flex flex-row">
 
       <div className="flex flex-col w-max">
-        <div>Edit Product</div>
+        <h1 className="text-xl font-medium mb-2">Edit Product</h1>
 
         <ProductForm 
           product={product}
