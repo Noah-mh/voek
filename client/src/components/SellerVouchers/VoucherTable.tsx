@@ -87,6 +87,14 @@ const VoucherTable = () => {
   }, []);
 
   useEffect(() => {
+    if (openEditVoucherModal === false) {
+      axiosPrivateSeller.get(`/getVouchers/${sellerId}`).then((response) => {
+        setVouchers(response.data);
+      });
+    }
+  }, [openEditVoucherModal]);
+
+  useEffect(() => {
     if (addVoucherStatus === undefined) {
       return;
     } else if (addVoucherStatus === 201) {

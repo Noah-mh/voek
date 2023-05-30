@@ -158,22 +158,7 @@ export const updateCustomerCoins = async (
     return next(err);
   }
 };
-export const insertShipment = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { orders_product_id, customer_id } = req.body;
-    const response: Array<object> = await cartModel.handleInsertShipment(
-      orders_product_id,
-      customer_id
-    );
-    return res.status(201).json(response);
-  } catch (err: any) {
-    return next(err);
-  }
-};
+
 export const clearCart = async (
   req: Request,
   res: Response,
@@ -209,23 +194,3 @@ export const processRedeemVoucher = async (
     return next(err);
   }
 };
-// export const alterSKUCartDetails = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   console.log("Connected to alterSKU Controller");
-//   try {
-//     const { customer_id, sku, new_sku, product_id } = req.body;
-//     const response: Array<object> = await cartModel.handleAlterSKUCart(
-//       customer_id,
-//       sku,
-//       new_sku,
-//       product_id
-//     );
-//     if (!response?.length) return res.sendStatus(404);
-//     return res.sendStatus(200);
-//   } catch (err: any) {
-//     return next(err);
-//   }
-// };
