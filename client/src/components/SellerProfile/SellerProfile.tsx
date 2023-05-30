@@ -108,20 +108,6 @@ const SellerProfile = () => {
         }
     }
 
-
-
-    // const updateSellerDetails = async () => {
-    //     if (!disabled && saveButton) {
-    //         const body = newPassword ? { password: newPassword, email: sellerDetails?.email, shop_name: sellerDetails?.shop_name, phone_number: sellerDetails?.phone_number } : { email: sellerDetails?.email, shop_name: sellerDetails?.shop_name, phone_number: sellerDetails?.phone_number }
-    //         await axiosPrivateSeller.put(`/seller/profile/${seller?.seller_id}`, body)
-    //         setDisabled(true)
-    //         setSaveButton(true);
-    //     } else {
-    //         setDisabled(false)
-    //         console.log('here')
-    //     }
-    // }
-
     return (
         <div className="p-8">
             <div className="flex items-center mb-4">

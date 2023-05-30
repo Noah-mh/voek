@@ -20,7 +20,6 @@ const ModalComponent: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, order
     const [image_urls, setImage_urls] = useState<string[]>([]);
     const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>([]);
     const handleUploadSuccess = (resultInfo: any) => {
-        console.log('Successfully uploaded:', resultInfo.public_id);
         const imageUrl = resultInfo.public_id;
         setImage_urls(previousImageUrls => [...previousImageUrls, imageUrl]);
         setUploadedImageUrls(previousImageUrls => [...previousImageUrls, imageUrl]);

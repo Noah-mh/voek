@@ -332,7 +332,7 @@ LEFT JOIN (
   FROM product_variations
   GROUP BY product_id
 ) AS var ON p.product_id = var.product_id
-WHERE p.product_id = ?;
+WHERE p.product_id = ? AND p.active = 1;
     `;
 
   try {
@@ -389,7 +389,7 @@ FROM
   products p
   LEFT JOIN review r ON p.product_id = r.product_id
 WHERE 
-  p.product_id = ?
+  p.product_id = ? AND p.active = 1
 GROUP BY 
   p.product_id, 
   p.name;

@@ -40,7 +40,6 @@ const ViewDelivered = ({ deliveredOrders, getAll }: Props) => {
   useEffect(() => {
     const orderOrders = () => {
       const updatedOrders: any = {};
-      console.log(deliveredOrders)
       deliveredOrders.forEach(order => {
         const { orders_id, seller_id } = order;
 
@@ -58,7 +57,6 @@ const ViewDelivered = ({ deliveredOrders, getAll }: Props) => {
 
       const orderedOrdersArray = Object.values(updatedOrders);
       setDeliveredOrderedOrders(orderedOrdersArray);
-      console.log(orderedOrdersArray)
     };
 
     orderOrders()

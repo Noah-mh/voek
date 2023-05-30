@@ -6,7 +6,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import useCustomer from "../../hooks/UseCustomer";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 
@@ -90,7 +90,6 @@ const AddressModal: React.FC<AddressModalProps> = ({ getAll, addAddress }) => {
             });
             return;
         }
-        console.log(address);
         handleClose();
         try {
             const response = await axiosPrivateCustomer.post(`/customer/addAddress/${customer_id}`,
@@ -101,7 +100,6 @@ const AddressModal: React.FC<AddressModalProps> = ({ getAll, addAddress }) => {
                     postal_code: address.postal_code,
                     country: address.country
                 });
-            console.log(response);
             const addressWithId = { ...address, address_id: response.data };
             toast.success("Added New Address", {
                 position: "top-center",
@@ -177,6 +175,7 @@ const AddressModal: React.FC<AddressModalProps> = ({ getAll, addAddress }) => {
             >
                 {body}
             </Modal>
+            <ToastContainer />
         </div>
     );
 }
