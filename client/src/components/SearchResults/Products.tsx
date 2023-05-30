@@ -20,7 +20,7 @@ const Products = ({ userInput }: ProductsProps) => {
         setProducts(data);
       })
       .catch((err: any) => {
-        console.log(err);
+        console.error(err);
         setStatus(false);
       });
   }, [userInput]);

@@ -22,19 +22,16 @@ const HistoryProducts = ({ selected }: HistoryProductsProps) => {
 
   useEffect(() => {
     // fetch products from selected date
-    console.log("selected: ", selected);
     axiosPrivateCustomer
       .get(
         `/getLastViewed/?customerId=${customerId}&dateViewed=${selected}&timezone=${timezone}`
       )
       .then((response) => response.data)
       .then((data) => {
-        console.log(data);
         setStatus(true);
         setProducts(data);
       })
       .catch((err: any) => {
-        console.log(err);
         setStatus(false);
       });
   }, [selected]);
