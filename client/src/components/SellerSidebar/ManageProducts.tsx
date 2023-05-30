@@ -41,11 +41,6 @@ const ManageProducts = () => {
   const sellerId = seller.seller_id;
 
   const [tableData, setTableData] = useState<Product[]>([]);
-
-  useEffect(() => {
-    console.log("Updated tableData:", tableData);
-    // tableData.forEach((item) => console.log(item));
-  }, [tableData]);
   
   // populate tableData and isCheckedMap
   useEffect(() => {
@@ -73,13 +68,11 @@ const ManageProducts = () => {
         let newIsCheckedMap: boolean[][] = [];   
 
         await Promise.all (response.data.map((item: any) => {
-          // console.log("item image_url", item.image_url)
           // if current item is not a variation of the previous item, they will not have the same product_id. 
           // hence, this would be a new product, so sellerProduct would need to be reinitialised
           if (currentProductId != item.product_id) {
             currentProductId = item.product_id;
             currentProductSku = item.sku;
-            // console.log(currentProductId)
 
             currentIdx++;
 
@@ -127,9 +120,7 @@ const ManageProducts = () => {
             }
 
             // add Product to sellerProducts
-            // console.log(`sellerProduct: ${Object.values(sellerProduct)}`)
             sellerProducts.push(sellerProduct);
-            // console.log("sellerProducts:", sellerProducts.map(obj => JSON.stringify(obj)));
 
           } else if (currentProductSku != item.sku) { 
             // same product_id means that this is a product variation
@@ -180,33 +171,12 @@ const ManageProducts = () => {
   useEffect(() => {
     console.log("Updated isCheckedMap:", isCheckedMap);
     isCheckedMap.forEach((item) => console.log(item));
-    // console.log("help", isCheckedMap["0"][0])
   }, [isCheckedMap]);
-
-
-  // const updateCheckedMap = () => {
-  //   const newMap: boolean[][] = [];
-
-  //   tableData.forEach((product) => {
-  //     if (product.subRows.length == 0) {
-  //       newMap.push([product.active]);
-  //     } else {
-  //       let arr: boolean[] = [product.active];
-  //       for (var i = 0; i < product.subRows.length; i++) {
-  //         arr.push(product.subRows[i].active);
-  //       }
-  //       newMap.push(arr);
-  //     }
-  //   });
-
-  //   setIsCheckedMap(newMap);
-  // };
 
   // update isCheckedMap
   const handleToggle = async (row: any) => {
     // update row.original.active
     row.original.active = !row.original.active;
-    // console.log("row", row.original.active)
 
     // if sku is an empty string, product.active is being toggled
     if (row.original.sku == "") {
@@ -225,19 +195,16 @@ const ManageProducts = () => {
               updatedMap[row.id][i] = updatedMap[row.id][0];
             }
           }
-          // console.log("updatedMap", updatedMap)
           return updatedMap;
         });
 
         row.originalSubRows ? row.originalSubRows.forEach((item: Product) => {
-          // console.log("subrow", item)
           item.active = row.original.active;
         }) : ""
     } else { 
         // if sku is not empty, product with no productVariation OR productVariation.active is being toggled. 
         // check if all productVariations are inactive in backend. if all are inactive, product.active will become inactive
         // hence, checking by sku will work even for products with no product variations
-        // console.log("row.index", row.index);
 
         await axiosPrivateSeller.put(`/updateProductVariation/active/${row.original.productId}`, 
         JSON.stringify({ active: row.original.active, sku: row.original.sku }), {
@@ -262,7 +229,6 @@ const ManageProducts = () => {
               updatedMap[row.id][0] = true;
               row.getParentRow().original.active = true;
             }
-            // console.log("updatedMap", updatedMap)
             return updatedMap;
           });
         } else if (!row.original.active && row.getParentRow()) {
@@ -282,12 +248,10 @@ const ManageProducts = () => {
               updatedMap[row.id][0] = false;
               row.getParentRow().original.active = false;
             }
-            // console.log("updatedMap", updatedMap)
             return updatedMap;
           });
         }
     }
-    // console.log("isCheckedMap", isCheckedMap);
   }
 
 
