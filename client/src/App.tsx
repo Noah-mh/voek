@@ -5,9 +5,9 @@ import LoginBannerSeller from "./components/LoginBannerSeller/LoginBannerSeller.
 import LoginBanner from "./components/LoginBanner/LoginBanner.js";
 import SignupBannerCustomer from "./components/SignupBannerCustomer/SignupBannerCustomer.js";
 import Layout from "./components/Layout/Layout";
-import Homepage from "./components/Homepage/Homepage.js";
+import Homepage from "./components/homepage/Homepage.js";
 import RequireAuthCustomer from "./components/RequireAuth/RequireAuthCustomer";
-import CartPage from "./components/Cart/UserCart.js";
+import CartPage from "./components/cart/UserCart.js";
 import VerifySignupSeller from "./components/SignupSeller/VerifySignupSeller.js";
 import SignupBannerSeller from "./components/SignupSeller/SignupBannerSeller.js";
 import ResetPasswordSeller from "./components/ResetPasswordSeller/ResetPasswordSeller.js";
@@ -23,10 +23,7 @@ import ForgetPasswordCustomer from "./components/ForgetPasswordCustomer/ForgetPa
 import ResetPasswordCustomer from "./components/ResetPasswordCustomer/ResetPasswordCustomer.js";
 import ForgetPasswordSeller from "./components/ForgetPasswordSeller/ForgetPasswordSeller.js";
 import HomepageSeller from "./components/HomepageSeller/HomepageSeller.js";
-import ManageProducts from "./components/SellerSidebar/ManageProducts.js";
 import EditProduct from "./components/SellerSidebar/EditProduct.js";
-import AddProduct from "./components/SellerSidebar/AddProduct.js";
-import ManageOrders from "./components/SellerSidebar/ManageOrders.js";
 import Checkout from "./components/Checkout/Checkout.js";
 import CustomerProfilePage from "./components/Customer/CustomerProfilePage.js";
 import LastViewed from "./components/LastViewed(History)/LastViewed.js";
