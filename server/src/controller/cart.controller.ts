@@ -12,8 +12,6 @@ export const retrieveCartDetails = async (
   try {
     const { customer_id } = req.params;
 
-    console.log("Connected to getCart Controller");
-
     const response: Array<object> = await cartModel.handlesGetCartDetails(
       customer_id
     );
@@ -29,7 +27,6 @@ export const alterQuantCartDetails = async (
   res: Response,
   next: NextFunction
 ) => {
-  console.log("Connected to alterQuant Controller");
   try {
     const { customer_id, sku, quantity } = req.body;
     const response: Array<object> = await cartModel.handleAlterQuantCart(
@@ -164,7 +161,6 @@ export const clearCart = async (
   res: Response,
   next: NextFunction
 ) => {
-  console.log("Connected to clearCart Controller");
   try {
     const { customer_id } = req.body;
     const response: Array<object> = await cartModel.handleClearCart(
@@ -181,10 +177,8 @@ export const processRedeemVoucher = async (
   res: Response,
   next: NextFunction
 ) => {
-  console.log("Connected to processRedeemVoucher Controller");
   try {
     const { order_id, customer_voucher_id } = req.body;
-    console.log(order_id, customer_voucher_id);
     const response: Array<object> = await cartModel.handleRedeemVoucher(
       customer_voucher_id,
       order_id
