@@ -11,23 +11,16 @@ const AddProduct = () => {
   const [duplicateExists, setDuplicateExists] = useState<string>("");
 
   const handleSubmit = async (e: any) => {
-    console.log(e);
-    console.log(e.variations);
-
     const addProduct = async () => {
       try {
         const response = await axiosPrivateSeller.post(
           `/addProduct/${sellerId}`,
           e
         );
-        console.log("duplicate", duplicateExists)
-        console.log("response", response)
-        console.log("response.data", Object.values(response.data))
 
         if (response.data.productId === 0) {
           setDuplicateExists("Product could not be created as it already exists.");
         }
-        console.log("duplicate", duplicateExists)
       } catch (err) {
         console.log(err);
       }
@@ -42,7 +35,7 @@ const AddProduct = () => {
       <div className="flex flex-col w-max">
         <h1 className="text-xl font-medium mb-2">Add Product</h1>
 
-        <ProductForm 
+        <ProductForm
           onSubmit={handleSubmit}
         />
 
