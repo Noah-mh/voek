@@ -37,13 +37,6 @@ const ProductCard = ({ product }: ProductCardProps) => {
       } else {
         setImageUrl(responses[1].data[0].imageURL);
       }
-
-      // if (responses[2].data[0].rating === null) {
-      //   product.rating = 0;
-      // } else {
-      //   product.rating = responses[2].data[0].rating;
-      // }
-
       product.rating = responses[2].data[0].rating;
       setPricingRange(responses[0].data[0]);
     });
