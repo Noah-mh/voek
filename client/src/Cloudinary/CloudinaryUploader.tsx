@@ -27,11 +27,14 @@ const CloudinaryUploader: React.FC<CloudinaryUploaderProps> = ({ onSuccess, capt
 
     return (
         <div>
-            <button className="cloudinary-button" onClick={handleUploadClick}>
+            <button
+                type="button"
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow"
+                onClick={handleUploadClick}>
                 {caption}
             </button>
-
         </div>
+
     );
 };
 

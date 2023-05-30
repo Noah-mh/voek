@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import "./css/Slider.css";
@@ -19,18 +19,55 @@ interface Product {
 }
 
 const Slider: React.FC<SliderProps> = ({ header, products }) => {
-  const [width, setWidth] = useState<number>(0);
   const carousel = useRef<HTMLDivElement>(null);
+  const isDragging = useRef<boolean>(false);
+  const dragStartXRef = useRef<number>(0);
+  const dragCurrentXRef = useRef<number>(0);
+  const speedFactor = 0.008;
 
-  useEffect(() => {
-    if (carousel.current) {
-      setWidth(carousel.current.scrollWidth - carousel.current.offsetWidth);
+  const handleDragStart = (event: React.MouseEvent | React.TouchEvent) => {
+    event.preventDefault();
+    isDragging.current = true;
+    dragStartXRef.current = getCursorPosition(event);
+  };
+
+  const handleDragMove = (event: React.MouseEvent | React.TouchEvent) => {
+    event.preventDefault();
+    if (!isDragging.current) {
+      return;
     }
-  }, []);
+    const dragCurrentX = getCursorPosition(event);
+    const dragOffset = (dragCurrentX - dragStartXRef.current) * speedFactor;
+    dragCurrentXRef.current = dragCurrentX;
 
-  useEffect(() => {
-    console.log("products: ", products);
-  }, [products]);
+    const carouselElement = carousel.current;
+    if (carouselElement) {
+      carouselElement.scrollLeft -= dragOffset;
+    }
+  };
+
+  const handleDragEnd = () => {
+    if (!isDragging.current) {
+      return;
+    }
+    isDragging.current = false;
+
+    const dragDistance = dragCurrentXRef.current - dragStartXRef.current;
+    if (Math.abs(dragDistance) < 5) {
+      return;
+    }
+
+    dragStartXRef.current = 0;
+    dragCurrentXRef.current = 0;
+  };
+
+  const getCursorPosition = (event: React.MouseEvent | React.TouchEvent) => {
+    if ((event as React.TouchEvent).touches) {
+      return (event as React.TouchEvent).touches[0].clientX;
+    } else {
+      return (event as React.MouseEvent).clientX;
+    }
+  };
 
   return (
     <motion.div
@@ -42,18 +79,23 @@ const Slider: React.FC<SliderProps> = ({ header, products }) => {
     >
       <h1 className="ml-12 font-bold text-3xl mt-3 header tracking-widest">
         {header}
-        {/* &#10093; */}
       </h1>
       <motion.div
-        drag="x"
-        dragConstraints={{ right: 0, left: -width }}
         className="inner-carousel flex cursor-grab"
+        onMouseDown={handleDragStart}
+        onMouseMove={handleDragMove}
+        onMouseUp={handleDragEnd}
+        onMouseLeave={handleDragEnd}
+        onTouchStart={handleDragStart}
+        onTouchMove={handleDragMove}
+        onTouchEnd={handleDragEnd}
       >
         {products.map((product: Product, index: number) => {
           return (
             <Link
-              to={`/productDetailsWithReviews/${product.product_id}`}
               key={index}
+              to={`/productDetailsWithReviews/${product.product_id}`}
+              className=""
             >
               <motion.div
                 className="item p-5 px-4 pt-7 cursor-pointer"

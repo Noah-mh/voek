@@ -10,7 +10,18 @@ import { P } from 'pino';
 export const processGetAllProductsOfSeller = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const sellerId: number = parseInt(req.params.sellerId);
-        const response: any = await sellerModel.handleGetAllProducts(sellerId);
+        const response: any = await sellerModel.handleGetAllProductsOfSeller(sellerId);
+        return res.json(response);
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+// GET best sellers
+export const processGetBestSellers = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const sellerId: number = parseInt(req.params.sellerId);
+        const response: any = await sellerModel.handleGetBestSellers(sellerId);
         return res.json(response);
     } catch (err: any) {
         return next(err);
