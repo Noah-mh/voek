@@ -46,7 +46,7 @@ const ResetPasswordSeller = () => {
     const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
-            await axios.post('/seller/reset/password', JSON.stringify({ seller_id, password }), {
+            await axios.put('/seller/reset/password', JSON.stringify({ seller_id, password }), {
                 headers: { 'Content-Type': 'application/json' },
                 withCredentials: true
             })

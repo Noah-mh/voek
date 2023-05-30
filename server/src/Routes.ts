@@ -51,7 +51,7 @@ export default function (app: Express, router: Router) {
     "/customer/verify/reset/password",
     customerController.processForgetPasswordLink
   );
-  router.post(
+  router.put(
     "/customer/reset/password",
     customerController.processResetPassword
   );
@@ -71,7 +71,7 @@ export default function (app: Express, router: Router) {
     "/seller/verify/reset/password",
     sellerController.processForgetPasswordLink
   );
-  router.post("/seller/reset/password", sellerController.processResetPassword);
+  router.put("/seller/reset/password", sellerController.processResetPassword);
   router.get(
     "/customer/orders/:customer_id",
     verifyJWT,
