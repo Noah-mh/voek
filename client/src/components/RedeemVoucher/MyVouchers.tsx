@@ -22,7 +22,8 @@ interface Props {
 const MyVouchers = ({ voucher, getVouchers }: Props) => {
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
 
-  const onClickHandler = async () => {
+  const onClickHandler = async (e: any) => {
+    e.preventDefault();
     try {
       await axiosPrivateCustomer.delete(
         `/customer/vouchers/${voucher.customer_voucher_id}/${voucher.voucher_id}`
