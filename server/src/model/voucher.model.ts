@@ -13,13 +13,14 @@ export const handlesInsertingVoucher = async (
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `INSERT INTO seller_voucher 
-  (voucher_name, seller_id, number_amount, percentage_amount, 
-  voucher_category, min_spend, expiration_date, redemptions_available, active)
-  VALUES (?, ?, ?, ?, ?, ?, CAST(? AS datetime), ?, ?);`;
+              (voucher_name, seller_id, number_amount, percentage_amount, voucher_category, min_spend, expiration_date, redemptions_available, active)
+              VALUES 
+              (?, ?, ?, ?, ?, ?, CAST(? AS datetime), ?, ?);`;
   let percentage_amount = null;
   let number_amount = null;
-  console.log("type: ", type);
-  console.log("amount: ", amount);
+  console.log(
+    `Insert voucher name ${name} for type ${type} with amount ${amount}`
+  );
   if (type === 2) {
     percentage_amount = amount / 100;
   } else if (type === 1) {
@@ -39,8 +40,6 @@ export const handlesInsertingVoucher = async (
       1,
     ]);
     return (result[0] as any).affectedRows as number;
-  } catch (err: any) {
-    throw new Error(err);
   } finally {
     await connection.release();
   }

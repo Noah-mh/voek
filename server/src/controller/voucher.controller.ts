@@ -26,8 +26,10 @@ export const insertVoucher = async (
       minSpend === undefined ||
       expiryDate === undefined ||
       redemptionsAvailable === undefined
-    )
+    ) {
       return res.sendStatus(400);
+    }
+
     const response: number = await voucherModel.handlesInsertingVoucher(
       name,
       sellerId,
@@ -38,7 +40,7 @@ export const insertVoucher = async (
       expiryDate,
       redemptionsAvailable
     );
-    if (response === 0) return res.sendStatus(404);
+    if (response === 0) return res.sendStatus(400);
     return res.sendStatus(201);
   } catch (err: any) {
     return next(err);

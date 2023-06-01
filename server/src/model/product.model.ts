@@ -101,10 +101,8 @@ export const handlesGetRecommendedProductsBasedOnCat = async (
   LIMIT 6;`;
   try {
     const result = await connection.query(sql, [category_id]);
-    console.log(result[0]);
+    console.log("Result GetRecommendedProductsBasedOnCat", result[0]);
     return result[0] as Product[];
-  } catch (err: any) {
-    throw new Error(err);
   } finally {
     await connection.release();
   }
@@ -136,15 +134,12 @@ export const handlesGetWishlistItems = async (
   const connection = await promisePool.getConnection();
   const sql = `SELECT products.product_id, products.name, products.description, products.category_id
   FROM wishlist
-  JOIN customer ON wishlist.customer_id = customer.customer_id
   JOIN products ON wishlist.product_id = products.product_id
   WHERE wishlist.customer_id = ?;`;
   try {
     const result = await connection.query(sql, [customer_id]);
-    console.log(result);
+    console.log("Get Wishlist result", result);
     return result[0] as Product[];
-  } catch (err: any) {
-    throw new Error(err);
   } finally {
     await connection.release();
   }
@@ -162,10 +157,8 @@ export const handlesGetLastViewedProductExistence = async (
   const params = [product_id, customer_id, timezone, date_viewed];
   try {
     const result = await connection.query(sql, params);
-    console.log(result[0]);
+    console.log("Result of GetLastViewedProductExistence", result[0]);
     return result[0] as Object[];
-  } catch (err: any) {
-    throw new Error(err);
   } finally {
     await connection.release();
   }
@@ -534,7 +527,7 @@ export const handlesInsertLastViewedProduct = async (
 ) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const categories: Category[] = await handlesGetProductCat(productId);
+  const categories = await handlesGetProductCat(productId);
   const categoryId = categories.length > 0 ? categories[0].categoryId : 0;
   const found = await handlesGetLastViewedProductExistence(
     customerId,
@@ -546,14 +539,8 @@ export const handlesInsertLastViewedProduct = async (
   if (found.length === 0) {
     const sql = `INSERT INTO last_viewed (product_id, category_id, customer_id) VALUES (?, ?, ?);`;
     try {
-      const result = await connection.query(sql, [
-        productId,
-        categoryId,
-        customerId,
-      ]);
-      return [{ categoryId, customerId }]; //result[0] as Array<Object>;
-    } catch (err: any) {
-      throw new Error(err);
+      await connection.query(sql, [productId, categoryId, customerId]);
+      return [{ categoryId, customerId }];
     } finally {
       await connection.release();
     }

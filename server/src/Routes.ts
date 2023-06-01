@@ -343,19 +343,10 @@ export default function (app: Express, router: Router) {
     "/products/:sellerId",
     sellerController.processGetAllProductsOfSeller
   );
-  router.get(
-    "/bestSellers/:sellerId",
-    sellerController.processGetBestSellers
-  );
+  router.get("/bestSellers/:sellerId", sellerController.processGetBestSellers);
   router.get("/categories", sellerController.processGetAllCategories);
-  router.post(
-    "/addProduct/:sellerId",
-    sellerController.processAddProduct
-  );
-  router.post(
-    "/editProduct/:productId",
-    sellerController.processEditProduct
-  );
+  router.post("/addProduct/:sellerId", sellerController.processAddProduct);
+  router.post("/editProduct/:productId", sellerController.processEditProduct);
   router.put(
     "/updateProductVariation/active/:productId",
     sellerController.processUpdateProductVariationActive
@@ -454,7 +445,12 @@ export default function (app: Express, router: Router) {
     productController.getProductVariationImage
   );
 
-  router.post("/insertCart", cartController.insertCart);
+  router.post(
+    "/insertCart",
+    verifyJWT,
+    verifyRoles("customer"),
+    cartController.insertCart
+  );
 
   router.post(
     "/insertLastViewedProduct",
@@ -475,7 +471,12 @@ export default function (app: Express, router: Router) {
     customerController.getCustomerLastViewedCat
   );
 
-  router.post("/insertVoucher", voucherController.insertVoucher);
+  router.post(
+    "/insertVoucher",
+    verifyJWT,
+    verifyRoles("seller"),
+    voucherController.insertVoucher
+  );
   router.put("/updateActive", voucherController.updateActive);
   router.put("/updateVoucher", voucherController.updateVoucher);
   router.delete("/deleteVoucher/:voucherId", voucherController.deleteVoucher);

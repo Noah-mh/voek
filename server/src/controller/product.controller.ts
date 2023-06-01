@@ -97,7 +97,6 @@ export const getLastViewed = async (
 ) => {
   try {
     const { customerId, dateViewed, timezone } = req.query;
-    console.log("timezone:", timezone);
     const response: Array<object> = await productModel.handlesGetLastViewed(
       parseInt(customerId as string),
       timezone as string,
@@ -176,16 +175,15 @@ export const insertWishlistedProduct = async (
   next: NextFunction
 ) => {
   try {
-    console.log("test");
     const { customerId, productId } = req.body;
-    const response: number =
-      await productModel.handlesInsertingWishlistedProduct(
-        customerId,
-        productId
-      );
-    if (response === 0) return res.sendStatus(404);
+    const response = await productModel.handlesInsertingWishlistedProduct(
+      customerId,
+      productId
+    );
+    if (response === 0) return res.sendStatus(400);
     return res.sendStatus(201);
   } catch (err: any) {
+    console.error("Unexpected error for insertWishlistedProduct", err);
     return next(err);
   }
 };
