@@ -7,7 +7,7 @@ import SignupBannerCustomer from "./components/SignupBannerCustomer/SignupBanner
 import Layout from "./components/Layout/Layout";
 import Homepage from "./components/homepage/Homepage.js";
 import RequireAuthCustomer from "./components/RequireAuth/RequireAuthCustomer";
-import CartPage from "./components/cart/UserCart.js";
+import CartPage from "./components/UserCart/UserCart.js";
 import VerifySignupSeller from "./components/SignupSeller/VerifySignupSeller.js";
 import SignupBannerSeller from "./components/SignupSeller/SignupBannerSeller.js";
 import ResetPasswordSeller from "./components/ResetPasswordSeller/ResetPasswordSeller.js";

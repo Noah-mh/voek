@@ -43,7 +43,8 @@ const Voucher = ({ voucher, getVouchers }: Props) => {
         }
     }
 
-    const onClickHandler = async () => {
+    const onClickHandler = async (e: any) => {
+        e.preventDefault();
         if (customer.customer_id) {
             await axiosPrivateCustomer.put(`/customer/vouchers/${customer.customer_id}/${voucher.voucher_id}}`);
             toast.success("Login To Redeem Voucher. 🤡", {

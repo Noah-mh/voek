@@ -121,26 +121,26 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
   ]);
 
   const handleUpload = async (resultInfo: any) => {
-    console.log("Successfully uploaded:", resultInfo.public_id);
     setUpdateImage(resultInfo.public_id);
     try {
-      const response = await axiosPrivateCustomer.put(
+      const response: number = await axiosPrivateCustomer.put(
         `/customer/profile/edit/photo/${customer_id}`,
         {
           image_url: resultInfo.public_id,
         }
       );
-      console.log(response.data);
-      toast.success("Photo updated", {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
+      if (response === 200) {
+        toast.success("Photo updated", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      }
     } catch (error) {
       console.error(error);
       toast.error("Error Uploading Photo", {
@@ -157,27 +157,28 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
   };
 
   const handleDelete = async () => {
-    console.log("Successfully deleted:");
     setUpdateImage("test/blank-profile-picture-973460_1280_tj6oeb");
     try {
-      const response = await axiosPrivateCustomer.put(
+      const response: number = await axiosPrivateCustomer.put(
         `/customer/profile/edit/photo/${customer_id}`,
         {
           image_url: "test/blank-profile-picture-973460_1280_tj6oeb",
         }
       );
-      console.log(response.data);
-      toast.success("Photo deleted", {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
-      getAll();
+      if (response === 200) {
+        toast.success("Photo deleted", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+
+        getAll();
+      }
     } catch (error) {
       console.error(error);
       toast.error("Error Deleting Photo", {
@@ -194,7 +195,6 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
   }
 
   const handleSave = async () => {
-    console.log(updateUsername, updateEmail, updatePhoneNumber);
     try {
       // Make the Axios PUT request to update the user's profile
       const response = await axiosPrivateCustomer.put(
@@ -211,7 +211,6 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
         response.data?.emailChange && setSendEmailVerification(true);
         setEditing(false);
         setNewPassword("");
-        console.log("Profile updated:", response.data);
         toast.success("Profile updated", {
           position: "top-center",
           autoClose: 5000,
@@ -227,7 +226,6 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
       } else {
         setEditing(false);
         setNewPassword("");
-        console.log("Profile updated:", response.data);
         toast.success("Profile updated", {
           position: "top-center",
           autoClose: 5000,

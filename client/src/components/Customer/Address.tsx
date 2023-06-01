@@ -33,10 +33,8 @@ const AddressDisplay: React.FC<AddressDisplayProps> = ({ customerData, getAll })
     const axiosPrivateCustomer = useAxiosPrivateCustomer();
     const [noAddress, setNoAddress] = useState<boolean>(false);
     const { addresses } = customerData;
-    console.log(addresses)
     useEffect(() => {
         const allPropsNull = Object.values(addresses[0]).every(val => val === null);
-        console.log(allPropsNull)
         setNoAddress(allPropsNull);
     }, [addresses])
 
@@ -58,7 +56,6 @@ const AddressDisplay: React.FC<AddressDisplayProps> = ({ customerData, getAll })
         const newAddressUpdates = [...addressUpdates];
         newAddressUpdates[index].editing = false;
         setAddressUpdates(newAddressUpdates);
-        console.log("Updated address", addressUpdates[index])
         try {
             const response = await axiosPrivateCustomer.put(`/customer/updateAddress/${customer_id}`,
                 {
@@ -69,17 +66,18 @@ const AddressDisplay: React.FC<AddressDisplayProps> = ({ customerData, getAll })
                     postal_code: addressUpdates[index].postal_code,
                     country: addressUpdates[index].country
                 });
-            console.log(response);
-            toast.success("Successfully updated Address", {
-                position: "top-center",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "light",
-            });
+            if (response) {
+                toast.success("Successfully updated Address", {
+                    position: "top-center",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                });
+            }
         } catch (error) {
             console.error(error);
             toast.error("Error updating Address", {
@@ -106,18 +104,18 @@ const AddressDisplay: React.FC<AddressDisplayProps> = ({ customerData, getAll })
         setAddressUpdates(newAddressUpdates);
         try {
             const response = await axiosPrivateCustomer.delete(`/customer/${customer_id}/deleteAddress/${addressUpdates[index].address_id}`);
-            console.log(response);
-            toast.success("Successfully deleted Address", {
-                position: "top-center",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "light",
-            });
-
+            if (response) {
+                toast.success("Successfully deleted Address", {
+                    position: "top-center",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                });
+            }
         } catch (error) {
             console.error(error);
             toast.error("Error deleting Address", {
@@ -133,13 +131,12 @@ const AddressDisplay: React.FC<AddressDisplayProps> = ({ customerData, getAll })
         }
     };
 
-    const addAddress = (newAddress : any) => {
+    const addAddress = (newAddress: any) => {
         setAddressUpdates((prevAddresses) => [...prevAddresses, { ...newAddress, editing: false }]);
     };
 
     useEffect(() => {
         getAll();
-        console.log("Address updates", addressUpdates);
     }, [addressUpdates]);
 
 
