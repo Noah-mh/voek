@@ -236,47 +236,49 @@ export const handleEditProduct = async (
   try {
     connection.beginTransaction();
 
-    const result1: any = await connection.query(sql1, [values[0], values[1], values[2], productId]);
-    const result2: any = await connection.query(sql2, [productId]);
-
     let currentIdx = 0;
-    await Promise.all(variations.map(async (variation) => {
-      const imageURL = imageURLMap[currentIdx];
-      const deleteImageURL = deleteImageURLMap[currentIdx];
-      currentIdx++;
 
-      if (variation.sku !== "") {
-        const result3: any = await connection.query(sql3, [variation.quantity, variation.price, variation.sku]);
-        deleteImageURL.forEach((url) => {
-          const result4: any = connection.query(sql4, [variation.sku, url]);
-        })
-        imageURL.forEach((url) => {
-          const result8: any = connection.query(sql8, [productId, url, variation.sku])
-        })
+    const result1: any = await connection.query(sql1, [values[0], values[1], values[2], productId]);
+    const result2: any = await connection.query(sql2, [productId])
+    .then(async (response) => {
+      await Promise.all(variations.map(async (variation) => {
+        const imageURL = imageURLMap[currentIdx];
+        const deleteImageURL = deleteImageURLMap[currentIdx];
         currentIdx++;
-      } else {
-        const result5 = await connection.query(sql5, [productId, variation.var1, variation.var2, productId, variation.var1, variation.var2])
-        .then(async (response) => {
-          let exists = Object.values(response[0])[0].source;
-          let sku = Object.values(response[0])[0].sku;
-          if (exists === "Table") {
-            const result3: any = await connection.query(sql3, [variation.quantity, variation.price, sku]);
-            const result6: any = await connection.query(sql6, [sku])
-            .then((response) => {
+  
+        if (variation.sku !== "") {
+          const result3: any = await connection.query(sql3, [variation.quantity, variation.price, variation.sku]);
+          deleteImageURL.forEach((url) => {
+            const result4: any = connection.query(sql4, [variation.sku, url]);
+          })
+          imageURL.forEach((url) => {
+            const result8: any = connection.query(sql8, [productId, url, variation.sku])
+          })
+          currentIdx++;
+        } else {
+          const result5 = await connection.query(sql5, [productId, variation.var1, variation.var2, productId, variation.var1, variation.var2])
+          .then(async (response) => {
+            let exists = Object.values(response[0])[0].source;
+            let sku = Object.values(response[0])[0].sku;
+            if (exists === "Table") {
+              const result3: any = await connection.query(sql3, [variation.quantity, variation.price, sku]);
+              const result6: any = await connection.query(sql6, [sku])
+              .then((response) => {
+                imageURL.forEach((url) => {
+                  const result8 = connection.query(sql8, [productId, url, sku]);
+                })
+              })
+            } else {
+              const result7 = connection.query(sql7, [sku, productId, variation.var1, variation.var2 ? variation.var2 : null, variation.quantity, variation.price]);
               imageURL.forEach((url) => {
                 const result8 = connection.query(sql8, [productId, url, sku]);
               })
-            })
-          } else {
-            const result7 = connection.query(sql7, [sku, productId, variation.var1, variation.var2 ? variation.var2 : null, variation.quantity, variation.price]);
-            imageURL.forEach((url) => {
-              const result8 = connection.query(sql8, [productId, url, sku]);
-            })
-          }
-          return productId;
-        })
-      }
-    }));
+            }
+            return productId;
+          })
+        }
+      }));  
+    })
   } catch (err: any) {
     connection.rollback()
     connection.release();
