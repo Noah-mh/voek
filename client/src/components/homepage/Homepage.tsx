@@ -46,7 +46,7 @@ const Homepage = () => {
         });
       })
       .catch((err: any) => {
-        console.log(err);
+        console.error(err);
       });
 
     if (customerId != undefined) {
@@ -56,16 +56,13 @@ const Homepage = () => {
           return response.data[0].categoryId;
         })
         .then((categoryId) => {
-          console.log("categoryId", categoryId);
           return axios
             .get(`/getRecommendedProductsBasedOnCat/${categoryId}`)
             .then((response) => {
-              console.log("response data", response.data);
               return response.data;
             });
         })
         .then((data) => {
-          console.log("data", data);
           const topProducts = data.map((product: any) => {
             const image = axios.get(`/getProductImage/${product.product_id}`);
             const pricing = axios.get(
@@ -83,12 +80,11 @@ const Homepage = () => {
         })
         .then((topProducts) => {
           Promise.all(topProducts).then((products) => {
-            console.log("products For you", products);
             setForYouProducts(products);
           });
         })
         .catch((err: any) => {
-          console.log(err);
+          console.error(err);
         });
     }
   }, []);

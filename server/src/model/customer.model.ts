@@ -952,15 +952,12 @@ export const handleDeleteVouchers = async (
   }
 };
 
-export const handleRefundVouchers = async (customer_voucher_id: number) => {
+export const handleRefundVouchers = async (voucher_id: number) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `UPDATE seller_voucher SET redemptions_available = redemptions_available + 1 WHERE voucher_id = ?`;
   try {
-    await Promise.all([
-      connection.query(sql, [customer_voucher_id]),
-      handleRefundVouchers(customer_voucher_id),
-    ]);
+    await connection.query(sql, [voucher_id]);
     return;
   } catch (err: any) {
     throw new Error(err);

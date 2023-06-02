@@ -28,7 +28,6 @@ const WishlistCard = () => {
             `/getProductVariationsPricing/${product.product_id}`
           );
           return Promise.all([image, pricing]).then((responses) => {
-            console.log("response.data[0]: ", responses[0].data[0]);
             if (responses[0].data[0] === undefined) {
               product.image = "/test/No_Image_Available_hyxfvc.jpg";
             } else {
@@ -53,7 +52,6 @@ const WishlistCard = () => {
             Math.random() * wishlistItems.length
           );
           const randomProduct: any = wishlistItems[randomNum];
-          console.log("randomProduct", randomProduct);
           return axiosPrivateCustomer.get(
             `/getRecommendedProductsBasedOnCatWishlist/${randomProduct.category_id}`
           );
@@ -86,7 +84,7 @@ const WishlistCard = () => {
         setStatus(true);
       })
       .catch((err: any) => {
-        console.log(err);
+        console.error(err);
         setStatus(false);
       });
   }, []);

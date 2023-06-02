@@ -18,11 +18,6 @@ const LiveSearch: FC<LiveSearchProps> = ({
 }) => {
   const [userInput, setUserInput] = useState<string>("");
 
-  useEffect(() => {
-    console.log("userInput", userInput);
-    console.log("userInput", typeof userInput);
-  }, [userInput]);
-
   let link = `/searchResults/${userInput}`;
   const [focus, setFocus] = useState(false);
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -47,7 +42,6 @@ const LiveSearch: FC<LiveSearchProps> = ({
     );
     setUserInput(e.target.value);
     link = `/searchResults/${userInput}`;
-    console.log("link", link);
 
     setSearchResults(resultsArray);
   };
@@ -64,7 +58,6 @@ const LiveSearch: FC<LiveSearchProps> = ({
             setFocus(true);
           }}
           onBlur={(e) => {
-            console.log(e.target.value);
             setFocus(false);
           }}
         />

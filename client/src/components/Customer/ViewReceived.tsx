@@ -72,8 +72,6 @@ const ViewReceived = ({ receivedOrders, getAll }: Props) => {
 
       }).then(() => {
         // All image uploads are complete
-        console.log('All images uploaded');
-        console.log(orders_product_id, customer_id, order.orders_product_id)
         axiosPrivateCustomer.put(`/customer/rated/${orders_product_id}/${customer_id}`)
       }).catch((err) => {
         console.log(err);
@@ -120,7 +118,6 @@ const ViewReceived = ({ receivedOrders, getAll }: Props) => {
         });
 
         setRatings(newRatings);
-        console.log(newRatings)
       })
       .catch(error => console.error(error));
   }, [receivedOrders]);

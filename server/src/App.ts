@@ -29,14 +29,6 @@ app.use(
   })
 );
 app.use(router);
-// app.use((req: Request, res: Response, next: NextFunction) => {
-//   const acceptLanguageHeader = req.headers["accept-language"];
-//   const languages = acceptLanguageHeader ? acceptLanguageHeader.split(",") : [];
-//   const locale = languages[0]?.trim() || "en"; // Set default locale to 'en' if none is provided
-//   // req.locale = locale;
-//   console.log("locale", locale);
-//   next();
-// });
 
 routes(app, router);
 
@@ -47,9 +39,6 @@ app.use(
   }
 );
 
-// app.listen(port, host, () => {
-//   log.info(`Server is listening on http://${host}:${port}`);
-// });
 app.listen(process.env.PORT || port, () => {
   console.log(
     `Server is listening on port ${process.env.PORT || port}`

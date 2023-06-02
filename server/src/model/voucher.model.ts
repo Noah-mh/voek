@@ -18,9 +18,6 @@ export const handlesInsertingVoucher = async (
               (?, ?, ?, ?, ?, ?, CAST(? AS datetime), ?, ?);`;
   let percentage_amount = null;
   let number_amount = null;
-  console.log(
-    `Insert voucher name ${name} for type ${type} with amount ${amount}`
-  );
   if (type === 2) {
     percentage_amount = amount / 100;
   } else if (type === 1) {

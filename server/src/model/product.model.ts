@@ -35,7 +35,6 @@ export const handlesGetCartDetails = async (
     `;
   try {
     const result = await connection.query(sql, [customerId]);
-    console.log(result[0]);
     return result[0] as ProductDetails[];
   } catch (err: any) {
     throw new Error(err);
@@ -101,7 +100,6 @@ export const handlesGetRecommendedProductsBasedOnCat = async (
   LIMIT 6;`;
   try {
     const result = await connection.query(sql, [category_id]);
-    console.log("Result GetRecommendedProductsBasedOnCat", result[0]);
     return result[0] as Product[];
   } finally {
     await connection.release();
@@ -136,7 +134,6 @@ export const handlesGetWishlistItems = async (
   WHERE wishlist.customer_id = ?;`;
   try {
     const result = await connection.query(sql, [customer_id]);
-    console.log("Get Wishlist result", result);
     return result[0] as Product[];
   } finally {
     await connection.release();
@@ -155,7 +152,6 @@ export const handlesGetLastViewedProductExistence = async (
   const params = [product_id, customer_id, timezone, date_viewed];
   try {
     const result = await connection.query(sql, params);
-    console.log("Result of GetLastViewedProductExistence", result[0]);
     return result[0] as Object[];
   } finally {
     await connection.release();
@@ -174,11 +170,9 @@ export const handlesGetLastViewed = async (
   JOIN customer ON last_viewed.customer_id = customer.customer_id
   JOIN products ON last_viewed.product_id = products.product_id
   WHERE last_viewed.customer_id = ? and CONVERT_TZ(date_viewed, '+00:00', ?) LIKE ?;`;
-  console.log("customerId", customer_id);
   const params = [customer_id, timezone, `${date_viewed}%`];
   try {
     const result = await connection.query(sql, params);
-    console.log(result[0]);
     return result[0] as Product[];
   } catch (err: any) {
     throw new Error(err);
@@ -213,7 +207,6 @@ export const handlesSearchResult = async (
   FROM listed_products
   JOIN products ON  listed_products.product_id = products.product_id
   WHERE products.name LIKE ? AND products.active = 1;`;
-  console.log("input", input);
   const params = [`%${input}%`];
   try {
     const result = await connection.query(sql, params);
@@ -235,7 +228,6 @@ export const handlesProductsBasedOnCategory = async (
   WHERE category.category_id = ?;`;
   try {
     const result = await connection.query(sql, [category_id]);
-    console.log(result[0]);
     return result[0] as Product[];
   } catch (err: any) {
     throw new Error(err);
@@ -311,12 +303,11 @@ LEFT JOIN (
   FROM product_variations
   GROUP BY product_id
 ) AS var ON p.product_id = var.product_id
-WHERE p.product_id = ?;
+WHERE p.product_id = ? AND p.active = 1;
     `;
 
   try {
     const result = await connection.query(sql, product_id);
-    console.log(result[0]);
     return result[0] as ProductWithImages[];
   } catch (err: any) {
     throw new Error(err);
@@ -369,7 +360,7 @@ FROM
   products p
   LEFT JOIN review r ON p.product_id = r.product_id
 WHERE 
-  p.product_id = ?
+  p.product_id = ? AND p.active = 1
 GROUP BY 
   p.product_id, 
   p.name;
@@ -377,7 +368,6 @@ GROUP BY
 
   try {
     const result = await connection.query(sql, product_id);
-    console.log(result[0]);
     return result[0] as Review[];
   } catch (err: any) {
     throw new Error(err);

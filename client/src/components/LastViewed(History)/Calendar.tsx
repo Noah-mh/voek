@@ -25,7 +25,6 @@ const Calendar: React.FC<CalendarProps> = ({ onSelectDate, selected }) => {
       _dates.push(date);
     }
     setDates(_dates);
-    console.log(dates);
   };
 
   const scrollToBottom = () => {
