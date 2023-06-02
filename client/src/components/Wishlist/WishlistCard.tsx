@@ -39,7 +39,6 @@ const WishlistCard = () => {
             return product;
           });
         });
-        console.log("products", products);
         return products;
       })
       .then((products) => {

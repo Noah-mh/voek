@@ -52,8 +52,6 @@ export const handlesGetVoucherCategories = async () => {
   try {
     const result = await connection.query(sql, []);
     return result[0] as Array<Object>;
-  } catch (err: any) {
-    throw new Error(err);
   } finally {
     await connection.release();
   }
@@ -87,8 +85,6 @@ export const handlesUpdateActive = async (
   try {
     const result = await connection.query(sql, [active, voucher_id]);
     return (result[0] as any).affectedRows as number;
-  } catch (err: any) {
-    throw new Error(err);
   } finally {
     await connection.release();
   }
@@ -125,8 +121,6 @@ export const handlesUpdateVoucher = async (
       voucher_id,
     ]);
     return (result[0] as any).affectedRows as number;
-  } catch (err: any) {
-    throw new Error(err);
   } finally {
     await connection.release();
   }
@@ -159,8 +153,6 @@ export const handlesDeleteVoucher = async (
   try {
     const result = await connection.query(sql, [voucher_id]);
     return deletedFromSeller;
-  } catch (err: any) {
-    throw new Error(err);
   } finally {
     await connection.release();
   }

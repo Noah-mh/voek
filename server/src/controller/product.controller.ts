@@ -115,23 +115,7 @@ export const getTopProducts = async (
 ) => {
   try {
     const response: Array<object> = await productModel.handlesTopProducts();
-    // if (!response?.length) return res.sendStatus(404);
     return res.send(response);
-  } catch (err: any) {
-    return next(err);
-  }
-};
-
-export const getSearchBarPredictions = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const response: Array<object> =
-      await productModel.handlesSearchBarPredictions();
-    if (!response?.length) return res.sendStatus(404);
-    return res.sendStatus(200);
   } catch (err: any) {
     return next(err);
   }
@@ -197,11 +181,10 @@ export const deleteWishlistedProduct = async (
     const { customer_id, product_id } = req.query;
     const customerId: number = parseInt(customer_id as string);
     const productId: number = parseInt(product_id as string);
-    const response: number =
-      await productModel.handlesDeletingWishlistedProduct(
-        customerId,
-        productId
-      );
+    const response: number = await productModel.handlesDeleteWishlistedProduct(
+      customerId,
+      productId
+    );
     if (response === 0) return res.sendStatus(404);
     return res.sendStatus(200);
   } catch (err: any) {
@@ -258,8 +241,6 @@ export const checkWishListProductExistence = async (
         parseInt(customerId as string),
         parseInt(productId as string)
       );
-    // if (response.length === 0) return res.sendStatus(404);
-    // return res.sendStatus(response[0]["COUNT(*)"] === 0 ? 404 : 200);
     return res.send(response);
   } catch (err: any) {
     return next(err);
@@ -336,7 +317,6 @@ export const getProductVariationImage = async (
 ) => {
   try {
     const { sku } = req.params;
-    const productId: number = parseInt(sku);
     const response: Array<object> =
       await productModel.handlesGetProductVariationImage(sku);
     return res.send(response);

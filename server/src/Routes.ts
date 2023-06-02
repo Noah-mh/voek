@@ -400,10 +400,6 @@ export default function (app: Express, router: Router) {
   );
 
   router.get("/topProducts", productController.getTopProducts);
-  router.get(
-    "/searchBarPredictions",
-    productController.getSearchBarPredictions
-  );
   router.get("/searchResult/:input", productController.getSearchResult);
   // router.get(
   //   "/productsBasedOnCategory",
