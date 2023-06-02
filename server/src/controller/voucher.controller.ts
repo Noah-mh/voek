@@ -25,9 +25,13 @@ export const insertVoucher = async (
       Category === undefined ||
       minSpend === undefined ||
       expiryDate === undefined ||
-      redemptionsAvailable === undefined
-    )
+      redemptionsAvailable === undefined ||
+      type < 1 ||
+      type > 2
+    ) {
       return res.sendStatus(400);
+    }
+
     const response: number = await voucherModel.handlesInsertingVoucher(
       name,
       sellerId,
@@ -38,7 +42,7 @@ export const insertVoucher = async (
       expiryDate,
       redemptionsAvailable
     );
-    if (response === 0) return res.sendStatus(404);
+    if (response === 0) return res.sendStatus(400);
     return res.sendStatus(201);
   } catch (err: any) {
     return next(err);
@@ -52,7 +56,7 @@ export const getVoucherCategories = async (
 ) => {
   try {
     const response: any = await voucherModel.handlesGetVoucherCategories();
-    return res.status(200).json(response);
+    return res.send(response);
   } catch (err: any) {
     return next(err);
   }
@@ -68,7 +72,7 @@ export const getVouchers = async (
     const response: any = await voucherModel.handlesGetVouchers(
       parseInt(sellerId)
     );
-    return res.status(200).json(response);
+    return res.send(response);
   } catch (err: any) {
     return next(err);
   }
@@ -132,7 +136,7 @@ export const updateVoucher = async (
       active,
       voucherId
     );
-    if (response === 0) return res.sendStatus(404);
+    if (response === 0) return res.sendStatus(400);
     return res.sendStatus(204);
   } catch (err: any) {
     return next(err);
