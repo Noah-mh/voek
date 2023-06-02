@@ -13,9 +13,9 @@ export const handlesInsertingVoucher = async (
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `INSERT INTO seller_voucher 
-  (voucher_name, seller_id, number_amount, percentage_amount, 
-  voucher_category, min_spend, expiration_date, redemptions_available, active)
-  VALUES (?, ?, ?, ?, ?, ?, CAST(? AS datetime), ?, ?);`;
+              (voucher_name, seller_id, number_amount, percentage_amount, voucher_category, min_spend, expiration_date, redemptions_available, active)
+              VALUES 
+              (?, ?, ?, ?, ?, ?, CAST(? AS datetime), ?, ?);`;
   let percentage_amount = null;
   let number_amount = null;
   if (type === 2) {
@@ -37,8 +37,6 @@ export const handlesInsertingVoucher = async (
       1,
     ]);
     return (result[0] as any).affectedRows as number;
-  } catch (err: any) {
-    throw new Error(err);
   } finally {
     await connection.release();
   }
@@ -51,8 +49,6 @@ export const handlesGetVoucherCategories = async () => {
   try {
     const result = await connection.query(sql, []);
     return result[0] as Array<Object>;
-  } catch (err: any) {
-    throw new Error(err);
   } finally {
     await connection.release();
   }
@@ -86,8 +82,6 @@ export const handlesUpdateActive = async (
   try {
     const result = await connection.query(sql, [active, voucher_id]);
     return (result[0] as any).affectedRows as number;
-  } catch (err: any) {
-    throw new Error(err);
   } finally {
     await connection.release();
   }
@@ -124,8 +118,6 @@ export const handlesUpdateVoucher = async (
       voucher_id,
     ]);
     return (result[0] as any).affectedRows as number;
-  } catch (err: any) {
-    throw new Error(err);
   } finally {
     await connection.release();
   }
@@ -158,8 +150,6 @@ export const handlesDeleteVoucher = async (
   try {
     const result = await connection.query(sql, [voucher_id]);
     return deletedFromSeller;
-  } catch (err: any) {
-    throw new Error(err);
   } finally {
     await connection.release();
   }

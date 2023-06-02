@@ -400,10 +400,6 @@ export default function (app: Express, router: Router) {
   );
 
   router.get("/topProducts", productController.getTopProducts);
-  router.get(
-    "/searchBarPredictions",
-    productController.getSearchBarPredictions
-  );
   router.get("/searchResult/:input", productController.getSearchResult);
   // router.get(
   //   "/productsBasedOnCategory",
@@ -445,7 +441,12 @@ export default function (app: Express, router: Router) {
     productController.getProductVariationImage
   );
 
-  router.post("/insertCart", cartController.insertCart);
+  router.post(
+    "/insertCart",
+    verifyJWT,
+    verifyRoles("customer"),
+    cartController.insertCart
+  );
 
   router.post(
     "/insertLastViewedProduct",
@@ -466,7 +467,12 @@ export default function (app: Express, router: Router) {
     customerController.getCustomerLastViewedCat
   );
 
-  router.post("/insertVoucher", voucherController.insertVoucher);
+  router.post(
+    "/insertVoucher",
+    verifyJWT,
+    verifyRoles("seller"),
+    voucherController.insertVoucher
+  );
   router.put("/updateActive", voucherController.updateActive);
   router.put("/updateVoucher", voucherController.updateVoucher);
   router.delete("/deleteVoucher/:voucherId", voucherController.deleteVoucher);
