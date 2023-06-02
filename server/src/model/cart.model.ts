@@ -213,8 +213,19 @@ export const handlesInsertCart = async (
 ) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `INSERT INTO cart (quantity, customer_id, product_id, SKU) VALUES (?, ?, ?, ?);`;
+  const countSql = `SELECT count(1) as count FROM cart WHERE customer_id = ? AND product_id = ? AND SKU = ?;`;
   try {
+    const countResult = await connection.query(countSql, [
+      customerId,
+      productId,
+      SKU,
+    ]);
+    let sql;
+    if ((countResult[0] as any)[0].count === 0) {
+      sql = `INSERT INTO cart (quantity, customer_id, product_id, SKU) VALUES (?, ?, ?, ?);`;
+    } else {
+      sql = `UPDATE cart SET quantity = quantity + ? WHERE customer_id = ? AND product_id = ? AND SKU = ?;`;
+    }
     const [result] = await connection.query(sql, [
       quantity,
       customerId,

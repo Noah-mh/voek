@@ -652,8 +652,6 @@ export const handlesGetCustomerLastViewedCat = async (customerId: number) => {
   try {
     const result = await connection.query(sql, [customerId]);
     return result[0] as Array<Object>;
-  } catch (err: any) {
-    throw new Error(err);
   } finally {
     await connection.release();
   }
