@@ -24,6 +24,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [pricingRange, setPricingRange] = useState<Pricing>();
   const [imageUrl, setImageUrl] = useState<string>("");
+  const [rating, setRating] = useState<number>(0);
 
   const getPricingAndImage = () => {
     const pricingRange = axios.get(
@@ -32,19 +33,17 @@ const ProductCard = ({ product }: ProductCardProps) => {
     const image = axios.get(`/getProductImage/${product.product_id}`);
     const rating = axios.get(`/getProductRating/${product.product_id}`);
     Promise.all([pricingRange, image, rating]).then((responses) => {
+      setPricingRange(responses[0].data[0]);
+
       if (responses[1].data[0] === undefined) {
         setImageUrl("/test/No_Image_Available_hyxfvc.jpg");
       } else {
         setImageUrl(responses[1].data[0].imageURL);
       }
-      product.rating = responses[2].data[0].rating;
-      setPricingRange(responses[0].data[0]);
+
+      setRating(responses[2].data[0].rating);
     });
   };
-
-  useEffect(() => {
-    getPricingAndImage();
-  }, []);
 
   useEffect(() => {
     getPricingAndImage();
@@ -68,7 +67,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
           </Link>
           <div className="flex items-center mt-2.5 mb-5">
             <span className="bg-softerPurple text-lighterGreyAccent text-xs font-semibold mr-2 px-2.5 py-0.5 rounded ml-3">
-              {product.rating === null ? 0 : product.rating}
+              {rating === null ? "No Ratings" : rating}
             </span>
           </div>
           <div className="flex items-center justify-between">
