@@ -20,10 +20,7 @@ const WishlistCard = () => {
 
   useEffect(() => {
     axiosPrivateCustomer
-      .post(`/getWishlistItems`, JSON.stringify({ customerId }), {
-        headers: { "Content-Type": "application/json" },
-        withCredentials: true,
-      })
+      .get(`/getWishlistItems/${customerId}`)
       .then((response) => {
         const products = response.data.map((product: any) => {
           const image = axios.get(`/getProductImage/${product.product_id}`);
@@ -31,13 +28,16 @@ const WishlistCard = () => {
             `/getProductVariationsPricing/${product.product_id}`
           );
           return Promise.all([image, pricing]).then((responses) => {
-            product.image = responses[0].data[0].imageURL;
+            if (responses[0].data[0] === undefined) {
+              product.image = "/test/No_Image_Available_hyxfvc.jpg";
+            } else {
+              product.image = responses[0].data[0].imageURL;
+            }
             product.lowestPrice = responses[1].data[0].lowestPrice;
             product.highestPrice = responses[1].data[0].highestPrice;
             return product;
           });
         });
-        console.log("products", products);
         return products;
       })
       .then((products) => {
@@ -52,7 +52,6 @@ const WishlistCard = () => {
             Math.random() * wishlistItems.length
           );
           const randomProduct: any = wishlistItems[randomNum];
-          console.log("randomProduct", randomProduct);
           return axiosPrivateCustomer.get(
             `/getRecommendedProductsBasedOnCatWishlist/${randomProduct.category_id}`
           );
@@ -85,7 +84,7 @@ const WishlistCard = () => {
         setStatus(true);
       })
       .catch((err: any) => {
-        console.log(err);
+        console.error(err);
         setStatus(false);
       });
   }, []);
@@ -145,7 +144,7 @@ const WishlistCard = () => {
               </div>
             </div>
           )}
-          <div className="wishlistCardRecommendedProducts right w-5/12 p-5 bg-softerPurple flex flex-col items-center">
+          <div className="wishlistCardRecommendedProducts w-5/12 p-5 bg-softerPurple flex flex-col items-center">
             <h1 className="tracking-wider">Recommended Products</h1>
             {categoryProducts.length > 0 ? (
               categoryProducts.map((item: any, index: number) => {

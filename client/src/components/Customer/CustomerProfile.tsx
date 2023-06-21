@@ -10,7 +10,8 @@ import Button from "@mui/material/Button";
 import { ToastContainer, toast } from "react-toastify";
 import useCustomer from "../../hooks/UseCustomer";
 import ReferralLink from '../ReferralLink/ReferralLink';
-
+import { AiFillDelete } from 'react-icons/ai';
+//Noah's code + Kang Rui
 export interface Customer {
   customer_id: number;
   username: string;
@@ -120,26 +121,26 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
   ]);
 
   const handleUpload = async (resultInfo: any) => {
-    console.log("Successfully uploaded:", resultInfo.public_id);
     setUpdateImage(resultInfo.public_id);
     try {
-      const response = await axiosPrivateCustomer.put(
+      const response: number = await axiosPrivateCustomer.put(
         `/customer/profile/edit/photo/${customer_id}`,
         {
           image_url: resultInfo.public_id,
         }
       );
-      console.log(response.data);
-      toast.success("Photo updated", {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
+      if (response === 200) {
+        toast.success("Photo updated", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      }
     } catch (error) {
       console.error(error);
       toast.error("Error Uploading Photo", {
@@ -155,8 +156,45 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
     }
   };
 
+  const handleDelete = async () => {
+    setUpdateImage("test/blank-profile-picture-973460_1280_tj6oeb");
+    try {
+      const response: number = await axiosPrivateCustomer.put(
+        `/customer/profile/edit/photo/${customer_id}`,
+        {
+          image_url: "test/blank-profile-picture-973460_1280_tj6oeb",
+        }
+      );
+      if (response === 200) {
+        toast.success("Photo deleted", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+
+        getAll();
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Error Deleting Photo", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
+  }
+
   const handleSave = async () => {
-    console.log(updateUsername, updateEmail, updatePhoneNumber);
     try {
       // Make the Axios PUT request to update the user's profile
       const response = await axiosPrivateCustomer.put(
@@ -173,7 +211,6 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
         response.data?.emailChange && setSendEmailVerification(true);
         setEditing(false);
         setNewPassword("");
-        console.log("Profile updated:", response.data);
         toast.success("Profile updated", {
           position: "top-center",
           autoClose: 5000,
@@ -189,7 +226,6 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
       } else {
         setEditing(false);
         setNewPassword("");
-        console.log("Profile updated:", response.data);
         toast.success("Profile updated", {
           position: "top-center",
           autoClose: 5000,
@@ -315,12 +351,19 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
         </div>
         <ReferralLink />
       </Box>
-      <div className="flex flex-col items-center ml-9">
-        <div className="w-40 h-40 mb-5">
+      <div className="flex flex-col items-center ml-9 relative">
+        <div className="w-40 h-40 mb-5 relative">
           <AdvancedImage cldImg={cld.image(image_url)} />
+          {image_url != "test/blank-profile-picture-973460_1280_tj6oeb" && (<button
+            className="absolute top-0 right-0 bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded"
+            onClick={handleDelete}
+          >
+            <AiFillDelete />
+          </button>)}
         </div>
         <CloudinaryUploader onSuccess={handleUpload} caption={"Upload New"} />
       </div>
+
       <ToastContainer />
       {modal && status ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center w-full h-full">

@@ -7,7 +7,6 @@ export const processPublicProductDetails = async (
   next: NextFunction
 ) => {
   try {
-    console.log();
     const { productId } = req.body;
     if (!productId) return res.sendStatus(404);
     const response: Array<object> = await productModel.handlesGetProductDetails(
@@ -60,11 +59,10 @@ export const getWishlistItems = async (
   next: NextFunction
 ) => {
   try {
-    const { customerId } = req.body;
+    const { customerId } = req.params;
     const response: Array<object> = await productModel.handlesGetWishlistItems(
-      customerId
+      parseInt(customerId as string)
     );
-    console.log("resonse", response);
     return res.send(response);
   } catch (err: any) {
     return next(err);
@@ -97,12 +95,11 @@ export const getLastViewed = async (
   next: NextFunction
 ) => {
   try {
-    const { customerId, dateViewed, timezone } = req.body;
-    console.log("timezone:", timezone);
+    const { customerId, dateViewed, timezone } = req.query;
     const response: Array<object> = await productModel.handlesGetLastViewed(
-      customerId,
-      timezone,
-      dateViewed
+      parseInt(customerId as string),
+      timezone as string,
+      dateViewed as string
     );
     return res.send(response);
   } catch (err: any) {
@@ -117,23 +114,7 @@ export const getTopProducts = async (
 ) => {
   try {
     const response: Array<object> = await productModel.handlesTopProducts();
-    // if (!response?.length) return res.sendStatus(404);
     return res.send(response);
-  } catch (err: any) {
-    return next(err);
-  }
-};
-
-export const getSearchBarPredictions = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const response: Array<object> =
-      await productModel.handlesSearchBarPredictions();
-    if (!response?.length) return res.sendStatus(404);
-    return res.sendStatus(200);
   } catch (err: any) {
     return next(err);
   }
@@ -145,7 +126,7 @@ export const getSearchResult = async (
   next: NextFunction
 ) => {
   try {
-    const { input } = req.body;
+    const { input } = req.params;
     const response: Array<object> = await productModel.handlesSearchResult(
       input
     );
@@ -177,16 +158,15 @@ export const insertWishlistedProduct = async (
   next: NextFunction
 ) => {
   try {
-    console.log("test");
     const { customerId, productId } = req.body;
-    const response: number =
-      await productModel.handlesInsertingWishlistedProduct(
-        customerId,
-        productId
-      );
-    if (response === 0) return res.sendStatus(404);
+    const response = await productModel.handlesInsertingWishlistedProduct(
+      customerId,
+      productId
+    );
+    if (response === 0) return res.sendStatus(400);
     return res.sendStatus(201);
   } catch (err: any) {
+    console.error("Unexpected error for insertWishlistedProduct", err);
     return next(err);
   }
 };
@@ -200,11 +180,10 @@ export const deleteWishlistedProduct = async (
     const { customer_id, product_id } = req.query;
     const customerId: number = parseInt(customer_id as string);
     const productId: number = parseInt(product_id as string);
-    const response: number =
-      await productModel.handlesDeletingWishlistedProduct(
-        customerId,
-        productId
-      );
+    const response: number = await productModel.handlesDeleteWishlistedProduct(
+      customerId,
+      productId
+    );
     if (response === 0) return res.sendStatus(404);
     return res.sendStatus(200);
   } catch (err: any) {
@@ -212,6 +191,7 @@ export const deleteWishlistedProduct = async (
   }
 };
 
+//Noah
 export const getProductDetailsWithoutReviews = async (
   req: Request,
   res: Response,
@@ -229,6 +209,7 @@ export const getProductDetailsWithoutReviews = async (
   }
 };
 
+//Noah
 export const getProductReviews = async (
   req: Request,
   res: Response,
@@ -253,14 +234,12 @@ export const checkWishListProductExistence = async (
   next: NextFunction
 ) => {
   try {
-    const { customerId, productId } = req.body;
+    const { customerId, productId } = req.query;
     const response: Array<object> =
       await productModel.handlesCheckWishlistProductExistence(
-        customerId,
-        productId
+        parseInt(customerId as string),
+        parseInt(productId as string)
       );
-    // if (response.length === 0) return res.sendStatus(404);
-    // return res.sendStatus(response[0]["COUNT(*)"] === 0 ? 404 : 200);
     return res.send(response);
   } catch (err: any) {
     return next(err);
@@ -337,7 +316,6 @@ export const getProductVariationImage = async (
 ) => {
   try {
     const { sku } = req.params;
-    const productId: number = parseInt(sku);
     const response: Array<object> =
       await productModel.handlesGetProductVariationImage(sku);
     return res.send(response);
@@ -399,6 +377,23 @@ export const getProductCat = async (
   }
 };
 
+export const getProductRating = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { product_id } = req.params;
+    const productId: number = parseInt(product_id);
+    const response: Array<object> = await productModel.handlesGetProductRating(
+      productId
+    );
+    return res.send(response);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
 //Noah
 export const addToCart = async (
   req: Request,
@@ -423,6 +418,7 @@ export const addToCart = async (
   }
 };
 
+//Noah
 export const getCart = async (
   req: Request,
   res: Response,
@@ -431,15 +427,12 @@ export const getCart = async (
   try {
     const { customer_id } = req.params;
     const { sku } = req.query;
-    console.log("sku", sku);
     if (!customer_id || !sku) return res.sendStatus(404);
-    const response: Array<object> =
-      await productModel.handleCartDetails(
-        parseInt(customer_id),
-        sku as string
-      );
+    const response: Array<object> = await productModel.handleCartDetails(
+      parseInt(customer_id),
+      sku as string
+    );
     if (!response) return res.sendStatus(404);
-    console.log("response", response);
     return res.json({ cartDetails: response });
   } catch (err: any) {
     return next(err);

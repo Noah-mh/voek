@@ -6,7 +6,7 @@ import ModalComponent from "./ModelForRating";
 import useCustomer from "../../hooks/UseCustomer";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import { v4 as uuidv4 } from 'uuid'
-
+//Everything relating to Rating and Review is done by Noah
 interface Product {
   description: string;
   name: string;
@@ -72,8 +72,6 @@ const ViewReceived = ({ receivedOrders, getAll }: Props) => {
 
       }).then(() => {
         // All image uploads are complete
-        console.log('All images uploaded');
-        console.log(orders_product_id, customer_id, order.orders_product_id)
         axiosPrivateCustomer.put(`/customer/rated/${orders_product_id}/${customer_id}`)
       }).catch((err) => {
         console.log(err);
@@ -120,7 +118,6 @@ const ViewReceived = ({ receivedOrders, getAll }: Props) => {
         });
 
         setRatings(newRatings);
-        console.log(newRatings)
       })
       .catch(error => console.error(error));
   }, [receivedOrders]);

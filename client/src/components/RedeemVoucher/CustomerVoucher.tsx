@@ -29,7 +29,6 @@ const CustomerVoucher = () => {
 
     useEffect(() => {
         getVouchers();
-        console.log(myVouchers)
     }, [])
 
     return (

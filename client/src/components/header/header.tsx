@@ -6,6 +6,7 @@ import LiveSearch from "../header/LiveSearch.js";
 import DropDownProfile from "../header/DropDownProfile.js";
 import { Link } from "react-router-dom";
 import axios from "../../api/axios.js";
+import { useLocation } from "react-router-dom";
 
 interface Props {
   isCustomer?: boolean;
@@ -38,9 +39,14 @@ const Header = ({ isCustomer, isSeller }: Props) => {
         setSearchResults(data);
       })
       .catch((err: any) => {
-        console.log(err);
+        console.error(err);
       });
   }, []);
+
+  const location = useLocation();
+  useEffect(() => {
+    setOpenProfile(false);
+  }, [location]);
 
   return (
     <nav
@@ -111,17 +117,17 @@ const Header = ({ isCustomer, isSeller }: Props) => {
           ) : isSeller ? (
             seller?.seller_id ? (
               <Link to="/seller/profile">
-                <p>Profile</p>
+                <p className="text-purpleAccent">Profile</p>
               </Link>
             ) : (
               <Link to="/seller/login">
-                <p>Login</p>
+                <p className="text-purpleAccent">Login</p>
               </Link>
             )
           ) : null}
         </div>
       </div>
-      {openProfile && <DropDownProfile setOpenProfile={setOpenProfile} />}
+      {openProfile && <DropDownProfile />}
     </nav>
   );
 };

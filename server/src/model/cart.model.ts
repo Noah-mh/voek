@@ -2,17 +2,16 @@ import { connect } from "http2";
 import { OkPacket } from "mysql2";
 import pool from "../../config/database";
 import { NumberSchema, StringSchema } from "yup";
+import { query } from "express";
 
 export const handlesGetCartDetails = async (
   customer_id: string
 ): Promise<CartItem[]> => {
-  console.log("Connected to getCart Model");
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `SELECT cart.product_id, cart.customer_id, cart.quantity, product_variations.price, product_variations.sku, products.name, product_variations.variation_1, product_variations.variation_2,product_images.image_url,  product_variations.quantity AS stock FROM cart JOIN products ON cart.product_id = products.product_id LEFT JOIN product_images ON cart.sku = product_images.sku JOIN product_variations ON products.product_id = product_variations.product_id WHERE cart.sku = product_variations.sku AND customer_id = ?`;
+  const sql = `SELECT listed_products.seller_id, cart.product_id, cart.customer_id, cart.quantity, product_variations.price, product_variations.sku, products.name, product_variations.variation_1, product_variations.variation_2,product_images.image_url,  product_variations.quantity AS stock FROM cart JOIN products ON cart.product_id = products.product_id LEFT JOIN product_images ON cart.sku = product_images.sku JOIN product_variations ON products.product_id = product_variations.product_id JOIN listed_products ON listed_products.product_id = cart.product_id WHERE cart.sku = product_variations.sku AND customer_id = ?`;
   try {
     const result = await connection.query(sql, [customer_id]);
-    console.log("successfully handle got cart details");
     if (Array.isArray(result[0]) && result[0].length === 0) {
       return [] as CartItem[];
     } else {
@@ -30,7 +29,6 @@ export const handleAlterQuantCart = async (
   sku: string,
   quantity: number
 ): Promise<any> => {
-  console.log("Connected to alterQuant Model");
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   if (quantity === 0) {
@@ -38,7 +36,6 @@ export const handleAlterQuantCart = async (
     const sql = `DELETE FROM cart WHERE customer_id = ? AND sku = ?`;
     try {
       const result = await connection.query(sql, [customer_id, sku]);
-      console.log("Successfully deleted?? (Handle)");
       return result;
     } catch (err: any) {
       throw new Error(err);
@@ -50,8 +47,6 @@ export const handleAlterQuantCart = async (
     const sql = `UPDATE cart SET quantity = ? WHERE customer_id = ? AND sku = ?`;
     try {
       const result = await connection.query(sql, [quantity, customer_id, sku]);
-
-      console.log("Handle Alter Quantity Cart Successful");
       return result;
     } catch (err: any) {
       throw new Error(err);
@@ -60,33 +55,6 @@ export const handleAlterQuantCart = async (
     }
   }
 };
-
-// export const handleAlterSKUCart = async (
-//   customer_id: number,
-//   sku: string,
-//   new_sku: string,
-//   product_id: number
-// ): Promise<any> => {
-//   const promisePool = pool.promise();
-//   const connection = await promisePool.getConnection();
-//   //new product variation has changed.
-//   const sql = `UPDATE cart SET sku = ? WHERE customer_id = ? AND sku = ? AND product_id = ?`;
-
-//   try {
-//     const result = await connection.query(sql, [
-//       new_sku,
-//       customer_id,
-//       sku,
-//       product_id,
-//     ]);
-//     console.log(result);
-//     return result;
-//   } catch (err: any) {
-//     throw new Error(err);
-//   } finally {
-//     await connection.release();
-//   }
-// };
 
 export const handleInsertPayment = async (
   customer_id: number,
@@ -98,7 +66,6 @@ export const handleInsertPayment = async (
 
   try {
     const [result] = await connection.query(sql, [customer_id, amount]);
-    console.log("Handle Insert Payment Successful");
     return (result as OkPacket).insertId as number;
   } catch (err: any) {
     throw new Error(err);
@@ -127,7 +94,6 @@ export const handleInsertOrder = async (
       address_id,
     ]);
 
-    console.log("Handle Insert Order Successful");
     return (result as OkPacket).insertId as number;
   } catch (err: any) {
     throw new Error(err);
@@ -155,7 +121,7 @@ export const handleInsertOrderProduct = async (
       totalPrice,
       quantity,
     ]);
-    console.log("Handle Insert Order Product Successful");
+
     return (result as OkPacket).insertId as number;
   } catch (err: any) {
     throw new Error(err);
@@ -174,7 +140,7 @@ export const handleUpdateProductStock = async (
 
   try {
     const result = await connection.query(sql, [quantityDeduct, sku]);
-    console.log("Handle Updated Stock Successful ");
+
     return (result[0] as OkPacket).affectedRows as number;
   } catch (err: any) {
     throw new Error(err);
@@ -192,7 +158,7 @@ export const handleAlterCustomerCoins = async (
   const sql = `UPDATE customer SET coins = (coins + ?) WHERE customer_id = ?; `;
   try {
     const result = await connection.query(sql, [coins, customer_id]);
-    console.log("Handle Alter Customer Coins Successful ");
+
     return (result[0] as OkPacket).affectedRows as number;
   } catch (err: any) {
     throw new Error(err);
@@ -201,28 +167,6 @@ export const handleAlterCustomerCoins = async (
   }
 };
 
-export const handleInsertShipment = async (
-  orders_product_id: number,
-  customer_id: number
-): Promise<any> => {
-  const promisePool = pool.promise();
-  console.log("entered handle insert shipment");
-  const connection = await promisePool.getConnection();
-  const sql = `INSERT INTO shipment (orders_product_id, customer_id) VALUES (?,?) `;
-
-  try {
-    const [result] = await connection.query(sql, [
-      orders_product_id,
-      customer_id,
-    ]);
-    console.log("Handle Insert Shipment Successful ");
-    return (result as OkPacket).insertId as number;
-  } catch (err: any) {
-    throw new Error(err);
-  } finally {
-    await connection.release();
-  }
-};
 export const handleClearCart = async (customer_id: number): Promise<any> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
@@ -230,7 +174,29 @@ export const handleClearCart = async (customer_id: number): Promise<any> => {
 
   try {
     const [result] = await connection.query(sql, [customer_id]);
-    console.log("Handle Clear Cart Successful ");
+
+    return (result as OkPacket).affectedRows as number;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handleRedeemVoucher = async (
+  customer_voucher_id: number,
+  order_id: number
+): Promise<any> => {
+  let test = order_id.toString();
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `UPDATE customer_voucher SET redeemed = 0, orders_id = ? WHERE customer_voucher_id = ? `;
+
+  try {
+    const [result] = await connection.query(sql, [
+      order_id,
+      customer_voucher_id,
+    ]);
     return (result as OkPacket).affectedRows as number;
   } catch (err: any) {
     throw new Error(err);
@@ -247,8 +213,19 @@ export const handlesInsertCart = async (
 ) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `INSERT INTO cart (quantity, customer_id, product_id, SKU) VALUES (?, ?, ?, ?);`;
+  const countSql = `SELECT count(1) as count FROM cart WHERE customer_id = ? AND product_id = ? AND SKU = ?;`;
   try {
+    const countResult = await connection.query(countSql, [
+      customerId,
+      productId,
+      SKU,
+    ]);
+    let sql;
+    if ((countResult[0] as any)[0].count === 0) {
+      sql = `INSERT INTO cart (quantity, customer_id, product_id, SKU) VALUES (?, ?, ?, ?);`;
+    } else {
+      sql = `UPDATE cart SET quantity = quantity + ? WHERE customer_id = ? AND product_id = ? AND SKU = ?;`;
+    }
     const [result] = await connection.query(sql, [
       quantity,
       customerId,
@@ -258,7 +235,6 @@ export const handlesInsertCart = async (
     return (result as OkPacket).insertId as number;
   } catch (err: any) {
     if (err.code === "ER_DUP_ENTRY") {
-      console.log("entered update");
       const sql = `UPDATE cart SET quantity = quantity + ? WHERE customer_id = ? AND product_id = ? AND SKU = ?;`;
       try {
         const [result] = await connection.query(sql, [

@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import CloudinaryUploader from "../../Cloudinary/CloudinaryUploader";
 import { AdvancedImage } from '@cloudinary/react';
 import { cld } from '../../Cloudinary/Cloudinary';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+//Noah's code
 interface ModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -17,14 +20,47 @@ const ModalComponent: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, order
     const [image_urls, setImage_urls] = useState<string[]>([]);
     const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>([]);
     const handleUploadSuccess = (resultInfo: any) => {
-        console.log('Successfully uploaded:', resultInfo.public_id);
         const imageUrl = resultInfo.public_id;
         setImage_urls(previousImageUrls => [...previousImageUrls, imageUrl]);
         setUploadedImageUrls(previousImageUrls => [...previousImageUrls, imageUrl]);
     };
 
+    const [error, setError] = useState({
+        rating: false,
+        comment: false
+    });
+
     const handleSubmit = () => {
+        const hasError = !rating || !comment;
+        if (hasError) {
+            setError({
+                rating: !rating,
+                comment: !comment
+            });
+            console.log(error);
+            toast.error("Error! Cannot add rating", {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            });
+            return;
+        }
         onSubmit(orders_product_id, customer_id, rating, comment, image_urls);
+        toast.success("Rating success", {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+        });
         onClose();
         setComment("");
         setRating(0);
@@ -38,10 +74,18 @@ const ModalComponent: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, order
 
     const handleRatingChange = (rating: number) => {
         setRating(rating);
+        setError({
+            ...error,
+            rating: rating === 0 // Set error true if rating is 0
+        });
     };
 
     const handleCommentChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         setComment(event.target.value);
+        setError({
+            ...error,
+            [event.target.name]: !event.target.value
+        });
     };
 
     return (
@@ -69,6 +113,7 @@ const ModalComponent: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, order
                     <button className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-md transition-colors duration-300" onClick={onClose}>Close</button>
                 </div>
             </div>
+            <ToastContainer />
         </div>
     );
 

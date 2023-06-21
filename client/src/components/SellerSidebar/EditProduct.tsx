@@ -1,120 +1,146 @@
 import { useLocation } from 'react-router-dom';
-import SellerSidebar from "../SellerSidebar/SellerSidebar.js";
-// import useSeller from "../../hooks/useSeller.js";
+import { axiosPrivateSeller } from '../../api/axios.tsx';
+import ProductForm from "./ProductForm.tsx";
 
-// import { Link } from 'react-router-dom';
+interface SubmitVariationsInterface {
+  var1: string; 
+  var2: string;
+  price: number;
+  quantity: number;
+  imageUrl: string[];
+  sku?: string;
+}
 
-// import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller.js";
+interface SubmitInterface {
+  name: string;
+  description: string;
+  price: number;
+  quantity: number;
+  imageUrl: string[];
+  categoryId: number;
+  category: string;
+  variations: Array<SubmitVariationsInterface>;
+
+  // optional properties
+  // edit product only
+  productId?: number;
+  sku?: string;
+}
+
+interface Product {
+  productId: number;
+  active: boolean;
+  name: string;
+  price: number;
+  quantity: number;
+  imageUrl: string[];
+  sku: string;
+  subRows: Array<Product>;
+  
+  // optional properties
+  // product only
+  // showSubrows?: boolean;
+  description?: string;
+  categoryId?: number;
+  category?: string;
+
+  // product variations only
+  variation1?: string;
+  variation2?: string;
+}
 
 const EditProduct = () => {
+
   let { state } = useLocation();
   
-  let product = state;
-  console.log(product);
+  let product: Product = state;
+
+  const originalProduct: Product = JSON.parse(JSON.stringify(Object.values(product)[0]));
+
+  const handleSubmit = async (e: SubmitInterface) => {
+    let columns: string[] = [];
+    let values: Array<string | number> = [e.name, e.description, e.categoryId];
+
+    let imageURLMap: string[][] = [];
+    let deleteImageURLMap: string[][] = [];
+    
+    if (e.variations.length === 0) {
+      const newURLs = e.imageUrl.filter((url: string) =>
+        !originalProduct?.imageUrl.includes(url)
+      );
+      imageURLMap.push(newURLs);
+
+      const missingURLs = originalProduct.imageUrl.filter((url: string) =>
+        !e.imageUrl.includes(url)
+      );
+      deleteImageURLMap.push(missingURLs);
+
+      e.variations = [{
+        var1: "",
+        var2: "",
+        price: e.price,
+        quantity: e.quantity,
+        imageUrl: e.imageUrl,
+        sku: e.sku,
+      }]
+    } else {
+      e.variations.forEach((variation: SubmitVariationsInterface) => {
+        let existingVariation = originalProduct.subRows.find((existingVar: any) => {
+            return existingVar.variation1 === variation.var1 && (variation.var2 ? existingVar.variation2 === variation.var2 : true);
+          }
+        );
+
+        if (existingVariation) {
+          variation.sku = existingVariation.sku
+
+          const newURLs = variation.imageUrl.filter((url: string) =>
+            !existingVariation?.imageUrl.includes(url)
+          );
+          imageURLMap.push(newURLs);
+
+          const missingURLs = existingVariation.imageUrl.filter((url: string) =>
+            !variation.imageUrl.includes(url)
+          );
+          deleteImageURLMap.push(missingURLs);
+        } else {
+          variation.sku = "";
+          imageURLMap.push(variation.imageUrl);
+          deleteImageURLMap.push([]);
+        }
+      });    
+    }
+
+    const editProduct = async () => {
+      try {
+        await axiosPrivateSeller.post(
+          `/editProduct/${originalProduct.productId}`,
+          {
+            columns: columns,
+            values: values,
+            variations: e.variations,
+            imageURLMap: imageURLMap,
+            deleteImageURLMap: deleteImageURLMap
+          }
+        )
+      } catch (err) {
+        console.log(err);
+      }
+    }
+
+    editProduct();
+  }
 
   return (
     <div className="flex flex-row">
-      <SellerSidebar />
 
-      <h1>Edit Product</h1>
+      <div className="flex flex-col w-max">
+        <h1 className="text-xl font-medium mb-2">Edit Product</h1>
 
-      <form></form>
-
-        {/* <div className="relative flex flex-col justify-center min-h-screen overflow-hidden ">
-          <div className="w-full p-6 m-auto bg-white rounded-md shadow-xl shadow-rose-600/40 ring-2 ring-indigo-600 lg:max-w-xl">
-            <h1 className="text-3xl font-semibold text-center text-indigo-700 underline uppercase decoration-wavy">
-              Contact Form
-            </h1>
-            <form className="mt-6">
-              <div className="mb-2">
-                <label>
-                  <span className="text-gray-700">Your name</span>
-                  <input
-                    type="text"
-                    name="name"
-                    className="
-
-                w-full
-                block px-16 py-2 mt-2
-                border-gray-300
-                rounded-md
-                shadow-sm
-                focus:border-indigo-300
-                focus:ring
-                focus:ring-indigo-200
-                focus:ring-opacity-50
-              "
-                    placeholder="John cooks"
-                  />
-                </label>
-              </div>
-              <div className="mb-2">
-                <label>
-                  <span className="text-gray-700">Email address</span>
-                  <input
-                    name="email"
-                    type="email"
-                    className="
-                block
-                w-full
-                mt-2 px-16 py-2
-                border-gray-300
-                rounded-md
-                shadow-sm
-                focus:border-indigo-300
-                focus:ring
-                focus:ring-indigo-200
-                focus:ring-opacity-50
-              "
-                    placeholder="john.cooks@example.com"
-                    required
-                  />
-                </label>
-              </div>
-              <div className="mb-2">
-                <label>
-                  <span className="text-gray-700">Message</span>
-                  <textarea
-                    name="message"
-                    className="
-                block
-                w-full
-                mt-2 px-16 py-8
-                border-gray-300
-                rounded-md
-                shadow-sm
-                focus:border-indigo-300
-                focus:ring
-                focus:ring-indigo-200
-                focus:ring-opacity-50
-              "
-                    // rows="5"
-                  ></textarea>
-                </label>
-              </div>
-
-              <div className="mb-6">
-                <button
-                  type="submit"
-                  className="
-                h-10
-                px-5
-                text-indigo-100
-                bg-indigo-700
-                rounded-lg
-                transition-colors
-                duration-150
-                focus:shadow-outline
-                hover:bg-indigo-800
-              "
-                >
-                  Contact Us
-                </button>
-              </div>
-              <div></div>
-            </form>
-          </div>
-        </div> */}
+        <ProductForm 
+          product={product}
+          onSubmit={handleSubmit}
+        />
+      </div>
     </div>
   );
 };

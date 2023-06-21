@@ -12,14 +12,10 @@ export const retrieveCartDetails = async (
   try {
     const { customer_id } = req.params;
 
-    console.log("Connected to getCart Controller");
-
     const response: Array<object> = await cartModel.handlesGetCartDetails(
       customer_id
     );
 
-    // if (!response?.length)
-    //   return res.status(200).json({ message: "No cart details found" });
     return res.json(response);
   } catch (err: any) {
     return next(err);
@@ -31,7 +27,6 @@ export const alterQuantCartDetails = async (
   res: Response,
   next: NextFunction
 ) => {
-  console.log("Connected to alterQuant Controller");
   try {
     const { customer_id, sku, quantity } = req.body;
     const response: Array<object> = await cartModel.handleAlterQuantCart(
@@ -160,28 +155,12 @@ export const updateCustomerCoins = async (
     return next(err);
   }
 };
-export const insertShipment = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { orders_product_id, customer_id } = req.body;
-    const response: Array<object> = await cartModel.handleInsertShipment(
-      orders_product_id,
-      customer_id
-    );
-    return res.status(201).json(response);
-  } catch (err: any) {
-    return next(err);
-  }
-};
+
 export const clearCart = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  console.log("Connected to clearCart Controller");
   try {
     const { customer_id } = req.body;
     const response: Array<object> = await cartModel.handleClearCart(
@@ -193,23 +172,19 @@ export const clearCart = async (
   }
 };
 
-// export const alterSKUCartDetails = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   console.log("Connected to alterSKU Controller");
-//   try {
-//     const { customer_id, sku, new_sku, product_id } = req.body;
-//     const response: Array<object> = await cartModel.handleAlterSKUCart(
-//       customer_id,
-//       sku,
-//       new_sku,
-//       product_id
-//     );
-//     if (!response?.length) return res.sendStatus(404);
-//     return res.sendStatus(200);
-//   } catch (err: any) {
-//     return next(err);
-//   }
-// };
+export const processRedeemVoucher = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { order_id, customer_voucher_id } = req.body;
+    const response: Array<object> = await cartModel.handleRedeemVoucher(
+      customer_voucher_id,
+      order_id
+    );
+    return res.sendStatus(200);
+  } catch (err: any) {
+    return next(err);
+  }
+};

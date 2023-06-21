@@ -7,7 +7,7 @@ import CustomerContext from "../../context/CustomerProvider";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer, ToastOptions, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import { AdvancedImage } from "@cloudinary/react";
@@ -39,6 +39,17 @@ interface Variation {
   variation_2: string | null;
   image: string;
 }
+
+const toastOptions: ToastOptions = {
+  position: "top-center",
+  autoClose: 5000,
+  hideProgressBar: false,
+  closeOnClick: true,
+  pauseOnHover: true,
+  draggable: true,
+  progress: undefined,
+  theme: "light",
+};
 
 const Modal = ({ setModalOpen, product, pricingRange }: ModalProps) => {
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
@@ -73,43 +84,16 @@ const Modal = ({ setModalOpen, product, pricingRange }: ModalProps) => {
         .then((response) => response.status)
         .then((data) => {
           if (data === 200) {
-            toast.success("Item Added to Cart! 😊", {
-              position: "top-center",
-              autoClose: 5000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "light",
-            });
+            toast.success("Item Added to Cart! 😊", toastOptions);
           } else {
-            toast.error("Uh-oh! Error! 😔", {
-              position: "top-center",
-              autoClose: 5000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "light",
-            });
+            toast.error("Uh-oh! Error! 😔", toastOptions);
           }
         })
         .catch((err: any) => {
-          console.log(err);
+          console.error(err);
         });
     } else {
-      toast.warn("Please Login to Add to Cart!", {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
+      toast.warn("Please Login to Add to Cart!", toastOptions);
     }
   };
 
@@ -152,7 +136,7 @@ const Modal = ({ setModalOpen, product, pricingRange }: ModalProps) => {
         setStatus(true);
       })
       .catch((err: any) => {
-        console.log(err);
+        console.error(err);
         setStatus(false);
       });
   }, []);

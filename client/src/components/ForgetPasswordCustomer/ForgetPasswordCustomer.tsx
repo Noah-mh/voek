@@ -48,6 +48,8 @@ const ForgetPasswordCustomer = () => {
                     <form onSubmit={submitHandler}>
                         <div className="field-wrapper flex">
                             <input value={email} onChange={(e) => setEmail(e.target.value)} type="text" name="email" placeholder="EMAIL" className="w-72" autoComplete="off" />
+                        </div>
+                        <div className="field-wrapper flex">
                             <input disabled={disabled} type="submit" value="SEND RESET LINK" className="submitLogin" />
                         </div>
                     </form>

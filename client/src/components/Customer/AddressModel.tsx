@@ -6,16 +6,28 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import useCustomer from "../../hooks/UseCustomer";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 
+//Noah's code
+
+interface newAddress {
+    address_id?: number;
+    block: string;
+    country: string;
+    unit_no: string;
+    postal_code: string;
+    street_name: string;
+}
+
 interface AddressModalProps {
     getAll: () => void;
+    addAddress: (newAddress: newAddress) => void;
 
 }
 
-const AddressModal :React.FC<AddressModalProps>=({ getAll })=> {
+const AddressModal: React.FC<AddressModalProps> = ({ getAll, addAddress }) => {
     const { customer } = useCustomer();
     const customer_id = customer.customer_id;
     const axiosPrivateCustomer = useAxiosPrivateCustomer();
@@ -78,7 +90,6 @@ const AddressModal :React.FC<AddressModalProps>=({ getAll })=> {
             });
             return;
         }
-        console.log(address);
         handleClose();
         try {
             const response = await axiosPrivateCustomer.post(`/customer/addAddress/${customer_id}`,
@@ -89,7 +100,7 @@ const AddressModal :React.FC<AddressModalProps>=({ getAll })=> {
                     postal_code: address.postal_code,
                     country: address.country
                 });
-            console.log(response);
+            const addressWithId = { ...address, address_id: response.data };
             toast.success("Added New Address", {
                 position: "top-center",
                 autoClose: 5000,
@@ -100,10 +111,11 @@ const AddressModal :React.FC<AddressModalProps>=({ getAll })=> {
                 progress: undefined,
                 theme: "light",
             });
+            addAddress(addressWithId);
             getAll();
         } catch (error) {
             console.error(error);
-            toast.error("Error Uploading Photo", {
+            toast.error("Error adding address", {
                 position: "top-center",
                 autoClose: 5000,
                 hideProgressBar: false,
@@ -163,6 +175,7 @@ const AddressModal :React.FC<AddressModalProps>=({ getAll })=> {
             >
                 {body}
             </Modal>
+            <ToastContainer />
         </div>
     );
 }

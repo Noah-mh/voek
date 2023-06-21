@@ -10,7 +10,18 @@ import { P } from 'pino';
 export const processGetAllProductsOfSeller = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const sellerId: number = parseInt(req.params.sellerId);
-        const response: any = await sellerModel.handleGetAllProducts(sellerId);
+        const response: any = await sellerModel.handleGetAllProductsOfSeller(sellerId);
+        return res.json(response);
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+// GET best sellers
+export const processGetBestSellers = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const sellerId: number = parseInt(req.params.sellerId);
+        const response: any = await sellerModel.handleGetBestSellers(sellerId);
         return res.json(response);
     } catch (err: any) {
         return next(err);
@@ -31,9 +42,22 @@ export const processGetAllCategories = async (req: Request, res: Response, next:
 export const processAddProduct = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const sellerId: number = parseInt(req.params.sellerId);
-        const { name, description, category_id, variation_1, variation_2, quantity, price } = req.body;
-        if (!name || !category_id || !quantity || !price) return res.sendStatus(400);
-        const response: any = await sellerModel.handleAddProduct(sellerId, name, description, category_id, variation_1, variation_2, quantity, price);
+        const { name, description, categoryId, variations, quantity, price, imageUrl } = req.body;
+        if (!name || !categoryId || !quantity || !price || !imageUrl) return res.sendStatus(400);
+        const response: any = await sellerModel.handleAddProduct(sellerId, name, description, categoryId, variations, quantity, price, imageUrl);
+        return res.json({ productId: response });
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+// POST update product
+export const processEditProduct = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const sellerId: number = parseInt(req.params.productId);
+        const { values, variations, imageURLMap, deleteImageURLMap } = req.body;
+        if (!values || !variations || !imageURLMap || !deleteImageURLMap) return res.sendStatus(400);
+        const response: any = await sellerModel.handleEditProduct(sellerId, values, variations, imageURLMap, deleteImageURLMap);
         return res.json(response);
     } catch (err: any) {
         return next(err);

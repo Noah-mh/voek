@@ -2,12 +2,12 @@ import "./App.css";
 import { Route, Routes } from "react-router-dom";
 import Missing from "./components/Missing/Missing";
 import LoginBannerSeller from "./components/LoginBannerSeller/LoginBannerSeller.js";
-import LoginBanner from "../src/components/loginBanner/loginBanner.js";
+import LoginBanner from "./components/LoginBanner/LoginBanner.js";
 import SignupBannerCustomer from "./components/SignupBannerCustomer/SignupBannerCustomer.js";
 import Layout from "./components/Layout/Layout";
 import Homepage from "./components/homepage/Homepage.js";
 import RequireAuthCustomer from "./components/RequireAuth/RequireAuthCustomer";
-import CartPage from "./components/cart/UserCart.js";
+import CartPage from "./components/UserCart/UserCart.js";
 import VerifySignupSeller from "./components/SignupSeller/VerifySignupSeller.js";
 import SignupBannerSeller from "./components/SignupSeller/SignupBannerSeller.js";
 import ResetPasswordSeller from "./components/ResetPasswordSeller/ResetPasswordSeller.js";
@@ -23,10 +23,7 @@ import ForgetPasswordCustomer from "./components/ForgetPasswordCustomer/ForgetPa
 import ResetPasswordCustomer from "./components/ResetPasswordCustomer/ResetPasswordCustomer.js";
 import ForgetPasswordSeller from "./components/ForgetPasswordSeller/ForgetPasswordSeller.js";
 import HomepageSeller from "./components/HomepageSeller/HomepageSeller.js";
-import ManageProducts from "./components/SellerSidebar/ManageProducts.js";
 import EditProduct from "./components/SellerSidebar/EditProduct.js";
-import AddProduct from "./components/SellerSidebar/AddProduct.js";
-import ManageOrders from "./components/SellerSidebar/ManageOrders.js";
 import Checkout from "./components/Checkout/Checkout.js";
 import CustomerProfilePage from "./components/Customer/CustomerProfilePage.js";
 import LastViewed from "./components/LastViewed(History)/LastViewed.js";
@@ -35,6 +32,7 @@ import CategoryResults from "./components/CategoryResults/CategoryResults.js";
 import SellerProfile from "./components/SellerProfile/SellerProfile.js";
 import VerifySellerEmail from "./components/SellerProfile/VerifySellerEmail.js";
 import VerifyCustomerEmail from "./components/Customer/VerifyCustomerEmail.js";
+import SellerVouchers from "./components/SellerVouchers/SellerVouchers.js";
 import RedeemVoucher from "./components/RedeemVoucher/RedeemVoucher.js";
 import CustomerSellerProfilePage from "./components/Product/CustomerSellerProfilePage.js";
 
@@ -72,12 +70,12 @@ function App() {
             path="customer/email-verification"
             element={<VerifyCustomerEmail />}
           />
-          <Route
-            path="test"
-            element={<RedeemVoucher seller_id={1} />}
-          />
+          <Route path="test" element={<RedeemVoucher seller_id={1} />} />
 
-          <Route path="customerSellerProfile/:seller_id" element={<CustomerSellerProfilePage />} />
+          <Route
+            path="customerSellerProfile/:seller_id"
+            element={<CustomerSellerProfilePage />}
+          />
 
           <Route element={<RequireAuthCustomer />}>
             {/* Protected Routes with persist login */}
@@ -112,12 +110,13 @@ function App() {
           <Route path="seller/signup" element={<SignupBannerSeller />} />
           <Route element={<RequireAuthSeller />}>
             <Route path="seller/home" element={<HomepageSeller />} />
-            <Route path="seller/manageProducts" element={<ManageProducts />} />
+            {/* <Route path="seller/manageProducts" element={<ManageProducts />} /> */}
             <Route path="seller/editProduct" element={<EditProduct />} />
-            <Route path="seller/addProduct" element={<AddProduct />} />
-            <Route path="seller/manageOrders" element={<ManageOrders />} />
+            {/* <Route path="seller/addProduct" element={<AddProduct />} />
+            <Route path="seller/manageOrders" element={<ManageOrders />} /> */}
             <Route path="seller/orders" element={<ViewCustomerOrders />} />
             <Route path="seller/profile" element={<SellerProfile />} />
+            <Route path="seller/vouchers" element={<SellerVouchers />} />
           </Route>
         </Route>
       </Route>
@@ -129,3 +128,4 @@ function App() {
 }
 
 export default App;
+//

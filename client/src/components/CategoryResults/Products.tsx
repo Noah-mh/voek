@@ -19,7 +19,6 @@ const Products = ({ categoryId }: ProductsProps) => {
   const [status, setStatus] = useState<boolean>(false);
 
   useEffect(() => {
-    console.log("categoryId", categoryId);
     axios
       .get(`/getProductsUsingCategory/${categoryId}`, {
         headers: { "Content-Type": "application/json" },
@@ -31,7 +30,7 @@ const Products = ({ categoryId }: ProductsProps) => {
         setProducts(data);
       })
       .catch((err: any) => {
-        console.log(err);
+        console.error(err);
         setStatus(false);
       });
   }, [categoryId]);

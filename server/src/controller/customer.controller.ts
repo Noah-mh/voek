@@ -368,29 +368,6 @@ export const getCustomerDetails = async (
   }
 };
 
-// export const updateCustomerDetails = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     const { customer_id } = req.params;
-//     const { username, email, phone_number } = req.body;
-//     const customerId = parseInt(customer_id);
-//     const response: number =
-//       await customerModel.handleCustomerProfileEdit(
-//         username,
-//         email,
-//         phone_number,
-//         customerId
-//       );
-//     if (!response) return res.sendStatus(404);
-//     return res.sendStatus(200);
-//   } catch (err: any) {
-//     return next(err);
-//   }
-// };
-
 //Noah
 export const updateCustomerDetails = async (
   req: Request,
@@ -506,19 +483,6 @@ export const activateAccount = async (
   }
 };
 
-// export const processUpdateCustomerDetails = async (req: Request, res: Response, next: NextFunction) => {
-//   try {
-//     const { password, email, shop_name, phone_number } = req.body;
-//     const { customer_id } = req.params;
-//     if (!customer_id) return res.sendStatus(400);
-//     const result = await customerModel.handleUpdateCustomerDetails(password, email, shop_name, parseInt(phone_number), parseInt(customer_id));
-//     if (result) return res.json(result)
-//     return res.sendStatus(201)
-//   } catch (err: any) {
-//     return next(err);
-//   }
-// }
-
 //Noah
 export const processCustomerAddressAdd = async (
   req: Request,
@@ -541,7 +505,7 @@ export const processCustomerAddressAdd = async (
       );
     if (!response) return res.sendStatus(404);
     console.log("Successfully added address with id ", response);
-    return res.sendStatus(200);
+    return res.json(response);
   } catch (err: any) {
     return next(err);
   }
@@ -613,12 +577,14 @@ export const processViewVouchers = async (
 ) => {
   try {
     const { customer_id } = req.params;
-    const result = await customerModel.handleViewVouchers(parseInt(customer_id));
+    const result = await customerModel.handleViewVouchers(
+      parseInt(customer_id)
+    );
     return res.json({ vouchers: result });
   } catch (err: any) {
     return next(err);
   }
-}
+};
 
 export const processCustomerVouchers = async (
   req: Request,
@@ -627,12 +593,14 @@ export const processCustomerVouchers = async (
 ) => {
   try {
     const { customer_id } = req.params;
-    const result = await customerModel.handleCustomerVouchers(parseInt(customer_id));
+    const result = await customerModel.handleCustomerVouchers(
+      parseInt(customer_id)
+    );
     return res.json({ vouchers: result });
   } catch (err: any) {
     return next(err);
   }
-}
+};
 
 export const processPutVouchers = async (
   req: Request,
@@ -641,12 +609,15 @@ export const processPutVouchers = async (
 ) => {
   try {
     const { customer_id, voucher_id } = req.params;
-    await customerModel.handlePutVouchers(parseInt(customer_id), parseInt(voucher_id));
+    await customerModel.handlePutVouchers(
+      parseInt(customer_id),
+      parseInt(voucher_id)
+    );
     return res.sendStatus(200);
   } catch (err: any) {
     return next(err);
   }
-}
+};
 
 export const processDeleteVouchers = async (
   req: Request,
@@ -655,9 +626,12 @@ export const processDeleteVouchers = async (
 ) => {
   try {
     const { customer_voucher_id, voucher_id } = req.params;
-    await customerModel.handleDeleteVouchers(parseInt(customer_voucher_id), parseInt(voucher_id));
+    await customerModel.handleDeleteVouchers(
+      parseInt(customer_voucher_id),
+      parseInt(voucher_id)
+    );
     return res.sendStatus(200);
   } catch (err: any) {
     return next(err);
   }
-}
+};
