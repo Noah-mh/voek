@@ -50,7 +50,7 @@ export const handleGetAllProductsOfSeller = async (
     ON c.category_id = p.category_id
     LEFT JOIN product_images pi
     ON pi.sku = pv.sku    
-    WHERE lp.seller_id = 1
+    WHERE lp.seller_id = ?
     AND pv.valid_variation = 1 
     ORDER BY p.product_id ASC; `;
   try {
@@ -76,7 +76,7 @@ export const handleGetBestSellers = async (
     INNER JOIN products p ON p.product_id = op.product_id
     INNER JOIN category c ON p.category_id = c.category_id
     INNER JOIN listed_products lp ON op.product_id = lp.product_id
-    WHERE lp.seller_id = 1
+    WHERE lp.seller_id = ?
     GROUP BY op.product_id
     ORDER BY totalQuantity DESC
     LIMIT 5;`;
