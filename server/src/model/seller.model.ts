@@ -50,7 +50,7 @@ export const handleGetAllProductsOfSeller = async (
     ON c.category_id = p.category_id
     LEFT JOIN product_images pi
     ON pi.sku = pv.sku    
-    WHERE lp.seller_id = 1
+    WHERE lp.seller_id = ?
     AND pv.valid_variation = 1 
     ORDER BY p.product_id ASC; `;
   try {
