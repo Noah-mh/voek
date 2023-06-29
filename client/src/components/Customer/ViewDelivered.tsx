@@ -36,7 +36,7 @@ const ViewDelivered = ({ deliveredOrders, getAll }: Props) => {
   useEffect(() => {
     const orderOrders = () => {
       const updatedOrders: any = {};
-      deliveredOrders.forEach(order => {
+      deliveredOrders.forEach((order) => {
         const { orders_id, seller_id } = order;
 
         // Create a key that combines orders_id and seller_id
