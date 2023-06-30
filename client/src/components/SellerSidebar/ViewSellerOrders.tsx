@@ -31,26 +31,34 @@ const ViewSellerOrders = ({ orders, getAll }: Props) => {
 
   const axiosPrivateSeller = useAxiosPrivateSeller();
 
+  const orderOrders = () => {
+    const updatedOrders: any = {};
+  
+    orders.forEach((order) => {
+      const { orders_id } = order;
+  
+      if (updatedOrders[orders_id]) {
+        updatedOrders[orders_id].push(order);
+      } else {
+        updatedOrders[orders_id] = [order];
+      }
+    });
+  
+    const orderedOrdersArray = Object.values(updatedOrders);
+  
+    // Sort the array by date in descending order
+    orderedOrdersArray.sort((a: any, b: any) => {
+      const dateA = new Date(a[0].date);
+      const dateB = new Date(b[0].date);
+      return dateB.getTime() - dateA.getTime();
+    });
+  
+    setOrderedOrders(orderedOrdersArray);
+  };
+  
 
   useEffect(() => {
-    const orderOrders = () => {
-      const updatedOrders: any = {}
-
-      orders.forEach(order => {
-        const { orders_id } = order;
-
-        if (updatedOrders[orders_id]) {
-          updatedOrders[orders_id].push(order);
-        } else {
-          updatedOrders[orders_id] = [order];
-        }
-      });
-
-      const orderedOrdersArray = Object.values(updatedOrders);
-      setOrderedOrders(orderedOrdersArray)
-    };
     orderOrders()
-    getAll();
   }, [orders])
 
   const getTotalAmt = (order: any) => {
@@ -72,6 +80,7 @@ const ViewSellerOrders = ({ orders, getAll }: Props) => {
     })
     await axiosPrivateSeller.put('/seller/orders/shipped', { orders_product_id, customer_id });
     getAll();
+    orderOrders();
   }
 
   return (
@@ -101,7 +110,7 @@ const ViewSellerOrders = ({ orders, getAll }: Props) => {
                             </div>
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-ms font-semibold border">{convertUtcToLocal(order[0].orders_date)}</td>
+                        <td className="px-4 py-3 text-ms font-semibold border">{getLocalDate(order[0].orders_date)} <br />{getLocalTime(order[0].orders_date)}</td>
                         <td className="px-4 py-3 text-xs border">
                           {
                             order.map((order: Order) => (
@@ -142,17 +151,25 @@ const ViewSellerOrders = ({ orders, getAll }: Props) => {
 
 export default ViewSellerOrders
 
-function convertUtcToLocal(utcTime: string): string {
-  // Convert UTC time to local time
+function getLocalTime(utcTime: string): string {
   const localTime = new Date(utcTime);
-
-  // Get the local date components
-  const day = localTime.getDate();
-  const month = localTime.getMonth() + 1; // Months are zero-based
-  const year = localTime.getFullYear();
-
-  // Format the local time as DD/MM/YYYY
-  const formattedLocalTime = `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
-
-  return formattedLocalTime;
+  const offsetInMinutes = localTime.getTimezoneOffset();
+  localTime.setMinutes(localTime.getMinutes() - offsetInMinutes);
+  const hours = localTime.getHours() % 12 || 12;
+  const minutes = localTime.getMinutes();
+  const period = localTime.getHours() >= 12 ? 'PM' : 'AM';
+  const localTimeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${period}`;
+  return localTimeString;
 }
+
+function getLocalDate(utcTime: string): string {
+  const localTime = new Date(utcTime);
+  const offsetInMinutes = localTime.getTimezoneOffset();
+  localTime.setMinutes(localTime.getMinutes() - offsetInMinutes);
+  const day = localTime.getDate();
+  const month = localTime.getMonth() + 1;
+  const year = localTime.getFullYear();
+  const localDateString = `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
+  return localDateString;
+}
+

@@ -850,7 +850,7 @@ export const handleViewVouchers = async (
 ): Promise<Object[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `SELECT voucher_id FROM customer_voucher WHERE customer_id = ? AND redeemed = 1 OR orders_id IS NOT NULL;`;
+  const sql = `SELECT voucher_id FROM customer_voucher WHERE customer_id = ? AND ( redeemed = 1 OR orders_id IS NOT NULL );`;
   try {
     const [result] = await connection.query(sql, [customer_id]);
     return result as Object[];

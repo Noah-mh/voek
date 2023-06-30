@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import useCustomer from '../../hooks/UseCustomer';
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import useAxiosPrivateCustomer from '../../hooks/useAxiosPrivateCustomer';
 
 interface Voucher {
@@ -36,6 +36,7 @@ const Voucher = ({ voucher, getVouchers }: Props) => {
         try {
             const result: any = await axiosPrivateCustomer.get(`/customer/vouchers/${customer.customer_id}`);
             const customerVouchers: CustomerVoucher[] = result.data.vouchers;
+            console.log(customerVouchers)
             const foundVoucher = customerVouchers.find(voucherID => voucherID.voucher_id === voucher.voucher_id);
             setRedeemed(foundVoucher ? true : false)
         } catch (err: any) {
@@ -47,7 +48,7 @@ const Voucher = ({ voucher, getVouchers }: Props) => {
         e.preventDefault();
         if (customer.customer_id) {
             await axiosPrivateCustomer.put(`/customer/vouchers/${customer.customer_id}/${voucher.voucher_id}}`);
-            toast.success("Login To Redeem Voucher. 🤡", {
+            toast.success("Voucher has been claimed. Please check ur voucher waller 🤡", {
                 position: "top-center",
                 autoClose: 5000,
                 hideProgressBar: false,
@@ -91,18 +92,6 @@ const Voucher = ({ voucher, getVouchers }: Props) => {
                             Redeem Now!!!
                         </button>}
             </div>
-            <ToastContainer
-                position="top-center"
-                autoClose={5000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-                theme="light"
-            />
         </div>
     )
 }

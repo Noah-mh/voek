@@ -12,6 +12,7 @@ import Box from "@mui/material/Box";
 import AddressDisplay from "./Address";
 import Loader from "../Loader/Loader";
 import CustomerVoucher from "../RedeemVoucher/CustomerVoucher";
+
 //Noah's code
 
 interface Product {
@@ -142,9 +143,10 @@ const CustomerProfilePage = () => {
       setOrders(result[1].data.listedOrders);
       setDeliveredOrders(result[2].data.listedOrdersDelivered);
       setReceivedOrders(result[3].data.listedOrdersReceived);
-      setIsLoading(false);
     } catch (err: any) {
       console.log(err);
+    } finally {
+      setIsLoading(false);
     }
   };
   if (isLoading) {

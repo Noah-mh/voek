@@ -741,6 +741,7 @@ export const handleGetSellerOrders = async (
   WHERE orders_product.product_id in (
       SELECT listed_products.product_id FROM listed_products WHERE seller_id = ?
   ) AND orders_product.shipment_id IS NULL
+  ORDER BY orders.orders_date DESC
   `;
   try {
     const result = await connection.query(sql, [seller_id]);
@@ -769,6 +770,7 @@ export const handleGetSellerShipped = async (
   WHERE orders_product.product_id in (
       SELECT listed_products.product_id FROM listed_products WHERE seller_id = ?
   ) AND orders_product.shipment_id IS NOT NULL AND shipment.shipment_delivered IS NULL
+  ORDER BY orders.orders_date DESC
   `;
   try {
     const result = await connection.query(sql, [seller_id]);
@@ -797,6 +799,7 @@ export const handleGetSellerDelivered = async (
   WHERE orders_product.product_id in (
       SELECT listed_products.product_id FROM listed_products WHERE seller_id = ?
   ) AND orders_product.shipment_id IS NOT NULL AND shipment.shipment_delivered IS NOT NULL
+  ORDER BY orders.orders_date DESC
   `;
   try {
     const result = await connection.query(sql, [seller_id]);

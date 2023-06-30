@@ -12,6 +12,7 @@ import AllProducts from "./AllProducts";
 import CategoryProducts from "./CategoryProducts";
 import RedeemVoucher from "../RedeemVoucher/RedeemVoucher";
 import { AiOutlineShop } from "react-icons/ai";
+import { ToastContainer } from "react-toastify";
 //Noah's code
 export interface Product {
     product_id: number;
@@ -132,6 +133,7 @@ const CustomerSellerProfilePage: React.FC = () => {
     } else {
         return (
             <div>
+                <ToastContainer />
                 <div className="flex justify-center items-center">
                     <div className="w-40 h-40 mb-5 mr-5">
                         <AdvancedImage cldImg={cld.image(sellerData[0].image_url)} />

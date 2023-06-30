@@ -82,7 +82,7 @@ const ViewSellerShipped = ({ shippedOrders }: Props) => {
                               </div>
                             </div>
                           </td>
-                          <td className="px-4 py-3 text-ms font-semibold border">{convertUtcToLocal(order[0].shipment_created)}</td>
+                          <td className="px-4 py-3 text-ms font-semibold border">{getLocalDate(order[0].shipment_created)} <br />{getLocalTime(order[0].shipment_created)}</td>
                           <td className="px-4 py-3 text-xs border">
                             {
                               order.map((order: Order) => (
@@ -123,17 +123,25 @@ const ViewSellerShipped = ({ shippedOrders }: Props) => {
 export default ViewSellerShipped
 
 
-function convertUtcToLocal(utcTime: string): string {
-  // Convert UTC time to local time
+function getLocalTime(utcTime: string): string {
   const localTime = new Date(utcTime);
-
-  // Get the local date components
-  const day = localTime.getDate();
-  const month = localTime.getMonth() + 1; // Months are zero-based
-  const year = localTime.getFullYear();
-
-  // Format the local time as DD/MM/YYYY
-  const formattedLocalTime = `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
-
-  return formattedLocalTime;
+  const offsetInMinutes = localTime.getTimezoneOffset();
+  localTime.setMinutes(localTime.getMinutes() - offsetInMinutes);
+  const hours = localTime.getHours() % 12 || 12;
+  const minutes = localTime.getMinutes();
+  const period = localTime.getHours() >= 12 ? 'PM' : 'AM';
+  const localTimeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${period}`;
+  return localTimeString;
 }
+
+function getLocalDate(utcTime: string): string {
+  const localTime = new Date(utcTime);
+  const offsetInMinutes = localTime.getTimezoneOffset();
+  localTime.setMinutes(localTime.getMinutes() - offsetInMinutes);
+  const day = localTime.getDate();
+  const month = localTime.getMonth() + 1;
+  const year = localTime.getFullYear();
+  const localDateString = `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
+  return localDateString;
+}
+
