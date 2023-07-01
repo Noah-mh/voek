@@ -113,7 +113,7 @@ const ViewDelivered = ({ deliveredOrders, getAll }: Props) => {
               <h1 className="text-xl font-bold">Seller: {Orders[0].shop_name}</h1>
               <div className="flex flex-row justify-between border border-blue-300">
                 {
-                  Orders.map((order: Product, index: number) => (
+                  Orders.map((order: Product) => (
                     <div
                       key={order.sku}
                       className="mb-8 border border-gray-300 rounded p-4 "

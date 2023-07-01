@@ -3,6 +3,7 @@ import useAxiosPrivateCustomer from '../../hooks/useAxiosPrivateCustomer';
 import useCustomer from "../../hooks/UseCustomer"
 import { v4 as uuidv4 } from 'uuid';
 import MyVouchers from './MyVouchers';
+import { ToastContainer } from 'react-toastify';
 
 interface CustomerVoucher {
     voucher_id: number;
@@ -33,6 +34,7 @@ const CustomerVoucher = () => {
 
     return (
         <div>
+            <ToastContainer/>
             {myVouchers.map((voucher: CustomerVoucher) => (
                 <div key={uuidv4()}>
                     <MyVouchers voucher={voucher} getVouchers={getVouchers} />

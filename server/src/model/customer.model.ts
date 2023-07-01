@@ -110,7 +110,7 @@ export const handleSendEmailOTP = async (
       .sendTransacEmail({
         sender,
         to: receivers,
-        subject: "OTP Verification For VOEK Login",
+        subject: "OTP Verification For VOEK customer Login",
         textContent: `Your OTP is ${OTP}`,
       })
       .then((response: any) => {
@@ -184,7 +184,7 @@ export const handleSendEmailLink = async (
       .sendTransacEmail({
         sender,
         to: receivers,
-        subject: "Verification Link For VOEK Sign Up",
+        subject: "Verification Link For VOEK customer Sign Up",
         textContent: `${
           process.env.FRONTEND_BASE_URL || "http://localhost:5173"
         }/signup/verify?signupToken=${signUpToken}`,
@@ -341,7 +341,7 @@ export const handleSendEmailForgetPassword = async (
       .sendTransacEmail({
         sender,
         to: receivers,
-        subject: "Verification Link For VOEK Sign Up",
+        subject: "Password reset link for customer",
         textContent: `${
           process.env.FRONTEND_BASE_URL || "http://localhost:5173"
         }/forgetPassword/verify?forgetPasswordToken=${forgetPasswordToken}`,
@@ -495,7 +495,7 @@ export const handleSendEmailChange = async (
     .sendTransacEmail({
       sender,
       to: receivers,
-      subject: "Verification Link For VOEK Email Change",
+      subject: "Verification Link For VOEK customer Email Change",
       textContent: `${
         process.env.FRONTEND_BASE_URL || "http://localhost:5173"
       }/customer/email-verification?token=${changeCustomerEmailToken}`,

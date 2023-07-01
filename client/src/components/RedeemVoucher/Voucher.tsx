@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import useCustomer from '../../hooks/UseCustomer';
 import { toast } from "react-toastify";
 import useAxiosPrivateCustomer from '../../hooks/useAxiosPrivateCustomer';
+import Loader from '../Loader/Loader';
 
 interface Voucher {
     voucher_id: number;
@@ -15,16 +16,16 @@ interface Voucher {
 
 interface Props {
     voucher: Voucher;
-    getVouchers: () => void;
 }
 
 interface CustomerVoucher {
     voucher_id: number;
 }
 
-const Voucher = ({ voucher, getVouchers }: Props) => {
+const Voucher = ({ voucher }: Props) => {
 
     const { customer } = useCustomer();
+    const [isLoading, setIsLoading] = useState<boolean>(true);
     const [redeemed, setRedeemed] = useState<boolean>(false);
     const axiosPrivateCustomer = useAxiosPrivateCustomer()
 
@@ -41,6 +42,8 @@ const Voucher = ({ voucher, getVouchers }: Props) => {
             setRedeemed(foundVoucher ? true : false)
         } catch (err: any) {
             console.log(err)
+        } finally {
+            setIsLoading(false);
         }
     }
 
@@ -58,7 +61,7 @@ const Voucher = ({ voucher, getVouchers }: Props) => {
                 progress: undefined,
                 theme: "light",
             });
-            getVouchers();
+            setRedeemed(true);
         } else {
             toast.warning("Login To Redeem Voucher. 🤡", {
                 position: "top-center",
@@ -83,14 +86,15 @@ const Voucher = ({ voucher, getVouchers }: Props) => {
                 ) : (
                     <h2 className="text-lg mb-5">Get {voucher.percentage_amount && voucher.percentage_amount * 100}% off</h2>
                 )}
-                {!voucher.active ? <h2 className="text-lg">Voucher is no longer available</h2> :
-                    redeemed ? <h2 className="text-lg">Voucher has been redeemed</h2> :
-                        <button
-                            onClick={onClickHandler}
-                            className="bg-blue-500 text-white py-2 px-4 rounded-md"
-                        >
-                            Redeem Now!!!
-                        </button>}
+                {isLoading ? <Loader />
+                    : !voucher.active ? <h2 className="text-lg">Voucher is no longer available</h2> :
+                        redeemed ? <h2 className="text-lg">Voucher has been redeemed</h2> :
+                            <button
+                                onClick={onClickHandler}
+                                className="bg-blue-500 text-white py-2 px-4 rounded-md"
+                            >
+                                Redeem Now!!!
+                            </button>}
             </div>
         </div>
     )

@@ -38,7 +38,7 @@ const RedeemVoucher = ({ seller_id }: Props) => {
         <div className="flex overflow-x-auto space-x-4 p-4">
             {vouchers.map((voucher: Voucher) => (
                 <div key={uuidv4()} className="w-200">
-                    <Voucher voucher={voucher} getVouchers={getVouchers} />
+                    <Voucher voucher={voucher} />
                 </div>
             ))}
         </div>
