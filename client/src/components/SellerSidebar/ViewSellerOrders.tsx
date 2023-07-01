@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller";
+import { toast } from "react-toastify";
 
 interface Order {
   orders_id: number;
@@ -52,7 +53,7 @@ const ViewSellerOrders = ({ orders, getAll }: Props) => {
       const dateB = new Date(b[0].date);
       return dateB.getTime() - dateA.getTime();
     });
-  
+    console.log('happend')
     setOrderedOrders(orderedOrdersArray);
   };
   
@@ -81,6 +82,16 @@ const ViewSellerOrders = ({ orders, getAll }: Props) => {
     await axiosPrivateSeller.put('/seller/orders/shipped', { orders_product_id, customer_id });
     getAll();
     orderOrders();
+    toast.success("Order has been packed and shipped to customer", {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
   }
 
   return (

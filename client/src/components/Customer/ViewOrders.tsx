@@ -66,7 +66,6 @@ const ViewOrders = ({ orders }: Props) => {
       const orderedOrdersArray: Order[][][] = Object.values(updatedOrders).map((orderGroup) =>
         Object.values(orderGroup)
       );
-      console.log(orderedOrdersArray)
       setOrderedOrders(orderedOrdersArray);
     };
 

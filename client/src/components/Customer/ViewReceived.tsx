@@ -15,7 +15,7 @@ interface Product {
   variation_1?: string;
   variation_2?: string;
   quantity: number;
-  sku: string,
+  sku: string;
   orders_date?: string;
   shipment_created?: string;
   shipment_delivered?: string;
@@ -23,7 +23,9 @@ interface Product {
   orders_product_id?: number;
   seller_id: string;
   orders_id: string;
+  shop_name: string;
 }
+
 
 interface Props {
   receivedOrders: Product[],
@@ -117,7 +119,6 @@ const ViewReceived = ({ receivedOrders, getAll }: Props) => {
       const orderedOrdersArray: Order[][][] = Object.values(updatedOrders).map((orderGroup) =>
         Object.values(orderGroup)
       );
-      console.log(orderedOrdersArray)
       setOrderedReceivedOrders(orderedOrdersArray);
     };
 

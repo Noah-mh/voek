@@ -31,7 +31,9 @@ interface Product {
   orders_product_id?: number;
   seller_id: string;
   orders_id: string;
+  shop_name: string;
 }
+
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
