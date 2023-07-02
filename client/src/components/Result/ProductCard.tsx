@@ -44,7 +44,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
       if (customerID != undefined) {
         try {
           const response = await axiosPrivateCustomer.get(
-            `/checkWishlistProductExistence/?customer_id=${customerID}&productId=${product.product_id}`
+            `/checkWishlistProductExistence/?customerId=${customerID}&productId=${product.product_id}`
           );
           if (response.data.length > 0) {
             setHeart(true);
@@ -262,6 +262,8 @@ const ProductCard = ({ product }: ProductCardProps) => {
           setModalOpen={setModalOpen}
           product={product}
           pricingRange={pricingRange}
+          heart={heart}
+          setHeart={setHeart}
         />
       )}
       <ToastContainer />
