@@ -3,6 +3,7 @@ import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import { cld } from "../../Cloudinary/Cloudinary";
 import { AdvancedImage } from "@cloudinary/react";
 import { useState, useEffect } from "react";
+import { ToastContainer, toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 
 interface Product {
@@ -21,7 +22,9 @@ interface Product {
   orders_product_id?: number;
   seller_id: string;
   orders_id: string;
+  shop_name: string;
 }
+
 
 interface Props {
   deliveredOrders: Product[];
@@ -68,7 +71,6 @@ const ViewDelivered = ({ deliveredOrders, getAll }: Props) => {
       const orderedOrdersArray: Order[][][] = Object.values(updatedOrders).map((orderGroup) =>
         Object.values(orderGroup)
       );
-      console.log(orderedOrdersArray)
       setDeliveredOrderedOrders(orderedOrdersArray);
     };
 
@@ -81,6 +83,16 @@ const ViewDelivered = ({ deliveredOrders, getAll }: Props) => {
         `/customer/received/${orders_id}/${seller_id}`
       );
       getAll();
+      toast.success("Order has been received", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     } catch (err: any) {
       console.log(err);
     }
@@ -93,7 +105,7 @@ const ViewDelivered = ({ deliveredOrders, getAll }: Props) => {
         <div key={uuidv4()} className="mb-8 border border-red-300 rounded p-4">
           <div className="flex flex-col">
             <h1 className="text-xl font-bold">
-              Delivered Date: {getLocalDate(ordersArray[0][0].shipment_created)} {getLocalTime(ordersArray[0][0].shipment_created )}
+              Delivered Date: {getLocalDate(ordersArray[0][0].shipment_created)} {getLocalTime(ordersArray[0][0].shipment_created)}
             </h1>
           </div>
           {ordersArray.map((Orders: any) => (
@@ -101,7 +113,7 @@ const ViewDelivered = ({ deliveredOrders, getAll }: Props) => {
               <h1 className="text-xl font-bold">Seller: {Orders[0].shop_name}</h1>
               <div className="flex flex-row justify-between border border-blue-300">
                 {
-                  Orders.map((order: Product, index: number) => (
+                  Orders.map((order: Product) => (
                     <div
                       key={order.sku}
                       className="mb-8 border border-gray-300 rounded p-4 "
@@ -133,26 +145,26 @@ const ViewDelivered = ({ deliveredOrders, getAll }: Props) => {
                                 : "No Variation"}
                         </p>
                       </div>
-
-                      {index === Orders.length - 1 && ( // Add this condition to check if it's the last index
-                        <button
-                          color="primary"
-                          onClick={() => {
-                            buttonHandler(Orders[Orders.length - 1].orders_id, Orders[Orders.length - 1].seller_id);
-                          }}
-                        >
-                          Order Received
-                        </button>
-                      )}
                     </div>
                   ))
                 }
+                <div className="flex flex-col justify-between">
+                  <button
+                    color="primary"
+                    onClick={() => {
+                      buttonHandler(Orders[0].orders_id, Orders[0].seller_id);
+                    }}
+                  >
+                    Order Received
+                  </button>
+                </div>
               </div>
             </div>
           ))}
         </div>
       ))
       }
+      <ToastContainer />
     </div >
   );
 };

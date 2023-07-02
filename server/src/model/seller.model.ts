@@ -556,7 +556,7 @@ export const handleSendEmailLink = async (
       .sendTransacEmail({
         sender,
         to: receivers,
-        subject: "Verification Link For VOEK Sign Up",
+        subject: "Verification Link For VOEK seller Sign Up",
         textContent: `${
           process.env.FRONTEND_BASE_URL || "http://localhost:5173"
         }/seller/signup/verify?signupToken=${signUpToken}`,
@@ -687,7 +687,7 @@ export const handleSendEmailForgetPassword = async (
       .sendTransacEmail({
         sender,
         to: receivers,
-        subject: "Verification Link For VOEK Sign Up",
+        subject: "VPassword reset link for seller",
         textContent: `${
           process.env.FRONTEND_BASE_URL || "http://localhost:5173"
         }/seller/forgetPassword/verify?forgetPasswordToken=${forgetPasswordToken}`,
@@ -1017,7 +1017,7 @@ export const handleSendEmailChange = async (
     .sendTransacEmail({
       sender,
       to: receivers,
-      subject: "Verification Link For VOEK Email Change",
+      subject: "Verification Link For VOEK seller Email Change",
       textContent: `${
         process.env.FRONTEND_BASE_URL || "http://localhost:5173"
       }/seller/email-verification?token=${changeSellerEmailToken}`,

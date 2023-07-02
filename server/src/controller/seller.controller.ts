@@ -164,7 +164,7 @@ export const processVerifyOTP = async (req: Request, res: Response, next: NextFu
                     }
                 },
                 config.refreshTokenSecret!,
-                { expiresIn: '1d' }
+                { expiresIn: '7d' }
             );
             await sellerModel.handleStoreRefreshToken(refreshToken, response[0].seller_id);
             res.cookie('sellerJwt', refreshToken, {

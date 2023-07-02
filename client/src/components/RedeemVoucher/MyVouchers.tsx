@@ -1,7 +1,6 @@
-import React from "react";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
-import useCustomer from "../../hooks/UseCustomer";
 
 interface CustomerVoucher {
   voucher_id: number;
@@ -29,8 +28,20 @@ const MyVouchers = ({ voucher, getVouchers }: Props) => {
         `/customer/vouchers/${voucher.customer_voucher_id}/${voucher.voucher_id}`
       );
       getVouchers();
+      toast.success("Voucher has been removed from your wallet", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     } catch (err: any) {
       console.log(err);
+    } finally {
+
     }
   };
 
@@ -61,18 +72,6 @@ const MyVouchers = ({ voucher, getVouchers }: Props) => {
           Remove From Voucher Wallet
         </button>
       </div>
-      <ToastContainer
-        position="top-center"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
     </div>
   );
 };

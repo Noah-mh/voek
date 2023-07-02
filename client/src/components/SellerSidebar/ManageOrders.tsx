@@ -4,6 +4,7 @@ import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller.js";
 import ViewSellerOrders from './ViewSellerOrders.js';
 import ViewSellerShipped from './ViewSellerShipped.js';
 import ViewSellerDelivered from './ViewSellerDelivered.js';
+import { ToastContainer } from "react-toastify";
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
@@ -111,12 +112,12 @@ const ManageOrders = () => {
 
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    console.log(event);
     setValue(newValue);
 };
 
   return (
     <div className="flex">
+      <ToastContainer />
       <div>
         <Box sx={{ maxWidth: { xs: 320, sm: 480 }, bgcolor: 'background.paper' }}>
           <Tabs value={value}

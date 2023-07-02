@@ -6,6 +6,7 @@ import ModalComponent from "./ModelForRating";
 import useCustomer from "../../hooks/UseCustomer";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import { v4 as uuidv4 } from 'uuid'
+import { ToastContainer, toast } from "react-toastify";
 //Everything relating to Rating and Review is done by Noah
 interface Product {
   description: string;
@@ -15,7 +16,7 @@ interface Product {
   variation_1?: string;
   variation_2?: string;
   quantity: number;
-  sku: string,
+  sku: string;
   orders_date?: string;
   shipment_created?: string;
   shipment_delivered?: string;
@@ -23,7 +24,9 @@ interface Product {
   orders_product_id?: number;
   seller_id: string;
   orders_id: string;
+  shop_name: string;
 }
+
 
 interface Props {
   receivedOrders: Product[],
@@ -117,7 +120,6 @@ const ViewReceived = ({ receivedOrders, getAll }: Props) => {
       const orderedOrdersArray: Order[][][] = Object.values(updatedOrders).map((orderGroup) =>
         Object.values(orderGroup)
       );
-      console.log(orderedOrdersArray)
       setOrderedReceivedOrders(orderedOrdersArray);
     };
 
@@ -141,6 +143,7 @@ const ViewReceived = ({ receivedOrders, getAll }: Props) => {
 
   return (
     <div className="flex flex-col items-center justify-center p-8">
+      <ToastContainer />
       <h1 className="mb-8 text-4xl font-bold">Received Orders</h1>
       {orderedReceivedOrders?.map((ordersArray: any) => (
         <div key={uuidv4()} className="mb-8 border border-red-300 rounded p-4">
