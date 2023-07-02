@@ -4,11 +4,23 @@ import MaterialReactTable, {
   type MRT_ColumnDef,
 } from 'material-react-table';
 import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';
+import Box from "@mui/material/Box";
+import TextField from '@mui/material/TextField';
+import { ToastContainer, toast } from "react-toastify";
 
 import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller.js";
 import { cld } from "../../Cloudinary/Cloudinary";
 import { AdvancedImage } from "@cloudinary/react";
 import CloudinaryUploader from "../../Cloudinary/CloudinaryUploader";
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import InputAdornment from '@mui/material/InputAdornment';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
 
 interface Category {
   categoryId: number;
@@ -209,26 +221,26 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     }
   };
 
-  const [categories, setCategories] = useState<Category[]>([]);
+  // const [categories, setCategories] = useState<Category[]>([]);
 
-  useEffect(() => {
-    const getAllCategories = async () => {
-      try {
-        const response = await axiosPrivateSeller.get(`/categories`);
-        setCategories(response.data);
-      } catch (error: any) {
-        console.error('Error fetching data:', error);
-      }
-    }
+  // useEffect(() => {
+  //   const getAllCategories = async () => {
+  //     try {
+  //       const response = await axiosPrivateSeller.get(`/categories`);
+  //       setCategories(response.data);
+  //     } catch (error: any) {
+  //       console.error('Error fetching data:', error);
+  //     }
+  //   }
 
-    getAllCategories();
-  }, []);
+  //   getAllCategories();
+  // }, []);
 
-  const [selectedCategory, setSelectedCategory] = useState<number>(1);
+  // const [selectedCategory, setSelectedCategory] = useState<number>(1);
 
-  useEffect(() => {
-    console.log(selectedCategory)
-  }, [selectedCategory])
+  // useEffect(() => {
+  //   console.log(selectedCategory)
+  // }, [selectedCategory])
 
   useEffect(() => {
     if (currentProduct && currentProduct.categoryId) {
@@ -548,11 +560,260 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     setSubmitStatus("Success!");
   };
 
+  const [name, setName] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<number>(0);
+  const [price, setPrice] = useState<number>();
+  const [quantity, setQuantity] = useState<number>();
+  const [imageUrl, setImageUrl] = useState<string>("");
+
+  useEffect(() => {
+    currentProduct?.name ? setName(currentProduct.name) : "";
+    currentProduct?.description ? setDescription(currentProduct.description) : "";
+    currentProduct?.categoryId ? setSelectedCategory(currentProduct.categoryId) : "";
+    currentProduct?.price ? setPrice(currentProduct.price) : "";
+    currentProduct?.quantity ? setQuantity(currentProduct.quantity) : "";
+    setImageUrl(currentProduct ? currentProduct.imageUrl[0] : "");
+  }, [currentProduct]);
+
+  useEffect(() => {
+    console.log(selectedCategory)
+  }, [selectedCategory])
+
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    const getAllCategories = async () => {
+      try {
+        const response = await axiosPrivateSeller.get(`/categories`);
+        setCategories(response.data);
+      } catch (error: any) {
+        console.error('Error fetching data:', error);
+      }
+    }
+
+    getAllCategories();
+  }, []);
+
+  console.log("current", currentProduct)
+
   return (
     <form 
-      className="flex flex-col"
+      // className="flex flex-col"
       onSubmit={handleProductFormSubmit}
     >
+      <Box
+          // className="flex-1"
+          // component="form"
+          sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 1,
+              width: 1,
+              flexGrow: 1,
+              flexShrink: 1,
+              maxWidth: '75%'
+          }}
+          // noValidate
+          // autoComplete="off"
+      >
+        <TextField
+            id="name"
+            label="Name"
+            required
+            variant="outlined"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            fullWidth
+            sx={{ m: 2 }} // Apply padding
+        />
+        <TextField
+            id="description"
+            label="Description"
+            required
+            variant="outlined"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            fullWidth
+            sx={{ m: 2 }} // Apply padding
+        />
+        <TextField
+          id="category"
+          select
+          label="Category"
+          required
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(parseInt(e.target.value))}
+          fullWidth
+          sx={{ m: 2 }} // Apply padding
+        >
+          {categories.map((category: Category) => (
+            <MenuItem key={category.categoryId} value={category.categoryId}>
+              {category.name}
+            </MenuItem>
+          ))}
+        </TextField>
+        <FormControl 
+          required 
+          fullWidth 
+          sx={{ m: 2 }}
+        >
+          <InputLabel htmlFor="price">Price</InputLabel>
+          <OutlinedInput
+            id="price"
+            startAdornment={<InputAdornment position="start">$</InputAdornment>}
+            label="Price"
+            value={price}
+            onChange={(e) => setPrice(parseInt(e.target.value))}
+          />
+        </FormControl>
+        <TextField
+            id="quantity"
+            label="Quantity"
+            variant="outlined"
+            required
+            value={quantity}
+            onChange={(e) => setQuantity(parseInt(e.target.value))}
+            fullWidth
+            sx={{ m: 2 }} // Apply padding
+        />
+      </Box>
+
+      {variations.map((variation, variationIndex) => (
+        <Box
+          sx={{ 
+            display: 'flex',
+            flexDirection: 'row',
+            m: 2, 
+            // width: 1,
+            bgcolor: '#bbdefb',
+            borderRadius: '16px',
+            flexShrink: 1,
+            maxWidth: '75%'
+          }}
+        >
+          <Box
+            sx={{
+              flexGrow: 1
+            }}
+          >
+            <Box 
+              key={variationIndex} 
+              sx={{ 
+                display: 'flex',
+                flexDirection: 'row',
+                m: 2,
+                bgcolor: 'background.paper',
+                borderRadius: '16px'
+              }} // Apply padding
+            >
+              <TextField
+                  id="variation-name"
+                  label="Category of Variation"
+                  variant="outlined"
+                  required
+                  helperText="E.g. Colour, Size, etc."
+                  value={variation.name}
+                  onChange={(e) => handleVariationNameChange(variationIndex, e.target.value)}
+                  fullWidth
+                  sx={{ 
+                    m: 2,
+                    flexGrow: 1
+                  }} // Apply padding
+              />
+            </Box>
+            
+            {variation.values.map((value, valueIndex) => (
+              <Box 
+                key={valueIndex} 
+                className="flex flex-row"
+                sx = {{
+                  m: 2,
+                  bgcolor: 'background.paper',
+                  borderRadius: '16px'
+                }}
+              >
+                <TextField
+                    id="variation-name"
+                    label="Variation"
+                    variant="outlined"
+                    required
+                    value={value}
+                    onChange={(e) => handleVariationValueChange(variationIndex, valueIndex, e.target.value)}
+                    fullWidth
+                    sx={{ 
+                      m: 2,
+                      flexGrow: 1
+                    }} // Apply padding
+                />
+
+                {valueIndex === variation.values.length - 1 && (
+                  <IconButton
+                    className="add-variation-value flex-end"
+                    type="button"
+                    onClick={() => handleAddVariationValue(variationIndex)}
+                    sx={{ mr: 2 }}
+                  >
+                    <AddIcon />
+                  </IconButton>
+                )}
+
+              {variation.values.length !== 1  && (
+                <IconButton
+                  className="remove-variation-value flex-end"
+                  type="button"
+                  onClick={() => handleRemoveVariationValue(variationIndex, valueIndex)}
+                  sx={{ mr: 2 }}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              )}
+
+              </Box>
+            ))}
+          </Box>
+
+          <Box>
+            <IconButton
+              className="remove-variation flex-end"
+              type="button"
+              onClick={() => handleRemoveVariation(variationIndex)}
+              sx={{ 
+                display: 'flex',
+                alignItems: 'flex-start',
+                m: 2,
+                ml: 0
+              }}
+            >
+              <DeleteIcon />
+            </IconButton>
+          </Box>
+        </Box>
+      ))}
+
+      {showAddVariation && (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            m: 2,
+            maxWidth: '75%' 
+          }}
+        >
+          <Button
+            variant="contained"
+            type="button"
+            onClick={handleAddVariation}
+            // fullWidth
+            sx={{ 
+              
+            }} // Apply padding
+          >
+            Add Variation ({variations.length}/{maximumVariations})
+          </Button>
+        </Box>
+      )}
+
       <section className="flex flex-col">
         <label>
           Name:

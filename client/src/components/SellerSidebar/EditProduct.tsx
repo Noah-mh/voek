@@ -127,7 +127,7 @@ const EditProduct = () => {
       }
     }
 
-    editProduct();
+    // editProduct();
   }
 
   return (
