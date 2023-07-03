@@ -78,6 +78,7 @@ const VoucherTable = () => {
 
   useEffect(() => {
     axiosPrivateSeller.get(`/getVouchers/${sellerId}`).then((response) => {
+      console.log(response.data);
       setVouchers(response.data);
     });
 
