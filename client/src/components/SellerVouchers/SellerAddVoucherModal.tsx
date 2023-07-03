@@ -338,6 +338,11 @@ const SellerAddVoucherModal = ({
                   placeholder=" "
                   required
                   value={voucher?.redemptionsAvailable || ""}
+                  onKeyDown={(event) => {
+                    if (["e", "E", "+", "-"].includes(event.key)) {
+                      event.preventDefault();
+                    }
+                  }}
                   onChange={(text) => {
                     setVoucher({
                       ...voucher,
