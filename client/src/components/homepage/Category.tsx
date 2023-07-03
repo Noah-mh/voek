@@ -157,7 +157,7 @@ const Category: React.FC = () => {
           </div>
 
           {/* col 2 */}
-          <div className="hover:cursor-pointer flex flex-col grow gap-y-5">
+          <div className="hover:cursor-pointer flex flex-col grow gap-y-5 justify-center items-center">
             <Clothes />
           </div>
 
