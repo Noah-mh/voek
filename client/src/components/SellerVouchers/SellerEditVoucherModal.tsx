@@ -162,6 +162,11 @@ const SellerVoucherModal = ({
                   placeholder=" "
                   required
                   step={0.01}
+                  onKeyDown={(event) => {
+                    if (["e", "E", "+", "-"].includes(event.key)) {
+                      event.preventDefault();
+                    }
+                  }}
                   value={
                     editedVoucher?.amount === 0
                       ? "0"
@@ -207,6 +212,11 @@ const SellerVoucherModal = ({
                   placeholder=" "
                   required
                   value={editedVoucher?.percentage}
+                  onKeyDown={(event) => {
+                    if (["e", "E", "+", "-"].includes(event.key)) {
+                      event.preventDefault();
+                    }
+                  }}
                   onChange={(text) => {
                     let number: number = parseInt(text.target.value);
                     setEditedVoucher({
@@ -238,6 +248,11 @@ const SellerVoucherModal = ({
                     ? "0"
                     : editedVoucher?.minSpend || ""
                 }
+                onKeyDown={(event) => {
+                  if (["e", "E", "+", "-"].includes(event.key)) {
+                    event.preventDefault();
+                  }
+                }}
                 onChange={(text) => {
                   const inputValue = text.target.value;
                   if (inputValue.includes("e")) {
@@ -313,6 +328,11 @@ const SellerVoucherModal = ({
                 placeholder=" "
                 required
                 value={editedVoucher?.redemptionsAvailable}
+                onKeyDown={(event) => {
+                  if (["e", "E", "+", "-"].includes(event.key)) {
+                    event.preventDefault();
+                  }
+                }}
                 onChange={(text) => {
                   let number: number = parseInt(text.target.value);
                   setEditedVoucher({

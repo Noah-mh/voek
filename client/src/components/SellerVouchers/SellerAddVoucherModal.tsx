@@ -147,6 +147,11 @@ const SellerAddVoucherModal = ({
                     required
                     step={0.01}
                     value={voucher?.amount === 0 ? "0" : voucher?.amount || ""}
+                    onKeyDown={(event) => {
+                      if (["e", "E", "+", "-"].includes(event.key)) {
+                        event.preventDefault();
+                      }
+                    }}
                     onChange={(event) => {
                       const inputValue = event.target.value;
                       if (inputValue.includes("e")) {
@@ -189,6 +194,11 @@ const SellerAddVoucherModal = ({
                     placeholder=" "
                     required
                     value={voucher?.amount || ""}
+                    onKeyDown={(event) => {
+                      if (["e", "E", "+", "-"].includes(event.key)) {
+                        event.preventDefault();
+                      }
+                    }}
                     onChange={(text) => {
                       if (
                         parseInt(text.target.value) < 101 &&
@@ -263,6 +273,11 @@ const SellerAddVoucherModal = ({
                   value={
                     voucher?.minSpend === 0 ? "0" : voucher?.minSpend || ""
                   }
+                  onKeyDown={(event) => {
+                    if (["e", "E", "+", "-"].includes(event.key)) {
+                      event.preventDefault();
+                    }
+                  }}
                   onChange={(text) => {
                     const inputValue = text.target.value;
                     if (inputValue.includes("e")) {
@@ -328,6 +343,11 @@ const SellerAddVoucherModal = ({
                   placeholder=" "
                   required
                   value={voucher?.redemptionsAvailable || ""}
+                  onKeyDown={(event) => {
+                    if (["e", "E", "+", "-"].includes(event.key)) {
+                      event.preventDefault();
+                    }
+                  }}
                   onChange={(text) => {
                     setVoucher({
                       ...voucher,
