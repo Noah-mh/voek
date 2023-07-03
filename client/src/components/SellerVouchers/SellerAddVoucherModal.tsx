@@ -147,6 +147,11 @@ const SellerAddVoucherModal = ({
                     required
                     step={0.01}
                     value={voucher?.amount === 0 ? "0" : voucher?.amount || ""}
+                    onKeyDown={(event) => {
+                      if (["e", "E", "+", "-"].includes(event.key)) {
+                        event.preventDefault();
+                      }
+                    }}
                     onChange={(event) => {
                       const inputValue = event.target.value;
                       if (inputValue.includes("e")) {
@@ -263,6 +268,11 @@ const SellerAddVoucherModal = ({
                   value={
                     voucher?.minSpend === 0 ? "0" : voucher?.minSpend || ""
                   }
+                  onKeyDown={(event) => {
+                    if (["e", "E", "+", "-"].includes(event.key)) {
+                      event.preventDefault();
+                    }
+                  }}
                   onChange={(text) => {
                     const inputValue = text.target.value;
                     if (inputValue.includes("e")) {

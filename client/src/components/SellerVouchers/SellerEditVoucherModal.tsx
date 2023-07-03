@@ -162,6 +162,11 @@ const SellerVoucherModal = ({
                   placeholder=" "
                   required
                   step={0.01}
+                  onKeyDown={(event) => {
+                    if (["e", "E", "+", "-"].includes(event.key)) {
+                      event.preventDefault();
+                    }
+                  }}
                   value={
                     editedVoucher?.amount === 0
                       ? "0"
@@ -238,6 +243,11 @@ const SellerVoucherModal = ({
                     ? "0"
                     : editedVoucher?.minSpend || ""
                 }
+                onKeyDown={(event) => {
+                  if (["e", "E", "+", "-"].includes(event.key)) {
+                    event.preventDefault();
+                  }
+                }}
                 onChange={(text) => {
                   const inputValue = text.target.value;
                   if (inputValue.includes("e")) {
