@@ -212,6 +212,11 @@ const SellerVoucherModal = ({
                   placeholder=" "
                   required
                   value={editedVoucher?.percentage}
+                  onKeyDown={(event) => {
+                    if (["e", "E", "+", "-"].includes(event.key)) {
+                      event.preventDefault();
+                    }
+                  }}
                   onChange={(text) => {
                     let number: number = parseInt(text.target.value);
                     setEditedVoucher({

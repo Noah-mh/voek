@@ -194,6 +194,11 @@ const SellerAddVoucherModal = ({
                     placeholder=" "
                     required
                     value={voucher?.amount || ""}
+                    onKeyDown={(event) => {
+                      if (["e", "E", "+", "-"].includes(event.key)) {
+                        event.preventDefault();
+                      }
+                    }}
                     onChange={(text) => {
                       if (
                         parseInt(text.target.value) < 101 &&
