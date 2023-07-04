@@ -96,7 +96,7 @@ export const handlesGetRecommendedProductsBasedOnCat = async (
   const connection = await promisePool.getConnection();
   const sql = `SELECT products.product_id , products.name, products.description
   FROM category, products 
-  WHERE category.category_id = ? and category.category_id = products.category_id 
+  WHERE category.category_id = ? and category.category_id = products.category_id and products.active = 1 
   LIMIT 6;`;
   try {
     const result = await connection.query(sql, [category_id]);
@@ -189,6 +189,7 @@ export const handlesTopProducts = async (): Promise<Product[]> => {
         ORDER BY count(orders_product.product_id) desc
         LIMIT 6) x 
   JOIN products ON x.product_id = products.product_id 
+  WHERE products.active = 1
   GROUP BY x.product_id;`;
   try {
     const result = await connection.query(sql, []);
@@ -508,7 +509,7 @@ export const handlesInsertLastViewedProduct = async (
 export const handlesGetProductsUsingCategory = async (categoryId: number) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `SELECT products.product_id, products.name, products.description FROM products WHERE category_id = ?;`;
+  const sql = `SELECT products.product_id, products.name, products.description FROM products WHERE category_id = ? AND products.active = 1;`;
   try {
     const result = await connection.query(sql, [categoryId]);
     return result[0] as Array<Object>;

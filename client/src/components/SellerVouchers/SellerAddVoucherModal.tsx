@@ -46,6 +46,21 @@ const SellerAddVoucherModal = ({
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
+
+    if (voucher?.type === 1 && voucher?.amount === 0) {
+      toast.warn("Discounted price cannot be $0!", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+      return;
+    }
+
     axiosPrivateSeller
       .post(`/insertVoucher`, voucher)
       .then((response) => {
@@ -115,7 +130,7 @@ const SellerAddVoucherModal = ({
                   <option value="" disabled selected hidden>
                     Select your Discount Type
                   </option>
-                  <option value="1">Number (e.g., $10)</option>
+                  <option value="1">Price (e.g., $10)</option>
                   <option value="2">Percentage (e.g., 10%)</option>
                 </select>
               </div>
@@ -130,11 +145,32 @@ const SellerAddVoucherModal = ({
                     className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-softerPurple peer"
                     placeholder=" "
                     required
-                    value={voucher?.amount || ""}
-                    onChange={(text) => {
+                    step={0.01}
+                    value={voucher?.amount === 0 ? "0" : voucher?.amount || ""}
+                    onKeyDown={(event) => {
+                      if (["e", "E", "+", "-"].includes(event.key)) {
+                        event.preventDefault();
+                      }
+                    }}
+                    onChange={(event) => {
+                      const inputValue = event.target.value;
+                      if (inputValue.includes("e")) {
+                        return;
+                      }
+
+                      const parsedValue = parseFloat(inputValue);
+                      console.log(parsedValue);
+                      if (!isNaN(parsedValue)) {
+                        setVoucher({
+                          ...voucher,
+                          amount: parsedValue,
+                        });
+                        return;
+                      }
+
                       setVoucher({
                         ...voucher,
-                        amount: parseInt(text.target.value),
+                        amount: undefined,
                       });
                     }}
                   />
@@ -158,6 +194,11 @@ const SellerAddVoucherModal = ({
                     placeholder=" "
                     required
                     value={voucher?.amount || ""}
+                    onKeyDown={(event) => {
+                      if (["e", "E", "+", "-"].includes(event.key)) {
+                        event.preventDefault();
+                      }
+                    }}
                     onChange={(text) => {
                       if (
                         parseInt(text.target.value) < 101 &&
@@ -229,11 +270,33 @@ const SellerAddVoucherModal = ({
                   className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-softerPurple peer"
                   placeholder=" "
                   required
-                  value={voucher?.minSpend || ""}
+                  value={
+                    voucher?.minSpend === 0 ? "0" : voucher?.minSpend || ""
+                  }
+                  onKeyDown={(event) => {
+                    if (["e", "E", "+", "-"].includes(event.key)) {
+                      event.preventDefault();
+                    }
+                  }}
                   onChange={(text) => {
+                    const inputValue = text.target.value;
+                    if (inputValue.includes("e")) {
+                      return;
+                    }
+
+                    const parsedValue = parseFloat(inputValue);
+                    console.log(parsedValue);
+                    if (!isNaN(parsedValue)) {
+                      setVoucher({
+                        ...voucher,
+                        minSpend: parsedValue,
+                      });
+                      return;
+                    }
+
                     setVoucher({
                       ...voucher,
-                      minSpend: parseInt(text.target.value),
+                      minSpend: undefined,
                     });
                   }}
                 />
@@ -280,6 +343,11 @@ const SellerAddVoucherModal = ({
                   placeholder=" "
                   required
                   value={voucher?.redemptionsAvailable || ""}
+                  onKeyDown={(event) => {
+                    if (["e", "E", "+", "-"].includes(event.key)) {
+                      event.preventDefault();
+                    }
+                  }}
                   onChange={(text) => {
                     setVoucher({
                       ...voucher,

@@ -6,12 +6,15 @@ import CustomerContext from "../../context/CustomerProvider";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 
 import { ToastContainer, ToastOptions, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import { AdvancedImage } from "@cloudinary/react";
 import { cld } from "../../Cloudinary/Cloudinary";
+
+import { motion } from "framer-motion";
 
 interface ModalProps {
   setModalOpen: (modalOpen: boolean) => void;
@@ -22,6 +25,8 @@ interface ModalProps {
     image: string;
   };
   pricingRange: Pricing | undefined;
+  heart: boolean;
+  setHeart: (heart: boolean) => void;
 }
 
 interface Pricing {
@@ -51,7 +56,13 @@ const toastOptions: ToastOptions = {
   theme: "light",
 };
 
-const Modal = ({ setModalOpen, product, pricingRange }: ModalProps) => {
+const Modal = ({
+  setModalOpen,
+  product,
+  pricingRange,
+  heart,
+  setHeart,
+}: ModalProps) => {
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
 
   const [status, setStatus] = useState<boolean>(false);
@@ -61,10 +72,141 @@ const Modal = ({ setModalOpen, product, pricingRange }: ModalProps) => {
   const [chosenSKU, setChosenSKU] = useState<string>("");
   const [price, setPrice] = useState<number>(0);
   const [imageUrl, setImageUrl] = useState<string>("");
-
   const { customer } = useContext(CustomerContext);
   const customerId = customer.customer_id;
 
+  //wishlist
+  // wishlist
+  useEffect(() => {
+    console.log("customerID: ", customerId);
+    const checkWishlistProductExistence = async () => {
+      if (customerId != undefined) {
+        try {
+          const response = await axiosPrivateCustomer.get(
+            `/checkWishlistProductExistence/?customerId=${customerId}&productId=${product.product_id}`
+          );
+          if (response.data.length > 0) {
+            setHeart(true);
+          } else {
+            setHeart(false);
+          }
+        } catch (err: any) {
+          setHeart(false);
+        }
+      }
+    };
+    checkWishlistProductExistence();
+  }, []);
+
+  const handleAddToWishlist = () => {
+    if (customerId == undefined) {
+      toast.warn("Please Log in to add into wishlist", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+      return;
+    } else {
+      axiosPrivateCustomer
+        .post(
+          "/insertWishlistedProduct",
+          JSON.stringify({
+            customerId: customerId,
+            productId: product.product_id,
+          }),
+          {
+            headers: { "Content-Type": "application/json" },
+            withCredentials: true,
+          }
+        )
+        .then((response) => {
+          // On successful addition to wishlist, show the popup
+          if (response.status === 201) {
+            setHeart(true);
+            toast.success("Item Added to Wishlist! 😊", {
+              position: "top-center",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "light",
+            });
+          }
+        })
+        .catch((error) => {
+          // Handle error here
+          console.error(error);
+          toast.error("Error! Adding to wishlist failed", {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+        });
+    }
+  };
+
+  const handleRemoveFromWishlist = () => {
+    if (customerId == undefined) {
+      toast.warn("Please Log in to use the wishlist", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    } else {
+      axiosPrivateCustomer
+        .delete(
+          `/deleteWishlistedProduct?customer_id=${customerId}&product_id=${product.product_id}`
+        )
+        .then((response) => {
+          if (response.status === 200) {
+            setHeart(false);
+            toast.success("Item Removed from Wishlist! 😊", {
+              position: "top-center",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "light",
+            });
+          }
+        })
+        .catch((error) => {
+          // Handle error here
+          console.error(error);
+          toast.error("Error! Removing from wishlist failed", {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+        });
+    }
+  };
+
+  // add to cart
   const addToCart = () => {
     if (customerId != undefined) {
       axiosPrivateCustomer
@@ -270,7 +412,30 @@ const Modal = ({ setModalOpen, product, pricingRange }: ModalProps) => {
               </button>
             </div>
             <div className="w-11/12 h-0.5 bg-gray-400 mx-auto rounded-md my-2"></div>
-            <div className="flex justify-center p-4">
+            <div className="flex space-x-2 justify-center p-4">
+              <motion.button
+                className=""
+                whileHover={{ scale: 1.3 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                {heart ? (
+                  <AiFillHeart
+                    onClick={() => {
+                      handleRemoveFromWishlist();
+                    }}
+                    color="pink"
+                    size="1.75em"
+                  />
+                ) : (
+                  <AiOutlineHeart
+                    onClick={() => {
+                      handleAddToWishlist();
+                    }}
+                    color="pink"
+                    size="1.75em"
+                  />
+                )}
+              </motion.button>
               <button
                 className={
                   chosenSKU === ""
