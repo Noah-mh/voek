@@ -6,6 +6,7 @@ import ModalComponent from "./ModelForRating";
 import useCustomer from "../../hooks/UseCustomer";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import { v4 as uuidv4 } from 'uuid'
+import { ToastContainer, toast } from "react-toastify";
 //Everything relating to Rating and Review is done by Noah
 interface Product {
   description: string;
@@ -15,7 +16,7 @@ interface Product {
   variation_1?: string;
   variation_2?: string;
   quantity: number;
-  sku: string,
+  sku: string;
   orders_date?: string;
   shipment_created?: string;
   shipment_delivered?: string;
@@ -23,12 +24,20 @@ interface Product {
   orders_product_id?: number;
   seller_id: string;
   orders_id: string;
+  shop_name: string;
 }
+
 
 interface Props {
   receivedOrders: Product[],
   getAll: () => void;
 }
+
+type Order = {
+  orders_id: number;
+  seller_id: number;
+  [key: string]: any;
+};
 
 const ViewReceived = ({ receivedOrders, getAll }: Props) => {
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
@@ -84,24 +93,33 @@ const ViewReceived = ({ receivedOrders, getAll }: Props) => {
 
   useEffect(() => {
     const orderOrders = () => {
-      const updatedOrders: any = {};
+      const updatedOrders: Record<string, Record<string, Order[]>> = {};
 
-      receivedOrders.forEach(order => {
+      receivedOrders.forEach((order: any) => {
         const { orders_id, seller_id } = order;
 
-        // Create a key that combines orders_id and seller_id
-        const key = `${orders_id}_${seller_id}`;
+        // Create two keys, one for orders_id and one for the combination of orders_id and seller_id
+        const ordersKey = `orders_${orders_id}`;
+        const combinedKey = `${orders_id}_${seller_id}`;
 
         // Initialize the array if it doesn't exist yet
-        if (!updatedOrders[key]) {
-          updatedOrders[key] = [];
+        if (!updatedOrders[ordersKey]) {
+          updatedOrders[ordersKey] = {};
+        }
+
+        // Initialize the array for the combination if it doesn't exist yet
+        if (!updatedOrders[ordersKey][combinedKey]) {
+          updatedOrders[ordersKey][combinedKey] = [];
         }
 
         // Add the order to the array
-        updatedOrders[key].push(order);
+        updatedOrders[ordersKey][combinedKey].push(order);
       });
 
-      const orderedOrdersArray = Object.values(updatedOrders);
+      // Convert the object to an array of arrays
+      const orderedOrdersArray: Order[][][] = Object.values(updatedOrders).map((orderGroup) =>
+        Object.values(orderGroup)
+      );
       setOrderedReceivedOrders(orderedOrdersArray);
     };
 
@@ -125,63 +143,81 @@ const ViewReceived = ({ receivedOrders, getAll }: Props) => {
 
   return (
     <div className="flex flex-col items-center justify-center p-8">
+      <ToastContainer />
       <h1 className="mb-8 text-4xl font-bold">Received Orders</h1>
-      {
-        orderedReceivedOrders?.map((ordersArray: any) => (
-          <div key={uuidv4()} className="mb-8 border border-gray-300 rounded p-4">
-            {
-              ordersArray.map((order: Product) => (
-
-                <div key={order.sku} className="mb-8 border border-gray-300 rounded p-4">
-
-                  <div className="w-64 h-64"> <AdvancedImage cldImg={cld.image(order.image_url)} /></div>
-                  <Link to={`/productDetailsWithReviews/${order.product_id}`} className="text-blue-500 hover:underline">
-                    {order.name}
-                  </Link>
-                  <p className="mb-2">{order.description}</p>
-                  <p>Price of Product: {order.price}</p>
-                  <p>Amount Bought: {order.quantity}</p>
-                  <h2 className="text-2xl">Total Price: {order.price * order.quantity}</h2>
-                  <div className="mt-4">
-                    <p className="font-bold">The Variation You Bought</p>
-                    <p>
-                      {order.variation_1 && order.variation_2
-                        ? `${order.variation_1} and ${order.variation_2}`
-                        : order.variation_1
-                          ? order.variation_1
-                          : order.variation_2
-                            ? order.variation_2
-                            : "No Variation"}
-                    </p>
-                    <h3 className="mt-2 text-lg">Order has been shipped on the {convertUtcToLocal(order.shipment_delivered!)}</h3>
-                    {!ratings[order.orders_product_id!] && (
-                      <button
-                        onClick={() => {
-                          handleOpenModal();
-                          setOrder(order);
-                          setOrder_product_id(order.orders_product_id);
-                        }}
-                        className="flex items-center justify-center space-x-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                      >
-                        Rate
-                      </button>
-                    )}
-
-                    <ModalComponent
-                      isOpen={isModalOpen}
-                      onClose={handleCloseModal}
-                      onSubmit={handleSubmit}
-                      orders_product_id={order_product_id}
-                      customer_id={customer_id}
-                    />
-
-
-                  </div>
-                </div>
-              ))
-            }
+      {orderedReceivedOrders?.map((ordersArray: any) => (
+        <div key={uuidv4()} className="mb-8 border border-red-300 rounded p-4">
+          <div className="flex flex-col">
+            <h1 className="text-xl font-bold">
+              Receieved Date: {getLocalDate(ordersArray[0][0].shipment_delivered)} {getLocalTime(ordersArray[0][0].shipment_delivered)}
+            </h1>
           </div>
-        ))
+          {ordersArray.map((Orders: any) => (
+            <div>
+              <h1 className="text-xl font-bold">Seller: {Orders[0].shop_name}</h1>
+              <div className="flex flex-row justify-between border border-blue-300">
+                {
+                  Orders.map((order: Product) => (
+                    <div
+                      key={order.sku}
+                      className="mb-8 border border-gray-300 rounded p-4 "
+                    >
+                      <div className="w-64 h-64">
+                        {" "}
+                        <AdvancedImage cldImg={cld.image(order.image_url)} />
+                      </div>
+                      <Link
+                        to={`/productDetailsWithReviews/${order.product_id}`}
+                        className="text-blue-500 hover:underline"
+                      >
+                        {order.name}
+                      </Link>
+                      <p className="mb-2">{order.description}</p>
+                      <p>Price of Product: {order.price}</p>
+                      <p>Amount Bought: {order.quantity}</p>
+                      <h2 className="text-2xl">
+                        Total Price: {order.price * order.quantity}
+                      </h2>
+                      <div className="mt-4">
+                        <p className="font-bold">The Variation You Bought</p>
+                        <p>
+                          {order.variation_1 && order.variation_2
+                            ? `${order.variation_1} and ${order.variation_2}`
+                            : order.variation_1
+                              ? order.variation_1
+                              : order.variation_2
+                                ? order.variation_2
+                                : "No Variation"}
+                        </p>
+                        {!ratings[order.orders_product_id!] && (
+                          <button
+                            onClick={() => {
+                              handleOpenModal();
+                              setOrder(order);
+                              setOrder_product_id(order.orders_product_id);
+                            }}
+                            className="flex items-center justify-center space-x-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                          >
+                            Rate
+                          </button>
+                        )}
+
+                        <ModalComponent
+                          isOpen={isModalOpen}
+                          onClose={handleCloseModal}
+                          onSubmit={handleSubmit}
+                          orders_product_id={order_product_id}
+                          customer_id={customer_id}
+                        />
+                      </div>
+                    </div>
+                  ))
+                }
+              </div>
+            </div>
+          ))}
+        </div>
+      ))
       }
     </div >
   )
@@ -189,18 +225,26 @@ const ViewReceived = ({ receivedOrders, getAll }: Props) => {
 
 export default ViewReceived;
 
-function convertUtcToLocal(utcTime: string): string {
-  // Convert UTC time to local time
+function getLocalTime(utcTime: string): string {
   const localTime = new Date(utcTime);
-
-  // Get the local date components
-  const day = localTime.getDate();
-  const month = localTime.getMonth() + 1; // Months are zero-based
-  const year = localTime.getFullYear();
-
-  // Format the local time as DD/MM/YYYY
-  const formattedLocalTime = `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
-
-  return formattedLocalTime;
+  const offsetInMinutes = localTime.getTimezoneOffset();
+  localTime.setMinutes(localTime.getMinutes() - offsetInMinutes);
+  const hours = localTime.getHours() % 12 || 12;
+  const minutes = localTime.getMinutes();
+  const period = localTime.getHours() >= 12 ? 'PM' : 'AM';
+  const localTimeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${period}`;
+  return localTimeString;
 }
+
+function getLocalDate(utcTime: string): string {
+  const localTime = new Date(utcTime);
+  const offsetInMinutes = localTime.getTimezoneOffset();
+  localTime.setMinutes(localTime.getMinutes() - offsetInMinutes);
+  const day = localTime.getDate();
+  const month = localTime.getMonth() + 1;
+  const year = localTime.getFullYear();
+  const localDateString = `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
+  return localDateString;
+}
+
 

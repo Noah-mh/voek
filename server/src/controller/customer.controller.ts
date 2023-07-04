@@ -94,7 +94,7 @@ export const processVerifyOTP = async (
           },
         },
         config.refreshTokenSecret!,
-        { expiresIn: "1d" }
+        { expiresIn: "7d" }
       );
       await customerModel.handleStoreRefreshToken(
         refreshToken,

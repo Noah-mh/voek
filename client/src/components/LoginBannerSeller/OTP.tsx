@@ -4,6 +4,7 @@ import OtpInput from "react-otp-input";
 import axios from "../../api/axios.js";
 import "./OTP.css";
 import useSeller from "../../hooks/useSeller.js";
+import { toast } from "react-toastify";
 interface props {
   userDetails: object;
 }
@@ -12,8 +13,6 @@ export default function OTP({ userDetails }: props): JSX.Element {
   const { setSeller } = useSeller();
 
   const navigate = useNavigate();
-
-
 
   const { seller_id, shopName, phone_number, email } = userDetails as {
     seller_id: number;
@@ -25,16 +24,17 @@ export default function OTP({ userDetails }: props): JSX.Element {
 
   const [otp, setOtp] = useState("");
   const [disabled, setDisabled] = useState<boolean>(true);
-  const [modalEmail, setModalEmail] = useState<boolean>(false);
-  const [modalSMS, setModalSMS] = useState<boolean>(false);
   const [errMsg, setErrMsg] = useState<string>("");
 
   useEffect(() => {
     setDisabled(otp.length === 6 ? false : true);
   }, [otp]);
 
-  const emailSentHandler = async (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
+  useEffect(() => {
+    emailSentHandler();
+  }, [])
+
+  const emailSentHandler = async () => {
     try {
        await axios.post(
         "/seller/auth/email/OTP",
@@ -44,8 +44,16 @@ export default function OTP({ userDetails }: props): JSX.Element {
           withCredentials: true,
         }
       );
-      setModalEmail(true);
-      setModalSMS(false);
+      toast.success("Email OTP has been sent", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     } catch (err: any) {
       if (!err?.response) {
         setErrMsg("No Server Response");
@@ -73,15 +81,23 @@ export default function OTP({ userDetails }: props): JSX.Element {
       if (!err?.response) {
         setErrMsg("No Server Response");
       } else if (err.response.status === 400) {
-        setErrMsg("OTP Is Incorrect");
+        toast.error("OTP is incorrect", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
       } else {
         setErrMsg("Server Error");
       }
     }
   };
 
-  const smsSentHandler = async (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
+  const smsSentHandler = async () => {
     try {
        await axios.post(
         "/seller/auth/SMS/OTP",
@@ -91,8 +107,16 @@ export default function OTP({ userDetails }: props): JSX.Element {
           withCredentials: true,
         }
       );
-      setModalEmail(false);
-      setModalSMS(true);
+      toast.success("SMS OTP has been sent", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     } catch (err: any) {
       if (!err?.response) {
         setErrMsg("No Server Response");
@@ -124,21 +148,6 @@ export default function OTP({ userDetails }: props): JSX.Element {
             SMS
           </span>
         </div>
-        {modalEmail && (
-          <div className="OTPModal w-3/5 mx-auto my-1 p-2 " id="OTPEmail">
-            <p className="text-center font-sans">
-              OTP has been sent to your email. Please open your inbox and check.
-            </p>
-          </div>
-        )}
-        {modalSMS && (
-          <div className="OTPModal w-3/5 mx-auto my-1 p-2 " id="OTPSMS">
-            <p className="text-center font-sans">
-              OTP has been sent to your phone number. Please open your messages
-              and check.
-            </p>
-          </div>
-        )}
         <div className="OTPz justify-center items-center align-middle">
           <OtpInput
             value={otp}
