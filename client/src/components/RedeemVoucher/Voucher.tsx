@@ -3,6 +3,7 @@ import useCustomer from '../../hooks/UseCustomer';
 import { toast } from "react-toastify";
 import useAxiosPrivateCustomer from '../../hooks/useAxiosPrivateCustomer';
 import Loader from '../Loader/Loader';
+import Button from '@mui/material/Button';
 
 interface Voucher {
     voucher_id: number;
@@ -77,7 +78,7 @@ const Voucher = ({ voucher }: Props) => {
     }
 
     return (
-        <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-6" style={{ width: '250px' }}>
+        <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-6 grid grid-cols-1 gap-4" style={{ width: '400px', height: '250px' }}>
             <h1 className="text-2xl font-bold mb-4">{voucher.voucher_name}</h1>
             <div className="mb-4">
                 <h2 className="text-lg">Spend a minimum of {voucher.min_spend}</h2>
@@ -86,15 +87,39 @@ const Voucher = ({ voucher }: Props) => {
                 ) : (
                     <h2 className="text-lg mb-5">Get {voucher.percentage_amount && voucher.percentage_amount * 100}% off</h2>
                 )}
-                {isLoading ? <Loader />
-                    : !voucher.active ? <h2 className="text-lg">Voucher is no longer available</h2> :
-                        redeemed ? <h2 className="text-lg">Voucher has been redeemed</h2> :
-                            <button
-                                onClick={onClickHandler}
-                                className="bg-blue-500 text-white py-2 px-4 rounded-md"
-                            >
-                                Redeem Now!!!
-                            </button>}
+                {isLoading ? <Loader /> :
+                    !voucher.active ? (
+                        <Button
+                            color="error"
+                            size="large"
+                            variant="contained"
+                            disabled
+                            className="col-span-1"
+                        >
+                            Voucher is no longer available
+                        </Button>
+                    ) : redeemed ? (
+                        <Button
+                            color="error"
+                            size="large"
+                            variant="contained"
+                            disabled
+                            className="col-span-1"
+                        >
+                            Voucher redeemed already
+                        </Button>
+                    ) : (
+                        <Button
+                            onClick={onClickHandler}
+                            color="primary"
+                            size="large"
+                            variant="contained"
+                            className="col-span-1"
+                        >
+                            Redeem Now!!!
+                        </Button>
+                    )
+                }
             </div>
         </div>
     )

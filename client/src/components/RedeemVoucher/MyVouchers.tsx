@@ -1,6 +1,7 @@
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
+import Button from '@mui/material/Button';
 
 interface CustomerVoucher {
   voucher_id: number;
@@ -21,6 +22,7 @@ interface Props {
 const MyVouchers = ({ voucher, getVouchers }: Props) => {
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
 
+
   const onClickHandler = async (e: any) => {
     e.preventDefault();
     try {
@@ -40,37 +42,28 @@ const MyVouchers = ({ voucher, getVouchers }: Props) => {
       });
     } catch (err: any) {
       console.log(err);
-    } finally {
-
     }
   };
 
   return (
-    <div
-      className="max-w-xs mx-auto bg-white rounded-lg shadow-md p-6"
-      style={{ width: "250px" }}
-    >
+    <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-6 grid grid-cols-1 gap-4" style={{ width: '400px', height: '250px' }}>
       <h1 className="text-2xl font-bold mb-4">{voucher.voucher_name}</h1>
       <div className="mb-4">
         <h2 className="text-lg">Spend a minimum of {voucher.min_spend}</h2>
-        <h2 className="text-md text-gray-500">{voucher.voucher_category}</h2>
         {voucher.number_amount ? (
-          <h2 className="text-lg mb-3">Get ${voucher.number_amount} off</h2>
+          <h2 className="text-lg mb-5">Get ${voucher.number_amount} off</h2>
         ) : (
-          <h2 className="text-lg mb-3">
-            Get {voucher.percentage_amount && voucher.percentage_amount * 100}%
-            off
-          </h2>
+          <h2 className="text-lg mb-5">Get {voucher.percentage_amount && voucher.percentage_amount * 100}% off</h2>
         )}
-        {!voucher.active ? (
-          <h2 className="text-lg mb-3">Voucher is no longer available</h2>
-        ) : null}
-        <button
+        <Button
           onClick={onClickHandler}
-          className="bg-blue-500 text-white py-2 px-4 rounded-md"
+          color="primary"
+          size="large"
+          variant="contained"
+          className="col-span-1"
         >
-          Remove From Voucher Wallet
-        </button>
+          Remove from wallet
+        </Button>
       </div>
     </div>
   );

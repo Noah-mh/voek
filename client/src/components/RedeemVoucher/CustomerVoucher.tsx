@@ -33,14 +33,16 @@ const CustomerVoucher = () => {
     }, [])
 
     return (
-        <div>
-            <ToastContainer/>
-            {myVouchers.map((voucher: CustomerVoucher) => (
-                <div key={uuidv4()}>
-                    <MyVouchers voucher={voucher} getVouchers={getVouchers} />
-                </div>
-            ))}
-        </div>
+        <>
+            <ToastContainer />
+            <div className="flex flex-wrap gap-4">
+                {myVouchers.map((voucher: CustomerVoucher) => (
+                    <div key={uuidv4()} className="flex-auto">
+                        <MyVouchers voucher={voucher} getVouchers={getVouchers} />
+                    </div>
+                ))}
+            </div>
+        </>
     )
 }
 
