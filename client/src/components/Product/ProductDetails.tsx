@@ -442,7 +442,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             </h1>
           </div>
           <div className="items-center mb-7">
-            <h1 className="text-2xl font-500 text-purpleAccent">${price}</h1>
+            <h1 className="text-2xl font-500 text-purpleAccent">
+              ${price?.toFixed(2)}
+            </h1>
           </div>
           <h1 className="text-greyAccent text-sm text-normal mb-[30px] leading-7">
             {productData[0].description}
