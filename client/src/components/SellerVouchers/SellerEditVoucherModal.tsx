@@ -4,6 +4,7 @@ import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller";
 import "./css/SellerVoucherModal.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ConfirmCloseModal from "./ConfirmCloseModal";
 
 interface Voucher {
   voucherId: number;
@@ -38,6 +39,8 @@ const SellerVoucherModal = ({
   const [editedVoucher, setEditedVoucher] = useState<Voucher>(
     voucher as Voucher
   );
+  const [isDirty, setIsDirty] = useState(false);
+  const [confirmCloseModal, setConfirmCloseModal] = useState(false);
 
   const axiosPrivateSeller = useAxiosPrivateSeller();
 
@@ -123,11 +126,29 @@ const SellerVoucherModal = ({
     return `${year}-${month}-${day}`;
   };
 
+  const handleClose = () => {
+    if (isDirty) {
+      setConfirmCloseModal(true);
+    } else {
+      setOpenModal(false);
+    }
+  };
+
+  const handleConfirm = async () => {
+    setConfirmCloseModal(false);
+    setOpenModal(false);
+  };
+
+  const handleCancel = () => {
+    setConfirmCloseModal(false);
+    setOpenModal(true);
+  };
+
   return (
     <div>
       <Modal
         open={openModal}
-        onClose={() => setOpenModal(false)}
+        onClose={handleClose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
@@ -149,6 +170,7 @@ const SellerVoucherModal = ({
                     ...editedVoucher,
                     name: text.target.value,
                   });
+                  setIsDirty(true);
                 }}
               />
               <label
@@ -192,6 +214,7 @@ const SellerVoucherModal = ({
                         ...editedVoucher,
                         amount: parsedValue,
                       });
+                      setIsDirty(true);
                       return;
                     }
 
@@ -199,6 +222,7 @@ const SellerVoucherModal = ({
                       ...editedVoucher,
                       amount: undefined,
                     });
+                    setIsDirty(true);
                   }}
                 />
                 <label
@@ -230,6 +254,7 @@ const SellerVoucherModal = ({
                       ...editedVoucher,
                       percentage: number,
                     });
+                    setIsDirty(true);
                   }}
                 />
                 <label
@@ -272,6 +297,7 @@ const SellerVoucherModal = ({
                       ...editedVoucher,
                       minSpend: parsedValue,
                     });
+                    setIsDirty(true);
                     return;
                   }
 
@@ -279,6 +305,7 @@ const SellerVoucherModal = ({
                     ...editedVoucher,
                     minSpend: undefined,
                   });
+                  setIsDirty(true);
                 }}
               />
               <label
@@ -305,6 +332,7 @@ const SellerVoucherModal = ({
                     ...editedVoucher,
                     expiryDate: text.target.value,
                   });
+                  setIsDirty(true);
                 }}
               />
               <label
@@ -336,6 +364,7 @@ const SellerVoucherModal = ({
                     ...editedVoucher,
                     redemptionsAvailable: number,
                   });
+                  setIsDirty(true);
                 }}
               />
               <label
@@ -376,6 +405,13 @@ const SellerVoucherModal = ({
           </form>
         </div>
       </Modal>
+
+      <ConfirmCloseModal
+        confirmCloseModal={confirmCloseModal}
+        handleCancel={handleCancel}
+        handleConfirm={handleConfirm}
+      />
+
       <ToastContainer />
     </div>
   );
