@@ -2,6 +2,7 @@ import useCustomer from "../../hooks/UseCustomer"
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer"
 import { useEffect, useState } from "react";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { toast } from "react-toastify";
 // import { FontAwesomeIcon } from '@fortawesome/fontawesome-svg-core'
 
 const ReferralLink = () => {
@@ -20,12 +21,25 @@ const ReferralLink = () => {
         getLink();
     }, [])
 
+    const onClickHandler = (e: any) => {
+        e.preventDefault();
+        toast.success("Link has been copied to clipboard!", {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+    }
 
     return (
         <div className="flex flex-row items-center">
             <p className="mr-2">{link}</p>
             <CopyToClipboard text={link}>
-                <button onClick={(e) => {e.preventDefault()}} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                <button onClick={onClickHandler} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                     Copy Link
                 </button>
             </CopyToClipboard>

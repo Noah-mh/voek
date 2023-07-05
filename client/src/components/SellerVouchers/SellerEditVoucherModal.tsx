@@ -4,6 +4,7 @@ import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller";
 import "./css/SellerVoucherModal.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ConfirmCloseModal from "./ConfirmCloseModal";
 
 interface Voucher {
   voucherId: number;
@@ -38,6 +39,8 @@ const SellerVoucherModal = ({
   const [editedVoucher, setEditedVoucher] = useState<Voucher>(
     voucher as Voucher
   );
+  const [isDirty, setIsDirty] = useState(false);
+  const [confirmCloseModal, setConfirmCloseModal] = useState(false);
 
   const axiosPrivateSeller = useAxiosPrivateSeller();
 
@@ -86,6 +89,7 @@ const SellerVoucherModal = ({
             progress: undefined,
             theme: "light",
           });
+          setIsDirty(false);
         } else if (response.status === 400) {
           toast.warn("Please Fill Up All The Text Fields!", {
             position: "top-center",
@@ -115,11 +119,37 @@ const SellerVoucherModal = ({
       });
   };
 
+  const getCurrentDate = () => {
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+    const day = currentDate.getDate().toString().padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const handleClose = () => {
+    if (isDirty) {
+      setConfirmCloseModal(true);
+    } else {
+      setOpenModal(false);
+    }
+  };
+
+  const handleConfirm = async () => {
+    setConfirmCloseModal(false);
+    setOpenModal(false);
+  };
+
+  const handleCancel = () => {
+    setConfirmCloseModal(false);
+    setOpenModal(true);
+  };
+
   return (
     <div>
       <Modal
         open={openModal}
-        onClose={() => setOpenModal(false)}
+        onClose={handleClose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
@@ -141,6 +171,7 @@ const SellerVoucherModal = ({
                     ...editedVoucher,
                     name: text.target.value,
                   });
+                  setIsDirty(true);
                 }}
               />
               <label
@@ -162,6 +193,11 @@ const SellerVoucherModal = ({
                   placeholder=" "
                   required
                   step={0.01}
+                  onKeyDown={(event) => {
+                    if (["e", "E", "+", "-"].includes(event.key)) {
+                      event.preventDefault();
+                    }
+                  }}
                   value={
                     editedVoucher?.amount === 0
                       ? "0"
@@ -174,12 +210,12 @@ const SellerVoucherModal = ({
                     }
 
                     const parsedValue = parseFloat(inputValue);
-                    console.log(parsedValue);
                     if (!isNaN(parsedValue)) {
                       setEditedVoucher({
                         ...editedVoucher,
                         amount: parsedValue,
                       });
+                      setIsDirty(true);
                       return;
                     }
 
@@ -187,6 +223,7 @@ const SellerVoucherModal = ({
                       ...editedVoucher,
                       amount: undefined,
                     });
+                    setIsDirty(true);
                   }}
                 />
                 <label
@@ -207,12 +244,18 @@ const SellerVoucherModal = ({
                   placeholder=" "
                   required
                   value={editedVoucher?.percentage}
+                  onKeyDown={(event) => {
+                    if (["e", "E", "+", "-"].includes(event.key)) {
+                      event.preventDefault();
+                    }
+                  }}
                   onChange={(text) => {
                     let number: number = parseInt(text.target.value);
                     setEditedVoucher({
                       ...editedVoucher,
                       percentage: number,
                     });
+                    setIsDirty(true);
                   }}
                 />
                 <label
@@ -238,6 +281,11 @@ const SellerVoucherModal = ({
                     ? "0"
                     : editedVoucher?.minSpend || ""
                 }
+                onKeyDown={(event) => {
+                  if (["e", "E", "+", "-"].includes(event.key)) {
+                    event.preventDefault();
+                  }
+                }}
                 onChange={(text) => {
                   const inputValue = text.target.value;
                   if (inputValue.includes("e")) {
@@ -245,12 +293,12 @@ const SellerVoucherModal = ({
                   }
 
                   const parsedValue = parseFloat(inputValue);
-                  console.log(parsedValue);
                   if (!isNaN(parsedValue)) {
                     setEditedVoucher({
                       ...editedVoucher,
                       minSpend: parsedValue,
                     });
+                    setIsDirty(true);
                     return;
                   }
 
@@ -258,6 +306,7 @@ const SellerVoucherModal = ({
                     ...editedVoucher,
                     minSpend: undefined,
                   });
+                  setIsDirty(true);
                 }}
               />
               <label
@@ -278,21 +327,13 @@ const SellerVoucherModal = ({
                 placeholder=""
                 required
                 value={editedVoucher?.expiryDate}
+                min={getCurrentDate()}
                 onChange={(text) => {
-                  // const inputDate = text.target.value;
-                  // const cleanedDate = inputDate.replace(/[^0-9]/g, "");
-                  // const formattedDate = cleanedDate
-                  //   .slice(0, 8)
-                  //   .replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3");
-
-                  // setEditedVoucher({
-                  //   ...editedVoucher,
-                  //   expiryDate: formattedDate,
-                  // });
                   setEditedVoucher({
                     ...editedVoucher,
                     expiryDate: text.target.value,
                   });
+                  setIsDirty(true);
                 }}
               />
               <label
@@ -313,12 +354,18 @@ const SellerVoucherModal = ({
                 placeholder=" "
                 required
                 value={editedVoucher?.redemptionsAvailable}
+                onKeyDown={(event) => {
+                  if (["e", "E", "+", "-"].includes(event.key)) {
+                    event.preventDefault();
+                  }
+                }}
                 onChange={(text) => {
                   let number: number = parseInt(text.target.value);
                   setEditedVoucher({
                     ...editedVoucher,
                     redemptionsAvailable: number,
                   });
+                  setIsDirty(true);
                 }}
               />
               <label
@@ -359,6 +406,13 @@ const SellerVoucherModal = ({
           </form>
         </div>
       </Modal>
+
+      <ConfirmCloseModal
+        confirmCloseModal={confirmCloseModal}
+        handleCancel={handleCancel}
+        handleConfirm={handleConfirm}
+      />
+
       <ToastContainer />
     </div>
   );

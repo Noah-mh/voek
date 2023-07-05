@@ -38,6 +38,7 @@ export default function cartPage(): JSX.Element {
     variation_1: string;
     variation_2: string;
     stock: number;
+    shop_name: String
   }
   interface totalCart {
     subTotal: number;

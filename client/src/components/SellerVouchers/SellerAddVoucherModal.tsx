@@ -5,6 +5,7 @@ import useSeller from "../../hooks/useSeller.js";
 import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ConfirmCloseModal from "./ConfirmCloseModal";
 
 interface Voucher {
   name?: string;
@@ -35,6 +36,9 @@ const SellerAddVoucherModal = ({
   setOpenModal,
   setAddVoucherStatus,
 }: SellerVoucherModalProps) => {
+  const [isDirty, setIsDirty] = useState(false);
+  const [confirmCloseModal, setConfirmCloseModal] = useState(false);
+
   const { seller } = useSeller();
   const sellerId = seller.seller_id;
 
@@ -72,11 +76,37 @@ const SellerAddVoucherModal = ({
     setOpenModal(false);
   };
 
+  const handleClose = () => {
+    if (isDirty) {
+      setConfirmCloseModal(true);
+    } else {
+      setOpenModal(false);
+    }
+  };
+
+  const handleConfirm = async () => {
+    setConfirmCloseModal(false);
+    setOpenModal(false);
+  };
+
+  const handleCancel = () => {
+    setConfirmCloseModal(false);
+    setOpenModal(true);
+  };
+
+  const getCurrentDate = () => {
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+    const day = currentDate.getDate().toString().padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   return (
     <div>
       <Modal
         open={openModal}
-        onClose={() => setOpenModal(false)}
+        onClose={handleClose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
@@ -104,6 +134,7 @@ const SellerAddVoucherModal = ({
                       ...voucher,
                       name: text.target.value,
                     });
+                    setIsDirty(true);
                   }}
                 />
                 <label
@@ -124,6 +155,7 @@ const SellerAddVoucherModal = ({
                       ...voucher,
                       type: parseInt(text.target.value),
                     });
+                    setIsDirty(true);
                   }}
                   className="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-softerPurple peer"
                 >
@@ -147,6 +179,11 @@ const SellerAddVoucherModal = ({
                     required
                     step={0.01}
                     value={voucher?.amount === 0 ? "0" : voucher?.amount || ""}
+                    onKeyDown={(event) => {
+                      if (["e", "E", "+", "-"].includes(event.key)) {
+                        event.preventDefault();
+                      }
+                    }}
                     onChange={(event) => {
                       const inputValue = event.target.value;
                       if (inputValue.includes("e")) {
@@ -154,12 +191,12 @@ const SellerAddVoucherModal = ({
                       }
 
                       const parsedValue = parseFloat(inputValue);
-                      console.log(parsedValue);
                       if (!isNaN(parsedValue)) {
                         setVoucher({
                           ...voucher,
                           amount: parsedValue,
                         });
+                        setIsDirty(true);
                         return;
                       }
 
@@ -167,6 +204,7 @@ const SellerAddVoucherModal = ({
                         ...voucher,
                         amount: undefined,
                       });
+                      setIsDirty(true);
                     }}
                   />
                   <label
@@ -189,6 +227,11 @@ const SellerAddVoucherModal = ({
                     placeholder=" "
                     required
                     value={voucher?.amount || ""}
+                    onKeyDown={(event) => {
+                      if (["e", "E", "+", "-"].includes(event.key)) {
+                        event.preventDefault();
+                      }
+                    }}
                     onChange={(text) => {
                       if (
                         parseInt(text.target.value) < 101 &&
@@ -198,6 +241,7 @@ const SellerAddVoucherModal = ({
                           ...voucher,
                           amount: parseInt(text.target.value),
                         });
+                        setIsDirty(true);
                       } else {
                         toast.warn(
                           "Type Percentage Must be Between 0% and 101%",
@@ -236,6 +280,7 @@ const SellerAddVoucherModal = ({
                       ...voucher,
                       Category: parseInt(text.target.value),
                     });
+                    setIsDirty(true);
                   }}
                 >
                   <option value="" disabled selected hidden>
@@ -263,6 +308,11 @@ const SellerAddVoucherModal = ({
                   value={
                     voucher?.minSpend === 0 ? "0" : voucher?.minSpend || ""
                   }
+                  onKeyDown={(event) => {
+                    if (["e", "E", "+", "-"].includes(event.key)) {
+                      event.preventDefault();
+                    }
+                  }}
                   onChange={(text) => {
                     const inputValue = text.target.value;
                     if (inputValue.includes("e")) {
@@ -270,12 +320,12 @@ const SellerAddVoucherModal = ({
                     }
 
                     const parsedValue = parseFloat(inputValue);
-                    console.log(parsedValue);
                     if (!isNaN(parsedValue)) {
                       setVoucher({
                         ...voucher,
                         minSpend: parsedValue,
                       });
+                      setIsDirty(true);
                       return;
                     }
 
@@ -283,6 +333,7 @@ const SellerAddVoucherModal = ({
                       ...voucher,
                       minSpend: undefined,
                     });
+                    setIsDirty(true);
                   }}
                 />
                 <label
@@ -303,11 +354,13 @@ const SellerAddVoucherModal = ({
                   placeholder=" "
                   required
                   value={voucher?.expiryDate || ""}
+                  min={getCurrentDate()}
                   onChange={(text) => {
                     setVoucher({
                       ...voucher,
                       expiryDate: text.target.value,
                     });
+                    setIsDirty(true);
                   }}
                 />
                 <label
@@ -328,11 +381,17 @@ const SellerAddVoucherModal = ({
                   placeholder=" "
                   required
                   value={voucher?.redemptionsAvailable || ""}
+                  onKeyDown={(event) => {
+                    if (["e", "E", "+", "-"].includes(event.key)) {
+                      event.preventDefault();
+                    }
+                  }}
                   onChange={(text) => {
                     setVoucher({
                       ...voucher,
                       redemptionsAvailable: parseInt(text.target.value),
                     });
+                    setIsDirty(true);
                   }}
                 />
                 <label
@@ -356,6 +415,13 @@ const SellerAddVoucherModal = ({
           </div>
         </div>
       </Modal>
+
+      <ConfirmCloseModal
+        confirmCloseModal={confirmCloseModal}
+        handleCancel={handleCancel}
+        handleConfirm={handleConfirm}
+      />
+
       <ToastContainer />
     </div>
   );

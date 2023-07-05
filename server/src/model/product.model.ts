@@ -194,8 +194,6 @@ export const handlesTopProducts = async (): Promise<Product[]> => {
   try {
     const result = await connection.query(sql, []);
     return result[0] as Product[];
-  } catch (err: any) {
-    throw new Error(err);
   } finally {
     await connection.release();
   }
@@ -214,8 +212,6 @@ export const handlesSearchResult = async (
   try {
     const result = await connection.query(sql, params);
     return result[0] as Product[];
-  } catch (err: any) {
-    throw new Error(err);
   } finally {
     await connection.release();
   }
