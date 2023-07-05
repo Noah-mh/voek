@@ -38,6 +38,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
   const { customer } = useCustomer();
   const customer_id = customer.customer_id;
+  const [imageChosen, setImageChosen] = useState<string>(
+    productData[0].image_urls[0]
+  );
   const [quantity, setQuantity] = useState<number>(1);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [price, setPrice] = useState<number | null>(
@@ -381,37 +384,70 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
       });
   };
 
-  return (
-    <div className="container">
-      {productData.map((pData, index: React.Key | null | undefined) => (
-        <div key={index}>
-          <h1>{pData.name}</h1>
-          {pData.image_urls && (
-            <Carousel showThumbs={false}>
-              {pData.image_urls.map(
-                (
-                  imageUrl: string | undefined,
-                  index: React.Key | null | undefined
-                ) => (
-                  <div
-                    className="w-64 h-64 bg-gray-100 rounded-md overflow-hidden"
-                    key={index}
-                  >
-                    <AdvancedImage
-                      cldImg={cld.image(imageUrl)}
-                      className="object-cover w-full h-full"
-                    />
-                  </div>
-                )
-              )}
-            </Carousel>
-          )}
-          <h3>Description: {pData.description}</h3>
-          <h2>Price: $ {price}</h2>
+  useEffect(() => {
+    console.log("productData", productData);
+  }, []);
 
-          <div>
+  return (
+    <div className="flex sm:flex-col md:flex-row w-full justify-center my-8 mx-48 space-x-12">
+      <div className="flex flex-col">
+        <div className="w-full">
+          <div className="w-[800px] h-[600px] border border-lighterGreyAccent flex justify-center items-center overflow-hidden mb-3">
+            <AdvancedImage
+              className="object-contain"
+              cldImg={cld.image(imageChosen)}
+              alt="product image"
+            />
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {productData[0].image_urls.map((image, index: number) => {
+            const imageStyle =
+              imageChosen === image
+                ? "w-full h-full object-contain"
+                : "w-full h-full object-contain opacity-50 hover:opacity-100";
+            return (
+              <div
+                className="w-[110px] h-[110px] p-[15px] border border-lighterGreyAccent cursor-pointer"
+                key={index}
+              >
+                <AdvancedImage
+                  className={imageStyle}
+                  cldImg={cld.image(image)}
+                  alt="product image"
+                  onClick={() => setImageChosen(image)}
+                />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      <div className="w-full mt-10 lg:mt-0">
+        <h1 className="text-xl font-medium text-black mb-4">
+          {productData[0].name}
+        </h1>
+        <div className="items-center mb-7">
+          <h1 className="text-2xl font-500 text-purpleAccent">${price}</h1>
+        </div>
+        <h1 className="text-greyAccent text-sm text-normal mb-[30px] leading-7">
+          {productData[0].description}
+        </h1>
+        <div className="mb-[30px]">
+          <h1 className="text-sm font-normal uppercase text-greyAccent mb-[14px] inline-block">
+            Variations
+          </h1>
+          <div className="flex space-x-4 items-center">
             {hasValidVariation && (
               <Select
+                theme={(theme) => ({
+                  ...theme,
+                  borderRadius: 0,
+                  colors: {
+                    ...theme.colors,
+                    primary25: "rgba(92, 68, 68, 0.3)",
+                    primary: "#310d20",
+                  },
+                })}
                 value={
                   selectedVariation
                     ? {
@@ -430,105 +466,60 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             )}
           </div>
         </div>
-      ))}
-      <div className="flex items-center justify-center space-x-2">
-        Quantity
-        <button
-          onClick={() => decreaseQuantity()}
-          className="bg-gray-200 text-black py-1 px-3 rounded-lg focus:outline-none hover:bg-gray-300"
-        >
-          -
-        </button>
-        <span className="text-lg">{quantity}</span>
-        <button
-          onClick={() => increaseQuantity(selectedSku)}
-          className="bg-gray-200 text-black py-1 px-3 rounded-lg focus:outline-none hover:bg-gray-300"
-        >
-          +
-        </button>
-      </div>
-      <span className="flex items-center">
-        <button
-          onClick={handleAddToCart}
-          className=" bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Add to Cart
-        </button>
-        <motion.button
-          className="mx-2"
-          whileHover={{ scale: 1.3 }}
-          whileTap={{ scale: 0.9 }}
-        >
-          {heart ? (
-            <AiFillHeart
-              onClick={() => {
-                handleRemoveFromWishlist();
-              }}
-              color="pink"
-              size="2em"
-            />
-          ) : (
-            <AiOutlineHeart
-              onClick={() => {
-                handleAddToWishlist();
-              }}
-              color="pink"
-              size="2em"
-            />
-          )}
-        </motion.button>
-      </span>
-      <RedeemVoucher seller_id={seller_id} />
-      {productReview.map((pReview, index) => (
-        <div key={index}>
-          <h3>Rating: {pReview.rating}</h3>
-          <Rating
-            name="half-rating-read"
-            value={Number(pReview.rating)}
-            precision={0.5}
-            readOnly
-          />
-          <h3>Reviews:</h3>
-          {pReview.reviews &&
-            pReview.reviews.map((review, reviewIndex) => (
-              <div key={reviewIndex}>
-                <h1>{review.customerName}</h1>
-                {/* {review.image_urls && (
-                  <Carousel showThumbs={false}>
-                    {review.image_urls.map((imageUrl, imageIndex) => (
-                      <div className="w-64 h-64" key={imageIndex}>
-                        <AdvancedImage cldImg={cld.image(imageUrl)} />
-                      </div>
-                    ))}
-                  </Carousel>
-                )}{" "} */}
-                {review.image_urls && (
-                  <div className="flex space-x-2">
-                    {review.image_urls.map((imageUrl, imageIndex) => (
-                      <div className="w-16 h-16" key={imageIndex}>
-                        <AdvancedImage cldImg={cld.image(imageUrl)} />
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <div className="flex flex-row justify-between mt-5">
-                  <p>{review.comment}</p>
-                  {review.customer_id === customer_id && (
-                    <button
-                      className="justify-content-center align-item-center"
-                      onClick={() =>
-                        handleDeleteReview(review.review_id, review.sku)
-                      }
-                    >
-                      <AiFillDelete />
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
+        <div className="w-full flex items-center h-[50px] space-x-[10px] mb-[30px]">
+          <div className="w-[120px] h-full px-[26px] flex items-center border border-lighterGreyAccent">
+            <div className="flex justify-between items-center w-full">
+              <button
+                className="text-base text-gray-500 hover:text-purpleAccent"
+                onClick={() => decreaseQuantity()}
+              >
+                -
+              </button>
+              <h1>{quantity}</h1>
+              <button
+                className="text-base text-gray-500 hover:text-purpleAccent"
+                onClick={() => increaseQuantity(selectedSku)}
+              >
+                +
+              </button>
+            </div>
+          </div>
+          <div className="w-[60px] h-full flex justify-center items-center border border-lighterGreyAccent">
+            <div className="hover:cursor-pointer">
+              {heart ? (
+                <AiFillHeart
+                  onClick={() => {
+                    handleRemoveFromWishlist();
+                  }}
+                  color="pink"
+                  size="2em"
+                />
+              ) : (
+                <AiOutlineHeart
+                  onClick={() => {
+                    handleAddToWishlist();
+                  }}
+                  color="pink"
+                  size="2em"
+                />
+              )}
+            </div>
+          </div>
+          <div className="flex-1 h-full">
+            <button
+              onClick={handleAddToCart}
+              className="text-[#FFFFEA] bg-[#222222] text-sm font-semibold w-56 h-full"
+            >
+              Add To Cart
+            </button>
+          </div>
         </div>
-      ))}
+        <div className="mb-[20px]">
+          <h1 className="text-[13px] leading-7">
+            SKU: <span className="text-gray-400">{selectedSku}</span>
+          </h1>
+        </div>
+      </div>
 
       <ToastContainer />
     </div>

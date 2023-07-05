@@ -46,7 +46,7 @@ export interface Customer {
 
 export interface Product {
   product_id: number;
-  image_urls: string[] | null;
+  image_urls: string[];
   name: string;
   description: string | null;
   variations: ProductVariation[] | null;
@@ -149,7 +149,7 @@ const ProductDetailWithReview: React.FC = () => {
   } else {
     return (
       <div>
-        <Link
+        {/* <Link
           to={`/customerSellerProfile/${sellerData[0].seller_id}`}
           className="text-blue-500 hover:underline"
         >
@@ -169,7 +169,7 @@ const ProductDetailWithReview: React.FC = () => {
               </div>
             </div>
           </div>
-        </Link>
+        </Link> */}
         <ProductDetail
           productData={productData}
           productReview={productReview}
