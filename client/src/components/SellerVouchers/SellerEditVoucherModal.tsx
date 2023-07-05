@@ -89,6 +89,7 @@ const SellerVoucherModal = ({
             progress: undefined,
             theme: "light",
           });
+          setIsDirty(false);
         } else if (response.status === 400) {
           toast.warn("Please Fill Up All The Text Fields!", {
             position: "top-center",
