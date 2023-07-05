@@ -57,7 +57,8 @@ const EditProduct = () => {
 
   const originalProduct: Product = JSON.parse(JSON.stringify(Object.values(product)[0]));
 
-  const handleSubmit = async (e: SubmitInterface) => {
+  const handleSubmit = async (e: any) => {
+    console.log("e", e);
     let columns: string[] = [];
     let values: Array<string | number> = [e.name, e.description, e.categoryId];
 

@@ -7,20 +7,16 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import Box from "@mui/material/Box";
 import TextField from '@mui/material/TextField';
-import { ToastContainer, toast } from "react-toastify";
 
 import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller.js";
 import { cld } from "../../Cloudinary/Cloudinary";
 import { AdvancedImage } from "@cloudinary/react";
 import CloudinaryUploader from "../../Cloudinary/CloudinaryUploader";
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import InputAdornment from '@mui/material/InputAdornment';
-import OutlinedInput from '@mui/material/OutlinedInput';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
+import FormHelperText from '@mui/material/FormHelperText';
 
 interface Category {
   categoryId: number;
@@ -33,7 +29,7 @@ interface ProductVariations {
   var2: string;
   price: number;
   quantity: number;
-  imageUrl: string[];
+  imageUrl: string;
   // sku?: string;
 }
 
@@ -42,7 +38,7 @@ interface SubmitVariationsInterface {
   var2: string;
   price: number;
   quantity: number;
-  imageUrl: string[];
+  imageUrl: string;
   // sku?: string;
 }
 
@@ -51,7 +47,7 @@ interface SubmitInterface {
   description: string;
   price: number;
   quantity: number;
-  imageUrl: string[];
+  imageUrl: string;
   categoryId: number;
   category: string;
   variations: Array<SubmitVariationsInterface>;
@@ -68,7 +64,7 @@ interface Product {
   name: string;
   price: number;
   quantity: number;
-  imageUrl: string[];
+  imageUrl: string;
   sku: string;
   subRows: Array<Product>;
 
@@ -84,9 +80,45 @@ interface Product {
   variation2?: string;
 }
 
+interface FormValues {
+  name: {
+    value: string;
+    error: boolean;
+    errorMessage: string;
+  };
+  description: {
+    value: string;
+    error: boolean;
+    errorMessage: string;
+  };
+  selectedCategory: {
+    value: number | null;
+    error: boolean;
+    errorMessage: string;
+  };
+  price: {
+    value: string;
+    parsedValue: number | null;
+    error: boolean;
+    errorMessage: string;
+  };
+  quantity: {
+    value: string;
+    parsedValue: number | null;
+    error: boolean;
+    errorMessage: string;
+  };
+  imageUrl: {
+    value: string;
+    error: boolean;
+    errorMessage: string;
+  };
+}
+
 interface ProductFormProps {
   product?: Product;
-  onSubmit: (data: SubmitInterface) => void;
+  // onSubmit: (data: SubmitInterface) => void;
+  onSubmit: (data: FormValues) => void;
 }
 
 const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
@@ -242,16 +274,16 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
   //   console.log(selectedCategory)
   // }, [selectedCategory])
 
-  useEffect(() => {
-    if (currentProduct && currentProduct.categoryId) {
-      setSelectedCategory(currentProduct.categoryId);
-    }
-  }, [currentProduct])
+  // useEffect(() => {
+  //   if (currentProduct && currentProduct.categoryId) {
+  //     setSelectedCategory(currentProduct.categoryId);
+  //   }
+  // }, [currentProduct])
 
-  const handleCategoryChange = (event: any) => {
-    const selectedValue = event.target.value;
-    setSelectedCategory(selectedValue);
-  };
+  // const handleCategoryChange = (event: any) => {
+  //   const selectedValue = event.target.value;
+  //   setSelectedCategory(selectedValue);
+  // };
 
   const [productVariations, setProductVariations] = useState<ProductVariations[]>([]);
 
@@ -297,7 +329,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
               var2: var2,
               price: currentVariation1 ? currentVariation1.price : currentVariation2 ? currentVariation2.price : 0,
               quantity: currentVariation1 ? currentVariation1.quantity : currentVariation2 ? currentVariation2.quantity : 0,
-              imageUrl: currentVariation1 ? currentVariation1.imageUrl : currentVariation2 ? currentVariation2.imageUrl : [],
+              imageUrl: currentVariation1 ? currentVariation1.imageUrl : currentVariation2 ? currentVariation2.imageUrl : "",
             };
             updatedProductVariations.push(newVar);
           })
@@ -321,7 +353,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
           var2: "",
           price: currentVariation1 ? currentVariation1.price : currentVariation2 ? currentVariation2.price : 0,
           quantity: currentVariation1 ? currentVariation1.quantity : currentVariation2 ? currentVariation2.quantity : 0,
-          imageUrl: currentVariation1 ? currentVariation1.imageUrl : currentVariation2 ? currentVariation2.imageUrl : [],
+          imageUrl: currentVariation1 ? currentVariation1.imageUrl : currentVariation2 ? currentVariation2.imageUrl : "",
         };
         updatedProductVariations.push(newVar);
       })
@@ -330,28 +362,28 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     setProductVariations(updatedProductVariations);
   }, [var1Arr, var2Arr]);
 
-  const [priceForAll, setPriceForAll] = useState<number>(0);
-  const [quantityForAll, setQuantityForAll] = useState<number>(0);
+  // const [priceForAll, setPriceForAll] = useState<number>(0);
+  // const [quantityForAll, setQuantityForAll] = useState<number>(0);
 
-  const handlePriceForAllChange = (event: any) => {
-    setPriceForAll(parseFloat(event.target.value));
-  };
+  // const handlePriceForAllChange = (event: any) => {
+  //   setPriceForAll(parseFloat(event.target.value));
+  // };
   
-  const handleQuantityForAllChange = (event: any) => {
-    setQuantityForAll(parseInt(event.target.value));
-  };
+  // const handleQuantityForAllChange = (event: any) => {
+  //   setQuantityForAll(parseInt(event.target.value));
+  // };
 
-  const handleApplyToAll = (event: any) => {
-    event.preventDefault();
+  // const handleApplyToAll = (event: any) => {
+  //   event.preventDefault();
 
-    const updatedProductVariations = productVariations.map((variation) => ({
-        ...variation,
-        price: priceForAll >= 0 ? priceForAll : variation.price,
-        quantity: quantityForAll >= 0 ? quantityForAll : variation.quantity,
-    }));
+  // const updatedProductVariations = productVariations.map((variation) => ({
+  //       ...variation,
+  //       price: priceForAll >= 0 ? priceForAll : variation.price,
+  //       quantity: quantityForAll >= 0 ? quantityForAll : variation.quantity,
+  //   }));
 
-    setProductVariations(updatedProductVariations);
-  }
+  //   setProductVariations(updatedProductVariations);
+  // }
 
   const [rowErrors, setRowErrors] = useState<string>("");
 
@@ -366,42 +398,44 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     setProductVariations([...productVariations]);
   }
 
-  const [imageURL, setImageURL] = useState<string[]>([]);
-  const [imageURLMap, setImageURLMap] = useState<string[][]>([]);
+  const [imageUrl, setImageUrl] = useState<string>("");
+  const [imageUrlMap, setImageUrlMap] = useState<string[]>([]);
 
   useEffect(() => {
-    console.log("imageURL", imageURL);
-  }, [imageURL])
+    console.log("imageURL", imageUrl);
+  }, [imageUrl])
 
   useEffect(() => {
-    console.log("imageURLMap", imageURLMap);
-  }, [imageURLMap])
+    console.log("imageURLMap", imageUrlMap);
+  }, [imageUrlMap])
 
-  useEffect(() => {
-    if (currentProduct) {
-      if (currentProduct.subRows.length === 0) setImageURL(currentProduct.imageUrl);
-      else {
-        let urlArr: string[][] = [];
-        currentProduct.subRows.forEach((variation) => {
-          urlArr.push(variation.imageUrl);
-        })
-        setImageURLMap(urlArr);
-      }
-    }
-  }, [currentProduct])
+  // useEffect(() => {
+  //   if (currentProduct) {
+  //     if (currentProduct.subRows.length === 0) setImageUrl(currentProduct.imageUrl);
+  //     else {
+  //       let urlArr: string[][] = [];
+  //       currentProduct.subRows.forEach((variation) => {
+  //         urlArr.push(variation.imageUrl);
+  //       })
+  //       setImageURLMap(urlArr);
+  //     }
+  //   }
+  // }, [currentProduct])
 
-  const handleUpload = async (resultInfo: any) => {
-    console.log("Successfully uploaded:", resultInfo.public_id);
-    setImageURL((prevImageURL) => [...prevImageURL, resultInfo.public_id]);
-  }
+  // const handleUpload = async (resultInfo: any) => {
+  //   console.log("Successfully uploaded:", resultInfo.public_id);
+  //   // setImageUrl((prevImageUrl) => [...prevImageURL, resultInfo.public_id]);
+  //   setImageUrl(resultInfo.public_id);
+  // }
 
-  const handleDeleteImage = (index: number) => {
-    setImageURL((prevImageURL) => {
-      const updatedImageURL = [...prevImageURL];
-      updatedImageURL.splice(index, 1);
-      return updatedImageURL;
-    });
-  };
+  // const handleDeleteImage = () => {
+  //   // setImageURL((prevImageURL) => {
+  //   //   const updatedImageURL = [...prevImageURL];
+  //   //   updatedImageURL.splice(index, 1);
+  //   //   return updatedImageURL;
+  //   // });
+  //   setImageUrl("");
+  // };
 
   const columns = useMemo<MRT_ColumnDef<ProductVariations>[]>(
     () => [
@@ -431,30 +465,33 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
         enableEditing: false,
         Cell: ({row}) => (
           <>
-            {imageURLMap[productVariations.findIndex(variation => variation.name === row.original.name)] && 
-              imageURLMap[productVariations.findIndex(variation => variation.name === row.original.name)].map((imageUrl: string, index: number) => (
-              <div key={index} className="flex flex-row w-40 h-40 mb-5">
+            {/* {imageURLMap[productVariations.findIndex(variation => variation.name === row.original.name)] && 
+              imageURLMap[productVariations.findIndex(variation => variation.name === row.original.name)].map((imageUrl: string, index: number) => ( */}
+            {(row.original.imageUrl && (
+                <div key={row.index} className="flex flex-row w-40 h-40 mb-5">
                 <AdvancedImage cldImg={cld.image(imageUrl)} />
-                <button 
+                <IconButton 
                   type="button"
                   className="flex"
                   onClick={() => {
-                    row.original.imageUrl.splice(index, 1);
-                    const updatedImageURLMap = [...imageURLMap];
-                    updatedImageURLMap[row.index] = row.original.imageUrl;
-                    setImageURLMap(updatedImageURLMap);
+                    // row.original.imageUrl.splice(index, 1);
+                    // const updatedImageURLMap = [...imageURLMap];
+                    // updatedImageURLMap[row.index] = row.original.imageUrl;
+                    // setImageURLMap(updatedImageURLMap);
+                    setImageUrl("");
                   }}
                 >
                   <DeleteIcon />
-                </button>
+                </IconButton>
               </div>
             ))}
             <CloudinaryUploader 
               onSuccess={(resultInfo: any) => {
-                row.original.imageUrl.push(resultInfo.public_id);
-                const updatedImageURLMap = [...imageURLMap];
-                updatedImageURLMap[row.index] = row.original.imageUrl;
-                setImageURLMap(updatedImageURLMap);
+                // row.original.imageUrl.push(resultInfo.public_id);
+                // const updatedImageURLMap = [...imageURLMap];
+                // updatedImageURLMap[row.index] = row.original.imageUrl;
+                // setImageURLMap(updatedImageURLMap);
+                setImageUrl(resultInfo.public_id);
               }} 
               caption={"Upload Image"}
             />
@@ -462,118 +499,190 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
         )
       },
     ],
-    [imageURLMap]
+    [imageUrl]
   );
 
-  const [nameError, setNameError] = useState("");
-  const [priceError, setPriceError] = useState("");
-  const [quantityError, setQuantityError] = useState("");
-  const [imageError, setImageError] = useState<string>("");
-  const [submitStatus, setSubmitStatus] = useState("");
+  // const [nameError, setNameError] = useState("");
+  // const [priceError, setPriceError] = useState("");
+  // const [quantityError, setQuantityError] = useState("");
+  // const [imageError, setImageError] = useState<string>("");
+  // const [submitStatus, setSubmitStatus] = useState("");
 
-  const handleProductFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  // const handleProductFormSubmit = (e: React.FormEvent) => {
+  //   e.preventDefault();
 
-    setSubmitStatus("Please try again.");
-    setRowErrors("");
+  //   setSubmitStatus("Please try again.");
+  //   setRowErrors("");
 
-    const form = e.target as HTMLFormElement;
+  //   const form = e.target as HTMLFormElement;
     
-    const name = form.elements.namedItem('name') as HTMLInputElement;
+  //   const name = form.elements.namedItem('name') as HTMLInputElement;
 
-    if (name.value.trim() === "") {
-      setNameError("Please input a name.");
-      return;
-    }
+  //   if (name.value.trim() === "") {
+  //     setNameError("Please input a name.");
+  //     return;
+  //   }
 
-    const description = form.elements.namedItem('description') as HTMLTextAreaElement;
+  //   const description = form.elements.namedItem('description') as HTMLTextAreaElement;
 
-    const category = form.elements.namedItem('category') as HTMLSelectElement;
-    const categoryName = category.options[category.selectedIndex].text;
+  //   const category = form.elements.namedItem('category') as HTMLSelectElement;
+  //   const categoryName = category.options[category.selectedIndex].text;
 
-    const price = form.elements.namedItem('priceNoVariation') as HTMLInputElement;
+  //   const price = form.elements.namedItem('priceNoVariation') as HTMLInputElement;
 
-    if (!price.disabled && (isNaN(parseFloat(price.value)) || parseFloat(price.value) <= 0)) {
-      setPriceError("Please input a valid price that is more than 0 cents.");
-      return;
-    } else if (priceError !== "") setPriceError("");
+  //   if (!price.disabled && (isNaN(parseFloat(price.value)) || parseFloat(price.value) <= 0)) {
+  //     setPriceError("Please input a valid price that is more than 0 cents.");
+  //     return;
+  //   } else if (priceError !== "") setPriceError("");
 
-    const quantity = form.elements.namedItem('quantityNoVariation') as HTMLInputElement;
+  //   const quantity = form.elements.namedItem('quantityNoVariation') as HTMLInputElement;
 
-    if (!quantity.disabled && (isNaN(parseInt(quantity.value)) || parseInt(quantity.value) <= 0)) {
-      setQuantityError("Please input a valid quantity that is more than 0.");
-      return;
-    } else if (quantityError !== "") setQuantityError("");
+  //   if (!quantity.disabled && (isNaN(parseInt(quantity.value)) || parseInt(quantity.value) <= 0)) {
+  //     setQuantityError("Please input a valid quantity that is more than 0.");
+  //     return;
+  //   } else if (quantityError !== "") setQuantityError("");
 
-    if (variations.length === 0 && imageURL.length === 0) {
-      setImageError("Please upload an image.");
-      return;
-    } else if (imageError != "") setImageError("");
+  //   if (variations.length === 0 && imageURL.length === 0) {
+  //     setImageError("Please upload an image.");
+  //     return;
+  //   } else if (imageError != "") setImageError("");
 
-    let validVariationInput = true;
+  //   let validVariationInput = true;
 
-    if (variations.length > 0 && productVariations.length === 0) {
-      setRowErrors("Please either enter a variation or delete the variation field.");
-      return;
-    } else {
-      productVariations.forEach((variation) => {
-        if (isNaN(variation.price) || isNaN(variation.quantity) || variation.price <= 0 || variation.quantity <= 0) {
-          setRowErrors("Please input valid values greater than zero.");
-          validVariationInput = false;
-          return;
-        } 
-      }) 
+  //   if (variations.length > 0 && productVariations.length === 0) {
+  //     setRowErrors("Please either enter a variation or delete the variation field.");
+  //     return;
+  //   } else {
+  //     productVariations.forEach((variation) => {
+  //       if (isNaN(variation.price) || isNaN(variation.quantity) || variation.price <= 0 || variation.quantity <= 0) {
+  //         setRowErrors("Please input valid values greater than zero.");
+  //         validVariationInput = false;
+  //         return;
+  //       } 
+  //     }) 
     
-      if (validVariationInput) {
-        productVariations.forEach((variation) => {
-          if (variation.imageUrl.length === 0) {
-            setRowErrors("Please upload at least 1 image for each variation.");
-            validVariationInput = false;
-            return; 
-          }
-        })
-        if (validVariationInput) {
-          setRowErrors("");
-        }
-      }
-    }
+  //     if (validVariationInput) {
+  //       productVariations.forEach((variation) => {
+  //         if (variation.imageUrl.length === 0) {
+  //           setRowErrors("Please upload at least 1 image for each variation.");
+  //           validVariationInput = false;
+  //           return; 
+  //         }
+  //       })
+  //       if (validVariationInput) {
+  //         setRowErrors("");
+  //       }
+  //     }
+  //   }
 
-    if (!validVariationInput) return;
+  //   if (!validVariationInput) return;
 
-    const formData: SubmitInterface = {
-      name: name.value,
-      description: description.value,
-      price: Number.isNaN(parseFloat(price.value)) ? -1 : parseFloat(price.value),
-      quantity: Number.isNaN(parseFloat(quantity.value)) ? -1 : parseFloat(quantity.value),
-      imageUrl: imageURL,
-      categoryId: selectedCategory ? selectedCategory : 1,
-      category: categoryName,
-      variations: productVariations,
-    };
+  //   const formData: SubmitInterface = {
+  //     name: name.value,
+  //     description: description.value,
+  //     price: Number.isNaN(parseFloat(price.value)) ? -1 : parseFloat(price.value),
+  //     quantity: Number.isNaN(parseFloat(quantity.value)) ? -1 : parseFloat(quantity.value),
+  //     imageUrl: imageURL,
+  //     categoryId: selectedCategory ? selectedCategory : 1,
+  //     category: categoryName,
+  //     variations: productVariations,
+  //   };
 
-    if (currentProduct) {
-      formData.productId = currentProduct.productId;
-      formData.sku = currentProduct.sku;
-    }
+  //   if (currentProduct) {
+  //     formData.productId = currentProduct.productId;
+  //     formData.sku = currentProduct.sku;
+  //   }
 
-    onSubmit(formData);
-    setSubmitStatus("Success!");
-  };
+  //   onSubmit(formData);
+  //   setSubmitStatus("Success!");
+  // };
 
-  const [name, setName] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
+  // const [name, setName] = useState<string>("");
+  // const [description, setDescription] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<number>(0);
-  const [price, setPrice] = useState<number>();
-  const [quantity, setQuantity] = useState<number>();
-  const [imageUrl, setImageUrl] = useState<string>("");
+  // const [price, setPrice] = useState<number>();
+  // const [quantity, setQuantity] = useState<number>();
+  // const [imageUrl, setImageUrl] = useState<string>("");
+
+  const [formValues, setFormValues] = useState<FormValues>({
+    name: {
+      value: "",
+      error: false,
+      errorMessage: "Please enter a name."
+    },
+    description: {
+      value: "",
+      error: false,
+      errorMessage: "Please enter a description."
+    },
+    selectedCategory: {
+      value: null,
+      error: false,
+      errorMessage: "Please select a category."
+    },
+    price: {
+      value: "",
+      parsedValue: null,
+      error: false,
+      errorMessage: "Please enter a valid price."
+    },
+    quantity: {
+      value: "",
+      parsedValue: null,
+      error: false,
+      errorMessage: "Please enter a valid integer."
+    },
+    imageUrl: {
+      value: "",
+      error: false,
+      errorMessage: "Please upload only one image."
+    },
+  })
 
   useEffect(() => {
-    currentProduct?.name ? setName(currentProduct.name) : "";
-    currentProduct?.description ? setDescription(currentProduct.description) : "";
+    console.log("formValues", formValues);
+  }, [formValues])
+
+  useEffect(() => {
+    // currentProduct?.name ? setName(currentProduct.name) : "";
+    // currentProduct?.description ? setDescription(currentProduct.description) : "";
     currentProduct?.categoryId ? setSelectedCategory(currentProduct.categoryId) : "";
-    currentProduct?.price ? setPrice(currentProduct.price) : "";
-    currentProduct?.quantity ? setQuantity(currentProduct.quantity) : "";
-    setImageUrl(currentProduct ? currentProduct.imageUrl[0] : "");
+    // currentProduct?.price ? setPrice(currentProduct.price) : "";
+    // currentProduct?.quantity ? setQuantity(currentProduct.quantity) : "";
+    // setImageUrl(currentProduct ? currentProduct.imageUrl[0] : "");
+    if (currentProduct && currentProduct.categoryId) {
+      setSelectedCategory(currentProduct.categoryId);
+    }
+    
+    setFormValues(prevFormValues => ({
+      ...prevFormValues,
+      name: {
+        ...prevFormValues.name,
+        value: currentProduct?.name || ""
+      },
+      description: {
+        ...prevFormValues.description,
+        value: currentProduct?.description || ""
+      },
+      selectedCategory: {
+        ...prevFormValues.selectedCategory,
+        value: currentProduct?.categoryId || null
+      },
+      price: {
+        ...prevFormValues.price,
+        value: currentProduct?.price.toString() || "",
+        parsedValue: currentProduct?.price || null
+      },
+      quantity: {
+        ...prevFormValues.quantity,
+        value: currentProduct?.quantity.toString() || "",
+        parsedValue: currentProduct?.quantity || null
+      },
+      imageUrl: {
+        ...prevFormValues.imageUrl,
+        value: currentProduct?.imageUrl[0] || ""
+      },
+    }));
   }, [currentProduct]);
 
   useEffect(() => {
@@ -581,6 +690,35 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
   }, [selectedCategory])
 
   const [categories, setCategories] = useState<Category[]>([]);
+
+  const handleUpload = async (resultInfo: any) => {
+    console.log("Successfully uploaded:", resultInfo.public_id);
+    // setImageUrl((prevImageUrl) => [...prevImageURL, resultInfo.public_id]);
+    // setImageUrl(resultInfo.public_id);
+    setFormValues({
+      ...formValues,
+      imageUrl: {
+        ...formValues.imageUrl,
+        value: resultInfo.public_id
+      }
+    })
+  }
+
+  const handleDeleteImage = () => {
+    // setImageURL((prevImageURL) => {
+    //   const updatedImageURL = [...prevImageURL];
+    //   updatedImageURL.splice(index, 1);
+    //   return updatedImageURL;
+    // });
+    // setImageUrl("");
+    setFormValues({
+      ...formValues,
+      imageUrl: {
+        ...formValues.imageUrl,
+        value: ""
+      }
+    })
+  };
 
   useEffect(() => {
     const getAllCategories = async () => {
@@ -595,15 +733,54 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     getAllCategories();
   }, []);
 
+  const [priceForAll, setPriceForAll] = useState<number>();
+  const [priceForAllError, setPriceForAllError] = useState<boolean>(false);
+
+  const [quantityForAll, setQuantityForAll] = useState<number>();
+  const [quantityForAllError, setQuantityForAllError] = useState<boolean>(false);
+
+  const handleApplyToAll = (e: any) => {
+    e.preventDefault();
+
+    const updatedProductVariations = productVariations.map((variation) => ({
+      ...variation,
+      price: priceForAll && priceForAll >= 0 ? priceForAll : variation.price,
+      quantity: quantityForAll && quantityForAll >= 0 ? quantityForAll : variation.quantity,
+    }));
+
+    setProductVariations(updatedProductVariations);
+  }
+
+  const [submitStatus, setSubmitStatus] = useState<string>("");
+
+  const handleProductFormSubmit = async (e: any) => {
+    e.preventDefault();
+
+    if (formValues.name.error || formValues.description.error || formValues.selectedCategory.error || formValues.price.error || formValues.quantity.error) {
+      setSubmitStatus("Please try again.");
+    } else {
+      onSubmit(formValues);
+      setSubmitStatus("Success!");
+    }
+  }
+
   console.log("current", currentProduct)
+  
+  useEffect(() => {
+    console.log("formValues.imageUrl.errorMessage", formValues.imageUrl.errorMessage)
+  }, [formValues.imageUrl.error, formValues.imageUrl.errorMessage])
 
   return (
-    <form 
-      // className="flex flex-col"
+    // <form 
+    //   // className="flex flex-col"
+    //   onSubmit={handleProductFormSubmit}
+    // >
+    <Box
+      component="form"
       onSubmit={handleProductFormSubmit}
     >
       <Box
-          // className="flex-1"
+          className="flex-1"
           // component="form"
           sx={{
               display: "flex",
@@ -612,38 +789,77 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
               width: 1,
               flexGrow: 1,
               flexShrink: 1,
-              maxWidth: '75%'
+              // maxWidth: '75%'
           }}
           // noValidate
           // autoComplete="off"
       >
         <TextField
-            id="name"
-            label="Name"
-            required
-            variant="outlined"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            fullWidth
-            sx={{ m: 2 }} // Apply padding
+          id="name"
+          label="Name"
+          required
+          variant="outlined"
+          value={formValues.name.value}
+          error={formValues.name.error}
+          helperText={formValues.name.error && formValues.name.errorMessage}
+          onChange={(e) => {
+            const {value} = e.target;
+            setFormValues({
+              ...formValues,
+              name: {
+                ...formValues.name,
+                value: value,
+                error: value.trim() === ""
+              }
+            })
+          }}
+          fullWidth
+          sx={{ m: 2 }} // Apply padding
         />
         <TextField
-            id="description"
-            label="Description"
-            required
-            variant="outlined"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            fullWidth
-            sx={{ m: 2 }} // Apply padding
+          id="description"
+          label="Description"
+          required
+          variant="outlined"
+          value={formValues.description.value}
+          error={formValues.description.error}
+          helperText={formValues.description.error && formValues.description.errorMessage}
+          onChange={(e) => {
+            const {value} = e.target;
+            setFormValues({
+              ...formValues,
+              description: {
+                ...formValues.description,
+                value: value,
+                error: value.trim() === ""
+              }
+            })
+          }}
+          fullWidth
+          sx={{ m: 2, height: 'auto' }} // Apply padding
         />
         <TextField
           id="category"
           select
           label="Category"
           required
+          // value={formValues.selectedCategory.value}
+          // defaultValue={selectedCategory}
           value={selectedCategory}
-          onChange={(e) => setSelectedCategory(parseInt(e.target.value))}
+          error={formValues.selectedCategory.error}
+          helperText={formValues.selectedCategory.error && formValues.selectedCategory.errorMessage}
+          onChange={(e) => {
+            const {value} = e.target;
+            setSelectedCategory(parseInt(value));
+            setFormValues({
+              ...formValues,
+              selectedCategory: {
+                ...formValues.selectedCategory,
+                value: parseInt(value),
+                error: isNaN(parseInt(value))
+              }
+            })
+          }}
           fullWidth
           sx={{ m: 2 }} // Apply padding
         >
@@ -653,30 +869,132 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
             </MenuItem>
           ))}
         </TextField>
-        <FormControl 
-          required 
-          fullWidth 
-          sx={{ m: 2 }}
-        >
-          <InputLabel htmlFor="price">Price</InputLabel>
-          <OutlinedInput
+        {variations.length === 0 &&
+          <TextField
             id="price"
-            startAdornment={<InputAdornment position="start">$</InputAdornment>}
             label="Price"
-            value={price}
-            onChange={(e) => setPrice(parseInt(e.target.value))}
-          />
-        </FormControl>
-        <TextField
-            id="quantity"
-            label="Quantity"
+            type="number"
             variant="outlined"
             required
-            value={quantity}
-            onChange={(e) => setQuantity(parseInt(e.target.value))}
+            InputProps={{
+              startAdornment: <InputAdornment position="start">$</InputAdornment>,
+            }}
+            value={formValues.price.value}
+            error={formValues.price.error}
+            helperText={formValues.price.error && formValues.price.errorMessage}
+            onChange={(e) => {
+              const {value} = e.target;
+              setFormValues({
+                ...formValues,
+                price: {
+                  ...formValues.price,
+                  value: value,
+                  parsedValue: parseFloat(value),
+                  error: isNaN(parseFloat(value)) || value.includes("e")
+                }
+              })
+            }} 
+            fullWidth 
+            sx={{ m: 2 }}
+          />
+        }
+
+        {variations.length === 0 &&
+          <TextField
+            id="quantity"
+            label="Quantity"
+            type="number"
+            variant="outlined"
+            required
+            value={formValues.quantity.value}
+            error={formValues.quantity.error}
+            helperText={formValues.quantity.error && formValues.quantity.errorMessage}
+            onChange={(e) => {
+              const {value} = e.target;
+              setFormValues({
+                ...formValues,
+                quantity: {
+                  ...formValues.quantity,
+                  value: value,
+                  parsedValue: parseInt(value),
+                  error: isNaN(parseInt(value)) || value.includes("e")
+                }
+              })
+            }}
             fullWidth
             sx={{ m: 2 }} // Apply padding
-        />
+          />
+        }
+
+        {variations.length === 0 && (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              m: 2,
+              // maxWidth: '75%' 
+            }}
+          >
+            {(formValues.imageUrl.value && (
+              <div key={formValues.imageUrl.value} className="flex flex-row w-40 h-40 mb-5">
+                <AdvancedImage cldImg={cld.image(formValues.imageUrl.value)} />
+                <Box>
+                  <IconButton 
+                    type="button"
+                    onClick={() => handleDeleteImage()}
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      justifyContent: 'flex-end'
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Box>
+              </div>
+            ))}
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center'                
+              }}
+            > 
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center'                
+                }}
+              >
+                <CloudinaryUploader 
+                  onSuccess={handleUpload} 
+                  caption={"UPLOAD IMAGE"}
+                />
+              </Box>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center'                
+                }}
+              >
+                {(!formValues.imageUrl.error && 
+                  <FormHelperText className="outlined-image-helper-text">
+                    {formValues.imageUrl.errorMessage}
+                  </FormHelperText>
+                )}
+                {(formValues.imageUrl.error && 
+                  <FormHelperText 
+                    className="outlined-image-helper-text" 
+                    sx={{ color: 'red' }}
+                  >
+                    {formValues.imageUrl.errorMessage}
+                  </FormHelperText>
+                )}
+              </Box>
+            </Box>
+          </Box>
+        )}
       </Box>
 
       {variations.map((variation, variationIndex) => (
@@ -689,7 +1007,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
             bgcolor: '#bbdefb',
             borderRadius: '16px',
             flexShrink: 1,
-            maxWidth: '75%'
+            // maxWidth: '75%'
           }}
         >
           <Box
@@ -729,6 +1047,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                 className="flex flex-row"
                 sx = {{
                   m: 2,
+                  alignItems: 'center',
                   bgcolor: 'background.paper',
                   borderRadius: '16px'
                 }}
@@ -748,26 +1067,30 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                 />
 
                 {valueIndex === variation.values.length - 1 && (
-                  <IconButton
-                    className="add-variation-value flex-end"
-                    type="button"
-                    onClick={() => handleAddVariationValue(variationIndex)}
-                    sx={{ mr: 2 }}
-                  >
-                    <AddIcon />
-                  </IconButton>
+                  <Box>
+                    <IconButton
+                      className="add-variation-value flex-end"
+                      type="button"
+                      onClick={() => handleAddVariationValue(variationIndex)}
+                      sx={{ mr: 2 }}
+                    >
+                      <AddIcon />
+                    </IconButton>
+                  </Box>
                 )}
 
-              {variation.values.length !== 1  && (
-                <IconButton
-                  className="remove-variation-value flex-end"
-                  type="button"
-                  onClick={() => handleRemoveVariationValue(variationIndex, valueIndex)}
-                  sx={{ mr: 2 }}
-                >
-                  <DeleteIcon />
-                </IconButton>
-              )}
+                {variation.values.length !== 1  && (
+                  <Box>
+                    <IconButton
+                      className="remove-variation-value flex-end"
+                      type="button"
+                      onClick={() => handleRemoveVariationValue(variationIndex, valueIndex)}
+                      sx={{ mr: 2 }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Box>
+                )}
 
               </Box>
             ))}
@@ -785,7 +1108,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                 ml: 0
               }}
             >
-              <DeleteIcon />
+              &#10006;
             </IconButton>
           </Box>
         </Box>
@@ -797,7 +1120,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
             display: 'flex',
             justifyContent: 'center',
             m: 2,
-            maxWidth: '75%' 
           }}
         >
           <Button
@@ -814,6 +1136,153 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
         </Box>
       )}
 
+      {(variations.length !== 0 && 
+        <Box 
+          sx={{
+            // width: 'maxContent',
+            // maxWidth: 400,
+            width: '100%',
+            overflowX: 'auto'
+          }}
+        >
+        <div
+          style={{ 
+            width: 'maxContent',
+            // width: '100%',
+            overflowX: 'auto'
+          }}
+        >
+          <MaterialReactTable
+            key={productVariations.map((item) => item.name + item.price + item.quantity).join("-")}
+            displayColumnDefOptions={{
+            'mrt-row-actions': {
+                muiTableHeadCellProps: {
+                align: 'center',
+                },
+                size: 120,
+            },
+            }}
+            columns={columns}
+            data={productVariations}
+            enableColumnOrdering
+            enableEditing
+            editingMode='table'
+            muiTableBodyCellEditTextFieldProps={({ cell }) => ({
+              //onBlur is more efficient, but could use onChange instead
+              onBlur: (event) => {
+                handleSaveCell(cell, event.target.value);
+              }
+            })}
+            renderTopToolbarCustomActions={() => (
+              <Box
+                sx={{
+                  height:'auto',
+                  alignItems: 'center'
+                }}
+              >
+                <TextField
+                  id="price"
+                  label="Price"
+                  type="number"
+                  variant="outlined"
+                  required
+                  InputProps={{
+                    startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                  }}
+                  value={priceForAll}
+                  error={priceForAllError}
+                  helperText={priceForAllError && "Please enter a valid price."}
+                  onChange={(e) => {
+                    const {value} = e.target;
+                    if (isNaN(parseFloat(value)) || value.includes("e")) setPriceForAllError(true);
+                    else setPriceForAllError(false);
+                    setPriceForAll(parseFloat(value)); 
+                  }} 
+                  sx={{ 
+                    m: 1, 
+                    maxWidth: 250
+                  }}
+                />
+                <TextField
+                  id="quantity"
+                  label="Quantity"
+                  type="number"
+                  variant="outlined"
+                  required
+                  value={quantityForAll}
+                  error={quantityForAllError}
+                  helperText={quantityForAllError && "Please enter a valid price."}
+                  onChange={(e) => {
+                    const {value} = e.target;
+                    if (isNaN(parseInt(value)) || value.includes("e")) setQuantityForAllError(true);
+                    else setQuantityForAllError(false);
+                    setQuantityForAll(parseInt(value)); 
+                  }}
+                  sx={{ 
+                    m: 1,
+                    maxWidth: 250
+                  }} // Apply padding
+                />
+                <Button
+                  variant="contained"
+                  type="submit"
+                  name="applyToAll"
+                  disabled={priceForAllError || quantityForAllError}
+                  onClick={(e) => handleApplyToAll(e)}
+                  sx={{
+                    m: 1,
+                    mt: 2
+                  }}
+                >
+                  Apply To All
+                </Button>
+              </Box>
+            )}
+          />
+          </div>
+        </Box>
+        )}        
+        <br />
+        {rowErrors && (
+          <span className="tooltip">{rowErrors}</span>
+        )}
+
+        <br />
+        {submitStatus && (
+          <span className="tooltip">{submitStatus}</span>
+        )}
+
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          m: 5,
+          gap: 4,
+          // maxWidth: '75%' 
+        }}
+      >
+        <Button
+          variant="contained"
+          type="submit"
+          color="success"
+          // onClick=
+        >
+          Submit
+        </Button>
+        <Button
+          variant="contained"
+          type="reset"
+          color="error"
+          // onClick=
+        >
+          Reset
+        </Button>
+      </Box>
+
+    {/* <form 
+      // className="flex flex-col"
+      onSubmit={handleProductFormSubmit}
+    >
       <section className="flex flex-col">
         <label>
           Name:
@@ -997,12 +1466,14 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
               Add Variation ({variations.length}/{maximumVariations})
             </button>
           )}
-      </section>
+      </section> 
 
       <section>
-        <br />
+        <br /> 
         
-          {(variations.length !== 0 && <MaterialReactTable
+          {(variations.length !== 0 && 
+          <div style={{overflow: 'auto'}}>
+          <MaterialReactTable
             key={productVariations.map((item) => item.name + item.price + item.quantity).join("-")}
             displayColumnDefOptions={{
             'mrt-row-actions': {
@@ -1050,7 +1521,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                     </button>
                 </div>
             )}
-        />)}        
+        />
+        </div>
+        )}        
         <br />
         {rowErrors && (
           <span className="tooltip">{rowErrors}</span>
@@ -1079,7 +1552,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
         >
           Reset
         </button>
-      </form>
+      </form> */}
+    </Box>
   )
 }
 
