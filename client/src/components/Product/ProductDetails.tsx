@@ -534,6 +534,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
               SKU: <span className="text-gray-400">{selectedSku}</span>
             </h1>
           </div>
+          <div className="mb-[20px]">
+            {/* <RedeemVoucher seller_id={seller_id} /> */}
+          </div>
         </div>
       </div>
 
