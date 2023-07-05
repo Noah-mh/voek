@@ -72,6 +72,14 @@ const SellerAddVoucherModal = ({
     setOpenModal(false);
   };
 
+  const getCurrentDate = () => {
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+    const day = currentDate.getDate().toString().padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   return (
     <div>
       <Modal
@@ -159,7 +167,6 @@ const SellerAddVoucherModal = ({
                       }
 
                       const parsedValue = parseFloat(inputValue);
-                      console.log(parsedValue);
                       if (!isNaN(parsedValue)) {
                         setVoucher({
                           ...voucher,
@@ -285,7 +292,6 @@ const SellerAddVoucherModal = ({
                     }
 
                     const parsedValue = parseFloat(inputValue);
-                    console.log(parsedValue);
                     if (!isNaN(parsedValue)) {
                       setVoucher({
                         ...voucher,
@@ -318,6 +324,7 @@ const SellerAddVoucherModal = ({
                   placeholder=" "
                   required
                   value={voucher?.expiryDate || ""}
+                  min={getCurrentDate()}
                   onChange={(text) => {
                     setVoucher({
                       ...voucher,

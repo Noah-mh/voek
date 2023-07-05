@@ -115,6 +115,14 @@ const SellerVoucherModal = ({
       });
   };
 
+  const getCurrentDate = () => {
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+    const day = currentDate.getDate().toString().padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   return (
     <div>
       <Modal
@@ -179,7 +187,6 @@ const SellerVoucherModal = ({
                     }
 
                     const parsedValue = parseFloat(inputValue);
-                    console.log(parsedValue);
                     if (!isNaN(parsedValue)) {
                       setEditedVoucher({
                         ...editedVoucher,
@@ -260,7 +267,6 @@ const SellerVoucherModal = ({
                   }
 
                   const parsedValue = parseFloat(inputValue);
-                  console.log(parsedValue);
                   if (!isNaN(parsedValue)) {
                     setEditedVoucher({
                       ...editedVoucher,
@@ -293,17 +299,8 @@ const SellerVoucherModal = ({
                 placeholder=""
                 required
                 value={editedVoucher?.expiryDate}
+                min={getCurrentDate()}
                 onChange={(text) => {
-                  // const inputDate = text.target.value;
-                  // const cleanedDate = inputDate.replace(/[^0-9]/g, "");
-                  // const formattedDate = cleanedDate
-                  //   .slice(0, 8)
-                  //   .replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3");
-
-                  // setEditedVoucher({
-                  //   ...editedVoucher,
-                  //   expiryDate: formattedDate,
-                  // });
                   setEditedVoucher({
                     ...editedVoucher,
                     expiryDate: text.target.value,
