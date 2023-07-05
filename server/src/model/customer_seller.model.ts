@@ -5,7 +5,7 @@ export const handleSellerDetailsBySellerId = async (
 ) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `SELECT s.seller_id, s.shop_name, s.image_url, COUNT(lp.product_id) AS total_product
+  const sql = `SELECT s.seller_id, s.shop_name, s.image_url, COUNT(lp.product_id) AS total_products
   FROM seller s
   LEFT JOIN listed_products lp ON s.seller_id = lp.seller_id
   WHERE s.seller_id = ? AND s.active = 1
@@ -25,16 +25,22 @@ export const handleSellerDetailsByProductId = async (
 ) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `SELECT s.seller_id, s.shop_name, s.image_url, COUNT(lp.product_id) AS total_product
-  FROM seller s
-  INNER JOIN listed_products lp ON s.seller_id = lp.seller_id
-  WHERE s.seller_id = (
-      SELECT seller_id 
-      FROM listed_products
-      WHERE product_id = ? AND active = 1
-  )GROUP BY s.seller_id, s.shop_name, s.image_url;
+  const sql = `SELECT 
+  s.seller_id, 
+  s.shop_name, 
+  s.image_url, 
+  s.date_created, 
+  (SELECT COUNT(*) FROM listed_products lp2 WHERE lp2.seller_id = s.seller_id) AS total_products, 
+  (SELECT COUNT(*) FROM review r INNER JOIN listed_products lp2 ON r.product_id = lp2.product_id WHERE lp2.seller_id = s.seller_id) AS total_reviews
+FROM 
+  seller s
+INNER JOIN 
+  listed_products lp ON s.seller_id = lp.seller_id
+WHERE
+  lp.product_id = ? 
+GROUP BY 
+  s.seller_id, s.shop_name, s.image_url, s.date_created;
   `;
-  console.log("product_id:", product_id);
   try {
     const [result] = await connection.query(sql, [product_id]);
     return result as seller[];
@@ -146,7 +152,9 @@ interface seller {
   seller_id: number;
   shop_name: string;
   image_url: string;
-  total_product: number;
+  total_products: number;
+  total_reviews: number;
+  date_created: Date;
 }
 
 interface Category {
