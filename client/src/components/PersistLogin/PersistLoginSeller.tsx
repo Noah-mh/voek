@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import useSeller from '../../hooks/useSeller.js';
 import useRefreshTokenSeller from '../../hooks/useRefreshTokenSeller.js';
+import Loader from '../Loader/Loader.js';
 
 const PersistLoginSeller = () => {
 
@@ -30,7 +31,9 @@ const PersistLoginSeller = () => {
   return (
     <>
       {
-        isLoading ? <p>Loading...</p>
+        isLoading ? <div className="flex justify-center items-center">
+        <Loader />
+      </div>
           : <Outlet />
       }
     </>

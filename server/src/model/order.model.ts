@@ -7,12 +7,13 @@ export const handleGetCustomerOrders = async (
   const connection = await promisePool.getConnection();
   const sql = `
     SELECT orders.orders_id, listed_products.seller_id, products.description, products.name, product_variations.price, products.product_id, product_variations.variation_1, product_variations.variation_2, orders_product.quantity, orders_product.sku,
-    orders.orders_date, product_images.image_url FROM orders
+    orders.orders_date, product_images.image_url, seller.shop_name FROM orders
         JOIN orders_product ON orders.orders_id = orders_product.orders_id
         JOIN products ON orders_product.product_id = products.product_id
         JOIN product_variations ON orders_product.sku = product_variations.sku
         JOIN product_images ON orders_product.sku = product_images.sku
         JOIN listed_products ON orders_product.product_id = listed_products.product_id 
+        JOIN seller ON listed_products.seller_id = seller.seller_id
         WHERE orders_product.orders_id in (
             SELECT orders.orders_id FROM orders WHERE orders.customer_id = ?
         ) AND orders_product.shipment_id IS NULL
@@ -34,13 +35,14 @@ export const handleGetCustomerDeliveredOrders = async (
   const connection = await promisePool.getConnection();
   const sql = `
     SELECT listed_products.seller_id, orders_product.orders_id, products.description, products.name, product_variations.price, products.product_id, product_variations.variation_1, product_variations.variation_2, orders_product.quantity, orders_product.sku,
-    shipment.shipment_created, orders_product.orders_product_id, product_images.image_url FROM orders
+    shipment.shipment_created, orders_product.orders_product_id, product_images.image_url, seller.shop_name FROM orders
         JOIN orders_product ON orders.orders_id = orders_product.orders_id
         JOIN products ON orders_product.product_id = products.product_id
         JOIN product_variations ON orders_product.sku = product_variations.sku
         JOIN shipment ON orders_product.shipment_id = shipment.shipment_id
         JOIN product_images ON orders_product.sku = product_images.sku
         JOIN listed_products ON orders_product.product_id = listed_products.product_id
+        JOIN seller ON listed_products.seller_id = seller.seller_id
         WHERE orders_product.orders_id in (
             SELECT orders.orders_id FROM orders
                 JOIN orders_product ON orders.orders_id = orders_product.orders_id 
@@ -65,13 +67,14 @@ export const handleGetCustomerReceivedOrders = async (
   const connection = await promisePool.getConnection();
   const sql = `
     SELECT listed_products.seller_id, orders_product.orders_id, products.description, products.name, product_variations.price, products.product_id, product_variations.variation_1, product_variations.variation_2, orders_product.quantity, orders_product.sku,
-    shipment.shipment_delivered,shipment.orders_product_id, product_images.image_url FROM orders
+    shipment.shipment_delivered,shipment.orders_product_id, product_images.image_url, seller.shop_name FROM orders
         JOIN orders_product ON orders.orders_id = orders_product.orders_id
         JOIN products ON orders_product.product_id = products.product_id
         JOIN product_variations ON orders_product.sku = product_variations.sku
         JOIN shipment ON orders_product.shipment_id = shipment.shipment_id
         JOIN product_images ON orders_product.sku = product_images.sku
         JOIN listed_products ON orders_product.product_id = listed_products.product_id
+        JOIN seller ON listed_products.seller_id = seller.seller_id
         WHERE orders_product.orders_id in (
             SELECT orders.orders_id FROM orders
                 JOIN orders_product ON orders.orders_id = orders_product.orders_id 

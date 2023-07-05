@@ -3,6 +3,7 @@ import axios from "../../api/axios";
 import { AxiosResponse } from 'axios'
 import "./LBRight.css";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 interface props {
   setLogin: React.Dispatch<React.SetStateAction<boolean>>
@@ -45,7 +46,16 @@ const LBRight = ({ setLogin, setUserDetails }: props): JSX.Element => {
       if (!err?.response) {
         setErrMsg('No Server Response');
       } else if (err?.response.status === 401) {
-        setErrMsg("Incorrect Username/Password");
+        toast.error("Incorrect Username/Password", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
       } else {
         setErrMsg('Login Failed');
       }

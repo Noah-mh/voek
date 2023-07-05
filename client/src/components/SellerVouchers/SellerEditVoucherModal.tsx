@@ -4,6 +4,7 @@ import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller";
 import "./css/SellerVoucherModal.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ConfirmCloseModal from "./ConfirmCloseModal";
 
 interface Voucher {
   voucherId: number;
@@ -11,9 +12,9 @@ interface Voucher {
   amount?: number;
   percentage?: number;
   category: number;
-  minSpend: number;
+  minSpend?: number;
   expiryDate: string;
-  redemptionsAvailable: number;
+  redemptionsAvailable?: number;
   active: number;
 }
 
@@ -38,11 +39,42 @@ const SellerVoucherModal = ({
   const [editedVoucher, setEditedVoucher] = useState<Voucher>(
     voucher as Voucher
   );
+  const [isDirty, setIsDirty] = useState(false);
+  const [confirmCloseModal, setConfirmCloseModal] = useState(false);
 
   const axiosPrivateSeller = useAxiosPrivateSeller();
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
+
+    if (editedVoucher?.amount === 0) {
+      toast.warn("Discounted price cannot be $0!", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+      return;
+    }
+
+    if (editedVoucher?.percentage === 0) {
+      toast.warn("Discounted percentage cannot be 0%!", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+      return;
+    }
+
     axiosPrivateSeller
       .put(`/updateVoucher/`, editedVoucher)
       .then((response) => {
@@ -57,6 +89,7 @@ const SellerVoucherModal = ({
             progress: undefined,
             theme: "light",
           });
+          setIsDirty(false);
         } else if (response.status === 400) {
           toast.warn("Please Fill Up All The Text Fields!", {
             position: "top-center",
@@ -86,11 +119,37 @@ const SellerVoucherModal = ({
       });
   };
 
+  const getCurrentDate = () => {
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+    const day = currentDate.getDate().toString().padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const handleClose = () => {
+    if (isDirty) {
+      setConfirmCloseModal(true);
+    } else {
+      setOpenModal(false);
+    }
+  };
+
+  const handleConfirm = async () => {
+    setConfirmCloseModal(false);
+    setOpenModal(false);
+  };
+
+  const handleCancel = () => {
+    setConfirmCloseModal(false);
+    setOpenModal(true);
+  };
+
   return (
     <div>
       <Modal
         open={openModal}
-        onClose={() => setOpenModal(false)}
+        onClose={handleClose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
@@ -112,6 +171,7 @@ const SellerVoucherModal = ({
                     ...editedVoucher,
                     name: text.target.value,
                   });
+                  setIsDirty(true);
                 }}
               />
               <label
@@ -127,18 +187,43 @@ const SellerVoucherModal = ({
               <div className="relative z-0 w-full mb-6 group">
                 <input
                   type="number"
-                  name="floating_email"
-                  id="floating_email"
+                  name="amount"
+                  id="amount"
                   className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-softerPurple peer"
                   placeholder=" "
                   required
-                  value={editedVoucher?.amount}
-                  onChange={(text) => {
-                    let number: number = parseInt(text.target.value);
+                  step={0.01}
+                  onKeyDown={(event) => {
+                    if (["e", "E", "+", "-"].includes(event.key)) {
+                      event.preventDefault();
+                    }
+                  }}
+                  value={
+                    editedVoucher?.amount === 0
+                      ? "0"
+                      : editedVoucher?.amount || ""
+                  }
+                  onChange={(event) => {
+                    const inputValue = event.target.value;
+                    if (inputValue.includes("e")) {
+                      return;
+                    }
+
+                    const parsedValue = parseFloat(inputValue);
+                    if (!isNaN(parsedValue)) {
+                      setEditedVoucher({
+                        ...editedVoucher,
+                        amount: parsedValue,
+                      });
+                      setIsDirty(true);
+                      return;
+                    }
+
                     setEditedVoucher({
                       ...editedVoucher,
-                      amount: number,
+                      amount: undefined,
                     });
+                    setIsDirty(true);
                   }}
                 />
                 <label
@@ -159,12 +244,18 @@ const SellerVoucherModal = ({
                   placeholder=" "
                   required
                   value={editedVoucher?.percentage}
+                  onKeyDown={(event) => {
+                    if (["e", "E", "+", "-"].includes(event.key)) {
+                      event.preventDefault();
+                    }
+                  }}
                   onChange={(text) => {
                     let number: number = parseInt(text.target.value);
                     setEditedVoucher({
                       ...editedVoucher,
                       percentage: number,
                     });
+                    setIsDirty(true);
                   }}
                 />
                 <label
@@ -180,18 +271,42 @@ const SellerVoucherModal = ({
             <div className="relative z-0 w-full mb-6 group">
               <input
                 type="number"
-                name="floating_email"
-                id="floating_email"
+                name="minSpend"
+                id="minSpend"
                 className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-softerPurple peer"
                 placeholder=" "
                 required
-                value={editedVoucher?.minSpend}
+                value={
+                  editedVoucher?.minSpend === 0
+                    ? "0"
+                    : editedVoucher?.minSpend || ""
+                }
+                onKeyDown={(event) => {
+                  if (["e", "E", "+", "-"].includes(event.key)) {
+                    event.preventDefault();
+                  }
+                }}
                 onChange={(text) => {
-                  let number: number = parseInt(text.target.value);
+                  const inputValue = text.target.value;
+                  if (inputValue.includes("e")) {
+                    return;
+                  }
+
+                  const parsedValue = parseFloat(inputValue);
+                  if (!isNaN(parsedValue)) {
+                    setEditedVoucher({
+                      ...editedVoucher,
+                      minSpend: parsedValue,
+                    });
+                    setIsDirty(true);
+                    return;
+                  }
+
                   setEditedVoucher({
                     ...editedVoucher,
-                    minSpend: number,
+                    minSpend: undefined,
                   });
+                  setIsDirty(true);
                 }}
               />
               <label
@@ -212,21 +327,13 @@ const SellerVoucherModal = ({
                 placeholder=""
                 required
                 value={editedVoucher?.expiryDate}
+                min={getCurrentDate()}
                 onChange={(text) => {
-                  // const inputDate = text.target.value;
-                  // const cleanedDate = inputDate.replace(/[^0-9]/g, "");
-                  // const formattedDate = cleanedDate
-                  //   .slice(0, 8)
-                  //   .replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3");
-
-                  // setEditedVoucher({
-                  //   ...editedVoucher,
-                  //   expiryDate: formattedDate,
-                  // });
                   setEditedVoucher({
                     ...editedVoucher,
                     expiryDate: text.target.value,
                   });
+                  setIsDirty(true);
                 }}
               />
               <label
@@ -247,12 +354,18 @@ const SellerVoucherModal = ({
                 placeholder=" "
                 required
                 value={editedVoucher?.redemptionsAvailable}
+                onKeyDown={(event) => {
+                  if (["e", "E", "+", "-"].includes(event.key)) {
+                    event.preventDefault();
+                  }
+                }}
                 onChange={(text) => {
                   let number: number = parseInt(text.target.value);
                   setEditedVoucher({
                     ...editedVoucher,
                     redemptionsAvailable: number,
                   });
+                  setIsDirty(true);
                 }}
               />
               <label
@@ -293,6 +406,13 @@ const SellerVoucherModal = ({
           </form>
         </div>
       </Modal>
+
+      <ConfirmCloseModal
+        confirmCloseModal={confirmCloseModal}
+        handleCancel={handleCancel}
+        handleConfirm={handleConfirm}
+      />
+
       <ToastContainer />
     </div>
   );

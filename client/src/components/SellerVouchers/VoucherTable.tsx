@@ -60,6 +60,18 @@ const VoucherTable = () => {
             .get(`/getVouchers/${sellerId}`)
             .then((response) => {
               setVouchers(response.data);
+              const successMessage =
+                active === 1 ? "Voucher Activated" : "Voucher Deactivated";
+              toast.success(successMessage + " 😊", {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+              });
             });
         } else {
           toast.error("Uh-oh! Error! 😔", {
@@ -78,6 +90,7 @@ const VoucherTable = () => {
 
   useEffect(() => {
     axiosPrivateSeller.get(`/getVouchers/${sellerId}`).then((response) => {
+      console.log(response.data);
       setVouchers(response.data);
     });
 
