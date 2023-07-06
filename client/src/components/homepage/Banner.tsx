@@ -1,9 +1,15 @@
-import React from "react";
+import { useEffect, useState, React } from "react";
+import { Link } from "react-router-dom";
 import watchImg from "./assets/watch.png";
+import bagImg from "./assets/bagBanner.png";
+import shoeImg from "./assets/shoeBanner.png";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import "./css/Banner.css";
+import Fireflies from "./Fireflies.tsx";
+
+const bannerImg = [watchImg, bagImg, shoeImg];
 
 const NavBar: React.FC = () => {
   return (
@@ -44,18 +50,42 @@ const NavBar: React.FC = () => {
 };
 
 const Banner: React.FC = () => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % bannerImg.length);
+    }, 2000); // Change the duration (in milliseconds) between image transitions as desired
+
+    return () => clearInterval(interval);
+  }, []);
   return (
     <div className="backgroundImg">
       {/* <NavBar /> */}
-      <div className="flex justify-center items-center">
+      <Fireflies />
+      <div className=" flex justify-center items-center header">
+        <div className="headerText col-span flex-row justify-center items-center ">
+          <h1 className="text-center text-white text-5xl font-Barlow font-bold">
+            Welcome to Voek
+          </h1>
+          <h2 className="text-center text-white text-xl font-Barlow font-semibold">
+            All your products, in one place.
+          </h2>
+          <Link to="/products">
+            <button className="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-20 mx-auto my-5 rounded">
+              Check out our products
+            </button>
+          </Link>
+        </div>
+
         <motion.img
-          src={watchImg}
-          className="w-96 h-96"
-          initial={{ opacity: 0, y: -100 }}
-          animate={{ opacity: 1, y: 288 }}
+          src={bannerImg[currentImageIndex]}
+          className="w-96 h-96 BannerImg col-span-2"
+          // initial={{ opacity: 0, y: -100, x: 40 }}
+          // animate={{ opacity: 1 }}
           transition={{ type: "spring", duration: 2 }}
         />
       </div>
+      <div className="blob"></div>
     </div>
   );
 };

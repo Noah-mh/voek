@@ -1,7 +1,10 @@
 .container {
-  min-width: 60vw;
+  min-width: 60vw;325558c
 }
 
 nav {
   color: var(--purpleAccent) box;
+  z-index: 40;
+  position: relative;
+  box-shadow: 1px 5px 10px rgba(0, 0, 0, 0.1);
 }
