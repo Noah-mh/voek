@@ -11,8 +11,11 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion";
 import { AiFillHeart, AiOutlineHeart, AiFillDelete } from "react-icons/ai";
+import { RxDividerVertical } from "react-icons/rx";
 import Rating from "@mui/material/Rating";
 import RedeemVoucher from "../RedeemVoucher/RedeemVoucher";
+import Typography from "@mui/material/Typography";
+
 //Noah's code
 
 interface ProductDetailProps {
@@ -383,12 +386,12 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
 
   return (
     <div className="container">
-      {productData.map((pData, index: React.Key | null | undefined) => (
-        <div key={index}>
-          <h1>{pData.name}</h1>
-          {pData.image_urls && (
+
+      <div className="flex">
+        <div className="w-64 h-64 mr-5">
+          {productData[0].image_urls && (
             <Carousel showThumbs={false}>
-              {pData.image_urls.map(
+              {productData[0].image_urls.map(
                 (
                   imageUrl: string | undefined,
                   index: React.Key | null | undefined
@@ -406,19 +409,34 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
               )}
             </Carousel>
           )}
-          <h3>Description: {pData.description}</h3>
-          <h2>Price: $ {price}</h2>
-
-          <div>
-            {hasValidVariation && (
+        </div>
+        <div className="flex flex-col justify-center w-3/5 ml-5">
+          <Typography variant="h5" component="div">
+            {productData[0].name}
+          </Typography>
+          {productReview[0].rating ? <div className="flex items-center">
+            <Typography variant="h6" color="red" mr={1}>{productReview[0].rating}</Typography>
+            <Rating
+              name="half-rating-read"
+              value={Number(productReview[0].rating)}
+              precision={0.5}
+              readOnly
+            />
+            <RxDividerVertical />
+            <Typography variant="h6" color="red" ml={1} mr={2}>{productReview[0].total_reviews}</Typography>
+            <Typography >Ratings</Typography>
+          </div> : null}
+          <Typography variant="h4" color="red">$ {price}</Typography>
+          <div className="mt-2">
+            {hasValidVariation ? (
               <Select
                 value={
                   selectedVariation
                     ? {
-                        label: selectedVariation,
-                        value: selectedVariation,
-                        sku: selectedSku,
-                      }
+                      label: selectedVariation,
+                      value: selectedVariation,
+                      sku: selectedSku,
+                    }
                     : null
                 }
                 onChange={(option) => {
@@ -427,94 +445,81 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                 }}
                 options={options}
               />
-            )}
+            ) : null}
           </div>
+          <div className="flex items-start space-x-2 mb-4">
+            Quantity
+            <button
+              onClick={() => decreaseQuantity()}
+              className="bg-gray-200 text-black py-1 px-3 ml-2 rounded-lg focus:outline-none hover:bg-gray-300"
+            >
+              -
+            </button>
+            <span className="text-lg">{quantity}</span>
+            <button
+              onClick={() => increaseQuantity(selectedSku)}
+              className="bg-gray-200 text-black py-1 px-3 rounded-lg focus:outline-none hover:bg-gray-300"
+            >
+              +
+            </button>
+          </div>
+          <span className="flex items-center">
+            <button
+              onClick={handleAddToCart}
+              className=" bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            >
+              Add to Cart
+            </button>
+            <motion.button
+              className="mx-2"
+              whileHover={{ scale: 1.3 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              {heart ? (
+                <AiFillHeart
+                  onClick={() => {
+                    handleRemoveFromWishlist();
+                  }}
+                  color="pink"
+                  size="2em"
+                />
+              ) : (
+                <AiOutlineHeart
+                  onClick={() => {
+                    handleAddToWishlist();
+                  }}
+                  color="pink"
+                  size="2em"
+                />
+              )}
+            </motion.button>
+          </span>
         </div>
-      ))}
-      <div className="flex items-center justify-center space-x-2">
-        Quantity
-        <button
-          onClick={() => decreaseQuantity()}
-          className="bg-gray-200 text-black py-1 px-3 rounded-lg focus:outline-none hover:bg-gray-300"
-        >
-          -
-        </button>
-        <span className="text-lg">{quantity}</span>
-        <button
-          onClick={() => increaseQuantity(selectedSku)}
-          className="bg-gray-200 text-black py-1 px-3 rounded-lg focus:outline-none hover:bg-gray-300"
-        >
-          +
-        </button>
+
       </div>
-      <span className="flex items-center">
-        <button
-          onClick={handleAddToCart}
-          className=" bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Add to Cart
-        </button>
-        <motion.button
-          className="mx-2"
-          whileHover={{ scale: 1.3 }}
-          whileTap={{ scale: 0.9 }}
-        >
-          {heart ? (
-            <AiFillHeart
-              onClick={() => {
-                handleRemoveFromWishlist();
-              }}
-              color="pink"
-              size="2em"
-            />
-          ) : (
-            <AiOutlineHeart
-              onClick={() => {
-                handleAddToWishlist();
-              }}
-              color="pink"
-              size="2em"
-            />
-          )}
-        </motion.button>
-      </span>
+
       <RedeemVoucher seller_id={seller_id} />
+      <Typography variant="h5" mt={2}>Product Description: </Typography>
+      <Typography variant="subtitle1" mt={1}>{productData[0].description}</Typography>
       {productReview.map((pReview, index) => (
-        <div key={index}>
-          <h3>Rating: {pReview.rating}</h3>
-          <Rating
-            name="half-rating-read"
-            value={Number(pReview.rating)}
-            precision={0.5}
-            readOnly
-          />
-          <h3>Reviews:</h3>
-          {pReview.reviews &&
+        <div className="mt-2" key={index}>
+          {productReview[0].rating ? <>
+            <Typography>{productReview[0].rating}</Typography>
+            <Rating
+              name="half-rating-read"
+              value={Number(productReview[0].rating)}
+              precision={0.5}
+              readOnly
+            />
+            <h3>Reviews:</h3>
+          </> : null}
+          {pReview.reviews ?
             pReview.reviews.map((review, reviewIndex) => (
               <div key={reviewIndex}>
                 <h1>{review.customerName}</h1>
-                {/* {review.image_urls && (
-                  <Carousel showThumbs={false}>
-                    {review.image_urls.map((imageUrl, imageIndex) => (
-                      <div className="w-64 h-64" key={imageIndex}>
-                        <AdvancedImage cldImg={cld.image(imageUrl)} />
-                      </div>
-                    ))}
-                  </Carousel>
-                )}{" "} */}
-                {review.image_urls && (
-                  <div className="flex space-x-2">
-                    {review.image_urls.map((imageUrl, imageIndex) => (
-                      <div className="w-16 h-16" key={imageIndex}>
-                        <AdvancedImage cldImg={cld.image(imageUrl)} />
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <div className="flex flex-row justify-between mt-5">
-                  <p>{review.comment}</p>
-                  {review.customer_id === customer_id && (
+                <div className="flex flex-row justify-between mt-2">
+                  <Typography>{review.comment}</Typography>
+                  {review.customer_id === customer_id ? (
                     <button
                       className="justify-content-center align-item-center"
                       onClick={() =>
@@ -523,10 +528,20 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                     >
                       <AiFillDelete />
                     </button>
-                  )}
+                  ) : null}
                 </div>
+                {review.image_urls && (
+                  <div className="flex space-x-2">
+                    {review.image_urls.map((imageUrl, imageIndex) => (
+                      <div className="w-16 h-16" key={imageIndex}>
+                        <AdvancedImage cldImg={cld.image(imageUrl)} className="object-cover w-full h-full" />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-            ))}
+            )) : null
+          }
         </div>
       ))}
 
