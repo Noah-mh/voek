@@ -19,7 +19,9 @@ interface seller {
   seller_id: number;
   shop_name: string;
   image_url: string;
-  total_product: number;
+  total_products: number;
+  total_reviews: number;
+  date_created: Date;
 }
 
 export interface ProductVariation {
@@ -31,7 +33,9 @@ export interface ProductVariation {
 }
 
 export interface Review {
+  name: string;
   rating: number;
+  total_reviews: number;
   reviews: Customer[];
 }
 
@@ -59,6 +63,7 @@ const ProductDetailWithReview: React.FC = () => {
   const params = useParams();
   const { product_id } = params;
   const [sellerData, setSellerData] = useState<seller[]>([]);
+  const [diffInMonths, setDiffInMonths] = useState<number>(0);
   const [productData, setProductData] = useState<Product[] | null>(null);
   const [productReview, setProductReview] = useState<Review[] | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -89,7 +94,7 @@ const ProductDetailWithReview: React.FC = () => {
     }
   };
 
-  const getALlData = async () => {
+  const getAllData = async () => {
     try {
       const result: any = await Promise.all([
         getSellerData(),
@@ -107,8 +112,7 @@ const ProductDetailWithReview: React.FC = () => {
 
   useEffect(() => {
     // Noah
-    getALlData();
-
+    getAllData();
     // Nhat Tien :D
     if (customerId != undefined) {
       axiosPrivateCustomer
@@ -143,38 +147,57 @@ const ProductDetailWithReview: React.FC = () => {
         });
     }
   }, [product_id, customer]);
+  useEffect(() => {
+    if (sellerData.length > 0) {
+      const date_created = moment(sellerData[0].date_created);
 
+      const diffInMonths = moment().diff(date_created, "months");
+      console.log(diffInMonths);
+      console.log("review", productReview);
+      setDiffInMonths(diffInMonths);
+    }
+  }, [sellerData]);
   if (isLoading || !productData || !productReview) {
     return <Loader />;
   } else {
     return (
       <div>
-        {/* <Link
-          to={`/customerSellerProfile/${sellerData[0].seller_id}`}
-          className="text-blue-500 hover:underline"
-        >
-          <div className="flex justify-center items-center">
-            <div className="w-40 h-40 mb-5 mr-5">
-              <AdvancedImage cldImg={cld.image(sellerData[0].image_url)} />
-            </div>
-            <div className="flex flex-col justify-center">
-              <Typography gutterBottom variant="h5" component="div">
-                {sellerData[0].shop_name}
-              </Typography>
-              <div className="flex">
-                <AiOutlineShop />
-                <Typography variant="body2" color="text.primary">
-                  Products: {sellerData[0].total_product}
-                </Typography>
-              </div>
-            </div>
+        {/* <div className="flex justify-center items-start space-x-4">
+          <div className="w-20 h-20 mb-5 mr-5 rounded-full overflow-hidden">
+            <AdvancedImage cldImg={cld.image(sellerData[0].image_url)} />
           </div>
-        </Link> */}
+          <div className="flex flex-col justify-center">
+            <Typography gutterBottom variant="h5" component="div">
+              {sellerData[0].shop_name}
+            </Typography>
+            <Link
+              to={`/customerSellerProfile/${sellerData[0].seller_id}`}
+              className="mt-3 inline-flex items-center justify-center border border-black text-black py-2 px-4 rounded bg-white hover:bg-gray-200"
+            >
+              <AiOutlineShop />
+              <span className="ml-2">View Shop</span>
+            </Link>
+          </div>
+
+          <div className="flex flex-col justify-center item-center">
+            <Typography variant="body2" color="text.primary">
+              Total Products: {sellerData[0].total_products}
+            </Typography>
+            <Typography variant="body2" color="text.primary">
+              Total Rating: {sellerData[0].total_reviews}
+            </Typography>
+          </div>
+          <div className="flex flex-col justify-center">
+            <Typography variant="body2" color="text.primary">
+              Joined: {diffInMonths} months ago
+            </Typography>
+          </div>
+        </div> */}
         <ProductDetail
           productData={productData}
           productReview={productReview}
           seller_id={sellerData[0].seller_id}
-          getAllData={getALlData}
+          getAllData={getAllData}
         />
       </div>
     );

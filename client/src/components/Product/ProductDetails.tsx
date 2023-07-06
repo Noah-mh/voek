@@ -11,8 +11,11 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion";
 import { AiFillHeart, AiOutlineHeart, AiFillDelete } from "react-icons/ai";
+import { RxDividerVertical } from "react-icons/rx";
 import Rating from "@mui/material/Rating";
 import RedeemVoucher from "../RedeemVoucher/RedeemVoucher";
+import Typography from "@mui/material/Typography";
+
 //Noah's code
 
 interface ProductDetailProps {
@@ -384,10 +387,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
       });
   };
 
-  useEffect(() => {
-    console.log("productData", productData);
-  }, []);
-
   return (
     <div className="flex flex-col my-8 mx-48">
       <div className="flex sm:flex-col xl:flex-row w-full justify-center space-x-12">
@@ -581,6 +580,20 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                             <h1 className="text-[15px] text-grey-400 leading-7 text-normal break-words">
                               {review.comment}
                             </h1>
+                            {review.image_urls && (
+                              <div className="flex space-x-2">
+                                {review.image_urls.map(
+                                  (imageUrl, imageIndex) => (
+                                    <div className="w-16 h-16" key={imageIndex}>
+                                      <AdvancedImage
+                                        cldImg={cld.image(imageUrl)}
+                                        className="object-cover w-full h-full"
+                                      />
+                                    </div>
+                                  )
+                                )}
+                              </div>
+                            )}
                           </div>
                         </div>
                       ))
