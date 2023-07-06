@@ -62,6 +62,7 @@ const Banner: React.FC = () => {
     <div className="backgroundImg">
       {/* <NavBar /> */}
       <Fireflies />
+      <div className="scroll-down"></div>
       <div className=" flex justify-center items-center header">
         <div className="headerText col-span flex-row justify-center items-center ">
           <h1 className="text-center text-white text-5xl font-Barlow font-bold">

@@ -5,6 +5,7 @@ import "./css/Slider.css";
 
 import { AdvancedImage } from "@cloudinary/react";
 import { cld } from "../../Cloudinary/Cloudinary";
+import ProductCard from "../Result/ProductCard";
 
 interface SliderProps {
   header: string;
@@ -16,6 +17,7 @@ interface Product {
   name: string;
   description: string;
   image: string;
+  rating: number;
 }
 
 const Slider: React.FC<SliderProps> = ({ header, products }) => {
@@ -23,7 +25,7 @@ const Slider: React.FC<SliderProps> = ({ header, products }) => {
   const isDragging = useRef<boolean>(false);
   const dragStartXRef = useRef<number>(0);
   const dragCurrentXRef = useRef<number>(0);
-  const speedFactor = 0.008;
+  const speedFactor = 0.018;
 
   const handleDragStart = (event: React.MouseEvent | React.TouchEvent) => {
     event.preventDefault();
@@ -70,50 +72,47 @@ const Slider: React.FC<SliderProps> = ({ header, products }) => {
   };
 
   return (
-    <motion.div
-      ref={carousel}
-      className="carousel overflow-hidden"
-      initial={{ opacity: 0, x: -100 }}
-      whileInView={{ opacity: 1, x: 0 }}
-      transition={{ type: "spring", duration: 2 }}
-    >
+    <div>
       <h1 className="ml-12 font-bold text-3xl mt-3 header tracking-widest">
         {header}
       </h1>
       <motion.div
-        className="inner-carousel flex cursor-grab"
-        onMouseDown={handleDragStart}
-        onMouseMove={handleDragMove}
-        onMouseUp={handleDragEnd}
-        onMouseLeave={handleDragEnd}
-        onTouchStart={handleDragStart}
-        onTouchMove={handleDragMove}
-        onTouchEnd={handleDragEnd}
+        ref={carousel}
+        className="carousel overflow-hidden"
+        initial={{ opacity: 0, x: -100 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        transition={{ type: "spring", duration: 2 }}
       >
-        {products.map((product: Product, index: number) => {
-          return (
-            <Link
-              key={index}
-              to={`/productDetailsWithReviews/${product.product_id}`}
-              className=""
-            >
-              <motion.div
-                className="item p-5 px-4 pt-7 cursor-pointer"
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.9 }}
+        <motion.div
+          className="inner-carousel flex cursor-grab"
+          onMouseDown={handleDragStart}
+          onMouseMove={handleDragMove}
+          onMouseUp={handleDragEnd}
+          onMouseLeave={handleDragEnd}
+          onTouchStart={handleDragStart}
+          onTouchMove={handleDragMove}
+          onTouchEnd={handleDragEnd}
+        >
+          {products.map((product: Product, index: number) => {
+            return (
+              <Link
+                key={index}
+                to={`/productDetailsWithReviews/${product.product_id}`}
+                className=""
               >
-                <AdvancedImage
-                  cldImg={cld.image(product.image)}
-                  alt="products"
-                  draggable={false}
-                  className="rounded-xl object-cover homepageSliderImg"
-                />
-              </motion.div>
-            </Link>
-          );
-        })}
+                <motion.div
+                  className="item cursor-pointer"
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <ProductCard product={product} />
+                </motion.div>
+              </Link>
+            );
+          })}
+        </motion.div>
       </motion.div>
-    </motion.div>
+    </div>
   );
 };
 
