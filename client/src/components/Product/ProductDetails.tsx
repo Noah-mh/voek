@@ -431,6 +431,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
               name="half-rating-read"
               value={Number(productReview[0].rating)}
               precision={0.5}
+              // style={{ position: "static" }}
               readOnly
             />
             <h1 className="text-[13px] font-normal">
@@ -449,38 +450,42 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             {productData[0].description}
           </h1>
           <div className="mb-[30px]">
-            <h1 className="text-sm font-normal uppercase text-greyAccent mb-[14px] inline-block">
-              Variations
-            </h1>
-            <div className="flex space-x-4 items-center">
-              {hasValidVariation && (
-                <Select
-                  theme={(theme) => ({
-                    ...theme,
-                    borderRadius: 0,
-                    colors: {
-                      ...theme.colors,
-                      primary25: "rgba(92, 68, 68, 0.3)",
-                      primary: "#310d20",
-                    },
-                  })}
-                  value={
-                    selectedVariation
-                      ? {
-                          label: selectedVariation,
-                          value: selectedVariation,
-                          sku: selectedSku,
-                        }
-                      : null
-                  }
-                  onChange={(option) => {
-                    setSelectedVariation(option?.value || null);
-                    setSelectedSku(option?.sku || null);
-                  }}
-                  options={options}
-                />
-              )}
-            </div>
+            {hasValidVariation ? (
+              <>
+                <h1 className="text-sm font-normal uppercase text-greyAccent mb-[14px] inline-block">
+                  Variations
+                </h1>
+                <div className="flex space-x-4 items-center">
+                  {hasValidVariation && (
+                    <Select
+                      theme={(theme) => ({
+                        ...theme,
+                        borderRadius: 0,
+                        colors: {
+                          ...theme.colors,
+                          primary25: "rgba(92, 68, 68, 0.3)",
+                          primary: "#310d20",
+                        },
+                      })}
+                      value={
+                        selectedVariation
+                          ? {
+                              label: selectedVariation,
+                              value: selectedVariation,
+                              sku: selectedSku,
+                            }
+                          : null
+                      }
+                      onChange={(option) => {
+                        setSelectedVariation(option?.value || null);
+                        setSelectedSku(option?.sku || null);
+                      }}
+                      options={options}
+                    />
+                  )}
+                </div>
+              </>
+            ) : null}
           </div>
           <div className="w-full flex items-center h-[50px] space-x-[10px] mb-[30px]">
             <div className="w-[120px] h-full px-[26px] flex items-center border border-lighterGreyAccent">
