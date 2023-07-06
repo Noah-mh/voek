@@ -73,7 +73,7 @@ const Slider: React.FC<SliderProps> = ({ header, products }) => {
 
   return (
     <div>
-      <h1 className="ml-12 font-bold text-3xl mt-3 header tracking-widest">
+      <h1 className="ml-12 font-bold text-3xl header tracking-widest">
         {header}
       </h1>
       <motion.div
