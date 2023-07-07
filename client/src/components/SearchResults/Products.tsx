@@ -32,7 +32,7 @@ const Products = ({ userInput }: ProductsProps) => {
         {status ? (
           <div>
             {products.length > 0 ? (
-              <div className="flex flex-wrap space-x-2">
+              <div className="flex justify-center items-center flex-wrap space-x-2">
                 {products.map((product: any, index: number) => {
                   return (
                     <div key={index}>

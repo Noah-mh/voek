@@ -12,7 +12,9 @@ const SearchResults = () => {
     setInput(userInput);
   }, [userInput]);
 
-  return <div>{input !== "" && <Products userInput={input} />}</div>;
+  return (
+    <div className="">{input !== "" && <Products userInput={input} />}</div>
+  );
 };
 
 export default SearchResults;
