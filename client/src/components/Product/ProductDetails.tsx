@@ -15,14 +15,17 @@ import { RxDividerVertical } from "react-icons/rx";
 import Rating from "@mui/material/Rating";
 import RedeemVoucher from "../RedeemVoucher/RedeemVoucher";
 import Typography from "@mui/material/Typography";
+import { Link } from "react-router-dom";
+import { AiOutlineShop } from "react-icons/ai";
 
 //Noah's code
 
 interface ProductDetailProps {
   productData: Product[];
   productReview: Review[];
-  seller_id: number;
+  sellerData: seller[];
   getAllData: () => void;
+  diffInMonths: number;
 }
 interface CartItem {
   cart_id: number;
@@ -32,11 +35,21 @@ interface CartItem {
   sku: string;
 }
 
+interface seller {
+  seller_id: number;
+  shop_name: string;
+  image_url: string;
+  total_products: number;
+  total_reviews: number;
+  date_created: Date;
+}
+
 const ProductDetail: React.FC<ProductDetailProps> = ({
   productData,
   productReview,
-  seller_id,
+  sellerData,
   getAllData,
+  diffInMonths,
 }) => {
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
   const { customer } = useCustomer();
@@ -546,68 +559,134 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
         </div>
       </div>
 
-      <div className="w-auto mt-28 relative pb-[60px] my-8 mx-48">
+      <div className="w-auto mt-24 relative pb-[60px] my-8 mx-48">
         <div className="w-full min-h-[400px]">
           <div className="mx-auto">
             <div className="w-full">
-              <h1 className="text-[18px] font-medium my-4 ml-10">Reviews</h1>
-              <div className="w-full">
-                <div className="w-full reviews mb-[60px]">
-                  <div className="w-full comments px-10 mb-[60px]">
-                    {productReview[0].reviews?.length != null ? (
-                      productReview[0].reviews.map((review, reviewIndex) => (
-                        <div
-                          key={reviewIndex}
-                          className="bg-gray-50 px-10 py-[32px] mb-2.5"
-                        >
-                          <div className="flex justify-between items-center mb-3">
-                            <h1 className="text-[18px] font-medium break-words">
-                              {review.customerName}
-                            </h1>
-                            <div>
-                              {review.customer_id === customer_id && (
-                                <button
-                                  className="justify-content-center align-item-center"
-                                  onClick={() =>
-                                    handleDeleteReview(
-                                      review.review_id,
-                                      review.sku
+              <div className="w-full bg-[#FAF8FF] flex p-6 content-between items-center overflow-visible shadow-sm">
+                <div className="pr-10 box-border border-r border-gray-200 flex max-w-[27.5rem] justify-center items-center">
+                  <Link
+                    to={`/customerSellerProfile/${sellerData[0].seller_id}`}
+                    className="flex-shrink-0 mr-5 relative overflow-visible outline-0"
+                  >
+                    <div className="w-20 h-20">
+                      <AdvancedImage
+                        cldImg={cld.image(sellerData[0].image_url)}
+                        className="w-full h-full object-cover rounded-full"
+                      />
+                    </div>
+                  </Link>
+                  <div className="grow flex flex-col content-center overflow-hidden">
+                    <Link
+                      to={`/customerSellerProfile/${sellerData[0].seller_id}`}
+                      className="overflow-hidden text-ellipsis whitespace-nowrap"
+                    >
+                      {sellerData[0].shop_name}
+                    </Link>
+                    <div className="mt-2 flex space-x-2">
+                      {/* <Link
+                        to={`/customerSellerProfile/${sellerData[0].seller_id}`}
+                        className="outline-0 border border-opacity-10 relative overflow-visible h-9 px-4"
+                      >
+                        Chat Now
+                      </Link> */}
+                      <Link
+                        to={`/customerSellerProfile/${sellerData[0].seller_id}`}
+                        className="outline-0 border border-opacity-10 relative overflow-visible h-9 px-4 flex justify-center items-center"
+                      >
+                        <AiOutlineShop /> View Shop
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+                <div className="grow grid grid-cols-3 gap-x-10 gap-y-20 pl-10 text-gray-400">
+                  <div className="flex justify-between relative overflow-visible">
+                    <h1>Total Products:</h1>{" "}
+                    <h1 className="text-pink">
+                      {sellerData[0].total_products}
+                    </h1>
+                  </div>
+                  <div className="flex justify-between relative overflow-visible">
+                    <h1>Total Ratings:</h1>{" "}
+                    <h1 className="text-pink">{sellerData[0].total_reviews}</h1>
+                  </div>
+                  <div className="flex justify-between relative overflow-visible">
+                    <h1>Joined:</h1>{" "}
+                    <h1 className="text-pink">
+                      {diffInMonths}{" "}
+                      {diffInMonths === 1 || diffInMonths === 0 ? (
+                        <span>month</span>
+                      ) : (
+                        <span>months</span>
+                      )}{" "}
+                      ago
+                    </h1>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-8">
+                <h1 className="text-[18px] font-medium my-4 ml-10">Reviews</h1>
+                <div className="w-full">
+                  <div className="w-full mb-[60px]">
+                    <div className="w-full px-10 mb-[60px]">
+                      {productReview[0].reviews?.length != null ? (
+                        productReview[0].reviews.map((review, reviewIndex) => (
+                          <div
+                            key={reviewIndex}
+                            className="bg-gray-50 px-10 py-[32px] mb-2.5"
+                          >
+                            <div className="flex justify-between items-center mb-3">
+                              <h1 className="text-[18px] font-medium break-words">
+                                {review.customerName}
+                              </h1>
+                              <div>
+                                {review.customer_id === customer_id && (
+                                  <button
+                                    className="justify-content-center align-item-center"
+                                    onClick={() =>
+                                      handleDeleteReview(
+                                        review.review_id,
+                                        review.sku
+                                      )
+                                    }
+                                  >
+                                    <AiFillDelete />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="mb-[30px]">
+                              <h1 className="text-[15px] text-grey-400 leading-7 text-normal break-words">
+                                {review.comment}
+                              </h1>
+                              {review.image_urls && (
+                                <div className="flex space-x-2">
+                                  {review.image_urls.map(
+                                    (imageUrl, imageIndex) => (
+                                      <div
+                                        className="w-16 h-16"
+                                        key={imageIndex}
+                                      >
+                                        <AdvancedImage
+                                          cldImg={cld.image(imageUrl)}
+                                          className="object-cover w-full h-full"
+                                        />
+                                      </div>
                                     )
-                                  }
-                                >
-                                  <AiFillDelete />
-                                </button>
+                                  )}
+                                </div>
                               )}
                             </div>
                           </div>
-
-                          <div className="mb-[30px]">
-                            <h1 className="text-[15px] text-grey-400 leading-7 text-normal break-words">
-                              {review.comment}
-                            </h1>
-                            {review.image_urls && (
-                              <div className="flex space-x-2">
-                                {review.image_urls.map(
-                                  (imageUrl, imageIndex) => (
-                                    <div className="w-16 h-16" key={imageIndex}>
-                                      <AdvancedImage
-                                        cldImg={cld.image(imageUrl)}
-                                        className="object-cover w-full h-full"
-                                      />
-                                    </div>
-                                  )
-                                )}
-                              </div>
-                            )}
-                          </div>
+                        ))
+                      ) : (
+                        <div className="flex flex-col mt-48 justify-center items-center">
+                          <h1>There are no reviews for this product</h1>
+                          <h1>Be the first one to review!</h1>
                         </div>
-                      ))
-                    ) : (
-                      <div className="flex flex-col mt-48 justify-center items-center">
-                        <h1>There are no reviews for this product</h1>
-                        <h1>Be the first one to review!</h1>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

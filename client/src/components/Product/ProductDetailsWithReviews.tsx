@@ -196,8 +196,9 @@ const ProductDetailWithReview: React.FC = () => {
         <ProductDetail
           productData={productData}
           productReview={productReview}
-          seller_id={sellerData[0].seller_id}
+          sellerData={sellerData}
           getAllData={getAllData}
+          diffInMonths={diffInMonths}
         />
       </div>
     );
