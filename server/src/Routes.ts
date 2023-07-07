@@ -400,7 +400,7 @@ export default function (app: Express, router: Router) {
   );
 
   router.get("/topProducts", productController.getTopProducts);
-  router.get("/searchResult/:input", productController.getSearchResult);
+  router.get("/searchResult/:input?", productController.getSearchResult);
   // router.get(
   //   "/productsBasedOnCategory",
   //   productController.getProductsBasedOnCategory

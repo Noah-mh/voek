@@ -12,8 +12,9 @@ const Products = ({ userInput }: ProductsProps) => {
   const [status, setStatus] = useState<boolean>(false);
 
   useEffect(() => {
+    console.log("userInput", userInput == undefined);
     axios
-      .get(`/searchResult/${userInput}`)
+      .get(`/searchResult/${userInput == undefined ? "" : userInput}`)
       .then((response: any) => response.data)
       .then((data: Array<object>) => {
         setStatus(true);

@@ -128,7 +128,7 @@ export const getSearchResult = async (
   try {
     const { input } = req.params;
     const response: Array<object> = await productModel.handlesSearchResult(
-      input
+      input == undefined ? "" : input
     );
     return res.send(response);
   } catch (err: any) {
