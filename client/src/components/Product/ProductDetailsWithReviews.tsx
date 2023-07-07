@@ -50,7 +50,7 @@ export interface Customer {
 
 export interface Product {
   product_id: number;
-  image_urls: string[] | null;
+  image_urls: string[];
   name: string;
   description: string | null;
   variations: ProductVariation[] | null;
@@ -162,7 +162,7 @@ const ProductDetailWithReview: React.FC = () => {
   } else {
     return (
       <div>
-        <div className="flex justify-center items-start space-x-4">
+        {/* <div className="flex justify-center items-start space-x-4">
           <div className="w-20 h-20 mb-5 mr-5 rounded-full overflow-hidden">
             <AdvancedImage cldImg={cld.image(sellerData[0].image_url)} />
           </div>
@@ -192,12 +192,13 @@ const ProductDetailWithReview: React.FC = () => {
               Joined: {diffInMonths} months ago
             </Typography>
           </div>
-        </div>
+        </div> */}
         <ProductDetail
           productData={productData}
           productReview={productReview}
-          seller_id={sellerData[0].seller_id}
+          sellerData={sellerData}
           getAllData={getAllData}
+          diffInMonths={diffInMonths}
         />
       </div>
     );
