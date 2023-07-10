@@ -1,8 +1,15 @@
+.sliderContainer {
+  max-width: 100%;
+  overflow: hidden;
+  margin: 0 auto;
+  scale: 0.8;
+}
+/* 
 .sliders .carousel {
   max-width: 80%;
   overflow: hidden;
   margin: 0 auto;
-}
+} */
 
 /* .item {
   min-height: 13.2rem;
@@ -21,10 +28,10 @@
   scale: 0.9;
   margin: 0 !important;
 } */
-.inner-carousel {
+/* .inner-carousel {
   scale: 0.8;
   margin-left: -10%;
-}
+} */
 
 .homepageSliderImg {
   width: 480px !important;

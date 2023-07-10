@@ -12,6 +12,7 @@ import Box from "@mui/material/Box";
 import AddressDisplay from "./Address";
 import Loader from "../Loader/Loader";
 import CustomerVoucher from "../RedeemVoucher/CustomerVoucher";
+import "./css/ProfilePage.css";
 
 //Noah's code
 
@@ -85,7 +86,7 @@ const CustomerProfilePage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    console.log(event)
+    console.log(event);
     setValue(newValue);
   };
 
@@ -192,7 +193,7 @@ const CustomerProfilePage = () => {
         </TabPanel>
         <TabPanel value={value} index={1}>
           {/* Addresses content */}
-          <AddressDisplay customerData={customerData!} getAll = {getAll}/>
+          <AddressDisplay customerData={customerData!} getAll={getAll} />
         </TabPanel>
         <TabPanel value={value} index={2}>
           {/* Orders content */}
