@@ -29,7 +29,9 @@ interface seller {
     seller_id: number;
     shop_name: string;
     image_url: string;
-    total_product: number;
+    total_products: number;
+    total_reviews: number;
+    date_created: Date;
 }
 
 interface Category {
@@ -145,7 +147,7 @@ const CustomerSellerProfilePage: React.FC = () => {
                         <div className="flex">
                             <AiOutlineShop />
                             <Typography variant="body2" color="text.primary">
-                                Products: {sellerData[0].total_product}
+                                Products: {sellerData[0].total_products}
                             </Typography>
                         </div>
                     </div>

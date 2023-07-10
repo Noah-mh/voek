@@ -143,7 +143,7 @@ const Category: React.FC = () => {
       whileInView={{ opacity: 1 }}
       transition={{ type: "spring", duration: 2 }}
     >
-      <div className="categoriesHeader m-3 ml-3 text-3xl font-semibold tracking-widest">
+      <div className="categoriesHeader m-3 ml-3 text-3xl font-bold font-Barlow ">
         Categories
         {/* &#10093; */}
       </div>

@@ -10,6 +10,7 @@ import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import useCustomer from "../../hooks/UseCustomer";
 import { motion } from "framer-motion";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
+import "./ProductCard.css";
 
 interface ProductCardProps {
   product: {
@@ -193,7 +194,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
   return (
     <div>
-      <div className="w-96 max-w-sm bg-gray-50 border rounded-lg shadow-xl p-2 m-2">
+      <div className="w-96 max-w-sm bg-gray-50 border rounded-lg shadow-xl p-2 m-2 productCard">
         <Link to={`/productDetailsWithReviews/${product.product_id}`}>
           <AdvancedImage
             className="p-8 rounded-t-lg hover:cursor-pointer w-full h-80 object-contain"

@@ -212,6 +212,8 @@ export const handlesSearchResult = async (
   try {
     const result = await connection.query(sql, params);
     return result[0] as Product[];
+  } catch (err: any) {
+    throw new Error(err);
   } finally {
     await connection.release();
   }
@@ -326,6 +328,7 @@ export const handleProductReviews = async (
   const sql = `SELECT 
   p.name,
   ROUND(AVG(r.rating), 2) AS rating,
+  COUNT(r.review_id) AS total_reviews,
   (SELECT 
       JSON_ARRAYAGG(
           JSON_OBJECT(
@@ -369,6 +372,7 @@ GROUP BY
 
   try {
     const result = await connection.query(sql, product_id);
+    console.log(result[0]);
     return result[0] as Review[];
   } catch (err: any) {
     throw new Error(err);
@@ -564,8 +568,19 @@ interface ProductWithImages extends Product {
 }
 
 interface Review {
+  name: string;
+  rating: number;
+  total_reviews: number;
+  reviews: Customer[];
+}
+
+interface Customer {
+  sku: string;
+  review_id: number;
+  customer_id: number;
   customerName: string;
   comment: string;
+  image_urls: string[];
 }
 
 interface Category {
