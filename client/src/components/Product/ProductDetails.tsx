@@ -15,14 +15,17 @@ import { RxDividerVertical } from "react-icons/rx";
 import Rating from "@mui/material/Rating";
 import RedeemVoucher from "../RedeemVoucher/RedeemVoucher";
 import Typography from "@mui/material/Typography";
+import { Link } from "react-router-dom";
+import { AiOutlineShop } from "react-icons/ai";
 
 //Noah's code
 
 interface ProductDetailProps {
   productData: Product[];
   productReview: Review[];
-  seller_id: number;
+  sellerData: seller[];
   getAllData: () => void;
+  diffInMonths: number;
 }
 interface CartItem {
   cart_id: number;
@@ -32,15 +35,28 @@ interface CartItem {
   sku: string;
 }
 
+interface seller {
+  seller_id: number;
+  shop_name: string;
+  image_url: string;
+  total_products: number;
+  total_reviews: number;
+  date_created: Date;
+}
+
 const ProductDetail: React.FC<ProductDetailProps> = ({
   productData,
   productReview,
-  seller_id,
+  sellerData,
   getAllData,
+  diffInMonths,
 }) => {
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
   const { customer } = useCustomer();
   const customer_id = customer.customer_id;
+  const [imageChosen, setImageChosen] = useState<string>(
+    productData[0].image_urls[0]
+  );
   const [quantity, setQuantity] = useState<number>(1);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [price, setPrice] = useState<number | null>(
@@ -385,165 +401,299 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
   };
 
   return (
-    <div className="container">
-
-      <div className="flex">
-        <div className="w-64 h-64 mr-5">
-          {productData[0].image_urls && (
-            <Carousel showThumbs={false}>
-              {productData[0].image_urls.map(
-                (
-                  imageUrl: string | undefined,
-                  index: React.Key | null | undefined
-                ) => (
-                  <div
-                    className="w-64 h-64 bg-gray-100 rounded-md overflow-hidden"
-                    key={index}
-                  >
-                    <AdvancedImage
-                      cldImg={cld.image(imageUrl)}
-                      className="object-cover w-full h-full"
-                    />
-                  </div>
-                )
-              )}
-            </Carousel>
-          )}
+    <div className="flex flex-col my-8 mx-48">
+      <div className="flex sm:flex-col xl:flex-row w-full justify-center space-x-12">
+        <div className="flex flex-col">
+          <div className="w-full">
+            <div className="xl:w-[800px] sm:w-[400px] xl:h-[600px] sm:h-[300px] border border-lighterGreyAccent flex justify-center items-center overflow-hidden mb-3">
+              <AdvancedImage
+                className="object-contain"
+                cldImg={cld.image(imageChosen)}
+                alt="product image"
+              />
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {productData[0].image_urls.map((image, index: number) => {
+              const imageStyle =
+                imageChosen === image
+                  ? "w-full h-full object-contain"
+                  : "w-full h-full object-contain opacity-50 hover:opacity-100";
+              return (
+                <div
+                  className="w-[110px] h-[110px] p-[15px] border border-lighterGreyAccent cursor-pointer"
+                  key={index}
+                >
+                  <AdvancedImage
+                    className={imageStyle}
+                    cldImg={cld.image(image)}
+                    alt="product image"
+                    onClick={() => setImageChosen(image)}
+                  />
+                </div>
+              );
+            })}
+          </div>
         </div>
-        <div className="flex flex-col justify-center w-3/5 ml-5">
-          <Typography variant="h5" component="div">
+        <div className="w-full mt-10 xl:mt-0">
+          <h1 className="text-xl font-medium text-black mb-4">
             {productData[0].name}
-          </Typography>
-          {productReview[0].rating ? <div className="flex items-center">
-            <Typography variant="h6" color="red" mr={1}>{productReview[0].rating}</Typography>
+          </h1>
+          <div className="flex space-x-[10px] items-center mb-6">
             <Rating
               name="half-rating-read"
               value={Number(productReview[0].rating)}
               precision={0.5}
+              // style={{ position: "static" }}
               readOnly
             />
-            <RxDividerVertical />
-            <Typography variant="h6" color="red" ml={1} mr={2}>{productReview[0].total_reviews}</Typography>
-            <Typography >Ratings</Typography>
-          </div> : null}
-          <Typography variant="h4" color="red">$ {price}</Typography>
-          <div className="mt-2">
+            <h1 className="text-[13px] font-normal">
+              {productReview[0].reviews?.length != null
+                ? productReview[0].reviews?.length
+                : 0}{" "}
+              <span className="ml-1">Reviews</span>
+            </h1>
+          </div>
+          <div className="items-center mb-7">
+            <h1 className="text-2xl font-500 text-purpleAccent">
+              ${price?.toFixed(2)}
+            </h1>
+          </div>
+          <h1 className="text-greyAccent text-sm text-normal mb-[30px] leading-7">
+            {productData[0].description}
+          </h1>
+          <div className="mb-[30px]">
             {hasValidVariation ? (
-              <Select
-                value={
-                  selectedVariation
-                    ? {
-                      label: selectedVariation,
-                      value: selectedVariation,
-                      sku: selectedSku,
-                    }
-                    : null
-                }
-                onChange={(option) => {
-                  setSelectedVariation(option?.value || null);
-                  setSelectedSku(option?.sku || null);
-                }}
-                options={options}
-              />
+              <>
+                <h1 className="text-sm font-normal uppercase text-greyAccent mb-[14px] inline-block">
+                  Variations
+                </h1>
+                <div className="flex space-x-4 items-center">
+                  {hasValidVariation && (
+                    <Select
+                      theme={(theme) => ({
+                        ...theme,
+                        borderRadius: 0,
+                        colors: {
+                          ...theme.colors,
+                          primary25: "rgba(92, 68, 68, 0.3)",
+                          primary: "#310d20",
+                        },
+                      })}
+                      value={
+                        selectedVariation
+                          ? {
+                              label: selectedVariation,
+                              value: selectedVariation,
+                              sku: selectedSku,
+                            }
+                          : null
+                      }
+                      onChange={(option) => {
+                        setSelectedVariation(option?.value || null);
+                        setSelectedSku(option?.sku || null);
+                      }}
+                      options={options}
+                    />
+                  )}
+                </div>
+              </>
             ) : null}
           </div>
-          <div className="flex items-start space-x-2 mb-4">
-            Quantity
-            <button
-              onClick={() => decreaseQuantity()}
-              className="bg-gray-200 text-black py-1 px-3 ml-2 rounded-lg focus:outline-none hover:bg-gray-300"
-            >
-              -
-            </button>
-            <span className="text-lg">{quantity}</span>
-            <button
-              onClick={() => increaseQuantity(selectedSku)}
-              className="bg-gray-200 text-black py-1 px-3 rounded-lg focus:outline-none hover:bg-gray-300"
-            >
-              +
-            </button>
-          </div>
-          <span className="flex items-center">
-            <button
-              onClick={handleAddToCart}
-              className=" bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            >
-              Add to Cart
-            </button>
-            <motion.button
-              className="mx-2"
-              whileHover={{ scale: 1.3 }}
-              whileTap={{ scale: 0.9 }}
-            >
-              {heart ? (
-                <AiFillHeart
-                  onClick={() => {
-                    handleRemoveFromWishlist();
-                  }}
-                  color="pink"
-                  size="2em"
-                />
-              ) : (
-                <AiOutlineHeart
-                  onClick={() => {
-                    handleAddToWishlist();
-                  }}
-                  color="pink"
-                  size="2em"
-                />
-              )}
-            </motion.button>
-          </span>
-        </div>
-
-      </div>
-
-      <RedeemVoucher seller_id={seller_id} />
-      <Typography variant="h5" mt={2}>Product Description: </Typography>
-      <Typography variant="subtitle1" mt={1}>{productData[0].description}</Typography>
-      {productReview.map((pReview, index) => (
-        <div className="mt-2" key={index}>
-          {productReview[0].rating ? <>
-            <Typography>{productReview[0].rating}</Typography>
-            <Rating
-              name="half-rating-read"
-              value={Number(productReview[0].rating)}
-              precision={0.5}
-              readOnly
-            />
-            <h3>Reviews:</h3>
-          </> : null}
-          {pReview.reviews ?
-            pReview.reviews.map((review, reviewIndex) => (
-              <div key={reviewIndex}>
-                <h1>{review.customerName}</h1>
-                <div className="flex flex-row justify-between mt-2">
-                  <Typography>{review.comment}</Typography>
-                  {review.customer_id === customer_id ? (
-                    <button
-                      className="justify-content-center align-item-center"
-                      onClick={() =>
-                        handleDeleteReview(review.review_id, review.sku)
-                      }
-                    >
-                      <AiFillDelete />
-                    </button>
-                  ) : null}
-                </div>
-                {review.image_urls && (
-                  <div className="flex space-x-2">
-                    {review.image_urls.map((imageUrl, imageIndex) => (
-                      <div className="w-16 h-16" key={imageIndex}>
-                        <AdvancedImage cldImg={cld.image(imageUrl)} className="object-cover w-full h-full" />
-                      </div>
-                    ))}
-                  </div>
+          <div className="w-full flex items-center h-[50px] space-x-[10px] mb-[30px]">
+            <div className="w-[120px] h-full px-[26px] flex items-center border border-lighterGreyAccent">
+              <div className="flex justify-between items-center w-full">
+                <button
+                  className="text-base text-gray-500 hover:text-purpleAccent"
+                  onClick={() => decreaseQuantity()}
+                >
+                  -
+                </button>
+                <h1>{quantity}</h1>
+                <button
+                  className="text-base text-gray-500 hover:text-purpleAccent"
+                  onClick={() => increaseQuantity(selectedSku)}
+                >
+                  +
+                </button>
+              </div>
+            </div>
+            <div className="w-[60px] h-full flex justify-center items-center border border-lighterGreyAccent">
+              <div className="hover:cursor-pointer">
+                {heart ? (
+                  <AiFillHeart
+                    onClick={() => {
+                      handleRemoveFromWishlist();
+                    }}
+                    color="pink"
+                    size="2em"
+                  />
+                ) : (
+                  <AiOutlineHeart
+                    onClick={() => {
+                      handleAddToWishlist();
+                    }}
+                    color="pink"
+                    size="2em"
+                  />
                 )}
               </div>
-            )) : null
-          }
+            </div>
+            <div className="flex-1 h-full">
+              <button
+                onClick={handleAddToCart}
+                className="text-[#FFFFEA] bg-[#222222] text-sm font-semibold w-56 h-full"
+              >
+                Add To Cart
+              </button>
+            </div>
+          </div>
+          <div className="mb-[20px]">
+            <h1 className="text-[13px] leading-7">
+              SKU: <span className="text-gray-400">{selectedSku}</span>
+            </h1>
+          </div>
+          <div className="mb-[20px]">
+            {/* <RedeemVoucher seller_id={seller_id} /> */}
+          </div>
         </div>
-      ))}
+      </div>
+
+      <div className="w-auto mt-24 relative pb-[60px] my-8 mx-48">
+        <div className="w-full min-h-[400px]">
+          <div className="mx-auto">
+            <div className="w-full">
+              <div className="w-full bg-[#FAF8FF] flex p-6 content-between items-center overflow-visible shadow-sm">
+                <div className="pr-10 box-border border-r border-gray-200 flex max-w-[27.5rem] justify-center items-center">
+                  <Link
+                    to={`/customerSellerProfile/${sellerData[0].seller_id}`}
+                    className="flex-shrink-0 mr-5 relative overflow-visible outline-0"
+                  >
+                    <div className="w-20 h-20">
+                      <AdvancedImage
+                        cldImg={cld.image(sellerData[0].image_url)}
+                        className="w-full h-full object-cover rounded-full"
+                      />
+                    </div>
+                  </Link>
+                  <div className="grow flex flex-col content-center overflow-hidden">
+                    <Link
+                      to={`/customerSellerProfile/${sellerData[0].seller_id}`}
+                      className="overflow-hidden text-ellipsis whitespace-nowrap"
+                    >
+                      {sellerData[0].shop_name}
+                    </Link>
+                    <div className="mt-2 flex space-x-2">
+                      {/* <Link
+                        to={`/customerSellerProfile/${sellerData[0].seller_id}`}
+                        className="outline-0 border border-opacity-10 relative overflow-visible h-9 px-4"
+                      >
+                        Chat Now
+                      </Link> */}
+                      <Link
+                        to={`/customerSellerProfile/${sellerData[0].seller_id}`}
+                        className="outline-0 border border-opacity-10 relative overflow-visible h-9 px-4 flex justify-center items-center"
+                      >
+                        <AiOutlineShop /> View Shop
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+                <div className="grow grid grid-cols-3 gap-x-10 gap-y-20 pl-10 text-gray-400">
+                  <div className="flex justify-between relative overflow-visible">
+                    <h1>Total Products:</h1>{" "}
+                    <h1 className="text-pink">
+                      {sellerData[0].total_products}
+                    </h1>
+                  </div>
+                  <div className="flex justify-between relative overflow-visible">
+                    <h1>Total Ratings:</h1>{" "}
+                    <h1 className="text-pink">{sellerData[0].total_reviews}</h1>
+                  </div>
+                  <div className="flex justify-between relative overflow-visible">
+                    <h1>Joined:</h1>{" "}
+                    <h1 className="text-pink">
+                      {diffInMonths}{" "}
+                      {diffInMonths === 1 || diffInMonths === 0 ? (
+                        <span>month</span>
+                      ) : (
+                        <span>months</span>
+                      )}{" "}
+                      ago
+                    </h1>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-8">
+                <h1 className="text-[18px] font-medium my-4 ml-10">Reviews</h1>
+                <div className="w-full">
+                  <div className="w-full mb-[60px]">
+                    <div className="w-full px-10 mb-[60px]">
+                      {productReview[0].reviews?.length != null ? (
+                        productReview[0].reviews.map((review, reviewIndex) => (
+                          <div
+                            key={reviewIndex}
+                            className="bg-gray-50 px-10 py-[32px] mb-2.5"
+                          >
+                            <div className="flex justify-between items-center mb-3">
+                              <h1 className="text-[18px] font-medium break-words">
+                                {review.customerName}
+                              </h1>
+                              <div>
+                                {review.customer_id === customer_id && (
+                                  <button
+                                    className="justify-content-center align-item-center"
+                                    onClick={() =>
+                                      handleDeleteReview(
+                                        review.review_id,
+                                        review.sku
+                                      )
+                                    }
+                                  >
+                                    <AiFillDelete />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="mb-[30px]">
+                              <h1 className="text-[15px] text-grey-400 leading-7 text-normal break-words">
+                                {review.comment}
+                              </h1>
+                              {review.image_urls && (
+                                <div className="flex space-x-2">
+                                  {review.image_urls.map(
+                                    (imageUrl, imageIndex) => (
+                                      <div
+                                        className="w-16 h-16"
+                                        key={imageIndex}
+                                      >
+                                        <AdvancedImage
+                                          cldImg={cld.image(imageUrl)}
+                                          className="object-cover w-full h-full"
+                                        />
+                                      </div>
+                                    )
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="flex flex-col mt-48 justify-center items-center">
+                          <h1>There are no reviews for this product</h1>
+                          <h1>Be the first one to review!</h1>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <ToastContainer />
     </div>

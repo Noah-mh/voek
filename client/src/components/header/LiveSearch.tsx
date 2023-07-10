@@ -31,6 +31,7 @@ const LiveSearch: FC<LiveSearchProps> = ({
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (!focus) setFocus(true);
     if (!e.target.value) {
+      setUserInput("");
       setSearchResults(results);
       return;
     }
@@ -53,21 +54,32 @@ const LiveSearch: FC<LiveSearchProps> = ({
           type="text"
           className="w-[444px] h-12 px-5 py-3 text-lg rounded-full border-2 border-purpleAccent focus:border-l-purpleAccent outline-none transition text-greyAccent placeholder:text-gray-300"
           placeholder="Search for your product!"
+          // onKeyDown={(e) => {
+          //   if (e.key === "Backspace") {
+          //     const currentInput = userInput.length === 0 ? "" : userInput;
+          //     console.log("currentInput", currentInput);
+          //     setUserInput(currentInput);
+          //   }
+          // }}
           onChange={handleSearchChange}
           onFocus={() => {
             setFocus(true);
           }}
-          onBlur={(e) => {
+          onBlur={() => {
             setFocus(false);
           }}
         />
         <Link
           to={link}
-          className={userInput === "" ? "opacity-50 pointer-events-none" : ""}
+          // className={userInput === "" ? "opacity-50 pointer-events-none" : ""}
         >
           <button
             type="submit"
             className="text-white absolute right-2.5 bottom-5 bg-transparent hover:bg-transparent hover:cursor-pointer4 focus:ring-1 focus:outline-none focus:ring-softerPurple font-medium rounded-lg text-sm px-4 py-2"
+            onClick={() => {
+              console.log("userInput bool", userInput === "");
+              console.log("userInput", userInput);
+            }}
           >
             <FontAwesomeIcon
               icon={faMagnifyingGlass}
