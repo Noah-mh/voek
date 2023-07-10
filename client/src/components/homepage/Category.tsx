@@ -138,6 +138,7 @@ const Accessories: React.FC = () => {
 const Category: React.FC = () => {
   return (
     <motion.div
+      id="categoriesComponent"
       className="category"
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
