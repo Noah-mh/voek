@@ -401,11 +401,11 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
   };
 
   return (
-    <div className="flex flex-col my-8 mx-48">
-      <div className="flex sm:flex-col xl:flex-row w-full justify-center space-x-12">
-        <div className="flex flex-col">
-          <div className="w-full">
-            <div className="xl:w-[800px] sm:w-[400px] xl:h-[600px] sm:h-[300px] border border-lighterGreyAccent flex justify-center items-center overflow-hidden mb-3">
+    <div className="flex flex-col my-8 items-center justify-center">
+      <div className="flex sm:flex-col xl:flex-row  justify-center space-x-12">
+        <div className="flex flex-col justify-center items-center">
+          <div className="">
+            <div className="xl:w-[300px] sm:w-[300px] xl:h-[300px] sm:h-[300px] border border-lighterGreyAccent flex justify-center items-center overflow-hidden mb-3">
               <AdvancedImage
                 className="object-contain"
                 cldImg={cld.image(imageChosen)}
@@ -542,7 +542,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             <div className="flex-1 h-full">
               <button
                 onClick={handleAddToCart}
-                className="text-[#FFFFEA] bg-[#222222] text-sm font-semibold w-56 h-full"
+                className="text-[#FFFFEA] bg-[#222222] text-sm font-semibold w-auto px-7 h-full"
               >
                 Add To Cart
               </button>
@@ -559,7 +559,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
         </div>
       </div>
 
-      <div className="w-auto mt-24 relative pb-[60px] my-8 mx-48">
+      <div className="w-auto mt-24  pb-[60px] my-8">
         <div className="w-full min-h-[400px]">
           <div className="mx-auto">
             <div className="w-full">
@@ -681,7 +681,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                           </div>
                         ))
                       ) : (
-                        <div className="flex flex-col mt-48 justify-center items-center">
+                        <div className="flex flex-col mt-6 justify-center items-center">
                           <h1>There are no reviews for this product</h1>
                           <h1>Be the first one to review!</h1>
                         </div>
