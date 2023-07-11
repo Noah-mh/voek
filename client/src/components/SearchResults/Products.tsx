@@ -12,8 +12,9 @@ const Products = ({ userInput }: ProductsProps) => {
   const [status, setStatus] = useState<boolean>(false);
 
   useEffect(() => {
+    console.log("userInput", userInput == undefined);
     axios
-      .get(`/searchResult/${userInput}`)
+      .get(`/searchResult/${userInput == undefined ? "" : userInput}`)
       .then((response: any) => response.data)
       .then((data: Array<object>) => {
         setStatus(true);
@@ -31,7 +32,7 @@ const Products = ({ userInput }: ProductsProps) => {
         {status ? (
           <div>
             {products.length > 0 ? (
-              <div className="flex flex-wrap">
+              <div className="flex justify-center items-center flex-wrap space-x-2">
                 {products.map((product: any, index: number) => {
                   return (
                     <div key={index}>
