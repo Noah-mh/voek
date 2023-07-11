@@ -53,12 +53,12 @@ const ViewSellerOrders = ({ orders, getAll }: Props) => {
       const dateB = new Date(b[0].date);
       return dateB.getTime() - dateA.getTime();
     });
-    console.log('happend')
     setOrderedOrders(orderedOrdersArray);
   };
   
 
   useEffect(() => {
+    getAll()
     orderOrders()
   }, [orders])
 
