@@ -132,7 +132,13 @@ const AddressDisplay: React.FC<AddressDisplayProps> = ({ customerData, getAll })
     };
 
     const addAddress = (newAddress: any) => {
-        setAddressUpdates((prevAddresses) => [...prevAddresses, { ...newAddress, editing: false }]);
+        setAddressUpdates((prevAddresses) => {
+            if (prevAddresses.length === 1 && Object.values(prevAddresses[0]).some(val => val === '' || val === null)) {
+                return [{ ...newAddress, editing: false }];
+            } else {
+                return [...prevAddresses, { ...newAddress, editing: false }];
+            }
+        });
     };
 
     useEffect(() => {

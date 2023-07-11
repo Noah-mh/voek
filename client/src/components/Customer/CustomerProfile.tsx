@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Address } from "./Address";
 import { cld } from "../../Cloudinary/Cloudinary";
 import { AdvancedImage } from "@cloudinary/react";
+import { fill } from "@cloudinary/url-gen/actions/resize";
+import { focusOn } from "@cloudinary/url-gen/qualifiers/gravity";
+import { FocusOn } from "@cloudinary/url-gen/qualifiers/focusOn";
 import CloudinaryUploader from "../../Cloudinary/CloudinaryUploader";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import Box from "@mui/material/Box";
@@ -129,13 +132,13 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
   const handleUpload = async (resultInfo: any) => {
     setUpdateImage(resultInfo.public_id);
     try {
-      const response: number = await axiosPrivateCustomer.put(
+      const response = await axiosPrivateCustomer.put(
         `/customer/profile/edit/photo/${customer_id}`,
         {
           image_url: resultInfo.public_id,
         }
       );
-      if (response === 200) {
+      if (response.status === 200) {
         toast.success("Photo updated", {
           position: "top-center",
           autoClose: 5000,
@@ -163,15 +166,16 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
   };
 
   const handleDelete = async () => {
-    setUpdateImage("test/blank-profile-picture-973460_1280_tj6oeb");
     try {
-      const response: number = await axiosPrivateCustomer.put(
+      setUpdateImage("test/blank-profile-picture-973460_1280_tj6oeb");
+      const response = await axiosPrivateCustomer.put(
         `/customer/profile/edit/photo/${customer_id}`,
         {
           image_url: "test/blank-profile-picture-973460_1280_tj6oeb",
         }
       );
-      if (response === 200) {
+      console.log("deleting", response);
+      if (response.status === 200) {
         toast.success("Photo deleted", {
           position: "top-center",
           autoClose: 5000,
@@ -364,13 +368,13 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
       </Box>
       <div className="flex flex-col items-center ml-9 relative">
         <div className="w-40 h-40 mb-5 relative">
-          <AdvancedImage cldImg={cld.image(image_url)} />
-          {image_url != "test/blank-profile-picture-973460_1280_tj6oeb" && (<button
+          <AdvancedImage cldImg={cld.image(image_url).resize(fill().width(250).height(250).gravity(focusOn(FocusOn.faces())))} className="object-cover rounded-lg" />
+          {image_url != "test/blank-profile-picture-973460_1280_tj6oeb" ? (<button
             className="absolute top-0 right-0 bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded"
             onClick={handleDelete}
           >
             <AiFillDelete />
-          </button>)}
+          </button>) : null}
         </div>
         <CloudinaryUploader onSuccess={handleUpload} caption={"Upload New"} />
       </div>
