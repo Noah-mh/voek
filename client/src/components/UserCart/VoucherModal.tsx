@@ -6,6 +6,7 @@ import { ToastContainer, toast } from "react-toastify";
 
 interface Voucher {
   seller_id: number;
+  shop_name: string;
   voucher_id: string;
   voucher_name: string;
   number_amount: number;
@@ -34,6 +35,7 @@ interface VoucherModalProps {
   getUserCart: () => void;
   setWasAVVoucherClaimed: (bool: boolean) => void;
   setLastClaimedVoucher: (voucher: Voucher) => void;
+  groupItemsPrice: any;
 }
 
 const VoucherModal = ({
@@ -46,50 +48,53 @@ const VoucherModal = ({
   groupItems,
   setWasAVVoucherClaimed,
   setLastClaimedVoucher,
+  groupItemsPrice,
 }: // getUserCart,
 VoucherModalProps) => {
   const [groupedVouchers, setGroupedVouchers] = useState<{
-    [key: number]: Voucher[];
+    [key: string]: Voucher[];
   }>({});
 
   useEffect(() => {
     //if have time, get seller username and display it instead of the id
     console.log("VoucherModal vouchers: ", vouchers);
     if (vouchers.length > 0) {
-      const tempGroupedVouchers: { [key: number]: Voucher[] } = {};
+      const tempGroupedVouchers: { [key: string]: Voucher[] } = {};
       vouchers.forEach((voucher: Voucher) => {
         const seller_id = voucher.seller_id;
-        if (!tempGroupedVouchers[seller_id]) {
-          tempGroupedVouchers[seller_id] = [];
+        const key = `${voucher.seller_id}_${voucher.shop_name}`;
+        if (!tempGroupedVouchers[key]) {
+          tempGroupedVouchers[key] = [];
         }
-        tempGroupedVouchers[seller_id].push(voucher);
+        tempGroupedVouchers[key].push(voucher);
       });
       setGroupedVouchers(tempGroupedVouchers);
     }
     console.log(groupedVouchers);
   }, [vouchers]);
 
-  const voucherClaimed = (voucher: Voucher, sellerId: number) => () => {
+  const voucherClaimed = (voucher: Voucher, sellerKey: string) => () => {
     console.log("voucher claimed: ", voucher);
+    const key = `${voucher.seller_id}_${voucher.shop_name}`;
     setLastClaimedVoucher(voucher);
     setWasAVVoucherClaimed(false);
     if (
-      claimedVouchers[sellerId] &&
-      claimedVouchers[sellerId]?.[voucher.customer_voucher_id]
+      claimedVouchers[key] &&
+      claimedVouchers[key]?.[voucher.customer_voucher_id]
     ) {
       const {
         [voucher.customer_voucher_id]: removedVoucher,
         ...updatedVouchers
-      } = claimedVouchers[sellerId];
+      } = claimedVouchers[key];
 
       setClaimedVouchers({
         ...claimedVouchers,
-        [sellerId]: updatedVouchers,
+        [key]: updatedVouchers,
       });
 
       if (Object.keys(updatedVouchers).length === 0) {
         // If there are no more vouchers claimed for this seller, remove the seller from claimedVouchers
-        const { [sellerId]: _, ...updatedClaimedVouchers } = claimedVouchers;
+        const { [key]: _, ...updatedClaimedVouchers } = claimedVouchers;
         setClaimedVouchers(updatedClaimedVouchers);
         toast.warn("Voucher has been unclaimed.", {
           position: "top-left",
@@ -108,8 +113,8 @@ VoucherModalProps) => {
       // Voucher is being claimed, mark it as claimed in claimedVouchers
       setClaimedVouchers({
         ...claimedVouchers,
-        [sellerId]: {
-          ...(claimedVouchers[sellerId] || {}),
+        [key]: {
+          ...(claimedVouchers[key] || {}),
           [voucher.customer_voucher_id]: true,
         },
       });
@@ -152,16 +157,29 @@ VoucherModalProps) => {
             className="modalBoxValues"
           >
             {vouchers.length > 0 ? (
-              Object.keys(groupedVouchers).map((sellerId) => (
-                <div key={sellerId} className=" border-2 rounded-lg p-2 mb-4">
-                  <Typography
-                    variant="subtitle1"
-                    component="h3"
-                    className="text-purpleAccent font-Barlow font-bold border-b-2"
-                  >
-                    Seller ID: {sellerId}
-                  </Typography>
-                  {groupedVouchers[parseInt(sellerId)].map((voucher, index) => (
+              Object.keys(groupedVouchers).map((sellerKey) => (
+                <div key={sellerKey} className=" border-2 rounded-lg p-2 mb-4">
+                  <div className="storeName flex-row flex ">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      className="w-6 h-6"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016a3.001 3.001 0 003.75.614m-16.5 0a3.004 3.004 0 01-.621-4.72L4.318 3.44A1.5 1.5 0 015.378 3h13.243a1.5 1.5 0 011.06.44l1.19 1.189a3 3 0 01-.621 4.72m-13.5 8.65h3.75a.75.75 0 00.75-.75V13.5a.75.75 0 00-.75-.75H6.75a.75.75 0 00-.75.75v3.75c0 .415.336.75.75.75z"
+                      />
+                    </svg>
+
+                    <h1 className="text-l font-bold text-purpleAccent ml-2">
+                      {getUsernameFromSellerKey(sellerKey)}
+                    </h1>
+                  </div>
+                  {groupedVouchers[sellerKey].map((voucher, index) => (
                     <div
                       key={index}
                       className="grid grid-cols-3 gap-4 border-b-2 pb-2 p-3"
@@ -201,11 +219,12 @@ VoucherModalProps) => {
                           Min. spend of ${voucher.min_spend}
                         </div>
                       </div>
-                      {(voucher.min_spend > totalAmt.subTotal ||
-                        !groupItems.hasOwnProperty(voucher.seller_id)) &&
-                      !claimedVouchers[voucher.seller_id]?.[
-                        voucher.customer_voucher_id
-                      ] ? (
+                      {voucher.min_spend > totalAmt.subTotal ||
+                      !groupItems.hasOwnProperty(sellerKey) ||
+                      (voucher.number_amount > groupItemsPrice[sellerKey] &&
+                        !claimedVouchers[sellerKey]?.[
+                          voucher.customer_voucher_id
+                        ]) ? (
                         <button className="opacity-40" disabled>
                           <span className="bg-purpleAccent  p-2 px-4 font-Barlow font-semibold uppercase text-white rounded-sm text-xs">
                             Claim
@@ -214,16 +233,16 @@ VoucherModalProps) => {
                       ) : (
                         <button
                           className={
-                            claimedVouchers[voucher.seller_id]?.[
+                            claimedVouchers[sellerKey]?.[
                               voucher.customer_voucher_id
                             ]
                               ? "opacity-40"
                               : ""
                           }
-                          onClick={voucherClaimed(voucher, parseInt(sellerId))}
+                          onClick={voucherClaimed(voucher, sellerKey)}
                         >
                           <span className="bg-purpleAccent  p-2 px-4 font-Barlow font-semibold uppercase text-white rounded-sm text-xs">
-                            {claimedVouchers[voucher.seller_id]?.[
+                            {claimedVouchers[sellerKey]?.[
                               voucher.customer_voucher_id
                             ]
                               ? "Claimed"
@@ -255,6 +274,21 @@ VoucherModalProps) => {
       />
     </>
   );
+};
+const getUsernameFromSellerKey = (sellerKey: string): string => {
+  const separatorIndex = sellerKey.indexOf("_");
+  if (separatorIndex !== -1) {
+    return sellerKey.substring(separatorIndex + 1);
+  }
+  return "";
+};
+
+const getIdFromSellerKey = (sellerKey: string): string => {
+  const separatorIndex = sellerKey.indexOf("_");
+  if (separatorIndex !== -1) {
+    return sellerKey.substring(0, separatorIndex);
+  }
+  return "";
 };
 
 export default VoucherModal;
