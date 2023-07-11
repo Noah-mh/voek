@@ -74,60 +74,6 @@ const ViewOrders = ({ orders }: Props) => {
   return (
     <div className="flex flex-col items-center justify-center p-8">
       <h1 className="mb-8 text-4xl font-bold">Orders</h1>
-      {/* {orderedOrders?.map((ordersArray: any) => (
-        <div key={uuidv4()} className="mb-8 border border-red-300 rounded p-4">
-          <div className="flex flex-col">
-            <h1 className="text-xl font-bold">
-              Order Date: {getLocalDate(ordersArray[0][0].orders_date)} {getLocalTime(ordersArray[0][0].orders_date)}
-            </h1>
-          </div>
-          {ordersArray.map((Orders: any) => (
-            <div>
-              <h1 className="text-xl font-bold">Seller: {Orders[0].shop_name}</h1>
-              <div className="flex flex-row justify-between border border-blue-300">
-                {
-                  Orders.map((order: Product) => (
-                    <div
-                      key={order.sku}
-                      className="mb-8 border border-gray-300 rounded p-4 "
-                    >
-                      <div className="w-64 h-64">
-                        {" "}
-                        <AdvancedImage cldImg={cld.image(order.image_url)} />
-                      </div>
-                      <Link
-                        to={`/productDetailsWithReviews/${order.product_id}`}
-                        className="text-blue-500 hover:underline"
-                      >
-                        {order.name}
-                      </Link>
-                      <p className="mb-2">{order.description}</p>
-                      <p>Price of Product: {order.price}</p>
-                      <p>Amount Bought: {order.quantity}</p>
-                      <h2 className="text-2xl">
-                        Total Price: {order.price * order.quantity}
-                      </h2>
-                      <div className="mt-4">
-                        <p className="font-bold">The Variation You Bought</p>
-                        <p>
-                          {order.variation_1 && order.variation_2
-                            ? `${order.variation_1} and ${order.variation_2}`
-                            : order.variation_1
-                              ? order.variation_1
-                              : order.variation_2
-                                ? order.variation_2
-                                : "No Variation"}
-                        </p>
-                      </div>
-                    </div>
-                  ))
-                }
-              </div>
-            </div>
-          ))}
-        </div>
-      ))
-      } */}
       {orderedOrders?.map((ordersArray: any) => (
         <div key={uuidv4()} className="mb-8  shadow-md rounded p-4">
           <div className="flex flex-col"></div>
@@ -194,35 +140,6 @@ const ViewOrders = ({ orders }: Props) => {
                         ${order.price * order.quantity}
                       </p>
                     </div>
-                    {/* <div className="py-2 flex flex-end justify-end">
-                      {!ratings[order.orders_product_id!] ? (
-                        <button
-                          onClick={() => {
-                            handleOpenModal();
-                            setOrder(order);
-                            setOrder_product_id(order.orders_product_id);
-                          }}
-                          className="flex items-center text-xs justify-center space-x-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded"
-                        >
-                          Rate
-                        </button>
-                      ) : (
-                        <button
-                          className="flex items-center text-xs justify-center space-x-2 bg-gray-500 opacity-40 text-white font-bold py-1 px-4 rounded"
-                          disabled
-                        >
-                          Rated
-                        </button>
-                      )}
-
-                      <ModalComponent
-                        isOpen={isModalOpen}
-                        onClose={handleCloseModal}
-                        onSubmit={handleSubmit}
-                        orders_product_id={order_product_id}
-                        customer_id={customer_id}
-                      />
-                    </div> */}
                   </div>
                 ))}
               </div>
@@ -234,6 +151,11 @@ const ViewOrders = ({ orders }: Props) => {
           </h1>
         </div>
       ))}
+      {orderedOrders?.length === 0 && (
+        <div className="flex flex-col items-center justify-center p-8 text-32xl font-barlow opacity-30 font-bold">
+          No orders made.
+        </div>
+      )}
     </div>
   );
 };
