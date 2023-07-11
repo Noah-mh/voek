@@ -138,12 +138,13 @@ const Accessories: React.FC = () => {
 const Category: React.FC = () => {
   return (
     <motion.div
+      id="categoriesComponent"
       className="category"
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       transition={{ type: "spring", duration: 2 }}
     >
-      <div className="categoriesHeader m-3 ml-3 text-3xl font-semibold tracking-widest">
+      <div className="categoriesHeader m-3 ml-3 text-3xl font-bold font-Barlow ">
         Categories
         {/* &#10093; */}
       </div>
