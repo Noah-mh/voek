@@ -11,7 +11,8 @@ interface DMRoom {
 export const getCustomerRooms = async (userID: string): Promise<DMRoom[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = "SELECT * FROM dm_room WHERE customer_id = ?";
+  const sql =
+    "SELECT room_id as roomID, customer_id as customerID, seller_id as sellerID, date_created as dateCreated FROM dm_room WHERE customer_id = ?";
   const values = [userID, userID];
   try {
     const [rows] = await connection.query<RowDataPacket[]>(sql, values);
@@ -28,7 +29,8 @@ export const getCustomerRooms = async (userID: string): Promise<DMRoom[]> => {
 export const getSellerRooms = async (userID: string): Promise<DMRoom[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = "SELECT * FROM dm_room WHERE seller_id = ?";
+  const sql =
+    "SELECT room_id as roomID, customer_id as customerID, seller_id as sellerID, date_created as dateCreated FROM dm_room WHERE seller_id = ?";
   const values = [userID, userID];
   try {
     const [rows] = await connection.query<RowDataPacket[]>(sql, values);
@@ -48,7 +50,8 @@ export const getDMRoom = async (
 ): Promise<DMRoom | null> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = "SELECT * FROM dm_room WHERE customer_id = ? AND seller_id = ?";
+  const sql =
+    "SELECT room_id as roomID, customer_id as customerID, seller_id as sellerID, date_created as dateCreated FROM dm_room WHERE customer_id = ? AND seller_id = ?";
   const values = [customerID, sellerID, customerID, sellerID];
   try {
     const [rows] = await connection.query<RowDataPacket[]>(sql, values);
@@ -79,6 +82,42 @@ export const createDMRoom = async (
     const [rows] = await connection.query<OkPacket>(sql, values);
     console.log("rows: ", rows);
     return rows.affectedRows;
+  } catch (err) {
+    throw err;
+  } finally {
+    connection.release();
+  }
+};
+
+export const getCustomer = async (userID: string): Promise<any> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql =
+    "SELECT customer_id as userID, username, password, email, date_created as dateCreated, image_url as image FROM customer WHERE customer_id = ?";
+  const values = [userID];
+  try {
+    const [rows] = await connection.query<RowDataPacket[]>(sql, values);
+    if (rows.length === 0) return null;
+    const user = rows[0];
+    return user;
+  } catch (err) {
+    throw err;
+  } finally {
+    connection.release();
+  }
+};
+
+export const getSeller = async (userID: string): Promise<any> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql =
+    "SELECT seller_id as userID, shop_name as username, password, email, date_created as dateCreated, image_url as image FROM seller WHERE seller_id = ?";
+  const values = [userID];
+  try {
+    const [rows] = await connection.query<RowDataPacket[]>(sql, values);
+    if (rows.length === 0) return null;
+    const user = rows[0];
+    return user;
   } catch (err) {
     throw err;
   } finally {

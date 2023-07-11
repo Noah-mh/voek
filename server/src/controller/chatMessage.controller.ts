@@ -38,12 +38,12 @@ export const createMessage = async (
   next: NextFunction
 ) => {
   try {
-    const { roomID, senderID, role, text, image } = req.body;
-    if (!roomID || !senderID || !role) return res.sendStatus(400);
+    const { roomID, senderID, senderRole, text, image } = req.body;
+    if (!roomID || !senderID || !senderRole) return res.sendStatus(400);
     const response: number = await chatMessageModel.createMessage(
       roomID,
       senderID,
-      role,
+      senderRole,
       text,
       image
     );

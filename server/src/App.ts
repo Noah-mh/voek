@@ -10,6 +10,9 @@ import * as bodyParser from "body-parser";
 import credientals from "./middlewares/credentials";
 import corsOptions from "../config/corsOptions";
 
+import http, { Server } from "http";
+import io from "../src/websocket/io";
+
 const port: number = config.get("port");
 const host: string = config.get("host");
 
@@ -36,11 +39,18 @@ routes(app, router);
 dmRoomRoutes(app, router);
 chatMessageRoutes(app, router);
 
+const server: Server = http.createServer(app);
+io(server, process.env.PORT || port);
+
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
   console.log(error);
   res.status(500).json(error.message);
 });
 
-app.listen(process.env.PORT || port, () => {
+// app.listen(process.env.PORT || port, () => {
+//   console.log(`Server is listening on port ${process.env.PORT || port}`);
+// });
+
+server.listen(process.env.PORT || port, () => {
   console.log(`Server is listening on port ${process.env.PORT || port}`);
 });

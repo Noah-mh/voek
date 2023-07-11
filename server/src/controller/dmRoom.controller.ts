@@ -58,3 +58,35 @@ export const createDMRoom = async (
     next(err);
   }
 };
+
+export const getCustomer = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userID = req.params.userID;
+    if (!userID) return res.sendStatus(400);
+    const response = await dmRoomModel.getCustomer(userID);
+    if (!response) return res.sendStatus(404);
+    return res.status(200).send(response);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getSeller = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userID = req.params.userID;
+    if (!userID) return res.sendStatus(400);
+    const response = await dmRoomModel.getSeller(userID);
+    if (!response) return res.sendStatus(404);
+    return res.status(200).send(response);
+  } catch (err) {
+    next(err);
+  }
+};
