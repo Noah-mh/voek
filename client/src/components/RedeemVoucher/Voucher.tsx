@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import useCustomer from "../../hooks/UseCustomer";
 import { toast } from "react-toastify";
-import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
-import Loader from "../Loader/Loader";
-import Button from "@mui/material/Button";
+import useAxiosPrivateCustomer from '../../hooks/useAxiosPrivateCustomer';
+import Loader from '../Loader/Loader';
+import Button from '@mui/material/Button';
 
 interface Voucher {
   voucher_id: number;
