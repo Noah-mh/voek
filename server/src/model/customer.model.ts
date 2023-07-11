@@ -910,13 +910,16 @@ export const handleCustomerVouchers = async (
   voucher_category.voucher_category,
   seller_voucher.min_spend,
   customer_voucher.customer_voucher_id,
-  seller_voucher.active
+  seller_voucher.active,
+  seller.shop_name AS shop_name
 FROM
   seller_voucher
 JOIN
   customer_voucher ON seller_voucher.voucher_id = customer_voucher.voucher_id
 JOIN 
   voucher_category ON seller_voucher.voucher_category = voucher_category.voucher_category_id
+JOIN 
+  seller ON seller.seller_id = seller_voucher.seller_id
 WHERE 
   customer_voucher.redeemed = 1
 AND
