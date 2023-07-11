@@ -1,17 +1,17 @@
-import { addingReview } from "./controller/review.controller";
+import { addingReview } from "../controller/review.controller";
 import { Express, Router } from "express";
-import verifyJWT from "./middlewares/verifyJWT";
-import verifyRoles from "./middlewares/verifyRoles";
-import * as customerController from "./controller/customer.controller";
-import * as productController from "./controller/product.controller";
-import * as authController from "./controller/auth.controller";
-import * as sellerController from "./controller/seller.controller";
-import * as cartController from "./controller/cart.controller";
-import * as orderController from "./controller/order.controller";
-import * as paypalController from "./controller/paypal.controller";
-import * as reviewController from "./controller/review.controller";
-import * as voucherController from "./controller/voucher.controller";
-import * as customer_sellerController from "./controller/customer_seller.controller";
+import verifyJWT from "../middlewares/verifyJWT";
+import verifyRoles from "../middlewares/verifyRoles";
+import * as customerController from "../controller/customer.controller";
+import * as productController from "../controller/product.controller";
+import * as authController from "../controller/auth.controller";
+import * as sellerController from "../controller/seller.controller";
+import * as cartController from "../controller/cart.controller";
+import * as orderController from "../controller/order.controller";
+import * as paypalController from "../controller/paypal.controller";
+import * as reviewController from "../controller/review.controller";
+import * as voucherController from "../controller/voucher.controller";
+import * as customer_sellerController from "../controller/customer_seller.controller";
 
 export default function (app: Express, router: Router) {
   // KANG RUI ENDPOINTS - user management system
