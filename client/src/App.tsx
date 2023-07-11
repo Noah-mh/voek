@@ -60,7 +60,7 @@ function App() {
             path="productDetailsWithReviews/:product_id"
             element={<ProductDetailWithReview />}
           />
-          <Route path="searchResults/:userInput" element={<SearchResults />} />
+          <Route path="searchResults/:userInput?" element={<SearchResults />} />
           <Route
             path="categoryResults/:categoryId"
             element={<CategoryResults />}
