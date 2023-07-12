@@ -80,6 +80,17 @@ interface Product {
   variation2?: string;
 }
 
+interface VariationsInterface {
+  var1: string; 
+  var2: string;
+  price: number;
+  quantity: number;
+  imageUrl: string;
+  sku?: string;
+  error: boolean;
+  errorMessage: string;
+}
+
 interface FormValues {
   name: {
     value: string;
@@ -636,7 +647,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
       value: "",
       error: false,
       errorMessage: "Please upload only one image."
-    },
+    }
   })
 
   useEffect(() => {
@@ -753,15 +764,51 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
 
   const [submitStatus, setSubmitStatus] = useState<string>("");
 
+  useEffect(() => {
+    console.log("submitStatus", submitStatus);
+  }, [submitStatus])
+
   const handleProductFormSubmit = async (e: any) => {
     e.preventDefault();
 
-    if (formValues.name.error || formValues.description.error || formValues.selectedCategory.error || formValues.price.error || formValues.quantity.error) {
+    if (formValues.name.error || formValues.description.error || formValues.price.error || formValues.quantity.error) {
       setSubmitStatus("Please try again.");
-    } else {
+      return;
+    } else if (formValues.selectedCategory.value === null) {
+      setFormValues({
+        ...formValues,
+        selectedCategory: {
+          ...formValues.selectedCategory,
+          error: true
+        }
+      })
+      setSubmitStatus("Please try again.");
+      return;
+    } else if (formValues.imageUrl.value === "") {
+      if (formValues.selectedCategory.error === true) {
+        setFormValues({
+          ...formValues,
+          selectedCategory: {
+            ...formValues.selectedCategory,
+            error: false
+          }
+        })
+      }
+      setFormValues({
+        ...formValues,
+        imageUrl: {
+          ...formValues.imageUrl,
+          error: true
+        }
+      })
+      setSubmitStatus("Please try again.");
+      return;
+    } 
+    
+    // else {
       onSubmit(formValues);
       setSubmitStatus("Success!");
-    }
+    // }
   }
 
   console.log("current", currentProduct)
@@ -890,7 +937,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                   ...formValues.price,
                   value: value,
                   parsedValue: parseFloat(value),
-                  error: isNaN(parseFloat(value)) || value.includes("e")
+                  error: isNaN(parseFloat(value)) || parseFloat(value) < 0 || value.includes("e")
                 }
               })
             }} 
@@ -917,7 +964,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                   ...formValues.quantity,
                   value: value,
                   parsedValue: parseInt(value),
-                  error: isNaN(parseInt(value)) || value.includes("e")
+                  error: isNaN(parseInt(value)) || parseInt(value) <= 0 || value.includes("e")
                 }
               })
             }}
@@ -1173,6 +1220,12 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                 handleSaveCell(cell, event.target.value);
               }
             })}
+            // muiTableBodyCellProps={{
+            //   //simple styling with the `sx` prop, works just like a style prop in this example
+            //   sx: {
+            //     borderColor: 'purple',
+            //   },
+            // }}
             renderTopToolbarCustomActions={() => (
               <Box
                 sx={{
