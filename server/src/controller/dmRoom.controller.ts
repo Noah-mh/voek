@@ -51,7 +51,7 @@ export const createDMRoom = async (
       sellerID
     );
     console.log("response: ", response);
-    if (response === 409) return res.sendStatus(409);
+    if (response === 409) return res.sendStatus(200);
     if (response === 0) return res.sendStatus(400);
     return res.sendStatus(201);
   } catch (err) {

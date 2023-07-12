@@ -137,7 +137,7 @@ const Chat = ({ userType }: ChatProps) => {
               </div>
               <div className="chat-body">
                 <ScrollToBottom className="message-container">
-                  {roomID != null &&
+                  {roomID != null && messages.length > 0 ? (
                     messages
                       .filter((data) => data.roomID === roomID)
                       .map((messageContent, index) => {
@@ -169,7 +169,10 @@ const Chat = ({ userType }: ChatProps) => {
                             </div>
                           </div>
                         );
-                      })}
+                      })
+                  ) : (
+                    <div></div>
+                  )}
                 </ScrollToBottom>
               </div>
               <form
