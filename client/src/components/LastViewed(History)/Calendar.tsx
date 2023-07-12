@@ -45,9 +45,12 @@ const Calendar: React.FC<CalendarProps> = ({ onSelectDate, selected }) => {
 
   return (
     <>
-      <div className="calendarCentered">
+      <div className="flex flex-col mt-2 calendarCentered">
+        <h1 className="calendarTitle">
+          Last Viewed <span className="text-purpleAccent">(Past 20 Days)</span>
+        </h1>
         <motion.h2
-          className="calendarTitle"
+          className="calendarTitle text-softerPurple"
           animate={{ rotate: [0, 20, 20, 0] }}
           transition={{ type: "tween", duration: 1 }}
         >

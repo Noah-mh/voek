@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller";
+import { toast } from "react-toastify";
 
 interface Order {
   orders_id: number;
@@ -31,24 +32,33 @@ const ViewSellerOrders = ({ orders, getAll }: Props) => {
 
   const axiosPrivateSeller = useAxiosPrivateSeller();
 
+  const orderOrders = () => {
+    const updatedOrders: any = {};
+  
+    orders.forEach((order) => {
+      const { orders_id } = order;
+  
+      if (updatedOrders[orders_id]) {
+        updatedOrders[orders_id].push(order);
+      } else {
+        updatedOrders[orders_id] = [order];
+      }
+    });
+  
+    const orderedOrdersArray = Object.values(updatedOrders);
+  
+    // Sort the array by date in descending order
+    orderedOrdersArray.sort((a: any, b: any) => {
+      const dateA = new Date(a[0].date);
+      const dateB = new Date(b[0].date);
+      return dateB.getTime() - dateA.getTime();
+    });
+    setOrderedOrders(orderedOrdersArray);
+  };
+  
 
   useEffect(() => {
-    const orderOrders = () => {
-      const updatedOrders: any = {}
-
-      orders.forEach(order => {
-        const { orders_id } = order;
-
-        if (updatedOrders[orders_id]) {
-          updatedOrders[orders_id].push(order);
-        } else {
-          updatedOrders[orders_id] = [order];
-        }
-      });
-
-      const orderedOrdersArray = Object.values(updatedOrders);
-      setOrderedOrders(orderedOrdersArray)
-    };
+    getAll()
     orderOrders()
   }, [orders])
 
@@ -71,6 +81,17 @@ const ViewSellerOrders = ({ orders, getAll }: Props) => {
     })
     await axiosPrivateSeller.put('/seller/orders/shipped', { orders_product_id, customer_id });
     getAll();
+    orderOrders();
+    toast.success("Order has been packed and shipped to customer", {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
   }
 
   return (
@@ -87,7 +108,7 @@ const ViewSellerOrders = ({ orders, getAll }: Props) => {
                   <th className="px-4 py-3">Order Details</th>
                 </tr>
               </thead>
-              { orderedOrders?.length ? 
+              {orderedOrders?.length ?
                 <tbody className="bg-white">
                   {
                     orderedOrders?.map((order: any) => (
@@ -100,7 +121,7 @@ const ViewSellerOrders = ({ orders, getAll }: Props) => {
                             </div>
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-ms font-semibold border">{convertUtcToLocal(order[0].orders_date)}</td>
+                        <td className="px-4 py-3 text-ms font-semibold border">{getLocalDate(order[0].orders_date)} <br />{getLocalTime(order[0].orders_date)}</td>
                         <td className="px-4 py-3 text-xs border">
                           {
                             order.map((order: Order) => (
@@ -123,7 +144,7 @@ const ViewSellerOrders = ({ orders, getAll }: Props) => {
                               View Order Detail
                             </button>
                           </Link>
-                          <button className="ms-7 font-bold text-sm bg-cyan" onClick={() => { onClickHandler(order[0].orders_id, order[0].customer_id) }}>Pack And Ship</button>
+                          <button className="ms-7 font-bold text-sm bg-cyan" onClick={(e: any) => { e.preventDefault(); onClickHandler(order[0].orders_id, order[0].customer_id) }}>Pack And Ship</button>
                         </td>
                       </tr>
                     ))
@@ -141,17 +162,25 @@ const ViewSellerOrders = ({ orders, getAll }: Props) => {
 
 export default ViewSellerOrders
 
-function convertUtcToLocal(utcTime: string): string {
-  // Convert UTC time to local time
+function getLocalTime(utcTime: string): string {
   const localTime = new Date(utcTime);
-
-  // Get the local date components
-  const day = localTime.getDate();
-  const month = localTime.getMonth() + 1; // Months are zero-based
-  const year = localTime.getFullYear();
-
-  // Format the local time as DD/MM/YYYY
-  const formattedLocalTime = `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
-
-  return formattedLocalTime;
+  const offsetInMinutes = localTime.getTimezoneOffset();
+  localTime.setMinutes(localTime.getMinutes() - offsetInMinutes);
+  const hours = localTime.getHours() % 12 || 12;
+  const minutes = localTime.getMinutes();
+  const period = localTime.getHours() >= 12 ? 'PM' : 'AM';
+  const localTimeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${period}`;
+  return localTimeString;
 }
+
+function getLocalDate(utcTime: string): string {
+  const localTime = new Date(utcTime);
+  const offsetInMinutes = localTime.getTimezoneOffset();
+  localTime.setMinutes(localTime.getMinutes() - offsetInMinutes);
+  const day = localTime.getDate();
+  const month = localTime.getMonth() + 1;
+  const year = localTime.getFullYear();
+  const localDateString = `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
+  return localDateString;
+}
+

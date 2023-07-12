@@ -46,11 +46,11 @@ const ResetPasswordSeller = () => {
     const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
-            await axios.post('/seller/reset/password', JSON.stringify({ seller_id, password }), {
+            await axios.put('/seller/reset/password', JSON.stringify({ seller_id, password }), {
                 headers: { 'Content-Type': 'application/json' },
                 withCredentials: true
             })
-            setSuccess(true);
+            navigate('/seller/login', { replace: true });
         } catch (err: any) {
             if (!err?.response) {
                 setErrMsg('No Server Response');
@@ -70,29 +70,18 @@ const ResetPasswordSeller = () => {
                     </h1>
                 </div>
                 <div className="right w-1/2 h-full flex-wrap py-7">
-                    {
-                        success ?
-                            <>
-                                <div className="text-green-500 text-center">Password Reset Successful</div>
-                                <div className='mt-10'>
-                                    <Link to='/seller/login' className="text-center text-blue-500" replace={true}><p>Login</p></Link>
-                                </div>
-                            </> :
-                            <>
-                                <form onSubmit={submitHandler}>
-                                    <div>
-                                        <div className="field-wrapper flex">
-                                            <input value={password} onChange={(e) => setPassword(e.target.value)} type="text" name="email" placeholder="PASSWORD" className="w-72" autoComplete="off" />
-                                        </div>
-                                        <div className="field-wrapper flex">
-                                            <input value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} type="text" name="email" placeholder="CONFIRM PASSWORD" className="w-72" autoComplete="off" />
-                                        </div>
-                                        <input disabled={disabled} type="submit" value="RESET PASSWORD" className="submitLogin" />
-                                    </div>
-                                </form>
-                                <div className="text-red-500 text-center">{errMsg}</div>
-                            </>
-                    }
+                    <form onSubmit={submitHandler}>
+                        <div>
+                            <div className="field-wrapper flex">
+                                <input value={password} onChange={(e) => setPassword(e.target.value)} type="text" name="email" placeholder="PASSWORD" className="w-72" autoComplete="off" />
+                            </div>
+                            <div className="field-wrapper flex">
+                                <input value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} type="text" name="email" placeholder="CONFIRM PASSWORD" className="w-72" autoComplete="off" />
+                            </div>
+                            <input disabled={disabled} type="submit" value="RESET PASSWORD" className="submitLogin" />
+                        </div>
+                    </form>
+                    <div className="text-red-500 text-center">{errMsg}</div>
                 </div>
             </div>
         </div>

@@ -1,0 +1,16 @@
+.redeemVoucherContainer::-webkit-scrollbar {
+  width: 8px;
+}
+
+.redeemVoucherContainer::-webkit-scrollbar-track {
+  background: white;
+}
+
+.redeemVoucherContainer::-webkit-scrollbar-thumb {
+  background: #310d20;
+  border-radius: 25px;
+}
+
+.redeemVoucherContainer::-webkit-scrollbar-thumb:hover {
+  background: #5c4444;
+}

@@ -3,23 +3,20 @@ import React, { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
 import axios from "../../api/axios";
 import Loader from "../Loader/Loader";
-import { cld } from "../../Cloudinary/Cloudinary";
-import { AdvancedImage } from "@cloudinary/react";
-import Typography from "@mui/material/Typography";
-import { AiOutlineShop } from "react-icons/ai";
 import "./ProductDetailsWithReviews.css";
 import ProductDetail from "./ProductDetails";
 import CustomerContext from "../../context/CustomerProvider";
 import moment from "moment";
 import tz from "moment-timezone";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
-import { Link } from "react-router-dom";
 //Noah's code
 interface seller {
   seller_id: number;
   shop_name: string;
   image_url: string;
-  total_product: number;
+  total_products: number;
+  total_reviews: number;
+  date_created: Date;
 }
 
 export interface ProductVariation {
@@ -31,7 +28,9 @@ export interface ProductVariation {
 }
 
 export interface Review {
+  name: string;
   rating: number;
+  total_reviews: number;
   reviews: Customer[];
 }
 
@@ -40,13 +39,14 @@ export interface Customer {
   review_id: number;
   customer_id: number;
   customerName: string;
+  customerImage: string;
   comment: string;
   image_urls: string[];
 }
 
 export interface Product {
   product_id: number;
-  image_urls: string[] | null;
+  image_urls: string[];
   name: string;
   description: string | null;
   variations: ProductVariation[] | null;
@@ -59,6 +59,7 @@ const ProductDetailWithReview: React.FC = () => {
   const params = useParams();
   const { product_id } = params;
   const [sellerData, setSellerData] = useState<seller[]>([]);
+  const [diffInMonths, setDiffInMonths] = useState<number>(0);
   const [productData, setProductData] = useState<Product[] | null>(null);
   const [productReview, setProductReview] = useState<Review[] | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -89,7 +90,7 @@ const ProductDetailWithReview: React.FC = () => {
     }
   };
 
-  const getALlData = async () => {
+  const getAllData = async () => {
     try {
       const result: any = await Promise.all([
         getSellerData(),
@@ -107,8 +108,7 @@ const ProductDetailWithReview: React.FC = () => {
 
   useEffect(() => {
     // Noah
-    getALlData();
-
+    getAllData();
     // Nhat Tien :D
     if (customerId != undefined) {
       axiosPrivateCustomer
@@ -143,38 +143,27 @@ const ProductDetailWithReview: React.FC = () => {
         });
     }
   }, [product_id, customer]);
+  useEffect(() => {
+    if (sellerData.length > 0) {
+      const date_created = moment(sellerData[0].date_created);
 
+      const diffInMonths = moment().diff(date_created, "months");
+      console.log(diffInMonths);
+      console.log("review", productReview);
+      setDiffInMonths(diffInMonths);
+    }
+  }, [sellerData]);
   if (isLoading || !productData || !productReview) {
     return <Loader />;
   } else {
     return (
       <div>
-        <Link
-          to={`/customerSellerProfile/${sellerData[0].seller_id}`}
-          className="text-blue-500 hover:underline"
-        >
-          <div className="flex justify-center items-center">
-            <div className="w-40 h-40 mb-5 mr-5">
-              <AdvancedImage cldImg={cld.image(sellerData[0].image_url)} />
-            </div>
-            <div className="flex flex-col justify-center">
-              <Typography gutterBottom variant="h5" component="div">
-                {sellerData[0].shop_name}
-              </Typography>
-              <div className="flex">
-                <AiOutlineShop />
-                <Typography variant="body2" color="text.primary">
-                  Products: {sellerData[0].total_product}
-                </Typography>
-              </div>
-            </div>
-          </div>
-        </Link>
         <ProductDetail
           productData={productData}
           productReview={productReview}
-          seller_id={sellerData[0].seller_id}
-          getAllData={getALlData}
+          sellerData={sellerData}
+          getAllData={getAllData}
+          diffInMonths={diffInMonths}
         />
       </div>
     );

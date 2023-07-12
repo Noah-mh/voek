@@ -68,46 +68,50 @@ const ViewSellerShipped = ({ shippedOrders }: Props) => {
                   <th className="px-4 py-3">Order Details</th>
                 </tr>
               </thead>
-              <tbody className="bg-white">
-                {
-                  orderedOrders?.map((order: any) => (
-                    <tr key={order[0].orders_id} className="text-gray-700">
-                      <td className="px-4 py-3 border">
-                        <div className="flex items-center text-sm">
-                          <div>
-                            <p className="font-semibold text-black">{order[0].username}</p>
-                            <p className="font-semibold text-black">{order[0].email}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-ms font-semibold border">{convertUtcToLocal(order[0].shipment_created)}</td>
-                      <td className="px-4 py-3 text-xs border">
-                        {
-                          order.map((order: Order) => (
-                            <div key={order.orders_product_id} className="flex items-center text-sm mb-3">
+              {
+                orderedOrders?.length ?
+                  <tbody className="bg-white">
+                    {
+                      orderedOrders?.map((order: any) => (
+                        <tr key={order[0].orders_id} className="text-gray-700">
+                          <td className="px-4 py-3 border">
+                            <div className="flex items-center text-sm">
                               <div>
-                                <h1>{order.name}</h1>
-                                {
-                                  order.variation_1 || order.variation_2 ? (
-                                    <p className="font-semibold text-black">Variation: {order.variation_1 ? order.variation_1 : null} {order.variation_2 ? '| ' + order.variation_2 : null}</p>
-                                  ) : null
-                                }
-                                <p className="text-xs text-gray-600">${order.total_price} x Qty: {order.quantity}</p>
+                                <p className="font-semibold text-black">{order[0].username}</p>
+                                <p className="font-semibold text-black">{order[0].email}</p>
                               </div>
                             </div>
-                          ))
-                        }
-                        <h1>Total Price ${getTotalAmt(order)}</h1>
-                        <Link to={`/seller/orders?orders_id=${order[0].orders_id}`}>
-                          <button className="font-bold text-sm bg-cyan-dark-blue py-2">
-                            View Order Detail
-                          </button>
-                        </Link>
-                      </td>
-                    </tr>
-                  ))
-                }
-              </tbody>
+                          </td>
+                          <td className="px-4 py-3 text-ms font-semibold border">{getLocalDate(order[0].shipment_created)} <br />{getLocalTime(order[0].shipment_created)}</td>
+                          <td className="px-4 py-3 text-xs border">
+                            {
+                              order.map((order: Order) => (
+                                <div key={order.orders_product_id} className="flex items-center text-sm mb-3">
+                                  <div>
+                                    <h1>{order.name}</h1>
+                                    {
+                                      order.variation_1 || order.variation_2 ? (
+                                        <p className="font-semibold text-black">Variation: {order.variation_1 ? order.variation_1 : null} {order.variation_2 ? '| ' + order.variation_2 : null}</p>
+                                      ) : null
+                                    }
+                                    <p className="text-xs text-gray-600">${order.total_price} x Qty: {order.quantity}</p>
+                                  </div>
+                                </div>
+                              ))
+                            }
+                            <h1>Total Price ${getTotalAmt(order)}</h1>
+                            <Link to={`/seller/orders?orders_id=${order[0].orders_id}`}>
+                              <button className="font-bold text-sm bg-cyan-dark-blue py-2">
+                                View Order Detail
+                              </button>
+                            </Link>
+                          </td>
+                        </tr>
+                      ))
+                    }
+                  </tbody>
+                  : <h1>No Shipped Orders</h1>
+              }
             </table>
           </div>
         </div>
@@ -119,17 +123,25 @@ const ViewSellerShipped = ({ shippedOrders }: Props) => {
 export default ViewSellerShipped
 
 
-function convertUtcToLocal(utcTime: string): string {
-  // Convert UTC time to local time
+function getLocalTime(utcTime: string): string {
   const localTime = new Date(utcTime);
-
-  // Get the local date components
-  const day = localTime.getDate();
-  const month = localTime.getMonth() + 1; // Months are zero-based
-  const year = localTime.getFullYear();
-
-  // Format the local time as DD/MM/YYYY
-  const formattedLocalTime = `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
-
-  return formattedLocalTime;
+  const offsetInMinutes = localTime.getTimezoneOffset();
+  localTime.setMinutes(localTime.getMinutes() - offsetInMinutes);
+  const hours = localTime.getHours() % 12 || 12;
+  const minutes = localTime.getMinutes();
+  const period = localTime.getHours() >= 12 ? 'PM' : 'AM';
+  const localTimeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${period}`;
+  return localTimeString;
 }
+
+function getLocalDate(utcTime: string): string {
+  const localTime = new Date(utcTime);
+  const offsetInMinutes = localTime.getTimezoneOffset();
+  localTime.setMinutes(localTime.getMinutes() - offsetInMinutes);
+  const day = localTime.getDate();
+  const month = localTime.getMonth() + 1;
+  const year = localTime.getFullYear();
+  const localDateString = `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
+  return localDateString;
+}
+

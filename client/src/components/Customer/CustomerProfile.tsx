@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Address } from "./Address";
 import { cld } from "../../Cloudinary/Cloudinary";
 import { AdvancedImage } from "@cloudinary/react";
+import { fill } from "@cloudinary/url-gen/actions/resize";
+import { focusOn } from "@cloudinary/url-gen/qualifiers/gravity";
+import { FocusOn } from "@cloudinary/url-gen/qualifiers/focusOn";
 import CloudinaryUploader from "../../Cloudinary/CloudinaryUploader";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import Box from "@mui/material/Box";
@@ -11,6 +14,9 @@ import { ToastContainer, toast } from "react-toastify";
 import useCustomer from "../../hooks/UseCustomer";
 import ReferralLink from '../ReferralLink/ReferralLink';
 import { AiFillDelete } from 'react-icons/ai';
+import Loader from "../Loader/Loader";
+
+
 //Noah's code + Kang Rui
 export interface Customer {
   customer_id: number;
@@ -36,7 +42,7 @@ interface CustomerDisplayProps {
 
 const CustomerProfile: React.FC<CustomerDisplayProps> = ({
   customerData,
-  getAll,
+  getAll
 }) => {
   const { customer_id, username, email, phone_number, image_url } =
     customerData;
@@ -55,6 +61,7 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
   const [status, setStatus] = useState<boolean>();
   const [modal, setModal] = useState<boolean>(false);
   const [disabledModal, setDisabledModal] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const getActiveStatus = async () => {
     try {
@@ -64,6 +71,8 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
       setStatus(response.data.status);
     } catch (err: any) {
       console.log(err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -91,7 +100,7 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
 
   useEffect(() => {
     getActiveStatus();
-  });
+  }, []);
 
   useEffect(() => {
     getAll();
@@ -123,13 +132,13 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
   const handleUpload = async (resultInfo: any) => {
     setUpdateImage(resultInfo.public_id);
     try {
-      const response: number = await axiosPrivateCustomer.put(
+      const response = await axiosPrivateCustomer.put(
         `/customer/profile/edit/photo/${customer_id}`,
         {
           image_url: resultInfo.public_id,
         }
       );
-      if (response === 200) {
+      if (response.status === 200) {
         toast.success("Photo updated", {
           position: "top-center",
           autoClose: 5000,
@@ -157,15 +166,16 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
   };
 
   const handleDelete = async () => {
-    setUpdateImage("test/blank-profile-picture-973460_1280_tj6oeb");
     try {
-      const response: number = await axiosPrivateCustomer.put(
+      setUpdateImage("test/blank-profile-picture-973460_1280_tj6oeb");
+      const response = await axiosPrivateCustomer.put(
         `/customer/profile/edit/photo/${customer_id}`,
         {
           image_url: "test/blank-profile-picture-973460_1280_tj6oeb",
         }
       );
-      if (response === 200) {
+      console.log("deleting", response);
+      if (response.status === 200) {
         toast.success("Photo deleted", {
           position: "top-center",
           autoClose: 5000,
@@ -266,6 +276,7 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
         }}
         noValidate
         autoComplete="off"
+        width={750}
       >
         <TextField
           id="outlined-username"
@@ -327,39 +338,43 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
             </Button>
           </div>
         )}
-        <div className="flex">
-          Account Status: &nbsp;
-          <label className="inline-flex relative items-center mr-5 cursor-pointer">
-            <input
-              type="checkbox"
-              className="sr-only peer"
-              checked={status}
-              readOnly
-            />
-            <div
-              onClick={() => {
-                !status ? activateAccount() : setModal(true);
-              }}
-              className="w-11 h-6 bg-gray-200 rounded-full peer  peer-focus:ring-green-300  peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"
-            ></div>
-          </label>
-          {status ? (
-            <p className="text-green-600">Active</p>
-          ) : (
-            <p className="text-red-600">Inactive</p>
-          )}
-        </div>
-        <ReferralLink />
+        {
+          !isLoading ?
+            <><div className="flex">
+              Account Status: &nbsp;
+              <label className="inline-flex relative items-center mr-5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="sr-only peer"
+                  checked={status}
+                  readOnly
+                />
+                <div
+                  onClick={() => {
+                    !status ? activateAccount() : setModal(true);
+                  }}
+                  className="w-11 h-6 bg-gray-200 rounded-full peer  peer-focus:ring-green-300  peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"
+                ></div>
+              </label>
+              {status ? (
+                <p className="text-green-600">Active</p>
+              ) : (
+                <p className="text-red-600">Inactive</p>
+              )}
+            </div>
+              <ReferralLink /></> :
+            <Loader />
+        }
       </Box>
       <div className="flex flex-col items-center ml-9 relative">
         <div className="w-40 h-40 mb-5 relative">
-          <AdvancedImage cldImg={cld.image(image_url)} />
-          {image_url != "test/blank-profile-picture-973460_1280_tj6oeb" && (<button
+          <AdvancedImage cldImg={cld.image(image_url).resize(fill().width(250).height(250).gravity(focusOn(FocusOn.faces())))} className="object-cover rounded-lg" />
+          {image_url != "test/blank-profile-picture-973460_1280_tj6oeb" ? (<button
             className="absolute top-0 right-0 bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded"
             onClick={handleDelete}
           >
             <AiFillDelete />
-          </button>)}
+          </button>) : null}
         </div>
         <CloudinaryUploader onSuccess={handleUpload} caption={"Upload New"} />
       </div>

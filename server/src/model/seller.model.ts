@@ -5,11 +5,10 @@ import client from "../../config/teleSign";
 import config from "../../config/config";
 import jwt from "jsonwebtoken";
 import e from "express";
-import dotenv from "dotenv";
+import * as dotenv from "dotenv";
 dotenv.config({
   path: __dirname + "../../env",
 });
-
 interface SubmitVariationsInterface {
   var1: string;
   var2: string;
@@ -49,7 +48,7 @@ export const handleGetAllProductsOfSeller = async (
     ON c.category_id = p.category_id
     LEFT JOIN product_images pi
     ON pi.sku = pv.sku    
-    WHERE lp.seller_id = ?
+    WHERE lp.seller_id = 1
     AND pv.valid_variation = 1 
     ORDER BY p.product_id ASC; `;
   try {
@@ -74,7 +73,7 @@ export const handleGetBestSellers = async (
     INNER JOIN products p ON p.product_id = op.product_id
     INNER JOIN category c ON p.category_id = c.category_id
     INNER JOIN listed_products lp ON op.product_id = lp.product_id
-    WHERE lp.seller_id = ?
+    WHERE lp.seller_id = 1
     GROUP BY op.product_id
     ORDER BY totalQuantity DESC
     LIMIT 5;`;
@@ -257,82 +256,60 @@ export const handleEditProduct = async (
   try {
     connection.beginTransaction();
 
-    let currentIdx = 0;
-
     const result1: any = await connection.query(sql1, [
       values[0],
       values[1],
       values[2],
       productId,
     ]);
-    const result2: any = await connection
-      .query(sql2, [productId])
-      .then(async (response) => {
-        await Promise.all(
-          variations.map(async (variation) => {
-            const imageURL = imageURLMap[currentIdx];
-            const deleteImageURL = deleteImageURLMap[currentIdx];
-            currentIdx++;
+    const result2: any = await connection.query(sql2, [productId]);
 
-            if (variation.sku !== "") {
-              const result3: any = await connection.query(sql3, [
-                variation.quantity,
-                variation.price,
-                variation.sku,
-              ]);
-              deleteImageURL.forEach((url) => {
-                const result4: any = connection.query(sql4, [
-                  variation.sku,
-                  url,
+    let currentIdx = 0;
+    await Promise.all(
+      variations.map(async (variation) => {
+        const imageURL = imageURLMap[currentIdx];
+        const deleteImageURL = deleteImageURLMap[currentIdx];
+        currentIdx++;
+
+        if (variation.sku !== "") {
+          const result3: any = await connection.query(sql3, [
+            variation.quantity,
+            variation.price,
+            variation.sku,
+          ]);
+          deleteImageURL.forEach((url) => {
+            const result4: any = connection.query(sql4, [variation.sku, url]);
+          });
+          imageURL.forEach((url) => {
+            const result8: any = connection.query(sql8, [
+              productId,
+              url,
+              variation.sku,
+            ]);
+          });
+          currentIdx++;
+        } else {
+          const result5 = await connection
+            .query(sql5, [
+              productId,
+              variation.var1,
+              variation.var2,
+              productId,
+              variation.var1,
+              variation.var2,
+            ])
+            .then(async (response) => {
+              let exists = Object.values(response[0])[0].source;
+              let sku = Object.values(response[0])[0].sku;
+              if (exists === "Table") {
+                const result3: any = await connection.query(sql3, [
+                  variation.quantity,
+                  variation.price,
+                  sku,
                 ]);
-              });
-              imageURL.forEach((url) => {
-                const result8: any = connection.query(sql8, [
-                  productId,
-                  url,
-                  variation.sku,
-                ]);
-              });
-              currentIdx++;
-            } else {
-              const result5 = await connection
-                .query(sql5, [
-                  productId,
-                  variation.var1,
-                  variation.var2,
-                  productId,
-                  variation.var1,
-                  variation.var2,
-                ])
-                .then(async (response) => {
-                  let exists = Object.values(response[0])[0].source;
-                  let sku = Object.values(response[0])[0].sku;
-                  if (exists === "Table") {
-                    const result3: any = await connection.query(sql3, [
-                      variation.quantity,
-                      variation.price,
-                      sku,
-                    ]);
-                    const result6: any = await connection
-                      .query(sql6, [sku])
-                      .then((response) => {
-                        imageURL.forEach((url) => {
-                          const result8 = connection.query(sql8, [
-                            productId,
-                            url,
-                            sku,
-                          ]);
-                        });
-                      });
-                  } else {
-                    const result7 = connection.query(sql7, [
-                      sku,
-                      productId,
-                      variation.var1,
-                      variation.var2 ? variation.var2 : null,
-                      variation.quantity,
-                      variation.price,
-                    ]);
+                const result6: any = await connection
+                  .query(sql6, [sku])
+                  .then((response) => {
                     imageURL.forEach((url) => {
                       const result8 = connection.query(sql8, [
                         productId,
@@ -340,13 +317,25 @@ export const handleEditProduct = async (
                         sku,
                       ]);
                     });
-                  }
-                  return productId;
+                  });
+              } else {
+                const result7 = connection.query(sql7, [
+                  sku,
+                  productId,
+                  variation.var1,
+                  variation.var2 ? variation.var2 : null,
+                  variation.quantity,
+                  variation.price,
+                ]);
+                imageURL.forEach((url) => {
+                  const result8 = connection.query(sql8, [productId, url, sku]);
                 });
-            }
-          })
-        );
-      });
+              }
+              return productId;
+            });
+        }
+      })
+    );
   } catch (err: any) {
     connection.rollback();
     connection.release();
@@ -619,7 +608,7 @@ export const handleSendEmailLink = async (
       .sendTransacEmail({
         sender,
         to: receivers,
-        subject: "Verification Link For VOEK Sign Up",
+        subject: "Verification Link For VOEK seller Sign Up",
         textContent: `${
           process.env.FRONTEND_BASE_URL || "http://localhost:5173"
         }/seller/signup/verify?signupToken=${signUpToken}`,
@@ -748,7 +737,7 @@ export const handleSendEmailForgetPassword = async (
       .sendTransacEmail({
         sender,
         to: receivers,
-        subject: "Verification Link For VOEK Sign Up",
+        subject: "VPassword reset link for seller",
         textContent: `${
           process.env.FRONTEND_BASE_URL || "http://localhost:5173"
         }/seller/forgetPassword/verify?forgetPasswordToken=${forgetPasswordToken}`,
@@ -799,6 +788,7 @@ export const handleGetSellerOrders = async (
   WHERE orders_product.product_id in (
       SELECT listed_products.product_id FROM listed_products WHERE seller_id = ?
   ) AND orders_product.shipment_id IS NULL
+  ORDER BY orders.orders_date DESC
   `;
   try {
     const result = await connection.query(sql, [seller_id]);
@@ -827,6 +817,7 @@ export const handleGetSellerShipped = async (
   WHERE orders_product.product_id in (
       SELECT listed_products.product_id FROM listed_products WHERE seller_id = ?
   ) AND orders_product.shipment_id IS NOT NULL AND shipment.shipment_delivered IS NULL
+  ORDER BY orders.orders_date DESC
   `;
   try {
     const result = await connection.query(sql, [seller_id]);
@@ -855,6 +846,7 @@ export const handleGetSellerDelivered = async (
   WHERE orders_product.product_id in (
       SELECT listed_products.product_id FROM listed_products WHERE seller_id = ?
   ) AND orders_product.shipment_id IS NOT NULL AND shipment.shipment_delivered IS NOT NULL
+  ORDER BY orders.orders_date DESC
   `;
   try {
     const result = await connection.query(sql, [seller_id]);
@@ -1063,7 +1055,7 @@ export const handleSendEmailChange = async (
     .sendTransacEmail({
       sender,
       to: receivers,
-      subject: "Verification Link For VOEK Email Change",
+      subject: "Verification Link For VOEK seller Email Change",
       textContent: `${
         process.env.FRONTEND_BASE_URL || "http://localhost:5173"
       }/seller/email-verification?token=${changeSellerEmailToken}`,

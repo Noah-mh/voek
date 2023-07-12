@@ -21,7 +21,8 @@ export const handlesInsertingVoucher = async (
   if (type === 2) {
     percentage_amount = amount / 100;
   } else if (type === 1) {
-    number_amount = amount;
+    number_amount = amount.toFixed(2);
+    console.log("number_amount: ", number_amount);
   }
 
   try {
@@ -37,6 +38,8 @@ export const handlesInsertingVoucher = async (
       1,
     ]);
     return (result[0] as any).affectedRows as number;
+  } catch (err: any) {
+    throw new Error(err);
   } finally {
     await connection.release();
   }
@@ -49,6 +52,8 @@ export const handlesGetVoucherCategories = async () => {
   try {
     const result = await connection.query(sql, []);
     return result[0] as Array<Object>;
+  } catch (err: any) {
+    throw new Error(err);
   } finally {
     await connection.release();
   }
@@ -82,6 +87,8 @@ export const handlesUpdateActive = async (
   try {
     const result = await connection.query(sql, [active, voucher_id]);
     return (result[0] as any).affectedRows as number;
+  } catch (err: any) {
+    throw new Error(err);
   } finally {
     await connection.release();
   }
@@ -105,6 +112,8 @@ export const handlesUpdateVoucher = async (
   min_spend = ?, expiration_date = CAST(? as datetime), redemptions_available = ?, active = ?
   WHERE voucher_id = ?;`;
   if (percentage_amount !== null) percentage_amount = percentage_amount / 100;
+  if (number_amount !== null)
+    number_amount = Math.round(number_amount * 1e2) / 1e2;
   try {
     const result = await connection.query(sql, [
       name,
@@ -118,6 +127,8 @@ export const handlesUpdateVoucher = async (
       voucher_id,
     ]);
     return (result[0] as any).affectedRows as number;
+  } catch (err: any) {
+    throw new Error(err);
   } finally {
     await connection.release();
   }
@@ -150,6 +161,8 @@ export const handlesDeleteVoucher = async (
   try {
     const result = await connection.query(sql, [voucher_id]);
     return deletedFromSeller;
+  } catch (err: any) {
+    throw new Error(err);
   } finally {
     await connection.release();
   }

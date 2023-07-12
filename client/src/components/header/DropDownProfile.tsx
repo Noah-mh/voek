@@ -5,7 +5,6 @@ import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import { useNavigate } from "react-router-dom";
 
 const DropDownProfile = () => {
-
   const { setCustomer } = useCustomer();
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
   const navigate = useNavigate();
@@ -14,12 +13,11 @@ const DropDownProfile = () => {
     try {
       setCustomer({});
       await axiosPrivateCustomer.put("/customer/logout");
-      navigate('/login', { replace: true });
+      navigate("/login", { replace: true });
     } catch (err: any) {
-      console.log(err)
+      console.log(err);
     }
-  }
-
+  };
 
   return (
     <div className="flex flex-col">
@@ -31,7 +29,7 @@ const DropDownProfile = () => {
           <Link to="/wishlist">Wishlist</Link>
         </li>
         <li className="dropDownProfileText hover:cursor-pointer">
-          <Link to="/lastViewed">History</Link>
+          <Link to="/lastViewed">Last Viewed</Link>
         </li>
         <li className=" hover:cursor-pointer hover:text-red-500">
           <button onClick={handleLogOut}>Log Out</button>

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import useRefreshTokenCustomer from '../../hooks/useRefreshTokenCustomer';
 import useCustomer from '../../hooks/UseCustomer';
+import Loader from "../Loader/Loader";
 
 const PersistLoginCustomer = () => {
 
@@ -13,7 +14,7 @@ const PersistLoginCustomer = () => {
     let isMounted = true;
     const verifyRefreshToken = async () => {
       try {
-       await refresh();
+        await refresh();
       } catch (err) {
         console.log(err);
       } finally {
@@ -30,7 +31,9 @@ const PersistLoginCustomer = () => {
   return (
     <>
       {
-        isLoading ? <p>Loading...</p>
+        isLoading ? <div className="flex justify-center items-center">
+          <Loader />
+        </div>
           : <Outlet />
       }
     </>
