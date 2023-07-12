@@ -11,11 +11,8 @@ import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import useCustomer from "../../hooks/UseCustomer";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { motion } from "framer-motion";
 import { AiFillHeart, AiOutlineHeart, AiFillDelete } from "react-icons/ai";
-import { RxDividerVertical } from "react-icons/rx";
 import Rating from "@mui/material/Rating";
-import RedeemVoucher from "../RedeemVoucher/RedeemVoucher";
 import { Link } from "react-router-dom";
 import { AiOutlineShop } from "react-icons/ai";
 
