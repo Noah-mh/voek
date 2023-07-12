@@ -7,6 +7,7 @@ interface SideBarProps {
   userID: string;
   userType: string;
   roomID: string | undefined;
+  messages: ChatMessage[];
   setRoomID: React.Dispatch<React.SetStateAction<string | undefined>>;
   setMessages: React.Dispatch<React.SetStateAction<any[]>>;
   setOtherChatUser: React.Dispatch<React.SetStateAction<User | null>>;
@@ -28,10 +29,22 @@ interface User {
   image: string;
 }
 
+interface ChatMessage {
+  cmID?: string;
+  roomID: string;
+  senderID: string;
+  senderRole: string;
+  text: string;
+  image: string;
+  status?: string;
+  dateCreated?: string;
+}
+
 const SideBar = ({
   socket,
   userID,
   userType,
+  messages,
   setRoomID,
   setMessages,
   setOtherChatUser,
@@ -58,6 +71,10 @@ const SideBar = ({
   useEffect(() => {
     getUserRooms();
   }, []);
+
+  useEffect(() => {
+    getUserRooms();
+  }, [messages]);
 
   return (
     <div className="w-full overflow-y-auto">

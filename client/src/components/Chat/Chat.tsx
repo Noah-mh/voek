@@ -8,6 +8,9 @@ import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 import "./css/Chat.css";
+import { AdvancedImage } from "@cloudinary/react";
+import { cld } from "../../Cloudinary/Cloudinary";
+import { Link } from "react-router-dom";
 
 const socket = io(
   import.meta.env.VITE_APP_BACKEND_BASE_URL || "http://localhost:3500",
@@ -88,9 +91,8 @@ const Chat = ({ userType }: ChatProps) => {
     console.log("typeof minutes: ", typeof minutes);
     const ampm = hours >= 12 ? "pm" : "am";
 
-    // Convert 24-hour format to 12-hour format
     hours = hours % 12;
-    hours = hours || 12; // Assign 12 if the hour value is 0
+    hours = hours || 12;
 
     const formattedTime = hours + ":" + minutes + " " + ampm;
     console.log("formattedTime in convertDate: ", formattedTime);
@@ -119,6 +121,7 @@ const Chat = ({ userType }: ChatProps) => {
           userID={userID}
           userType={userType}
           roomID={roomID}
+          messages={messages}
           setRoomID={setRoomID}
           setMessages={setMessages}
           setOtherChatUser={setOtherUser}
@@ -132,9 +135,17 @@ const Chat = ({ userType }: ChatProps) => {
             </div>
           ) : (
             <div className="chat-window">
-              <div className="chat-header">
-                <p className="pl-4 tracking-wide">{otherUser?.username}</p>
-              </div>
+              <Link
+                to={`/customerSellerProfile/${otherUser?.userID}`}
+                className="chat-header flex pl-4 space-x-2 items-center"
+              >
+                <AdvancedImage
+                  className="w-8 h-8 rounded-full bg-slate-500"
+                  cldImg={cld.image(otherUser?.image)}
+                  alt="User's profile picture"
+                />
+                <p className="tracking-wide">{otherUser?.username}</p>
+              </Link>
               <div className="chat-body">
                 <ScrollToBottom className="message-container">
                   {roomID != null && messages.length > 0 ? (

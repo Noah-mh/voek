@@ -12,7 +12,7 @@ export const getCustomerRooms = async (userID: string): Promise<DMRoom[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql =
-    "SELECT room_id as roomID, customer_id as customerID, seller_id as sellerID, date_created as dateCreated FROM dm_room WHERE customer_id = ?";
+    "SELECT room_id as roomID, customer_id as customerID, seller_id as sellerID, date_created as dateCreated FROM dm_room WHERE customer_id = ? ORDER BY last_updated DESC";
   const values = [userID, userID];
   try {
     const [rows] = await connection.query<RowDataPacket[]>(sql, values);
@@ -30,7 +30,7 @@ export const getSellerRooms = async (userID: string): Promise<DMRoom[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql =
-    "SELECT room_id as roomID, customer_id as customerID, seller_id as sellerID, date_created as dateCreated FROM dm_room WHERE seller_id = ?";
+    "SELECT room_id as roomID, customer_id as customerID, seller_id as sellerID, date_created as dateCreated FROM dm_room WHERE seller_id = ? ORDER BY last_updated DESC";
   const values = [userID, userID];
   try {
     const [rows] = await connection.query<RowDataPacket[]>(sql, values);
@@ -69,8 +69,6 @@ export const createDMRoom = async (
   customerID: string,
   sellerID: string
 ): Promise<number> => {
-  console.log("customerID: ", customerID);
-  console.log("sellerID: ", sellerID);
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const existingRoom = await getDMRoom(customerID, sellerID);
@@ -78,9 +76,7 @@ export const createDMRoom = async (
   const sql = "INSERT INTO dm_room (customer_id, seller_id) VALUES (?, ?);";
   const values = [customerID, sellerID];
   try {
-    console.log("values: ", values);
     const [rows] = await connection.query<OkPacket>(sql, values);
-    console.log("rows: ", rows);
     return rows.affectedRows;
   } catch (err) {
     throw err;
@@ -118,6 +114,22 @@ export const getSeller = async (userID: string): Promise<any> => {
     if (rows.length === 0) return null;
     const user = rows[0];
     return user;
+  } catch (err) {
+    throw err;
+  } finally {
+    connection.release();
+  }
+};
+
+export const updateLastUpdated = async (roomID: string): Promise<number> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql =
+    "UPDATE dm_room SET last_updated = current_timestamp() WHERE room_id = ?";
+  const values = [roomID];
+  try {
+    const [rows] = await connection.query<OkPacket>(sql, values);
+    return rows.affectedRows;
   } catch (err) {
     throw err;
   } finally {

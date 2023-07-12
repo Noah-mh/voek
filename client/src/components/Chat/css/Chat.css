@@ -158,20 +158,20 @@
 }
 
 ::-webkit-scrollbar {
-  width: 8px; /* Width of the scrollbar */
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #3a3b3c; /* Color of the scrollbar track */
+  background: #3a3b3c;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #b0b3b8; /* Color of the scrollbar handle */
-  border-radius: 4px; /* Roundness of the scrollbar handle */
+  background: #b0b3b8;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #e4e6eb; /* Color of the scrollbar handle on hover */
+  background: #e4e6eb;
 }
 
 .sideBarUser:hover {

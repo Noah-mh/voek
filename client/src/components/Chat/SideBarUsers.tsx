@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import tz from "moment-timezone";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
+import { AdvancedImage } from "@cloudinary/react";
+import { cld } from "../../Cloudinary/Cloudinary";
 
 interface SideBarUserProps {
   userID: string;
@@ -90,10 +92,10 @@ const SideBarUser = ({
         }}
       >
         <div className="flex-shrink-0">
-          <img
+          <AdvancedImage
             className="w-12 h-12 rounded-full bg-slate-500"
-            src=""
-            alt="Neil image"
+            cldImg={cld.image(otherUser?.image)}
+            alt="User's profile picture"
           />
         </div>
         <div className="flex-1 min-w-0">
