@@ -53,3 +53,41 @@ export const createMessage = async (
     next(err);
   }
 };
+
+export const getUserUnreadMessages = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { roomID, senderID } = req.query;
+    if (!roomID || !senderID) return res.sendStatus(400);
+    const response: ChatMessage[] | null =
+      await chatMessageModel.getUserUnreadMessages(
+        roomID as string,
+        senderID as string
+      );
+    return res.status(200).send(response);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const updateMessagesStatus = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { roomID, senderID } = req.body;
+    if (!roomID || !senderID) return res.sendStatus(400);
+    const response: number = await chatMessageModel.updateMessagesStatus(
+      roomID as string,
+      senderID as string
+    );
+    if (response === 0) return res.sendStatus(400);
+    return res.sendStatus(200);
+  } catch (err) {
+    next(err);
+  }
+};
