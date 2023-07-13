@@ -3,17 +3,12 @@ import React, { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
 import axios from "../../api/axios";
 import Loader from "../Loader/Loader";
-import { cld } from "../../Cloudinary/Cloudinary";
-import { AdvancedImage } from "@cloudinary/react";
-import Typography from "@mui/material/Typography";
-import { AiOutlineShop } from "react-icons/ai";
 import "./ProductDetailsWithReviews.css";
 import ProductDetail from "./ProductDetails";
 import CustomerContext from "../../context/CustomerProvider";
 import moment from "moment";
 import tz from "moment-timezone";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
-import { Link } from "react-router-dom";
 //Noah's code
 interface seller {
   seller_id: number;
@@ -163,37 +158,6 @@ const ProductDetailWithReview: React.FC = () => {
   } else {
     return (
       <div>
-        {/* <div className="flex justify-center items-start space-x-4">
-          <div className="w-20 h-20 mb-5 mr-5 rounded-full overflow-hidden">
-            <AdvancedImage cldImg={cld.image(sellerData[0].image_url)} />
-          </div>
-          <div className="flex flex-col justify-center">
-            <Typography gutterBottom variant="h5" component="div">
-              {sellerData[0].shop_name}
-            </Typography>
-            <Link
-              to={`/customerSellerProfile/${sellerData[0].seller_id}`}
-              className="mt-3 inline-flex items-center justify-center border border-black text-black py-2 px-4 rounded bg-white hover:bg-gray-200"
-            >
-              <AiOutlineShop />
-              <span className="ml-2">View Shop</span>
-            </Link>
-          </div>
-
-          <div className="flex flex-col justify-center item-center">
-            <Typography variant="body2" color="text.primary">
-              Total Products: {sellerData[0].total_products}
-            </Typography>
-            <Typography variant="body2" color="text.primary">
-              Total Rating: {sellerData[0].total_reviews}
-            </Typography>
-          </div>
-          <div className="flex flex-col justify-center">
-            <Typography variant="body2" color="text.primary">
-              Joined: {diffInMonths} months ago
-            </Typography>
-          </div>
-        </div> */}
         <ProductDetail
           productData={productData}
           productReview={productReview}
