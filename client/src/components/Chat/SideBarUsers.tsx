@@ -8,11 +8,12 @@ import { get } from "http";
 interface SideBarUserProps {
   userID: string;
   userType: string;
-  socket: any;
   setRoomID: React.Dispatch<React.SetStateAction<string | undefined>>;
   room: Room;
   setMessages: React.Dispatch<React.SetStateAction<any[]>>;
   setOtherChatUser: React.Dispatch<React.SetStateAction<User | null>>;
+  setUpdateSideBar: React.Dispatch<React.SetStateAction<boolean>>;
+  updateSideBar: boolean;
 }
 
 interface Room {
@@ -45,11 +46,12 @@ interface ChatMessage {
 const SideBarUser = ({
   userID,
   userType,
-  socket,
   setRoomID,
   room,
   setMessages,
   setOtherChatUser,
+  setUpdateSideBar,
+  updateSideBar,
 }: SideBarUserProps) => {
   const [otherUser, setOtherUser] = useState<User | null>(null);
   const [unreadMessages, setUnreadMessages] = useState<Array<ChatMessage>>([]);
@@ -74,7 +76,7 @@ const SideBarUser = ({
 
   const joinRoom = () => {
     if (userID !== "" && room.roomID != null) {
-      socket.emit("join_room", room.roomID);
+      // socket.emit("join_room", room.roomID);
       setRoomID(room.roomID);
     }
   };
@@ -110,6 +112,11 @@ const SideBarUser = ({
   useEffect(() => {
     getOtherUser();
   }, []);
+
+  useEffect(() => {
+    getOtherUser();
+    setUpdateSideBar(false);
+  }, [updateSideBar]);
 
   return (
     <>

@@ -3,14 +3,15 @@ import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import SideBarUser from "./SideBarUsers";
 
 interface SideBarProps {
-  socket: any;
   userID: string;
   userType: string;
   roomID: string | undefined;
   messages: ChatMessage[];
+  updateSideBar: boolean;
   setRoomID: React.Dispatch<React.SetStateAction<string | undefined>>;
   setMessages: React.Dispatch<React.SetStateAction<any[]>>;
   setOtherChatUser: React.Dispatch<React.SetStateAction<User | null>>;
+  setUpdateSideBar: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 interface Room {
@@ -41,13 +42,14 @@ interface ChatMessage {
 }
 
 const SideBar = ({
-  socket,
   userID,
   userType,
   messages,
+  updateSideBar,
   setRoomID,
   setMessages,
   setOtherChatUser,
+  setUpdateSideBar,
 }: SideBarProps) => {
   const [rooms, setRooms] = useState<Room[]>([]);
 
@@ -61,7 +63,6 @@ const SideBar = ({
 
     try {
       const res = await axiosPrivateCustomer.get(link);
-      console.log("res.data: ", res.data);
       setRooms(res.data);
     } catch (err) {
       console.log(err);
@@ -92,11 +93,12 @@ const SideBar = ({
                     key={room.roomID}
                     userID={userID}
                     userType={userType}
-                    socket={socket}
                     setRoomID={setRoomID}
                     room={room}
                     setMessages={setMessages}
                     setOtherChatUser={setOtherChatUser}
+                    setUpdateSideBar={setUpdateSideBar}
+                    updateSideBar={updateSideBar}
                   />
                 );
               })}

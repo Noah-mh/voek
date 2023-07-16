@@ -12,10 +12,15 @@ import { AdvancedImage } from "@cloudinary/react";
 import { cld } from "../../Cloudinary/Cloudinary";
 import { Link } from "react-router-dom";
 
-const socket = io(
-  import.meta.env.VITE_APP_BACKEND_BASE_URL || "http://localhost:3500",
-  { transports: ["websocket"] }
-);
+// const socket = io(
+//   import.meta.env.VITE_APP_BACKEND_BASE_URL || "http://localhost:3500",
+//   {
+//     transports: ["websocket"],
+//     query: {
+//       id: "xxxxxx",
+//     },
+//   }
+// );
 
 interface ChatProps {
   userType: string;
@@ -42,10 +47,12 @@ interface User {
 }
 
 const Chat = ({ userType }: ChatProps) => {
+  const [socket, setSocket] = useState<any>(null);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Array<ChatMessage>>([]);
   const [roomID, setRoomID] = useState<string | undefined>();
   const [otherUser, setOtherUser] = useState<User | null>(null);
+  const [updateSideBar, setUpdateSideBar] = useState(false);
 
   const { customer } = useContext(CustomerContext);
   const { seller } = useContext(SellerContext);
@@ -64,8 +71,6 @@ const Chat = ({ userType }: ChatProps) => {
 
     const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 
-    console.log("formattedDate: ", formattedDateTime);
-
     if (message !== "") {
       const messageContent: ChatMessage = {
         roomID: roomID!,
@@ -83,29 +88,49 @@ const Chat = ({ userType }: ChatProps) => {
   };
 
   const convertDate = (date: string) => {
-    console.log("date in convertDate: ", date);
     const dateObj = new Date(date);
     let hours = dateObj.getHours();
     const minutes = dateObj.getMinutes().toString().padStart(2, "0");
-    console.log("minutes: ", minutes);
-    console.log("typeof minutes: ", typeof minutes);
     const ampm = hours >= 12 ? "pm" : "am";
 
     hours = hours % 12;
     hours = hours || 12;
 
     const formattedTime = hours + ":" + minutes + " " + ampm;
-    console.log("formattedTime in convertDate: ", formattedTime);
     return formattedTime;
   };
 
   const receiveMessageCallback = useMemo(() => {
     return (data: ChatMessage) => {
-      setMessages((prevMessages) => [...prevMessages, data]);
+      console.log("data in receiveMessageCallback: ", data);
+      if (data.roomID === roomID) {
+        console.log("same room: ", data.roomID === roomID, "roomID: ", roomID);
+        setMessages((prevMessages) => [...prevMessages, data]);
+      } else {
+        setUpdateSideBar(true);
+      }
     };
-  }, []);
+  }, [roomID]);
 
   useEffect(() => {
+    const socket = io(
+      import.meta.env.VITE_APP_BACKEND_BASE_URL || "http://localhost:3500",
+      {
+        transports: ["websocket"],
+        query: {
+          userID: userID,
+          userType: userType,
+        },
+      }
+    );
+    setSocket(socket);
+    return () => {
+      socket.close();
+    };
+  }, [setSocket]);
+
+  useEffect(() => {
+    if (socket == null) return;
     socket.on("receive_message", receiveMessageCallback);
 
     return () => {
@@ -113,18 +138,23 @@ const Chat = ({ userType }: ChatProps) => {
     };
   }, [socket, receiveMessageCallback]);
 
+  useEffect(() => {
+    console.log("roomID in useEffect: ", roomID);
+  }, [roomID]);
+
   return (
     <div className="chatContainer flex flex-col md:flex-row overflow-hidden">
       <div className="hidden md:block md:w-1/4">
         <SideBar
-          socket={socket}
           userID={userID}
           userType={userType}
           roomID={roomID}
           messages={messages}
+          updateSideBar={updateSideBar}
           setRoomID={setRoomID}
           setMessages={setMessages}
           setOtherChatUser={setOtherUser}
+          setUpdateSideBar={setUpdateSideBar}
         />
       </div>
       <div className="w-full md:w-3/4 flex">
