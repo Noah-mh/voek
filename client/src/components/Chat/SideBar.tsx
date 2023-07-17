@@ -77,6 +77,10 @@ const SideBar = ({
     getUserRooms();
   }, [messages]);
 
+  useEffect(() => {
+    getUserRooms();
+  }, [updateSideBar]);
+
   return (
     <div className="w-full overflow-y-auto">
       <div className="flex flex-col h-screen bg-gray-800 chatSidebar">
