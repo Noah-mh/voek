@@ -6,6 +6,7 @@ interface DMRoom {
   customerID: string;
   sellerID: string;
   dateCreated: Date;
+  contacted?: number;
 }
 
 export const getCustomerRooms = async (userID: string): Promise<DMRoom[]> => {
@@ -53,6 +54,24 @@ export const getDMRoom = async (
   const sql =
     "SELECT room_id as roomID, customer_id as customerID, seller_id as sellerID, date_created as dateCreated FROM dm_room WHERE customer_id = ? AND seller_id = ?";
   const values = [customerID, sellerID, customerID, sellerID];
+  try {
+    const [rows] = await connection.query<RowDataPacket[]>(sql, values);
+    if (rows.length === 0) return null;
+    const room: DMRoom = rows[0] as DMRoom;
+    return room;
+  } catch (err) {
+    throw err;
+  } finally {
+    connection.release();
+  }
+};
+
+export const getDMRoomByID = async (roomID: string): Promise<DMRoom | null> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql =
+    "SELECT room_id as roomID, customer_id as customerID, seller_id as sellerID, date_created as dateCreated, contacted FROM dm_room WHERE room_id = ?";
+  const values = [roomID];
   try {
     const [rows] = await connection.query<RowDataPacket[]>(sql, values);
     if (rows.length === 0) return null;
@@ -130,6 +149,42 @@ export const updateLastUpdated = async (roomID: string): Promise<number> => {
   try {
     const [rows] = await connection.query<OkPacket>(sql, values);
     return rows.affectedRows;
+  } catch (err) {
+    throw err;
+  } finally {
+    connection.release();
+  }
+};
+
+export const updateDMRoomContacted = async (
+  roomID: string
+): Promise<number> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = "UPDATE dm_room SET contacted = 1 WHERE room_id = ?";
+  const values = [roomID];
+  try {
+    const [rows] = await connection.query<OkPacket>(sql, values);
+    return rows.affectedRows;
+  } catch (err) {
+    throw err;
+  } finally {
+    connection.release();
+  }
+};
+
+export const checkWhetherSellerIsInRoom = async (
+  roomID: string,
+  sellerID: string
+): Promise<boolean> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = "SELECT room_id FROM dm_room WHERE room_id = ? AND seller_id = ?";
+  const values = [roomID, sellerID];
+  try {
+    const [rows] = await connection.query<RowDataPacket[]>(sql, values);
+    if (rows.length === 0) return false;
+    return true;
   } catch (err) {
     throw err;
   } finally {

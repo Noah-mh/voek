@@ -46,23 +46,30 @@ export default (server: HttpServer, port: any) => {
     //   console.log("User open connection: " + connectionId);
     // });
 
-    // socket.on("join_room", (roomID: any) => {
-    //   socket.join(roomID);
-    //   console.log("User joined room: " + roomID);
-    // });
+    socket.on("join_room", (roomID: any) => {
+      socket.join(roomID);
+      console.log("User joined room: " + roomID);
+    });
 
-    socket.on("send_message", (data: any) => {
+    socket.on("send_message", async (data: any) => {
       console.log("chat message: ", data);
+
+      if (data.senderRole === "customer") {
+        console.log("customer message");
+        const room = await dmRoomModel.getDMRoomByID(data.roomID);
+        if (!room) {
+          console.log("room not found");
+          return;
+        }
+
+        if (room.contacted === 0) {
+          io.sockets.emit("broadcast_message", data);
+          await dmRoomModel.updateDMRoomContacted(room.roomID);
+          console.log("message broadcasted");
+        }
+      }
+
       socket.to(data.roomID).emit("receive_message", data);
-      // if (data.senderRole == "customer") {
-      //   sellerRooms[data.roomID].forEach((sellerID: any) => {
-      //     socket.to(sellers[sellerID]).emit("receive_message", data);
-      //   });
-      // } else {
-      //   customerRooms[data.roomID].forEach((customerID: any) => {
-      //     socket.to(customers[customerID]).emit("receive_message", data);
-      //   });
-      // }
     });
 
     socket.on("disconnect", () => {

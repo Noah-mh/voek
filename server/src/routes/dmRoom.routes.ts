@@ -7,4 +7,8 @@ export default (app: Express, router: Router) => {
   router.post("/createDMRoom", dmRoomController.createDMRoom);
   router.get("/getCustomer/:userID", dmRoomController.getCustomer);
   router.get("/getSeller/:userID", dmRoomController.getSeller);
+  router.get(
+    "/checkWhetherSellerIsInRoom",
+    dmRoomController.checkWhetherSellerIsInRoom
+  );
 };

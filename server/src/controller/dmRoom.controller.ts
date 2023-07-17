@@ -90,3 +90,22 @@ export const getSeller = async (
     next(err);
   }
 };
+
+export const checkWhetherSellerIsInRoom = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { roomID, sellerID } = req.query;
+    if (!roomID || !sellerID) return res.sendStatus(400);
+    const response = await dmRoomModel.checkWhetherSellerIsInRoom(
+      roomID as string,
+      sellerID as string
+    );
+    if (!response) return res.sendStatus(404);
+    return res.sendStatus(200);
+  } catch (err) {
+    next(err);
+  }
+};

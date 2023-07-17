@@ -112,6 +112,23 @@ const Chat = ({ userType }: ChatProps) => {
     };
   }, [roomID]);
 
+  const receiveBroadcastCallback = useMemo(() => {
+    return async (data: ChatMessage) => {
+      if (userType === "seller") {
+        const sellerIsInThatRoom: any = await axiosPrivateCustomer.get(
+          `/checkWhetherSellerIsInRoom?roomID=${data.roomID}&sellerID=${userID}`
+        );
+        console.log("data in receiveBroadcastCallback: ", data);
+        console.log("sellerIsInThatRoom: ", sellerIsInThatRoom);
+        if (sellerIsInThatRoom.status === 200) {
+          console.log("seller is in that room");
+          setUpdateSideBar(true);
+          socket.emit("join_room", data.roomID);
+        }
+      }
+    };
+  }, [socket]);
+
   useEffect(() => {
     const socket = io(
       import.meta.env.VITE_APP_BACKEND_BASE_URL || "http://localhost:3500",
@@ -137,6 +154,15 @@ const Chat = ({ userType }: ChatProps) => {
       socket.off("receive_message", receiveMessageCallback);
     };
   }, [socket, receiveMessageCallback]);
+
+  useEffect(() => {
+    if (socket == null) return;
+    socket.on("broadcast_message", receiveBroadcastCallback);
+
+    return () => {
+      socket.off("broadcast_message", receiveBroadcastCallback);
+    };
+  }, [socket, receiveBroadcastCallback]);
 
   useEffect(() => {
     console.log("roomID in useEffect: ", roomID);
