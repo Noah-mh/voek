@@ -164,7 +164,15 @@ const Chat = ({ userType }: ChatProps) => {
               Pick someone to start chatting!
             </div>
           ) : (
-            <div className="chat-window">
+            <div
+              className="chat-window"
+              onClick={async () => {
+                await axiosPrivateCustomer.put(`/updateMessagesStatus`, {
+                  roomID: roomID,
+                  senderID: otherUser?.userID,
+                });
+              }}
+            >
               <Link
                 to={`/customerSellerProfile/${otherUser?.userID}`}
                 className="chat-header flex pl-4 space-x-2 items-center"

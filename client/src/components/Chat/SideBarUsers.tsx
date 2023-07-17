@@ -114,7 +114,9 @@ const SideBarUser = ({
   }, []);
 
   useEffect(() => {
-    getOtherUser();
+    if (updateSideBar) {
+      getOtherUser();
+    }
     setUpdateSideBar(false);
   }, [updateSideBar]);
 
