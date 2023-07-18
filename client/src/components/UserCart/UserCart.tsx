@@ -38,7 +38,7 @@ export default function cartPage(): JSX.Element {
     variation_1: string;
     variation_2: string;
     stock: number;
-    shop_name: String
+    shop_name: String;
   }
   interface totalCart {
     subTotal: number;
@@ -56,6 +56,7 @@ export default function cartPage(): JSX.Element {
   }
   interface voucher {
     seller_id: number;
+    shop_name: string;
     voucher_id: string;
     voucher_name: string;
     number_amount: number;
@@ -75,14 +76,14 @@ export default function cartPage(): JSX.Element {
   const [userAddresses, setUserAddresses] = useState<userAddress[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<userAddress>();
   const [customerVouchers, setCustomerVouchers] = useState<voucher[]>([]);
-  const [groupItems, setGroupItems] = useState<{ [key: number]: cartItem[] }>(
+  const [groupItems, setGroupItems] = useState<{ [key: string]: cartItem[] }>(
     {}
   );
   const [wasAVVoucherClaimed, setWasAVVoucherClaimed] =
     useState<boolean>(false);
   const [lastClaimedVoucher, setLastClaimedVoucher] = useState<voucher>();
   const [groupItemsPrice, setGroupItemsPrice] = useState<{
-    [key: number]: number;
+    [key: string]: number;
   }>({});
   const [userCart, setUserCart] = useState<cartItem[]>([]);
   const [prodQuantity, setProdQuantity] = useState<number>(0);
@@ -132,13 +133,14 @@ export default function cartPage(): JSX.Element {
           }
 
           if (res.data.length > 0) {
-            const tempGroupedItems: { [key: number]: cartItem[] } = {};
+            const tempGroupedItems: { [key: string]: cartItem[] } = {};
             res.data.forEach((item: cartItem) => {
               const seller_id = item.seller_id;
-              if (!tempGroupedItems[seller_id]) {
-                tempGroupedItems[seller_id] = [];
+              const seller_key: string = `${item.seller_id}_${item.shop_name}`;
+              if (!tempGroupedItems[seller_key]) {
+                tempGroupedItems[seller_key] = [];
               }
-              tempGroupedItems[seller_id].push(item);
+              tempGroupedItems[seller_key].push(item);
             });
             setGroupItems(tempGroupedItems);
             setUserCart(res.data);
@@ -168,23 +170,23 @@ export default function cartPage(): JSX.Element {
   };
 
   const handleQuantityChange = (item: cartItem, change: number) => {
-    const updatedGroupedCart = Object.keys(groupItems).map((sellerId) => {
-      const updatedItems = groupItems[parseInt(sellerId)].map(
-        (cartItem: cartItem) => {
-          if (cartItem.sku === item.sku) {
-            const newItem: cartItem = {
-              ...cartItem,
-              quantity: cartItem.quantity + change,
-            };
-            setChangedSKU(newItem.sku);
-            setProdQuantity(newItem.quantity);
-            setChangedQuantState(true);
-            return newItem;
-          }
-          return cartItem;
+    const updatedGroupedCart = Object.keys(groupItems).map((sellerKey) => {
+      // const [sellerId, shopName] = sellerKey.split("_");
+      // const items = groupItems[sellerKey];
+      const updatedItems = groupItems[sellerKey].map((cartItem: cartItem) => {
+        if (cartItem.sku === item.sku) {
+          const newItem: cartItem = {
+            ...cartItem,
+            quantity: cartItem.quantity + change,
+          };
+          setChangedSKU(newItem.sku);
+          setProdQuantity(newItem.quantity);
+          setChangedQuantState(true);
+          return newItem;
         }
-      );
-      return { [sellerId]: updatedItems }; // Return the updated items within an object
+        return cartItem;
+      });
+      return { [sellerKey]: updatedItems }; // Return the updated items within an object
     });
     setGroupItems(Object.assign({}, ...updatedGroupedCart)); // Merge the updated items into a single object
   };
@@ -298,8 +300,8 @@ export default function cartPage(): JSX.Element {
 
   useEffect(() => {
     let sum = 0;
-    Object.keys(groupItems).map((sellerId) => {
-      const sumOfSeller = groupItems[parseInt(sellerId)].reduce(
+    Object.keys(groupItems).map((sellerKey) => {
+      const sumOfSeller = groupItems[sellerKey].reduce(
         (total, item) => total + item.price * item.quantity,
         0
       );
@@ -307,7 +309,7 @@ export default function cartPage(): JSX.Element {
       setGroupItemsPrice((prevState) => {
         return {
           ...prevState,
-          [sellerId]: Number(sumOfSeller.toFixed(2)),
+          [sellerKey]: Number(sumOfSeller.toFixed(2)),
         };
       });
     });
@@ -341,6 +343,7 @@ export default function cartPage(): JSX.Element {
   useEffect(() => {
     if (lastClaimedVoucher !== null) {
       const voucher = lastClaimedVoucher;
+      const key = `${voucher?.seller_id}_${voucher?.shop_name}`;
       if (voucher) {
         if (wasAVVoucherClaimed) {
           switch (voucher.voucher_category) {
@@ -387,14 +390,11 @@ export default function cartPage(): JSX.Element {
             case "Price": {
               if (voucher.number_amount) {
                 const discAmt = voucher.number_amount;
+
                 setGroupItemsPrice((prevState) => ({
                   ...prevState,
-                  [voucher.seller_id]:
-                    Number(
-                      (prevState[voucher.seller_id] - Number(discAmt)).toFixed(
-                        2
-                      )
-                    ) || 0,
+                  [key]:
+                    Number((prevState[key] - Number(discAmt)).toFixed(2)) || 0,
                 }));
                 setTotalAmt((prevState) => {
                   return {
@@ -411,14 +411,11 @@ export default function cartPage(): JSX.Element {
                 let discAmt = 0;
                 setGroupItemsPrice((prevState) => {
                   const newTotalPriceAmt =
-                    prevState[voucher.seller_id] *
-                    (1 - Number(voucher.percentage_amount));
-                  discAmt =
-                    prevState[voucher.seller_id] *
-                    Number(voucher.percentage_amount);
+                    prevState[key] * (1 - Number(voucher.percentage_amount));
+                  discAmt = prevState[key] * Number(voucher.percentage_amount);
                   return {
                     ...prevState,
-                    [voucher.seller_id]: Number(newTotalPriceAmt.toFixed(2)),
+                    [key]: Number(newTotalPriceAmt.toFixed(2)),
                   };
                 });
                 setTotalAmt((prevState) => {
@@ -487,9 +484,7 @@ export default function cartPage(): JSX.Element {
                 const discAmt = voucher.number_amount;
                 setGroupItemsPrice((prevState) => ({
                   ...prevState,
-                  [voucher.seller_id]: Number(
-                    (prevState[voucher.seller_id] + Number(discAmt)).toFixed(2)
-                  ),
+                  [key]: Number((prevState[key] + Number(discAmt)).toFixed(2)),
                 }));
                 setTotalAmt((prevState) => {
                   return {
@@ -508,12 +503,12 @@ export default function cartPage(): JSX.Element {
                   let nowPercentage = 1 - Number(voucher.percentage_amount);
                   let previousPrice = prevState[voucher.seller_id];
                   const newTotalPriceAmt = Number(
-                    prevState[voucher.seller_id] / Number(nowPercentage)
+                    prevState[key] / Number(nowPercentage)
                   );
                   difference = Number(newTotalPriceAmt) - Number(previousPrice);
                   return {
                     ...prevState,
-                    [voucher.seller_id]: Number(newTotalPriceAmt.toFixed(2)),
+                    [key]: Number(newTotalPriceAmt.toFixed(2)),
                   };
                 });
                 setTotalAmt((prevState) => {
@@ -561,10 +556,29 @@ export default function cartPage(): JSX.Element {
             No cart items to retrieve.
           </div>
         )}
-        {Object.keys(groupItems).map((sellerId) => (
-          <div key={sellerId} className="border-b-2 mb-2">
-            SELLER: {sellerId}
-            {groupItems[parseInt(sellerId)].map((item: cartItem) => (
+        {Object.keys(groupItems).map((sellerKey) => (
+          <div key={sellerKey} className="border-b-2 mb-2">
+            <div className="storeName flex-row flex m-3">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                className="w-6 h-6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016a3.001 3.001 0 003.75.614m-16.5 0a3.004 3.004 0 01-.621-4.72L4.318 3.44A1.5 1.5 0 015.378 3h13.243a1.5 1.5 0 011.06.44l1.19 1.189a3 3 0 01-.621 4.72m-13.5 8.65h3.75a.75.75 0 00.75-.75V13.5a.75.75 0 00-.75-.75H6.75a.75.75 0 00-.75.75v3.75c0 .415.336.75.75.75z"
+                />
+              </svg>
+
+              <h1 className="text-l font-bold text-purpleAccent ml-2">
+                {getUsernameFromSellerKey(sellerKey)}
+              </h1>
+            </div>
+            {groupItems[sellerKey].map((item: cartItem) => (
               <Link
                 to={"/productDetailsWithReviews/" + item.product_id}
                 className="grid grid-cols-5 gap-4 py-4 prodCont"
@@ -627,14 +641,14 @@ export default function cartPage(): JSX.Element {
               </Link>
             ))}
             <div className="justify-between flex border-t-2 font-semibold">
-              {claimedVouchers[sellerId] ? (
+              {claimedVouchers[sellerKey] ? (
                 <div className="font-bold text-xs text-center pt-1">
                   * Discount Applied
                 </div>
               ) : (
                 <div></div>
               )}
-              ${groupItemsPrice[parseInt(sellerId)]}
+              ${groupItemsPrice[sellerKey]}
             </div>
           </div>
         ))}
@@ -761,8 +775,25 @@ export default function cartPage(): JSX.Element {
           getUserCart={getUserCart}
           setWasAVVoucherClaimed={setWasAVVoucherClaimed}
           setLastClaimedVoucher={setLastClaimedVoucher}
+          groupItemsPrice={groupItemsPrice}
         />
       )}
     </div>
   );
 }
+
+const getUsernameFromSellerKey = (sellerKey: string): string => {
+  const separatorIndex = sellerKey.indexOf("_");
+  if (separatorIndex !== -1) {
+    return sellerKey.substring(separatorIndex + 1);
+  }
+  return "";
+};
+
+const getIdFromSellerKey = (sellerKey: string): string => {
+  const separatorIndex = sellerKey.indexOf("_");
+  if (separatorIndex !== -1) {
+    return sellerKey.substring(0, separatorIndex);
+  }
+  return "";
+};

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { AdvancedImage } from "@cloudinary/react";
-import { Carousel } from "react-responsive-carousel";
+import { fill } from "@cloudinary/url-gen/actions/resize";
+import { focusOn } from "@cloudinary/url-gen/qualifiers/gravity";
+import { FocusOn } from "@cloudinary/url-gen/qualifiers/focusOn";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { Product, ProductVariation, Review } from "./ProductDetailsWithReviews";
 import { cld } from "../../Cloudinary/Cloudinary";
@@ -9,12 +11,8 @@ import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import useCustomer from "../../hooks/UseCustomer";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { motion } from "framer-motion";
 import { AiFillHeart, AiOutlineHeart, AiFillDelete } from "react-icons/ai";
-import { RxDividerVertical } from "react-icons/rx";
 import Rating from "@mui/material/Rating";
-import RedeemVoucher from "../RedeemVoucher/RedeemVoucher";
-import Typography from "@mui/material/Typography";
 import { Link } from "react-router-dom";
 import { AiOutlineShop } from "react-icons/ai";
 
@@ -483,10 +481,10 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                       value={
                         selectedVariation
                           ? {
-                              label: selectedVariation,
-                              value: selectedVariation,
-                              sku: selectedSku,
-                            }
+                            label: selectedVariation,
+                            value: selectedVariation,
+                            sku: selectedSku,
+                          }
                           : null
                       }
                       onChange={(option) => {
@@ -636,11 +634,19 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                             className="bg-gray-50 px-10 py-[32px] mb-2.5"
                           >
                             <div className="flex justify-between items-center mb-3">
-                              <h1 className="text-[18px] font-medium break-words">
-                                {review.customerName}
-                              </h1>
+                              <div className="flex items-center space-x-3">
+                                <div className="w-10 h-10" >
+                                  <AdvancedImage
+                                    cldImg={cld.image(review.customerImage).resize(fill().width(250).height(250).gravity(focusOn(FocusOn.faces())))}
+                                    className="object-cover rounded-lg"
+                                  />
+                                </div>
+                                <h1 className="text-[18px] font-medium break-words">
+                                  {review.customerName}
+                                </h1>
+                              </div>
                               <div>
-                                {review.customer_id === customer_id && (
+                                {review.customer_id === customer_id ? (
                                   <button
                                     className="justify-content-center align-item-center"
                                     onClick={() =>
@@ -652,7 +658,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                                   >
                                     <AiFillDelete />
                                   </button>
-                                )}
+                                ) : null}
                               </div>
                             </div>
 

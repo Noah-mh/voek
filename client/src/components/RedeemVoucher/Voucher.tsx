@@ -25,7 +25,7 @@ interface CustomerVoucher {
 
 const Voucher = ({ voucher }: Props) => {
   const { customer } = useCustomer();
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [redeemed, setRedeemed] = useState<boolean>(false);
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
 
@@ -34,6 +34,7 @@ const Voucher = ({ voucher }: Props) => {
   }, []);
 
   const getCustomerVoucher = async () => {
+    setIsLoading(true);
     try {
       const result: any = await axiosPrivateCustomer.get(
         `/customer/vouchers/${customer.customer_id}`
