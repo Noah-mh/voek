@@ -169,6 +169,25 @@ export default function cartPage(): JSX.Element {
     }
   };
 
+  const removeCartItem = async (sku: string) => {
+    try {
+      await axiosPrivateCustomer.delete(`/customer/cart/deleteCart/${customer_id}/${sku}`);
+      toast.success("Item removed from cart. 🤡", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+      getUserCart()
+    } catch (err: any) {
+      console.log(err);
+    }
+  }
+
   const handleQuantityChange = (item: cartItem, change: number) => {
     const updatedGroupedCart = Object.keys(groupItems).map((sellerKey) => {
       // const [sellerId, shopName] = sellerKey.split("_");
@@ -677,7 +696,7 @@ export default function cartPage(): JSX.Element {
                   <button className="text-white bg-purpleAccent hover:bg-softerPurple focus:ring-4 focus:outline-none focus:ring-softerPurple font-medium rounded-lg text-xs px-2.5 py-2 text-center hover:cursor-pointer"
                     onClick={(event) => {
                       event.preventDefault();
-                     
+                      removeCartItem(item.sku);
                     }}
                   >
                     X

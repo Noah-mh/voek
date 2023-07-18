@@ -35,12 +35,20 @@ const CustomerVoucher = () => {
     return (
         <>
             <ToastContainer />
-            <div className="flex flex-wrap gap-4">
-                {myVouchers.map((voucher: CustomerVoucher) => (
-                    <div key={uuidv4()} className="flex-auto">
-                        <MyVouchers voucher={voucher} getVouchers={getVouchers} />
-                    </div>
-                ))}
+            <div className="flex flex-col items-center justify-center p-8">
+                <h1 className="mb-8 text-4xl font-bold">My Vouchers</h1>
+                <div className="flex flex-wrap gap-4">
+                    {myVouchers.map((voucher: CustomerVoucher) => (
+                        <div key={uuidv4()} className="flex-auto">
+                            <MyVouchers voucher={voucher} getVouchers={getVouchers} />
+                        </div>
+                    ))}
+                    {myVouchers?.length === 0 && (
+                        <div className="flex flex-col items-center justify-center p-8 text-32xl font-barlow opacity-30 font-bold">
+                            No vouchers in wallet
+                        </div>
+                    )}
+                </div>
             </div>
         </>
     )
