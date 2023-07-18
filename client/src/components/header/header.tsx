@@ -83,7 +83,7 @@ const Header = ({ isCustomer, isSeller }: Props) => {
                   searchResults={searchResults}
                   setSearchResults={setSearchResults}
                 />
-                <div className="ml-5 flex flex-row">
+                <div className="ml-5 flex">
                   <div className="mx-2">
                     <p
                       className="text-purpleAccent hover:cursor-pointer"
@@ -92,6 +92,9 @@ const Header = ({ isCustomer, isSeller }: Props) => {
                       Profile
                     </p>
                   </div>
+                  <Link to="/chat" className="mx-2">
+                    <p className="text-purpleAccent">Chat</p>
+                  </Link>
                   <Link to="/customer/cart" className="mx-2">
                     <p className="text-purpleAccent">Cart</p>
                   </Link>
@@ -116,9 +119,14 @@ const Header = ({ isCustomer, isSeller }: Props) => {
             )
           ) : isSeller ? (
             seller?.seller_id ? (
-              <Link to="/seller/profile">
-                <p className="text-purpleAccent">Profile</p>
-              </Link>
+              <div className="ml-5 flex">
+                <Link to="/seller/profile" className="mx-2">
+                  <p className="text-purpleAccent">Profile</p>
+                </Link>
+                <Link to="/seller/chat" className="mx-2">
+                  <p className="text-purpleAccent">Chat</p>
+                </Link>
+              </div>
             ) : (
               <Link to="/seller/login">
                 <p className="text-purpleAccent">Login</p>
