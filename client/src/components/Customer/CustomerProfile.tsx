@@ -5,7 +5,7 @@ import { AdvancedImage } from "@cloudinary/react";
 import { fill } from "@cloudinary/url-gen/actions/resize";
 import { focusOn } from "@cloudinary/url-gen/qualifiers/gravity";
 import { FocusOn } from "@cloudinary/url-gen/qualifiers/focusOn";
-import CloudinaryUploader from "../../Cloudinary/CloudinaryUploader";
+import CloudinaryUpload from "../../Cloudinary/CloudinaryUpload";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
@@ -149,6 +149,7 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
           progress: undefined,
           theme: "light",
         });
+        getAll();
       }
     } catch (error) {
       console.error(error);
@@ -174,7 +175,6 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
           image_url: "test/blank-profile-picture-973460_1280_tj6oeb",
         }
       );
-      console.log("deleting", response);
       if (response.status === 200) {
         toast.success("Photo deleted", {
           position: "top-center",
@@ -376,7 +376,7 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
             <AiFillDelete />
           </button>) : null}
         </div>
-        <CloudinaryUploader onSuccess={handleUpload} caption={"Upload New"} />
+        <CloudinaryUpload onSuccess={handleUpload} caption={"Upload New Photo"} />
       </div>
 
       <ToastContainer />
