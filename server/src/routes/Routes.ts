@@ -549,6 +549,12 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     cartController.alterQuantCartDetails
   );
+  router.delete(
+    "/customer/cart/deleteCart/:customer_id/:sku",
+    verifyJWT,
+    verifyRoles("customer"),
+    cartController.processRemoveItemCart
+  )
 
   router.put(
     "/customer/order/updateCustomerCoins",

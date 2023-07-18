@@ -34,9 +34,9 @@ const RedeemVoucher = ({ seller_id }: Props) => {
   }, []);
 
   return (
-    <div className="redeemVoucherContainer flex w-[430px] h-auto overflow-x-auto space-x-4 p-4">
+    <div className="redeemVoucherContainer flex overflow-x-auto p-5 border-greyAccent">
       {vouchers.map((voucher: Voucher, index: number) => (
-        <div key={index} className="w-200">
+        <div key={index} className="">
           <Voucher voucher={voucher} />
         </div>
       ))}
