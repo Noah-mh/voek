@@ -454,7 +454,7 @@ export default function cartPage(): JSX.Element {
                 setTotalAmt((prevState) => {
                   const newShippingAmt = Number(
                     Number(prevState.shippingFee) /
-                      (1 - Number(voucher.percentage_amount))
+                    (1 - Number(voucher.percentage_amount))
                   );
 
                   return {
@@ -534,6 +534,43 @@ export default function cartPage(): JSX.Element {
       }
     }
   }, [claimedVouchers]);
+
+  const paypalButtonOnClickHandler = () => {
+    if (userCart.length == 0) {
+      toast.warn("Add items to cart :)", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    } else if (userAddresses.length == 0) {
+      toast.warn("Add an address first :0", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    } else if (selectedAddress == null) {
+      toast.warn("Select an address first", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
+  }
 
   return (
     <div className="container flex">
@@ -637,6 +674,14 @@ export default function cartPage(): JSX.Element {
                   >
                     +
                   </button>
+                  <button className="text-white bg-purpleAccent hover:bg-softerPurple focus:ring-4 focus:outline-none focus:ring-softerPurple font-medium rounded-lg text-xs px-2.5 py-2 text-center hover:cursor-pointer"
+                    onClick={(event) => {
+                      event.preventDefault();
+                     
+                    }}
+                  >
+                    X
+                  </button>
                 </div>
               </Link>
             ))}
@@ -712,10 +757,10 @@ export default function cartPage(): JSX.Element {
                 value={
                   selectedAddress
                     ? {
-                        value: selectedAddress,
-                        label: `${selectedAddress.street_name}, ${selectedAddress.block}, ${selectedAddress.postal_code}`,
-                        address: selectedAddress,
-                      }
+                      value: selectedAddress,
+                      label: `${selectedAddress.street_name}, ${selectedAddress.block}, ${selectedAddress.postal_code}`,
+                      address: selectedAddress,
+                    }
                     : null
                 }
                 styles={{
@@ -744,8 +789,10 @@ export default function cartPage(): JSX.Element {
                 </Link>
               </div>
             )}
-            <div className={paypalCN}>
-              <PayPal amount={totalAmt.total} setSuccess={setSuccess} />
+            <div onClick={paypalButtonOnClickHandler}>
+              <div className={paypalCN}>
+                <PayPal amount={totalAmt.total} setSuccess={setSuccess} />
+              </div>
             </div>
           </div>
         </div>
