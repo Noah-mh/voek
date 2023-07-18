@@ -40,6 +40,20 @@ export const alterQuantCartDetails = async (
   }
 };
 
+export const processRemoveItemCart = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id, sku } = req.params;
+    await cartModel.handleRemoveItemCart(parseInt(customer_id), sku);
+    return res.sendStatus(200);
+  }  catch (err: any) {
+    return next(err);
+  } 
+}
+
 export const insertCart = async (
   req: Request,
   res: Response,

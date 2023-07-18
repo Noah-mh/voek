@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 import useCustomer from "../../hooks/UseCustomer";
 import { Link, useNavigate } from "react-router-dom";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
+import Loader from "../Loader/Loader";
 
 export default function CheckOutPage(): JSX.Element {
+
+  const [loading, setLoading] = useState(true);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const { customer, setCustomer } = useCustomer();
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
@@ -97,6 +100,8 @@ export default function CheckOutPage(): JSX.Element {
         } catch (err) {
           console.log(err);
           setPaymentSuccess(false);
+        } finally {
+          setLoading(false);
         }
       };
 
@@ -117,6 +122,10 @@ export default function CheckOutPage(): JSX.Element {
       });
     }
   }, [paymentSuccess]);
+
+  if (loading) {
+    return <Loader />;
+  }
 
   return (
     <div>
