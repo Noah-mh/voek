@@ -109,7 +109,7 @@ const ViewDelivered = ({ deliveredOrders, getAll }: Props) => {
           <div key={uuidv4()} className="mb-8  shadow-md rounded p-4">
             <div className="flex flex-col"></div>
             {ordersArray.map((Orders: any) => (
-              <div>
+              <div key={Orders.order_id}>
                 <div className="storeName flex-row flex ">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
