@@ -1,9 +1,12 @@
 .redeemVoucherContainer::-webkit-scrollbar {
-  width: 8px;
+  width: 4px;
+  height: 6px;
+  margin: 50px;
+  padding: 50px;
 }
 
 .redeemVoucherContainer::-webkit-scrollbar-track {
-  background: white;
+  background: transparent;
 }
 
 .redeemVoucherContainer::-webkit-scrollbar-thumb {

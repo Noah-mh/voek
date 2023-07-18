@@ -80,13 +80,13 @@ const Banner: React.FC = () => {
 
         <motion.img
           src={bannerImg[currentImageIndex]}
-          className="w-96 h-96 BannerImg col-span-2"
+          className="w-96 h-96 BannerImg col-span-2t pointer-events-none"
           // initial={{ opacity: 0, y: -100, x: 40 }}
           // animate={{ opacity: 1 }}
           transition={{ type: "spring", duration: 2 }}
         />
       </div>
-      <div className="blob"></div>
+      <div className="blob cursor-default"></div>
     </div>
   );
 };
