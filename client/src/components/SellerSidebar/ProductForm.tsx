@@ -529,7 +529,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
         )
       },
     ],
-    [imageUrl]
+    [productVariations]
   );
 
   // const [nameError, setNameError] = useState("");
