@@ -25,18 +25,23 @@
 }
 
 .calendarScroll::-webkit-scrollbar {
-  width: 10px;
+  width: 4px;
+  height: 6px;
+  margin: 50px;
+  padding: 50px;
 }
 
 .calendarScroll::-webkit-scrollbar-track {
-  border-radius: 8px;
-  background-color: #dbdce0;
-  border: 1px solid #cacaca;
+  background: transparent;
 }
 
 .calendarScroll::-webkit-scrollbar-thumb {
-  border-radius: 8px;
-  background-color: #310d20;
+  background: #310d20;
+  border-radius: 25px;
+}
+
+.calendarScroll::-webkit-scrollbar-thumb:hover {
+  background: #5c4444 !important;
 }
 
 .calendarScroll > * {

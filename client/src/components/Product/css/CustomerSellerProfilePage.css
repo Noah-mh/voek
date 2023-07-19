@@ -1,0 +1,27 @@
+.sellerBanner {
+  background-color: var(--darkerPurple);
+  width: 100%;
+  height: 40vh;
+}
+
+.contentBox {
+  width: 70%;
+  margin: 0 auto;
+  min-height: 70vh;
+}
+
+.voucherBox {
+  background-color: var(--lighterGreyAccent);
+  padding-left: 50px;
+  padding-right: 50px;
+}
+
+.css-heg063-MuiTabs-flexContainer {
+  justify-content: center !important ;
+}
+
+.css-rfe84z {
+  max-width: 100vw !important;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+  padding-bottom: 10px;
+}

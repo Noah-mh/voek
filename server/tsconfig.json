@@ -1,19 +1,15 @@
 {
-    "compilerOptions": {
-      "allowSyntheticDefaultImports": true,
-      "declaration": true,
-      "esModuleInterop": true,
-      "lib": [
-        "es2021"
-      ],
-      "module": "NodeNext",
-      "moduleResolution": "nodenext",
-      "outDir": "dist",
-      "strict": true,
-      "target": "es2021",
-      "sourceMap": true
-    },
-    "include": [
-      "src/*/"
-    ],
-  }
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "esModuleInterop": true,
+    "lib": ["es2021"],
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
+    "outDir": "dist",
+    "strict": true,
+    "target": "es2021",
+    "sourceMap": true
+  },
+  "include": ["src/*/", "src/routes/Routes.ts"]
+}
