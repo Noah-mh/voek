@@ -18,7 +18,7 @@ export const getRoomMessages = async (
 ): Promise<ChatMessage[] | null> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `SELECT cm_id as cmID, room_id as roomID, sender_id as senderID, text, image, status, CONVERT_TZ(date_created, '+00:00', ?) as dateCreated 
+  const sql = `SELECT cm_id as cmID, room_id as roomID, sender_id as senderID, sender_role as senderRole, text, image, status, CONVERT_TZ(date_created, '+00:00', ?) as dateCreated 
       FROM chat_message
        WHERE room_id = ? ORDER BY dateCreated;`;
   const values = [timezone, roomID];
