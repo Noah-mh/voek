@@ -169,6 +169,27 @@ export default function cartPage(): JSX.Element {
     }
   };
 
+  const removeCartItem = async (sku: string) => {
+    try {
+      await axiosPrivateCustomer.delete(
+        `/customer/cart/deleteCart/${customer_id}/${sku}`
+      );
+      toast.success("Item removed from cart. 🤡", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+      getUserCart();
+    } catch (err: any) {
+      console.log(err);
+    }
+  };
+
   const handleQuantityChange = (item: cartItem, change: number) => {
     const updatedGroupedCart = Object.keys(groupItems).map((sellerKey) => {
       // const [sellerId, shopName] = sellerKey.split("_");
@@ -535,6 +556,43 @@ export default function cartPage(): JSX.Element {
     }
   }, [claimedVouchers]);
 
+  const paypalButtonOnClickHandler = () => {
+    if (userCart.length == 0) {
+      toast.warn("Add items to cart :)", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    } else if (userAddresses.length == 0) {
+      toast.warn("Add an address first :0", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    } else if (selectedAddress == null) {
+      toast.warn("Select an address first", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
+  };
+
   return (
     <div className="container flex">
       <div className="w-2/3 bg-white rounded-lg shadow-lg p-2">
@@ -636,6 +694,15 @@ export default function cartPage(): JSX.Element {
                     }}
                   >
                     +
+                  </button>
+                  <button
+                    className="text-white bg-purpleAccent hover:bg-softerPurple focus:ring-4 focus:outline-none focus:ring-softerPurple font-medium rounded-lg text-xs px-2.5 py-2 text-center hover:cursor-pointer"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      removeCartItem(item.sku);
+                    }}
+                  >
+                    X
                   </button>
                 </div>
               </Link>
@@ -744,8 +811,10 @@ export default function cartPage(): JSX.Element {
                 </Link>
               </div>
             )}
-            <div className={paypalCN}>
-              <PayPal amount={totalAmt.total} setSuccess={setSuccess} />
+            <div onClick={paypalButtonOnClickHandler}>
+              <div className={paypalCN}>
+                <PayPal amount={totalAmt.total} setSuccess={setSuccess} />
+              </div>
             </div>
           </div>
         </div>
