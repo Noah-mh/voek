@@ -12,6 +12,7 @@ import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller.js";
 import { cld } from "../../Cloudinary/Cloudinary";
 import { AdvancedImage } from "@cloudinary/react";
 import CloudinaryUploader from "../../Cloudinary/CloudinaryUploader";
+import CloudinaryUpload from '../../Cloudinary/CloudinaryUpload.js';
 import MenuItem from '@mui/material/MenuItem';
 import InputAdornment from '@mui/material/InputAdornment';
 import Button from '@mui/material/Button';
@@ -507,7 +508,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                 </Box>
               </div>
             ))}
-            <CloudinaryUploader 
+            <CloudinaryUpload 
               onSuccess={(resultInfo: any) => {
                 // row.original.imageUrl.push(resultInfo.public_id);
                 // const updatedImageURLMap = [...imageURLMap];
@@ -1090,7 +1091,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                   justifyContent: 'center'                
                 }}
               >
-                <CloudinaryUploader 
+                <CloudinaryUpload 
                   onSuccess={handleUpload} 
                   caption={"UPLOAD IMAGE"}
                 />
