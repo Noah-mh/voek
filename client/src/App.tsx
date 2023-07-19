@@ -35,6 +35,7 @@ import VerifyCustomerEmail from "./components/Customer/VerifyCustomerEmail.js";
 import SellerVouchers from "./components/SellerVouchers/SellerVouchers.js";
 import RedeemVoucher from "./components/RedeemVoucher/RedeemVoucher.js";
 import CustomerSellerProfilePage from "./components/Product/CustomerSellerProfilePage.js";
+import Chat from "./components/Chat/Chat.js";
 
 function App() {
   return (
@@ -84,6 +85,7 @@ function App() {
             <Route path="customer/checkout" element={<Checkout />} />
             <Route path="profile" element={<CustomerProfilePage />} />
             <Route path="lastViewed" element={<LastViewed />} />
+            <Route path="chat" element={<Chat userType="customer" />} />
           </Route>
         </Route>
       </Route>
@@ -117,6 +119,7 @@ function App() {
             <Route path="seller/orders" element={<ViewCustomerOrders />} />
             <Route path="seller/profile" element={<SellerProfile />} />
             <Route path="seller/vouchers" element={<SellerVouchers />} />
+            <Route path="seller/chat" element={<Chat userType="seller" />} />
           </Route>
         </Route>
       </Route>

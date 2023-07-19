@@ -1,4 +1,4 @@
-import { useEffect, useState, React } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import watchImg from "./assets/watch.png";
 import bagImg from "./assets/bagBanner.png";
@@ -62,7 +62,7 @@ const Banner: React.FC = () => {
     <div className="backgroundImg">
       {/* <NavBar /> */}
       <Fireflies />
-      <div className="scroll-down"></div>
+      <a href="#categoriesComponent" className="scroll-down"></a>
       <div className=" flex justify-center items-center header">
         <div className="headerText col-span flex-row justify-center items-center ">
           <h1 className="text-center text-white text-5xl font-Barlow font-bold">
@@ -71,7 +71,7 @@ const Banner: React.FC = () => {
           <h2 className="text-center text-white text-xl font-Barlow font-semibold">
             All your products, in one place.
           </h2>
-          <Link to="/products">
+          <Link to="/searchResults">
             <button className="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-20 mx-auto my-5 rounded">
               Check out our products
             </button>
@@ -80,13 +80,13 @@ const Banner: React.FC = () => {
 
         <motion.img
           src={bannerImg[currentImageIndex]}
-          className="w-96 h-96 BannerImg col-span-2"
+          className="w-96 h-96 BannerImg col-span-2t pointer-events-none"
           // initial={{ opacity: 0, y: -100, x: 40 }}
           // animate={{ opacity: 1 }}
           transition={{ type: "spring", duration: 2 }}
         />
       </div>
-      <div className="blob"></div>
+      <div className="blob cursor-default"></div>
     </div>
   );
 };

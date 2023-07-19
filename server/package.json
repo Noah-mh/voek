@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "npx tsc && nodemon --config nodemon.json ./dist/src/App.js"
+    "dev": "npx tsc && nodemon --config nodemon.json ./dist/src/App.js",
+    "start": "nodemon --config nodemon.json ./dist/src/App.js"
   },
   "author": "",
   "license": "ISC",
@@ -25,6 +26,7 @@
     "pino": "^8.11.0",
     "pino-pretty": "^10.0.0",
     "sib-api-v3-sdk": "^8.5.0",
+    "socket.io": "^4.7.1",
     "telesignsdk": "^2.2.3",
     "yup": "^1.1.1"
   },

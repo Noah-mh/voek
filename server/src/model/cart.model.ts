@@ -56,6 +56,22 @@ export const handleAlterQuantCart = async (
   }
 };
 
+export const handleRemoveItemCart = async (
+  customer_id: number,
+  sku: string
+): Promise<any> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  try {
+    const sql = `DELETE FROM cart WHERE customer_id = ? AND sku = ?`;
+    await connection.query(sql, [customer_id, sku]);
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+}
+
 export const handleInsertPayment = async (
   customer_id: number,
   amount: number
@@ -273,7 +289,7 @@ interface CartItem {
   stock: number;
 }
 
-export interface CartDetails extends Array<CartItem> {}
+export interface CartDetails extends Array<CartItem> { }
 
 export interface CartItemUpdate {
   customer_id: number;
