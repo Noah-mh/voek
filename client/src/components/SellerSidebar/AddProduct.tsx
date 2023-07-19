@@ -28,7 +28,7 @@ const AddProduct = () => {
       }
     }
 
-    // addProduct();
+    addProduct();
   }
 
   return (

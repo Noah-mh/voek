@@ -49,7 +49,7 @@ interface SubmitInterface {
   quantity: number;
   imageUrl: string;
   categoryId: number;
-  category: string;
+  // category: string;
   variations: Array<SubmitVariationsInterface>;
 
   // optional properties
@@ -129,7 +129,7 @@ interface FormValues {
 interface ProductFormProps {
   product?: Product;
   // onSubmit: (data: SubmitInterface) => void;
-  onSubmit: (data: FormValues) => void;
+  onSubmit: (data: SubmitInterface) => void;
 }
 
 const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
@@ -318,6 +318,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
   }, [currentProduct])
 
   useEffect(() => {
+    console.log("useEffect productVariations", productVariations)
+  }, [productVariations]);
+
+  useEffect(() => {
     let updatedProductVariations: ProductVariations[] = [];
 
     if (var2Arr.length > 0) {
@@ -480,20 +484,27 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
               imageURLMap[productVariations.findIndex(variation => variation.name === row.original.name)].map((imageUrl: string, index: number) => ( */}
             {(row.original.imageUrl && (
                 <div key={row.index} className="flex flex-row w-40 h-40 mb-5">
-                <AdvancedImage cldImg={cld.image(imageUrl)} />
-                <IconButton 
-                  type="button"
-                  className="flex"
-                  onClick={() => {
-                    // row.original.imageUrl.splice(index, 1);
-                    // const updatedImageURLMap = [...imageURLMap];
-                    // updatedImageURLMap[row.index] = row.original.imageUrl;
-                    // setImageURLMap(updatedImageURLMap);
-                    setImageUrl("");
-                  }}
-                >
-                  <DeleteIcon />
-                </IconButton>
+                <AdvancedImage cldImg={cld.image(row.original.imageUrl)} />
+                <Box>
+                  <IconButton 
+                    type="button"
+                    className="flex"
+                    onClick={() => {
+                      // row.original.imageUrl.splice(index, 1);
+                      // const updatedImageURLMap = [...imageURLMap];
+                      // updatedImageURLMap[row.index] = row.original.imageUrl;
+                      // setImageURLMap(updatedImageURLMap);
+                      // setImageUrl("");
+                      let updatedProductVariations = productVariations;
+                      updatedProductVariations[row.index].imageUrl = "";
+                      row.original.imageUrl = "";
+                  
+                      setProductVariations(updatedProductVariations);
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Box>
               </div>
             ))}
             <CloudinaryUploader 
@@ -502,7 +513,15 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                 // const updatedImageURLMap = [...imageURLMap];
                 // updatedImageURLMap[row.index] = row.original.imageUrl;
                 // setImageURLMap(updatedImageURLMap);
-                setImageUrl(resultInfo.public_id);
+                // setImageUrl(resultInfo.public_id);
+                console.log("row", row)
+                console.log("productVariations", productVariations);
+                let updatedProductVariations = productVariations;
+                console.log("updatedProductVariations", updatedProductVariations)
+                updatedProductVariations[row.index].imageUrl = resultInfo.public_id;
+                row.original.imageUrl = resultInfo.public_id;
+            
+                setProductVariations(updatedProductVariations);
               }} 
               caption={"Upload Image"}
             />
@@ -784,7 +803,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
       })
       setSubmitStatus("Please try again.");
       return;
-    } else if (formValues.imageUrl.value === "") {
+    } else if (!variations && formValues.imageUrl.value === "") {
       if (formValues.selectedCategory.error === true) {
         setFormValues({
           ...formValues,
@@ -804,12 +823,64 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
       setSubmitStatus("Please try again.");
       return;
     } 
+
+    let validVariationInput = true;
+
+    if (variations.length > 0 && productVariations.length === 0) {
+      setRowErrors("Please either enter a variation or delete the variation field.");
+      return;
+    } else {
+      productVariations.forEach((variation) => {
+        if (isNaN(variation.price) || isNaN(variation.quantity) || variation.price <= 0 || variation.quantity <= 0) {
+          setRowErrors("Please input valid values greater than zero.");
+          validVariationInput = false;
+          return;
+        } 
+      }) 
     
+      if (validVariationInput) {
+        productVariations.forEach((variation) => {
+          if (variation.imageUrl.length === 0) {
+            setRowErrors("Please upload at least 1 image for each variation.");
+            validVariationInput = false;
+            return; 
+          }
+        })
+        if (validVariationInput) {
+          setRowErrors("");
+        }
+      }
+    }
+
+    if (!validVariationInput) {
+      setSubmitStatus("Please try again.");
+      return;
+    }
+
+    const formData: SubmitInterface = {
+      name: formValues.name.value,
+      description: formValues.description.value,
+      categoryId: formValues.selectedCategory.value,
+      price: formValues.price.parsedValue ? formValues.price.parsedValue : -1,
+      quantity: formValues.quantity.parsedValue ? formValues.quantity.parsedValue : -1,
+      imageUrl: formValues.imageUrl.value,
+      variations: productVariations,
+    };
+
+    if (currentProduct) {
+      formData.productId = currentProduct.productId;
+      formData.sku = currentProduct.sku;
+    }
+
     // else {
-      onSubmit(formValues);
+      onSubmit(formData);
       setSubmitStatus("Success!");
     // }
   }
+
+  useEffect(() => {
+    console.log("rowErrors", rowErrors);
+  }, [rowErrors])
 
   console.log("current", currentProduct)
   
@@ -1238,7 +1309,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                   label="Price"
                   type="number"
                   variant="outlined"
-                  required
                   InputProps={{
                     startAdornment: <InputAdornment position="start">$</InputAdornment>,
                   }}
@@ -1261,7 +1331,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                   label="Quantity"
                   type="number"
                   variant="outlined"
-                  required
                   value={quantityForAll}
                   error={quantityForAllError}
                   helperText={quantityForAllError && "Please enter a valid price."}
