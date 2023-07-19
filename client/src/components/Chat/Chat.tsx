@@ -169,8 +169,8 @@ const Chat = ({ userType }: ChatProps) => {
   }, [roomID]);
 
   return (
-    <div className="chatContainer flex flex-col md:flex-row overflow-hidden">
-      <div className="hidden md:block md:w-1/4">
+    <div className="chatContainer flex flex-col xl:flex-row overflow-hidden">
+      <div className="hidden xl:block xl:w-1/4">
         <SideBar
           userID={userID}
           userType={userType}
@@ -183,7 +183,7 @@ const Chat = ({ userType }: ChatProps) => {
           setUpdateSideBar={setUpdateSideBar}
         />
       </div>
-      <div className="w-full md:w-3/4 flex">
+      <div className="w-full xl:w-3/4 flex grow">
         <div className="chatColumn flex justify-center items-start">
           {userID == null || roomID == null ? (
             <div className="chat-window noChatChosenBody bg-gray-50 flex justify-center items-center text-gray-300">
