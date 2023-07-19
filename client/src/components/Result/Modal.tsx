@@ -81,7 +81,6 @@ const Modal = ({
   //wishlist
   // wishlist
   useEffect(() => {
-    console.log("customerID: ", customerId);
     const checkWishlistProductExistence = async () => {
       if (customerId != undefined) {
         try {

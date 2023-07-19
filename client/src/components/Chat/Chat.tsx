@@ -184,7 +184,7 @@ const Chat = ({ userType }: ChatProps) => {
         />
       </div>
       <div className="w-full md:w-3/4 flex">
-        <div className="chatColumn flex justify-center items-center">
+        <div className="chatColumn flex justify-center items-start">
           {userID == null || roomID == null ? (
             <div className="chat-window noChatChosenBody bg-gray-50 flex justify-center items-center text-gray-300">
               Pick someone to start chatting!
@@ -199,17 +199,28 @@ const Chat = ({ userType }: ChatProps) => {
                 });
               }}
             >
-              <Link
-                to={`/customerSellerProfile/${otherUser?.userID}`}
-                className="chat-header flex pl-4 space-x-2 items-center"
-              >
-                <AdvancedImage
-                  className="w-8 h-8 rounded-full bg-slate-500"
-                  cldImg={cld.image(otherUser?.image)}
-                  alt="User's profile picture"
-                />
-                <p className="tracking-wide">{otherUser?.username}</p>
-              </Link>
+              {userType === "customer" ? (
+                <Link
+                  to={`/customerSellerProfile/${otherUser?.userID}`}
+                  className="chat-header flex pl-4 space-x-2 items-center hover:cursor-pointer"
+                >
+                  <AdvancedImage
+                    className="w-8 h-8 rounded-full bg-slate-500"
+                    cldImg={cld.image(otherUser?.image)}
+                    alt="User's profile picture"
+                  />
+                  <p className="tracking-wide">{otherUser?.username}</p>
+                </Link>
+              ) : (
+                <div className="chat-header flex pl-4 space-x-2 items-center hover:cursor-default">
+                  <AdvancedImage
+                    className="w-8 h-8 rounded-full bg-slate-500 hover:cursor-default"
+                    cldImg={cld.image(otherUser?.image)}
+                    alt="User's profile picture"
+                  />
+                  <p className="tracking-wide">{otherUser?.username}</p>
+                </div>
+              )}
               <div className="chat-body">
                 <ScrollToBottom className="message-container">
                   {roomID != null && messages.length > 0 ? (

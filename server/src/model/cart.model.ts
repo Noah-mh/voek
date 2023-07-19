@@ -279,7 +279,6 @@ export const handleGetQuantityOfProductInCart = async (
   const sql = `SELECT quantity FROM cart WHERE customer_id = ? AND product_id = ? AND SKU = ?;`;
   try {
     const [result] = await connection.query(sql, [customerId, productId, SKU]);
-    console.log("result", result);
     return (result as any)[0];
   } catch (err: any) {
     throw new Error(err);
