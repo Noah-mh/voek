@@ -221,7 +221,8 @@ const Chat = ({ userType }: ChatProps) => {
                             <div
                               className="message p-3"
                               id={
-                                userID === messageContent.senderID
+                                userID === messageContent.senderID &&
+                                userType === messageContent.senderRole
                                   ? "you"
                                   : "other"
                               }
@@ -232,7 +233,8 @@ const Chat = ({ userType }: ChatProps) => {
                                 </div>
                                 <div className="message-meta">
                                   <div className="message-sender text-gray-50 mr-2">
-                                    {userID === messageContent.senderID
+                                    {userID === messageContent.senderID &&
+                                    userType === messageContent.senderRole
                                       ? ""
                                       : otherUser?.username}
                                   </div>
