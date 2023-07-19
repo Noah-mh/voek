@@ -519,7 +519,12 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                 let updatedProductVariations = productVariations;
                 console.log("updatedProductVariations", updatedProductVariations)
                 updatedProductVariations[row.index].imageUrl = resultInfo.public_id;
+                console.log("row.original.imageUrl", row.original.imageUrl)
                 row.original.imageUrl = resultInfo.public_id;
+                console.log("row.original.imageUrl", row.original.imageUrl)
+
+                console.log("updatedProductVariations", updatedProductVariations)
+
             
                 setProductVariations(updatedProductVariations);
               }} 

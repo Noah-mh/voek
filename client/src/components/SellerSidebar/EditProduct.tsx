@@ -7,7 +7,7 @@ interface SubmitVariationsInterface {
   var2: string;
   price: number;
   quantity: number;
-  imageUrl: string[];
+  imageUrl: string;
   sku?: string;
 }
 
@@ -16,7 +16,7 @@ interface SubmitInterface {
   description: string;
   price: number;
   quantity: number;
-  imageUrl: string[];
+  imageUrl: string;
   categoryId: number;
   category: string;
   variations: Array<SubmitVariationsInterface>;
