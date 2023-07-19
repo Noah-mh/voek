@@ -25,7 +25,7 @@ interface CustomerVoucher {
 
 const Voucher = ({ voucher }: Props) => {
   const { customer } = useCustomer();
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [redeemed, setRedeemed] = useState<boolean>(false);
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
 
@@ -34,6 +34,7 @@ const Voucher = ({ voucher }: Props) => {
   }, []);
 
   const getCustomerVoucher = async () => {
+    setIsLoading(true);
     try {
       const result: any = await axiosPrivateCustomer.get(
         `/customer/vouchers/${customer.customer_id}`
@@ -87,8 +88,8 @@ const Voucher = ({ voucher }: Props) => {
 
   return (
     <div
-      className="max-w-md mx-auto bg-white rounded-lg shadow-sm p-6 grid grid-cols-1 gap-4"
-      style={{ width: "400px", height: "250px" }}
+      className="max-w-md bg-white rounded-lg shadow-md p-6 mx-4"
+      style={{ width: "400px", height: "220px" }}
     >
       <h1 className="text-2xl font-bold mb-4">{voucher.voucher_name}</h1>
       <div className="mb-4">

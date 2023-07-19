@@ -102,7 +102,7 @@ const ViewSellerDelivered = ({ deliveredOrders }: Props) => {
                             }
                             <h1>Total Price ${getTotalAmt(order)}</h1>
                             <Link to={`/seller/orders?orders_id=${order[0].orders_id}`}>
-                              <button className="font-bold text-sm bg-cyan-dark-blue py-2">
+                              <button className="font-bold text-sm bg-cyan-dark-blue py-2 my-4">
                                 View Order Detail
                               </button>
                             </Link>

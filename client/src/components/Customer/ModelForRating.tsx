@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import CloudinaryUploader from "../../Cloudinary/CloudinaryUploader";
+import CloudinaryUpload from '../../Cloudinary/CloudinaryUpload';
 import { AdvancedImage } from '@cloudinary/react';
 import { cld } from '../../Cloudinary/Cloudinary';
 import { ToastContainer, toast } from "react-toastify";
@@ -101,7 +101,7 @@ const ModalComponent: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, order
                 </div>
                 <textarea className="w-full p-2 mt-2 rounded-md" onChange={handleCommentChange} value={comment} placeholder="Leave your comment" />
                 <div className="flex flex-col items-center border-2 border-dashed p-2">
-                    <CloudinaryUploader onSuccess={handleUploadSuccess} caption={"Add Photo"} />
+                    <CloudinaryUpload onSuccess={handleUploadSuccess} caption={"Add Photo"} />
                     {uploadedImageUrls && uploadedImageUrls.map(uploadedImageUrl => (
                         <div className="w-20 h-20">
                             <AdvancedImage cldImg={cld.image(uploadedImageUrl)} />

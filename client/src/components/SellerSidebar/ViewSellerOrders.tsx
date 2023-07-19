@@ -53,12 +53,12 @@ const ViewSellerOrders = ({ orders, getAll }: Props) => {
       const dateB = new Date(b[0].date);
       return dateB.getTime() - dateA.getTime();
     });
-    console.log('happend')
     setOrderedOrders(orderedOrdersArray);
   };
   
 
   useEffect(() => {
+    getAll()
     orderOrders()
   }, [orders])
 
@@ -140,11 +140,11 @@ const ViewSellerOrders = ({ orders, getAll }: Props) => {
                           }
                           <h1>Total Price ${getTotalAmt(order)}</h1>
                           <Link to={`/seller/orders?orders_id=${order[0].orders_id}`}>
-                            <button className="font-bold text-sm bg-cyan-dark-blue py-2">
+                            <button className="font-bold text-sm bg-cyan-dark-blue py-2 my-4">
                               View Order Detail
                             </button>
                           </Link>
-                          <button className="ms-7 font-bold text-sm bg-cyan" onClick={(e: any) => { e.preventDefault(); onClickHandler(order[0].orders_id, order[0].customer_id) }}>Pack And Ship</button>
+                          <button className="flex items-center text-xs justify-center space-x-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded" onClick={(e: any) => { e.preventDefault(); onClickHandler(order[0].orders_id, order[0].customer_id) }}>Pack And Ship</button>
                         </td>
                       </tr>
                     ))
