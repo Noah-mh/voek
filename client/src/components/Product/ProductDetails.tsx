@@ -11,13 +11,11 @@ import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import useCustomer from "../../hooks/UseCustomer";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { motion } from "framer-motion";
 import { AiFillHeart, AiOutlineHeart, AiFillDelete } from "react-icons/ai";
-import { RxDividerVertical } from "react-icons/rx";
 import Rating from "@mui/material/Rating";
-import RedeemVoucher from "../RedeemVoucher/RedeemVoucher";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AiOutlineShop } from "react-icons/ai";
+import { CiChat1 } from "react-icons/ci";
 
 //Noah's code
 
@@ -52,6 +50,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
   getAllData,
   diffInMonths,
 }) => {
+  const navigate = useNavigate();
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
   const { customer } = useCustomer();
   const customer_id = customer.customer_id;
@@ -401,6 +400,66 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
       });
   };
 
+  const handleOnClickChat = () => {
+    if (!customer_id) {
+      toast.warn("Please Log in to chat with the seller", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+      return;
+    } else {
+      axiosPrivateCustomer
+        .post(
+          "/createDMRoom",
+          JSON.stringify({
+            customerID: customer_id,
+            sellerID: sellerData[0].seller_id,
+          }),
+          {
+            headers: { "Content-Type": "application/json" },
+            withCredentials: true,
+          }
+        )
+        .then((response) => {
+          console.log("response", response);
+          if (response.status === 201 || response.status === 200) {
+            navigate("/chat");
+          } else {
+            toast.error("Error!", {
+              position: "top-center",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "light",
+            });
+          }
+        })
+        .catch((error) => {
+          // Handle error here
+          console.error(error);
+          toast.error("Error!", {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+        });
+    }
+  };
+
   return (
     <div className="flex flex-col my-8 items-center justify-center">
       <div className="flex sm:flex-col xl:flex-row  justify-center space-x-12">
@@ -484,10 +543,10 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                       value={
                         selectedVariation
                           ? {
-                            label: selectedVariation,
-                            value: selectedVariation,
-                            sku: selectedSku,
-                          }
+                              label: selectedVariation,
+                              value: selectedVariation,
+                              sku: selectedSku,
+                            }
                           : null
                       }
                       onChange={(option) => {
@@ -554,9 +613,8 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
               SKU: <span className="text-gray-400">{selectedSku}</span>
             </h1>
           </div>
-          <div className="mb-[20px]">
-            {/* <RedeemVoucher seller_id={seller_id} /> */}
-          </div>
+          <div className="mb-[20px]"></div>
+          {/* <RedeemVoucher seller_id={seller_id} /> */}
         </div>
       </div>
 
@@ -585,17 +643,17 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                       {sellerData[0].shop_name}
                     </Link>
                     <div className="mt-2 flex space-x-2">
-                      {/* <Link
-                        to={`/customerSellerProfile/${sellerData[0].seller_id}`}
-                        className="outline-0 border border-opacity-10 relative overflow-visible h-9 px-4"
+                      <div
+                        onClick={handleOnClickChat}
+                        className="outline-0 border border-purpleAccent bg-pink bg-opacity-10 relative overflow-visible h-9 px-4 flex justify-center items-center hover:cursor-pointer"
                       >
-                        Chat Now
-                      </Link> */}
+                        <CiChat1 /> <h1 className="ml-2">Chat</h1>
+                      </div>
                       <Link
                         to={`/customerSellerProfile/${sellerData[0].seller_id}`}
                         className="outline-0 border border-opacity-10 relative overflow-visible h-9 px-4 flex justify-center items-center"
                       >
-                        <AiOutlineShop /> View Shop
+                        <AiOutlineShop /> <h1 className="ml-2">Shop</h1>
                       </Link>
                     </div>
                   </div>
@@ -638,9 +696,16 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                           >
                             <div className="flex justify-between items-center mb-3">
                               <div className="flex items-center space-x-3">
-                                <div className="w-10 h-10" >
+                                <div className="w-10 h-10">
                                   <AdvancedImage
-                                    cldImg={cld.image(review.customerImage).resize(fill().width(250).height(250).gravity(focusOn(FocusOn.faces())))}
+                                    cldImg={cld
+                                      .image(review.customerImage)
+                                      .resize(
+                                        fill()
+                                          .width(250)
+                                          .height(250)
+                                          .gravity(focusOn(FocusOn.faces()))
+                                      )}
                                     className="object-cover rounded-lg"
                                   />
                                 </div>

@@ -69,16 +69,18 @@ const Modal = ({
   const [variations, setVariations] = useState<Array<Variation>>([]);
   const [quantity, setQuantity] = useState<number>(1);
   const [stock, setStock] = useState<number>(0);
+  const [quantityOfProudctInCart, setQuantityOfProudctInCart] =
+    useState<number>(0);
   const [chosenSKU, setChosenSKU] = useState<string>("");
   const [price, setPrice] = useState<number>(0);
   const [imageUrl, setImageUrl] = useState<string>("");
+
   const { customer } = useContext(CustomerContext);
   const customerId = customer.customer_id;
 
   //wishlist
   // wishlist
   useEffect(() => {
-    console.log("customerID: ", customerId);
     const checkWishlistProductExistence = async () => {
       if (customerId != undefined) {
         try {
@@ -227,6 +229,8 @@ const Modal = ({
         .then((data) => {
           if (data === 200) {
             toast.success("Item Added to Cart! 😊", toastOptions);
+            setQuantityOfProudctInCart(quantityOfProudctInCart + quantity);
+            setQuantity(1);
           } else {
             toast.error("Uh-oh! Error! 😔", toastOptions);
           }
@@ -283,7 +287,7 @@ const Modal = ({
       });
   }, []);
 
-  const updateSKU = (chosenSKU: string) => {
+  const updateSKU = async (chosenSKU: string) => {
     setChosenSKU(chosenSKU);
     setQuantity(1);
 
@@ -296,6 +300,16 @@ const Modal = ({
       const variation = variations.find(
         (variation) => variation.sku === chosenSKU
       );
+
+      if (customerId != undefined) {
+        const response = await axiosPrivateCustomer.get(
+          `/getQuantityOfProductInCart?customerID=${customerId}&productID=${product.product_id}&sku=${chosenSKU}`
+        );
+        const quantityOfProudctInCart =
+          response.data.quantity !== undefined ? response.data.quantity : 0;
+        setQuantityOfProudctInCart(quantityOfProudctInCart);
+      }
+
       if (variation) {
         setStock(variation.quantity);
         setPrice(variation.price);
@@ -387,25 +401,44 @@ const Modal = ({
                 onClick={() => {
                   if (quantity > 1) {
                     setQuantity(quantity - 1);
+                  } else {
+                    toast.warn("Quantity cannot be less than 1", toastOptions);
                   }
                 }}
-                disabled={quantity === 1}
+                // disabled={quantity === 1}
               >
                 -
               </button>
               {quantity}
               <button
                 className={
-                  quantity === stock
+                  quantity === stock ||
+                  quantity === stock - quantityOfProudctInCart
                     ? "text-sm border px-2 py-1 mx-2 opacity-95"
                     : "text-sm border px-2 py-1 mx-2 bg-lighterGreyAccent"
                 }
                 onClick={() => {
-                  if (quantity < stock) {
+                  if (quantity === stock - quantityOfProudctInCart) {
+                    toast.warn(
+                      `You have reached the maximum quantity available. You have already added ${quantityOfProudctInCart} to cart`,
+                      toastOptions
+                    );
+                    return;
+                  }
+
+                  if (
+                    quantity < stock ||
+                    quantity < stock - quantityOfProudctInCart
+                  ) {
                     setQuantity(quantity + 1);
+                  } else if (quantity === stock) {
+                    toast.warn(
+                      "You have reached the maximum quantity available",
+                      toastOptions
+                    );
                   }
                 }}
-                disabled={quantity === stock}
+                // disabled={quantity === stock - quantityOfProudctInCart}
               >
                 {" "}
                 +{" "}

@@ -56,6 +56,22 @@ export const handleAlterQuantCart = async (
   }
 };
 
+export const handleRemoveItemCart = async (
+  customer_id: number,
+  sku: string
+): Promise<any> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  try {
+    const sql = `DELETE FROM cart WHERE customer_id = ? AND sku = ?`;
+    await connection.query(sql, [customer_id, sku]);
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
 export const handleInsertPayment = async (
   customer_id: number,
   amount: number
@@ -248,6 +264,24 @@ export const handlesInsertCart = async (
         throw new Error(err);
       }
     }
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handleGetQuantityOfProductInCart = async (
+  customerId: string,
+  productId: string,
+  SKU: string
+) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT quantity FROM cart WHERE customer_id = ? AND product_id = ? AND SKU = ?;`;
+  try {
+    const [result] = await connection.query(sql, [customerId, productId, SKU]);
+    return (result as any)[0];
+  } catch (err: any) {
+    throw new Error(err);
   } finally {
     await connection.release();
   }
