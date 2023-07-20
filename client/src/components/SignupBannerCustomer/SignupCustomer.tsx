@@ -1,34 +1,78 @@
 import "../LoginBanner/OTP.css";
 import axios from "../../api/axios.js";
-import { useEffect, useState } from "react";
+import { useState, useRef } from "react";
+import ReCAPTCHA from "react-google-recaptcha"
 import { toast } from "react-toastify";
 
 interface Props {
   referral_id: string | null;
 }
 
+
 const SignupCustomer = ({ referral_id }: Props): JSX.Element => {
+
+  const captchaRef = useRef<ReCAPTCHA>(null);
   const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [confirmedPassword, setConfirmedPassword] = useState<string>("");
   const [errMsg, setErrMsg] = useState<string>("");
 
-  const [disabled, setDisabled] = useState<boolean>(true);
+  // const [disabled, setDisabled] = useState<boolean>(true);
 
-  useEffect(() => {
-    setDisabled(
-      username.length > 0 &&
-        email.length > 0 &&
-        phoneNumber.length > 0 &&
-        password.length > 0
-        ? false
-        : true
-    );
-  }, [username, email, phoneNumber, password]);
+  // useEffect(() => {
+  //   setDisabled(
+  //     username.length > 0 &&
+  //       email.length > 0 &&
+  //       phoneNumber.length > 0 &&
+  //       password.length > 0 &&
+  //       confirmedPassword.length > 0 &&
+  //       password === confirmedPassword
+  //       ? false
+  //       : true
+  //   );
+  // }, [username, email, phoneNumber, password, confirmedPassword]);
 
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (username.length == 0 || email.length == 0 || phoneNumber.length == 0 || password.length == 0 || confirmedPassword.length == 0) {
+      toast.error("Please fill in all the fields", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+      return;
+    } else if (password !== confirmedPassword) {
+      toast.error("Please make sure the passwords are the same", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+      return;
+    } else if (!captchaRef.current?.getValue()) {
+      toast.error("Please verify yourself :)", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+      return;
+    }
     try {
       await axios.post(
         `/customer/signup/link/${referral_id}`,
@@ -74,12 +118,11 @@ const SignupCustomer = ({ referral_id }: Props): JSX.Element => {
   };
 
   return (
-    <div className="rightSignUp flex flex-col w-1/2 align-middle justify-center items-center">
+    <div className="rightSignUp flex flex-col w-1/2 align-middle justify-center items-center py-4">
       <h1 className="font-bold">SIGN UP</h1>
       <form onSubmit={submitHandler} className="pt-6">
         <div className="field-wrapper flex">
           <input
-            required
             type="text"
             name="username"
             placeholder="USERNAME"
@@ -90,7 +133,6 @@ const SignupCustomer = ({ referral_id }: Props): JSX.Element => {
         </div>
         <div className="field-wrapper flex">
           <input
-            required
             type="email"
             name="email"
             placeholder="EMAIL"
@@ -101,7 +143,6 @@ const SignupCustomer = ({ referral_id }: Props): JSX.Element => {
         </div>
         <div className="field-wrapper flex">
           <input
-            required
             type="number"
             name="phoneNumber"
             placeholder="PHONE NUMBER"
@@ -112,7 +153,6 @@ const SignupCustomer = ({ referral_id }: Props): JSX.Element => {
         </div>
         <div className="field-wrapper flex">
           <input
-            required
             type="password"
             name="password"
             placeholder="PASSWORD"
@@ -121,8 +161,23 @@ const SignupCustomer = ({ referral_id }: Props): JSX.Element => {
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
+        <div className="field-wrapper flex">
+          <input
+            type="password"
+            name="password"
+            placeholder="CONFIRM PASSWORD"
+            autoComplete="off"
+            className="w-72"
+            onChange={(e) => setConfirmedPassword(e.target.value)}
+          />
+        </div>
+        <div className="field-wrapper flex">
+          <ReCAPTCHA 
+            sitekey={import.meta.env.RECAPTCHA || "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"}
+            ref={captchaRef}
+          />
+        </div>
         <input
-          disabled={disabled}
           type="submit"
           value="SIGN UP"
           className="submitLogin"

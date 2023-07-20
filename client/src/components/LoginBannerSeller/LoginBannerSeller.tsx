@@ -9,7 +9,7 @@ import { ToastContainer } from "react-toastify";
 const LoginBannerSeller = () => {
   
   const [userDetails, setUserDetails] = useState<object>({});
-  const [login, setLogin] = useState<boolean>(false);
+  const [login, setLogin] = useState<boolean>(true);
   return (
     <div className="containerZ main w-screen h-screen flex">
       <ToastContainer />
@@ -21,7 +21,7 @@ const LoginBannerSeller = () => {
           </h1>
         </div>
           {
-            login ? <OTP userDetails={userDetails} />
+            login ? <OTP userDetails={userDetails} setLogin={setLogin} />
             : <LBRight setLogin={setLogin} setUserDetails={setUserDetails}/>
           }
       </div>
