@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { Customer } from './CustomerProfile';
 import TextField from '@mui/material/TextField';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
 import Button from '@mui/material/Button';
 import Box from "@mui/material/Box";
 import AddressModal from './AddressModel';
@@ -32,7 +37,24 @@ const AddressDisplay: React.FC<AddressDisplayProps> = ({ customerData, getAll })
     const customer_id = customer.customer_id;
     const axiosPrivateCustomer = useAxiosPrivateCustomer();
     const [noAddress, setNoAddress] = useState<boolean>(false);
+    const [countries, setCountries] = useState([]);
     const { addresses } = customerData;
+
+    const getCountries = async () => {
+        try {
+            const response = await axios.get("https://restcountries.com/v3.1/all");
+            const names = response.data.map((country: { name: { common: string } }) => country.name.common);
+            names.sort();
+            setCountries(names);
+        } catch (error) {
+            console.error('Failed to fetch countries', error);
+        }
+    };
+    useEffect(() => {
+        getCountries();
+        console.log("test");
+    }, []);
+
     useEffect(() => {
         const allPropsNull = Object.values(addresses[0]).every(val => val === null);
         setNoAddress(allPropsNull);
@@ -98,6 +120,12 @@ const AddressDisplay: React.FC<AddressDisplayProps> = ({ customerData, getAll })
         newAddressUpdates[index][key] = value;
         setAddressUpdates(newAddressUpdates);
     };
+    const handleSelectChange = (index: number, event: SelectChangeEvent) => {
+        const newAddressUpdates = [...addressUpdates];
+        newAddressUpdates[index]['country'] = event.target.value as string;
+        setAddressUpdates(newAddressUpdates);
+    };
+
     const handleDelete = async (index: number) => {
         const newAddressUpdates = [...addressUpdates];
         newAddressUpdates.splice(index, 1);
@@ -161,7 +189,7 @@ const AddressDisplay: React.FC<AddressDisplayProps> = ({ customerData, getAll })
             >
                 <ToastContainer />
                 <div className="flex justify-center item-center">
-                    <AddressModal getAll={getAll} addAddress={addAddress} />
+                    <AddressModal getAll={getAll} addAddress={addAddress} countries={countries} />
                 </div>
             </Box>
         </div>
@@ -223,7 +251,7 @@ const AddressDisplay: React.FC<AddressDisplayProps> = ({ customerData, getAll })
                                 fullWidth
                                 sx={{ m: 2 }} // Apply padding
                             />
-                            <TextField
+                            {/* <TextField
                                 id={`outlined-country-${index}`}
                                 label="Country"
                                 variant="outlined"
@@ -232,7 +260,22 @@ const AddressDisplay: React.FC<AddressDisplayProps> = ({ customerData, getAll })
                                 disabled={!address.editing}
                                 fullWidth
                                 sx={{ m: 2 }} // Apply padding
-                            />
+                            /> */}
+                            <FormControl variant="outlined" fullWidth margin="normal" disabled={!address.editing} sx={{ m: 2 }}>
+                                <InputLabel id="country-label">Country</InputLabel>
+                                <Select
+                                    labelId="country-label"
+                                    id="country-select"
+                                    value={address.country}
+                                    onChange={(event) => handleSelectChange(index, event)}
+                                    name="country"
+                                    label="Country"
+                                >
+                                    {countries.map((country, index) => (
+                                        <MenuItem key={index} value={country}>{country}</MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
                             {address.editing ? (
                                 <div className="flex justify-center">
                                     <Button onClick={() => handleSave(index)} variant="contained" color="primary">
@@ -253,7 +296,7 @@ const AddressDisplay: React.FC<AddressDisplayProps> = ({ customerData, getAll })
                     ))}
                     <ToastContainer />
 
-                    <div className="flex justify-center"> <AddressModal getAll={getAll} addAddress={addAddress} /></div>
+                    <div className="flex justify-center"> <AddressModal getAll={getAll} addAddress={addAddress} countries={countries} /></div>
 
                 </Box>
             </div>
