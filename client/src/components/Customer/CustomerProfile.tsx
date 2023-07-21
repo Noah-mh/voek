@@ -310,6 +310,7 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
         <TextField
           id="outlined-password"
           label="New Password"
+          type="password"
           variant="outlined"
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
