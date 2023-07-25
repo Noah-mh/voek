@@ -1,16 +1,41 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import HomePage from "../HomepageSeller/HomePage";
 import AddProduct from "./AddProduct.js";
 import ManageProducts from "./ManageProducts.js";
+import EditProduct from "./EditProduct.js";
 import ManageOrders from "./ManageOrders.js";
 import SellerVouchers from "../SellerVouchers/SellerVouchers.js";
+import Product from "../header/Product.js";
+
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
   value: number;
+}
+
+interface Product {
+  productId: number;
+  active: boolean;
+  name: string;
+  price: number;
+  quantity: number;
+  sku: string;
+  subRows: Array<Product>;
+  imageUrl: string
+
+  // optional properties
+  // product only
+  showSubrows?: boolean;
+  description?: string;
+  categoryId?: number;
+  category?: string;
+
+  // product variations only
+  variation1?: string;
+  variation2?: string;
 }
 
 function TabPanel(props: TabPanelProps) {
@@ -55,31 +80,27 @@ const Sidebar: React.FC = () => {
 
   const [value, setValue] = useState<number>(0);
 
+  const [product, setProduct] = useState<Product>({
+    productId: 0,
+    active: false,
+    showSubrows: false,
+    name: "",
+    description: "",
+    categoryId: 0,
+    category: "",
+    price: 0,
+    quantity: 0,
+    sku: "",
+    subRows: [],
+    imageUrl: "",
+  });
+
+  const updateProductValue = async (newProduct: Product) => {
+    Promise.resolve(setProduct(newProduct))
+    .then(() => {setValue(5)});
+  }
+
   return (
-    // // <div className="flex flex-row">
-    //     // <nav className={`sidebar ${isMinimized ? 'minimized' : ''} w-1/6 bg-red-100`}>
-    //     <nav className={`sidebar ${isMinimized ? ("w-1/8") : ("w-1/6 bg-red-100")} transition-width duration-300`}>
-    //         <button onClick={toggleSidebar}>Toggle Sidebar</button>
-    //         {isMinimized ? (
-    //             <div className="w-1/6 bg-red-100"></div>
-    //         ) : (
-    //             <div>
-    //                 <div className="sidebar-content">
-    //                     <Link to="/seller/manageProducts">
-    //                         <p className="text-purpleAccent">Manage Products</p>
-    //                     </Link>
-    //                     <Link to="/seller/addProduct">
-    //                         <p className="text-purpleAccent">Add Product</p>
-    //                     </Link>
-    //                     <Link to="/seller/manageOrders">
-    //                         <p className="text-purpleAccent">Manage Orders</p>
-    //                     </Link>
-    //                 </div>
-    //             </div>
-    //         )
-    //         }
-    //     </nav>
-    // // </div>
     <Box
       sx={{
         flexGrow: 1,
@@ -105,6 +126,7 @@ const Sidebar: React.FC = () => {
         <Tab label="Manage Product" {...a11yProps(2)} />
         <Tab label="Manage Orders" {...a11yProps(3)} />
         <Tab label="Manage Vouchers" {...a11yProps(4)} />
+        <Tab label="Edit Product" {...a11yProps(5)} disabled sx={{ opacity: 0 }} />
       </Tabs>
       <TabPanel value={value} index={0}>
         <HomePage />
@@ -113,13 +135,16 @@ const Sidebar: React.FC = () => {
         <AddProduct />
       </TabPanel>
       <TabPanel value={value} index={2}>
-        <ManageProducts />
+        <ManageProducts updateProductValue={updateProductValue} />
       </TabPanel>
       <TabPanel value={value} index={3}>
         <ManageOrders />
       </TabPanel>
       <TabPanel value={value} index={4}>
         <SellerVouchers />
+      </TabPanel>
+      <TabPanel value={value} index={5}>
+        <EditProduct product={product} />
       </TabPanel>
     </Box>
   );

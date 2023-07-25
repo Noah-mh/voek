@@ -141,7 +141,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
 
   useEffect(() => {
     if (product) {
-      setCurrentProduct(Object.values(product)[0]);
+      // setCurrentProduct(Object.values(product)[0]);
+      setCurrentProduct(product);
     }
   }, [])
 
@@ -452,6 +453,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
   //   // });
   //   setImageUrl("");
   // };
+  
+  // useEffect(() => {
+  //   console.log("updated product variations", productVariations)
+  // }, [productVariations])
 
   const columns = useMemo<MRT_ColumnDef<ProductVariations>[]>(
     () => [
@@ -496,11 +501,20 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                       // updatedImageURLMap[row.index] = row.original.imageUrl;
                       // setImageURLMap(updatedImageURLMap);
                       // setImageUrl("");
-                      let updatedProductVariations = productVariations;
-                      updatedProductVariations[row.index].imageUrl = "";
+                      // let updatedProductVariations = productVariations;
+                      // updatedProductVariations[row.index].imageUrl = "";
                       row.original.imageUrl = "";
-                  
-                      setProductVariations(updatedProductVariations);
+                      console.log("row", row)
+                      // setProductVariations(updatedProductVariations);
+                      setProductVariations((prevProductVariations) => {
+                        const updatedVariations = [...prevProductVariations];
+                        updatedVariations[row.index] = {
+                          ...updatedVariations[row.index],
+                          imageUrl: "", 
+                        };
+                        return updatedVariations;
+                      })
+                      console.log("updated product variations", productVariations)
                     }}
                   >
                     <DeleteIcon />
@@ -515,19 +529,26 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                 // updatedImageURLMap[row.index] = row.original.imageUrl;
                 // setImageURLMap(updatedImageURLMap);
                 // setImageUrl(resultInfo.public_id);
-                console.log("row", row)
-                console.log("productVariations", productVariations);
-                let updatedProductVariations = productVariations;
-                console.log("updatedProductVariations", updatedProductVariations)
-                updatedProductVariations[row.index].imageUrl = resultInfo.public_id;
-                console.log("row.original.imageUrl", row.original.imageUrl)
+                // console.log("row", row)
+                // console.log("productVariations", productVariations);
+                // let updatedProductVariations = productVariations;
+                // console.log("updatedProductVariations", updatedProductVariations)
+                // updatedProductVariations[row.index].imageUrl = resultInfo.public_id;
+                // console.log("row.original.imageUrl", row.original.imageUrl)
+                console.log("cloud success", resultInfo.public_id)
                 row.original.imageUrl = resultInfo.public_id;
                 console.log("row.original.imageUrl", row.original.imageUrl)
 
-                console.log("updatedProductVariations", updatedProductVariations)
-
-            
-                setProductVariations(updatedProductVariations);
+                // console.log("updatedProductVariations", updatedProductVariations)
+                // setProductVariations(updatedProductVariations);
+                setProductVariations((prevProductVariations) => {
+                  const updatedVariations = [...prevProductVariations];
+                  updatedVariations[row.index] = {
+                    ...updatedVariations[row.index],
+                    imageUrl: resultInfo.public_id, 
+                  };
+                  return updatedVariations;
+                })
               }} 
               caption={"Upload Image"}
             />
