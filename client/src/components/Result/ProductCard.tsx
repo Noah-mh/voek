@@ -6,11 +6,10 @@ import { cld } from "../../Cloudinary/Cloudinary";
 import axios from "../../api/axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import useCustomer from "../../hooks/UseCustomer";
 import { motion } from "framer-motion";
-import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import "./ProductCard.css";
+import WishlistButton from "../Wishlist/WishlistButton";
 
 interface ProductCardProps {
   product: {
@@ -34,139 +33,8 @@ const ProductCard = ({ product }: ProductCardProps) => {
   const [rating, setRating] = useState<number>(0);
   const [heart, setHeart] = useState<boolean>(false);
 
-  const axiosPrivateCustomer = useAxiosPrivateCustomer();
   const { customer } = useCustomer();
   const customerID = customer.customer_id;
-
-  // wishlist
-  useEffect(() => {
-    console.log("customerID: ", customerID);
-    const checkWishlistProductExistence = async () => {
-      if (customerID != undefined) {
-        try {
-          const response = await axiosPrivateCustomer.get(
-            `/checkWishlistProductExistence/?customerId=${customerID}&productId=${product.product_id}`
-          );
-          if (response.data.length > 0) {
-            setHeart(true);
-          } else {
-            setHeart(false);
-          }
-        } catch (err: any) {
-          setHeart(false);
-        }
-      }
-    };
-    checkWishlistProductExistence();
-  }, []);
-
-  const handleAddToWishlist = () => {
-    if (customerID == undefined) {
-      toast.warn("Please Log in to add into wishlist", {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
-      return;
-    } else {
-      axiosPrivateCustomer
-        .post(
-          "/insertWishlistedProduct",
-          JSON.stringify({
-            customerId: customerID,
-            productId: product.product_id,
-          }),
-          {
-            headers: { "Content-Type": "application/json" },
-            withCredentials: true,
-          }
-        )
-        .then((response) => {
-          // On successful addition to wishlist, show the popup
-          if (response.status === 201) {
-            setHeart(true);
-            toast.success("Item Added to Wishlist! 😊", {
-              position: "top-center",
-              autoClose: 5000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "light",
-            });
-          }
-        })
-        .catch((error) => {
-          // Handle error here
-          console.error(error);
-          toast.error("Error! Adding to wishlist failed", {
-            position: "top-center",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-          });
-        });
-    }
-  };
-
-  const handleRemoveFromWishlist = () => {
-    if (customerID == undefined) {
-      toast.warn("Please Log in to use the wishlist", {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
-    } else {
-      axiosPrivateCustomer
-        .delete(
-          `/deleteWishlistedProduct?customer_id=${customerID}&product_id=${product.product_id}`
-        )
-        .then((response) => {
-          if (response.status === 200) {
-            setHeart(false);
-            toast.success("Item Removed from Wishlist! 😊", {
-              position: "top-center",
-              autoClose: 5000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "light",
-            });
-          }
-        })
-        .catch((error) => {
-          // Handle error here
-          console.error(error);
-          toast.error("Error! Removing from wishlist failed", {
-            position: "top-center",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-          });
-        });
-    }
-  };
 
   // get image and pricing range for each product
   const getPricingAndImage = () => {
@@ -228,23 +96,13 @@ const ProductCard = ({ product }: ProductCardProps) => {
                 whileHover={{ scale: 1.3 }}
                 whileTap={{ scale: 0.9 }}
               >
-                {heart ? (
-                  <AiFillHeart
-                    onClick={() => {
-                      handleRemoveFromWishlist();
-                    }}
-                    color="pink"
-                    size="1.75em"
-                  />
-                ) : (
-                  <AiOutlineHeart
-                    onClick={() => {
-                      handleAddToWishlist();
-                    }}
-                    color="pink"
-                    size="1.75em"
-                  />
-                )}
+                <WishlistButton
+                  productID={product.product_id}
+                  customerID={customerID}
+                  setHeart={setHeart}
+                  heart={heart}
+                  toast={toast}
+                />
               </motion.button>
               <div
                 className="text-white bg-purpleAccent hover:bg-softerPurple focus:ring-4 focus:outline-none focus:ring-softerPurple font-medium rounded-lg text-sm px-5 py-2.5 text-center hover:cursor-pointer"
