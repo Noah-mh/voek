@@ -1,6 +1,7 @@
 import { useLocation } from 'react-router-dom';
 import { axiosPrivateSeller } from '../../api/axios.tsx';
 import ProductForm from "./ProductForm.tsx";
+import SellerSidebar from "../SellerSidebar/SellerSidebar.js";
 
 interface SubmitVariationsInterface {
   var1: string; 
@@ -49,12 +50,14 @@ interface Product {
   variation2?: string;
 }
 
-const EditProduct = () => {
+// const EditProduct = ( prop: Product ) => {
+  const EditProduct: React.FC<{ product: Product }> = ({ product }) => {
 
-  let { state } = useLocation();
+  // let { state } = useLocation();
   
-  let product: Product = state;
-
+  // let product: Product = state;
+  // let product: Product = prop;
+  console.log("product", product)
   const originalProduct: Product = JSON.parse(JSON.stringify(Object.values(product)[0]));
 
   const handleSubmit = async (e: any) => {
