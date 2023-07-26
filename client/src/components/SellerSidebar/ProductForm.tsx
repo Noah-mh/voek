@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import MaterialReactTable, {
   MRT_Cell,
   type MRT_ColumnDef,
@@ -485,27 +485,16 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
         size: 80,
         enableEditing: false,
         Cell: ({ row }) => (
-          <>
-            {/* {imageURLMap[productVariations.findIndex(variation => variation.name === row.original.name)] && 
-              imageURLMap[productVariations.findIndex(variation => variation.name === row.original.name)].map((imageUrl: string, index: number) => ( */}
+          <Box key={row.index+row.original.name}>
             {(row.original.imageUrl && (
-                <div key={row.index} className="flex flex-row w-40 h-40 mb-5">
+                <div className="flex flex-row w-40 h-40 mb-5">
                 <AdvancedImage cldImg={cld.image(row.original.imageUrl)} />
                 <Box>
                   <IconButton 
                     type="button"
                     className="flex"
                     onClick={() => {
-                      // row.original.imageUrl.splice(index, 1);
-                      // const updatedImageURLMap = [...imageURLMap];
-                      // updatedImageURLMap[row.index] = row.original.imageUrl;
-                      // setImageURLMap(updatedImageURLMap);
-                      // setImageUrl("");
-                      // let updatedProductVariations = productVariations;
-                      // updatedProductVariations[row.index].imageUrl = "";
-                      row.original.imageUrl = "";
                       console.log("row", row)
-                      // setProductVariations(updatedProductVariations);
                       setProductVariations((prevProductVariations) => {
                         const updatedVariations = [...prevProductVariations];
                         updatedVariations[row.index] = {
@@ -522,37 +511,24 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                 </Box>
               </div>
             ))}
-            <CloudinaryUpload 
-              onSuccess={(resultInfo: any) => {
-                // row.original.imageUrl.push(resultInfo.public_id);
-                // const updatedImageURLMap = [...imageURLMap];
-                // updatedImageURLMap[row.index] = row.original.imageUrl;
-                // setImageURLMap(updatedImageURLMap);
-                // setImageUrl(resultInfo.public_id);
-                // console.log("row", row)
-                // console.log("productVariations", productVariations);
-                // let updatedProductVariations = productVariations;
-                // console.log("updatedProductVariations", updatedProductVariations)
-                // updatedProductVariations[row.index].imageUrl = resultInfo.public_id;
-                // console.log("row.original.imageUrl", row.original.imageUrl)
-                console.log("cloud success", resultInfo.public_id)
-                row.original.imageUrl = resultInfo.public_id;
-                console.log("row.original.imageUrl", row.original.imageUrl)
-
-                // console.log("updatedProductVariations", updatedProductVariations)
-                // setProductVariations(updatedProductVariations);
-                setProductVariations((prevProductVariations) => {
+            <CloudinaryUploader
+              onSuccess={async (resultInfo: any) => {
+                  console.log("row3", row)
+                  console.log("resultInfo", resultInfo)
+                  setProductVariations((prevProductVariations) => {
                   const updatedVariations = [...prevProductVariations];
                   updatedVariations[row.index] = {
                     ...updatedVariations[row.index],
                     imageUrl: resultInfo.public_id, 
                   };
                   return updatedVariations;
-                })
+                  })
               }} 
-              caption={"Upload Image"}
+              // caption={"Upload Image"}
+              caption={row.index+" "+row.original.name}
+              key={row.index}
             />
-          </>
+          </Box>
         )
       },
     ],
@@ -748,10 +724,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
 
   const [categories, setCategories] = useState<Category[]>([]);
 
-  const handleUpload = async (resultInfo: any) => {
+  const handleUploadImage = async (resultInfo: any) => {
     console.log("Successfully uploaded:", resultInfo.public_id);
-    // setImageUrl((prevImageUrl) => [...prevImageURL, resultInfo.public_id]);
-    // setImageUrl(resultInfo.public_id);
     setFormValues({
       ...formValues,
       imageUrl: {
@@ -944,6 +918,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
           label="Name"
           required
           variant="outlined"
+          autoComplete="off"
           value={formValues.name.value}
           error={formValues.name.error}
           helperText={formValues.name.error && formValues.name.errorMessage}
@@ -1014,6 +989,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
             </MenuItem>
           ))}
         </TextField>
+
         {variations.length === 0 &&
           <TextField
             id="price"
@@ -1112,8 +1088,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                   justifyContent: 'center'                
                 }}
               >
-                <CloudinaryUpload 
-                  onSuccess={handleUpload} 
+                <CloudinaryUploader 
+                  onSuccess={handleUploadImage} 
                   caption={"UPLOAD IMAGE"}
                 />
               </Box>
@@ -1171,7 +1147,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
               }} // Apply padding
             >
               <TextField
-                  id="variation-name"
+                  id="variation-category"
                   label="Category of Variation"
                   variant="outlined"
                   required
@@ -1198,7 +1174,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                 }}
               >
                 <TextField
-                    id="variation-name"
+                    className="variation-name"
                     label="Variation"
                     variant="outlined"
                     required
