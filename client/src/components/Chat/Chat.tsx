@@ -164,10 +164,6 @@ const Chat = ({ userType }: ChatProps) => {
     };
   }, [socket, receiveBroadcastCallback]);
 
-  useEffect(() => {
-    console.log("roomID in useEffect: ", roomID);
-  }, [roomID]);
-
   return (
     <div className="chatContainer flex flex-col xl:flex-row overflow-hidden">
       <div className="hidden xl:block xl:w-1/4">
