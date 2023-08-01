@@ -9,6 +9,9 @@ import * as dotenv from "dotenv";
 dotenv.config({
   path: __dirname + "../../env",
 });
+
+import { v4 as uuidv4 } from "uuid";
+
 interface SubmitVariationsInterface {
   var1: string;
   var2: string;
@@ -50,7 +53,7 @@ export const handleGetAllProductsOfSeller = async (
     ON pi.sku = pv.sku    
     WHERE lp.seller_id = ?
     AND pv.valid_variation = 1 
-    ORDER BY p.product_id ASC; `;
+    ORDER BY p.product_id ASC;`;
   try {
     const result: any = await connection.query(sql, [sellerId]);
     return result[0] as any[];
@@ -105,6 +108,16 @@ export const handleGetAllCategories = async (): Promise<any[]> => {
   }
 };
 
+// export const handleCreateSku = async () => {
+//   try {
+//     const sku = uuidv4();
+//     return sku as string;
+//   } catch (err: any) {
+//     console.log(err);
+//     throw new Error(err);
+//   }
+// };
+
 // POST insert a new product
 export const handleAddProduct = async (
   sellerId: number, 
@@ -118,55 +131,58 @@ export const handleAddProduct = async (
 ) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql1 = `INSERT INTO products (name, description, category_id)
+  const insertProducts = `INSERT INTO products (name, description, category_id)
     SELECT name, description, category_id FROM (SELECT ? AS name, ? AS description, ? AS category_id) AS temp
     WHERE NOT EXISTS (SELECT p.name, p.description, p.category_id FROM products p WHERE p.name = ? AND p.description = ? AND p.category_id = ?);`;
-  const sql2 = `INSERT INTO listed_products (product_id, seller_id)
+  const insertListedProducts = `INSERT INTO listed_products (product_id, seller_id)
     VALUES (?, ?);`;
-  const sql3 = `SELECT UUID() AS sku;`;
-  const sql4 = `INSERT INTO product_variations (sku, product_id, variation_1, variation_2, quantity, price)
+  const createSku = `SELECT UUID() AS sku;`;
+  const insertProductVariations = `INSERT INTO product_variations (sku, product_id, variation_1, variation_2, quantity, price)
     VALUES (?, ?, ?, ?, ?, ?)`;
-  const sql5 = `INSERT INTO product_images (product_id, image_url, sku)
+  const insertProductImages = `INSERT INTO product_images (product_id, image_url, sku)
     VALUES (?, ?, ?);`;
 
   try {
     // start a local transaction
     connection.beginTransaction();
+    console.log("begin transaction");
 
-    const result1 = Promise.resolve(connection.query(sql1, [name, description, categoryId, name, description, categoryId]))
+    // insert into products table unless there is a duplicate, in which case lasatInsertId will be 0
+    return Promise.resolve(connection.query(insertProducts, [name, description, categoryId, name, description, categoryId]))
     .then(async (response) => {
       let lastInsertId = Object.values(response[0])[2];
+      console.log("lastInsertId", lastInsertId);
+      // if product exists, do not insert into products table and return lastInsertId
       if (lastInsertId === 0) {
-        // console.log("Product already exists.");
+        console.log("Product already exists.");
         return lastInsertId;
       } else {
         let lastInsertId = Object.values(response[0])[2];
-        const result2: any = await connection.query(sql2, [lastInsertId, sellerId]);
+        // insert into listed products table
+        await connection.query(insertListedProducts, [lastInsertId, sellerId]);
+        // if variations exist, map variations
         if (variations.length !== 0) {
+          console.log("variations", variations);
           await Promise.all(variations.map(async (variation) => {
-            const result3 = await connection.query(sql3)
-            .then(async (response) => {
-              let sku = Object.values(response[0])[0].sku;
-              const result4 = connection.query(sql4, [sku, lastInsertId, variation.var1, variation.var2 ? variation.var2 : null, variation.quantity, variation.price]);
-              // variation.imageUrl.forEach((url) => {
-              //   const result5 = connection.query(sql5, [lastInsertId, url, sku]);
-              // })
-              const result5 = connection.query(sql5, [lastInsertId, variation.imageUrl, sku]);
-              return lastInsertId;
-            })
+            // create sku
+            const sku = uuidv4();
+            // insert into product variations table
+            connection.query(insertProductVariations, [sku, lastInsertId, variation.var1, variation.var2 ? variation.var2 : null, variation.quantity, variation.price]);
+            // insert into product images table
+            connection.query(insertProductImages, [lastInsertId, variation.imageUrl, sku]);
+            console.log("variation inserted");
+            return lastInsertId;
           }));
         } else {
-          const result3 = await connection.query(sql3)
-          .then(async (response) => {
-            let sku = Object.values(response[0])[0].sku;
-            const result4 = connection.query(sql4, [sku, lastInsertId, null, null, quantity, price]);
-            // imageUrl.forEach((url) => {
-            //   const result5 = connection.query(sql5, [lastInsertId, url, sku]);
-            // })
-            const result5 = connection.query(sql5, [lastInsertId, imageUrl, sku]);
-          })
+          console.log("variations DONT exist");
+          // create sku
+          const sku = uuidv4();
+          connection.query(insertProductVariations, [sku, lastInsertId, null, null, quantity, price]);
+          connection.query(insertProductImages, [lastInsertId, imageUrl, sku]);
+          console.log("single variation inserted");
+          return lastInsertId;
         }
-        // console.log("Product has been inserted.");
+        console.log("Product has been inserted.");
         return lastInsertId;
       }
     })

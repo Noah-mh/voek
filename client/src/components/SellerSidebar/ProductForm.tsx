@@ -154,7 +154,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
   // maximum number of variations allowed
   const maximumVariations = 2;
   const [variations, setVariations] = useState([{ name: "", values: [""] }]);
-
+  
   const [var1Arr, setVar1Arr] = useState<string[]>([]);
   const [var2Arr, setVar2Arr] = useState<string[]>([]);
 
@@ -265,38 +265,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
       setShowAddVariation(true);
     }
   };
-
-  // const [categories, setCategories] = useState<Category[]>([]);
-
-  // useEffect(() => {
-  //   const getAllCategories = async () => {
-  //     try {
-  //       const response = await axiosPrivateSeller.get(`/categories`);
-  //       setCategories(response.data);
-  //     } catch (error: any) {
-  //       console.error('Error fetching data:', error);
-  //     }
-  //   }
-
-  //   getAllCategories();
-  // }, []);
-
-  // const [selectedCategory, setSelectedCategory] = useState<number>(1);
-
-  // useEffect(() => {
-  //   console.log(selectedCategory)
-  // }, [selectedCategory])
-
-  // useEffect(() => {
-  //   if (currentProduct && currentProduct.categoryId) {
-  //     setSelectedCategory(currentProduct.categoryId);
-  //   }
-  // }, [currentProduct])
-
-  // const handleCategoryChange = (event: any) => {
-  //   const selectedValue = event.target.value;
-  //   setSelectedCategory(selectedValue);
-  // };
 
   const [productVariations, setProductVariations] = useState<ProductVariations[]>([]);
 
@@ -415,49 +383,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     setProductVariations([...productVariations]);
   }
 
-  // const [imageUrl, setImageUrl] = useState<string>("");
-  // const [imageUrlMap, setImageUrlMap] = useState<string[]>([]);
-
-  // useEffect(() => {
-  //   console.log("imageURL", imageUrl);
-  // }, [imageUrl])
-
-  // useEffect(() => {
-  //   console.log("imageURLMap", imageUrlMap);
-  // }, [imageUrlMap])
-
-  // useEffect(() => {
-  //   if (currentProduct) {
-  //     if (currentProduct.subRows.length === 0) setImageUrl(currentProduct.imageUrl);
-  //     else {
-  //       let urlArr: string[][] = [];
-  //       currentProduct.subRows.forEach((variation) => {
-  //         urlArr.push(variation.imageUrl);
-  //       })
-  //       setImageURLMap(urlArr);
-  //     }
-  //   }
-  // }, [currentProduct])
-
-  // const handleUpload = async (resultInfo: any) => {
-  //   console.log("Successfully uploaded:", resultInfo.public_id);
-  //   // setImageUrl((prevImageUrl) => [...prevImageURL, resultInfo.public_id]);
-  //   setImageUrl(resultInfo.public_id);
-  // }
-
-  // const handleDeleteImage = () => {
-  //   // setImageURL((prevImageURL) => {
-  //   //   const updatedImageURL = [...prevImageURL];
-  //   //   updatedImageURL.splice(index, 1);
-  //   //   return updatedImageURL;
-  //   // });
-  //   setImageUrl("");
-  // };
-  
-  // useEffect(() => {
-  //   console.log("updated product variations", productVariations)
-  // }, [productVariations])
-
   const columns = useMemo<MRT_ColumnDef<ProductVariations>[]>(
     () => [
       {
@@ -524,8 +449,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                   return updatedVariations;
                   })
               }} 
-              // caption={"Upload Image"}
-              caption={row.index+" "+row.original.name}
+              caption={"Upload Image"}
               key={row.index}
             />
           </Box>
@@ -630,12 +554,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
   //   setSubmitStatus("Success!");
   // };
 
-  // const [name, setName] = useState<string>("");
-  // const [description, setDescription] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<number>(0);
-  // const [price, setPrice] = useState<number>();
-  // const [quantity, setQuantity] = useState<number>();
-  // const [imageUrl, setImageUrl] = useState<string>("");
 
   const [formValues, setFormValues] = useState<FormValues>({
     name: {
@@ -723,6 +642,19 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
   }, [selectedCategory])
 
   const [categories, setCategories] = useState<Category[]>([]);
+  
+  useEffect(() => {
+    const getAllCategories = async () => {
+      try {
+        const response = await axiosPrivateSeller.get(`/categories`);
+        setCategories(response.data);
+      } catch (error: any) {
+        console.error('Error fetching data:', error);
+      }
+    }
+
+    getAllCategories();
+  }, []);
 
   const handleUploadImage = async (resultInfo: any) => {
     console.log("Successfully uploaded:", resultInfo.public_id);
@@ -736,12 +668,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
   }
 
   const handleDeleteImage = () => {
-    // setImageURL((prevImageURL) => {
-    //   const updatedImageURL = [...prevImageURL];
-    //   updatedImageURL.splice(index, 1);
-    //   return updatedImageURL;
-    // });
-    // setImageUrl("");
     setFormValues({
       ...formValues,
       imageUrl: {
@@ -750,19 +676,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
       }
     })
   };
-
-  useEffect(() => {
-    const getAllCategories = async () => {
-      try {
-        const response = await axiosPrivateSeller.get(`/categories`);
-        setCategories(response.data);
-      } catch (error: any) {
-        console.error('Error fetching data:', error);
-      }
-    }
-
-    getAllCategories();
-  }, []);
 
   const [priceForAll, setPriceForAll] = useState<number>();
   const [priceForAllError, setPriceForAllError] = useState<boolean>(false);
@@ -788,10 +701,53 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     console.log("submitStatus", submitStatus);
   }, [submitStatus])
 
+  const handleReset = async () => {
+    const resetFormValues: FormValues = {
+      name: {
+        value: "",
+        error: false,
+        errorMessage: "Please enter a name."
+      },
+      description: {
+        value: "",
+        error: false,
+        errorMessage: "Please enter a description."
+      },
+      selectedCategory: {
+        value: null,
+        error: false,
+        errorMessage: "Please select a category."
+      },
+      price: {
+        value: "",
+        parsedValue: null,
+        error: false,
+        errorMessage: "Please enter a valid price."
+      },
+      quantity: {
+        value: "",
+        parsedValue: null,
+        error: false,
+        errorMessage: "Please enter a valid integer."
+      },
+      imageUrl: {
+        value: "",
+        error: false,
+        errorMessage: "Please upload only one image."
+      }
+    }
+    setFormValues(resetFormValues);
+    setVariations([]);
+    setVar1Arr([]);
+    setVar2Arr([]);
+    setShowAddVariation(true);
+    setProductVariations([]);
+  }
+
   const handleProductFormSubmit = async (e: any) => {
     e.preventDefault();
 
-    if (formValues.name.error || formValues.description.error || formValues.price.error || formValues.quantity.error) {
+    if (formValues.name.error || formValues.description.error || (formValues.price.error && variations.length == 0) || (formValues.quantity.error && variations.length == 0)) {
       setSubmitStatus("Please try again.");
       return;
     } else if (formValues.selectedCategory.value === null) {
@@ -876,6 +832,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     // else {
       onSubmit(formData);
       setSubmitStatus("Success!");
+      handleReset();
     // }
   }
 
@@ -890,10 +847,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
   }, [formValues.imageUrl.error, formValues.imageUrl.errorMessage])
 
   return (
-    // <form 
-    //   // className="flex flex-col"
-    //   onSubmit={handleProductFormSubmit}
-    // >
     <Box
       component="form"
       onSubmit={handleProductFormSubmit}
@@ -934,7 +887,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
             })
           }}
           fullWidth
-          sx={{ m: 2 }} // Apply padding
+          sx={{ m: 2 }} 
         />
         <TextField
           id="description"
@@ -956,7 +909,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
             })
           }}
           fullWidth
-          sx={{ m: 2, height: 'auto' }} // Apply padding
+          sx={{ m: 2, height: 'auto' }}
         />
         <TextField
           id="category"
@@ -981,7 +934,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
             })
           }}
           fullWidth
-          sx={{ m: 2 }} // Apply padding
+          sx={{ m: 2 }}
         >
           {categories.map((category: Category) => (
             <MenuItem key={category.categoryId} value={category.categoryId}>
@@ -1043,7 +996,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
               })
             }}
             fullWidth
-            sx={{ m: 2 }} // Apply padding
+            sx={{ m: 2 }} 
           />
         }
 
@@ -1144,7 +1097,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                 m: 2,
                 bgcolor: 'background.paper',
                 borderRadius: '16px'
-              }} // Apply padding
+              }} 
             >
               <TextField
                   id="variation-category"
@@ -1158,7 +1111,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                   sx={{ 
                     m: 2,
                     flexGrow: 1
-                  }} // Apply padding
+                  }} 
               />
             </Box>
             
@@ -1184,7 +1137,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                     sx={{ 
                       m: 2,
                       flexGrow: 1
-                    }} // Apply padding
+                    }} 
                 />
 
                 {valueIndex === variation.values.length - 1 && (
@@ -1250,7 +1203,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
             // fullWidth
             sx={{ 
               
-            }} // Apply padding
+            }} 
           >
             Add Variation ({variations.length}/{maximumVariations})
           </Button>
@@ -1346,7 +1299,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                   sx={{ 
                     m: 1,
                     maxWidth: 250
-                  }} // Apply padding
+                  }} 
                 />
                 <Button
                   variant="contained"
@@ -1398,282 +1351,11 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
           variant="contained"
           type="reset"
           color="error"
-          // onClick=
+          onClick={handleReset}
         >
           Reset
         </Button>
       </Box>
-
-    {/* <form 
-      // className="flex flex-col"
-      onSubmit={handleProductFormSubmit}
-    >
-      <section className="flex flex-col">
-        <label>
-          Name:
-          <input
-            className="text-black border-gray-300 rounded-md shadow-sm"
-            type="text"
-            name="name"
-            defaultValue={currentProduct ? currentProduct.name : ""}
-            required
-          />
-        </label>
-
-        {nameError && (
-          <span className="tooltip">{nameError}</span>
-        )}
-        <br />
-
-        <label>
-          Description:
-          <br />
-          <textarea
-            className="text-black border-gray-300 rounded-md shadow-sm"
-            name="description"
-            defaultValue={currentProduct ? currentProduct.description : ""}
-          />
-        </label>
-
-        <label>
-          <select
-            name="category"
-            value={selectedCategory}
-            onChange={handleCategoryChange}
-          >
-            {categories.map((category: Category) => {
-              return (
-                <>
-                  {category.categoryId === selectedCategory ? (
-                    <option key={category.categoryId} value={category.categoryId} selected>
-                      {category.name}
-                    </option>
-                  ) : (<option key={category.categoryId} value={category.categoryId}>
-                    {category.name}
-                  </option>)}
-                </>
-              );
-            })}
-          </select>
-        </label>
-        <br />
-
-        {variations.length === 0 && (
-          <span className="tooltip">This field is required for products without variations.</span>
-        )}
-
-        <label>
-          Price:
-          <input
-            className="text-black border-gray-300 rounded-md shadow-sm disabled:opacity-25 disabled:text-gray-500 disabled:bg-gray-400"
-            type="number"
-            step=".01"
-            disabled={variations.length > 0}
-            name="priceNoVariation"
-            defaultValue={currentProduct ? currentProduct.price : ""}
-          />
-          <br />
-          {priceError && (
-            <span className="tooltip">{priceError}</span>
-          )}
-        </label>
-
-        <label>
-          Quantity:
-          <input
-            className="text-black border-gray-300 rounded-md shadow-sm disabled:opacity-25 disabled:text-gray-500 disabled:bg-gray-400"
-            type="number"
-            disabled={variations.length > 0}
-            name="quantityNoVariation"
-            defaultValue={currentProduct ? currentProduct.quantity : ""}
-          />
-          <br />
-          {quantityError && (
-            <span className="tooltip">{quantityError}</span>
-          )}
-        </label>
-
-        <label>
-          {variations.length === 0 && (
-            <>
-              <br />
-              {imageURL && imageURL.map((imageUrl: string, index: number) => (
-                <div key={index} className="flex flex-row w-40 h-40 mb-5">
-                  <AdvancedImage cldImg={cld.image(imageUrl)} />
-                  <button
-                    type="button"
-                    className="flex"
-                    onClick={() => handleDeleteImage(index)}
-                  >
-                    <DeleteIcon />
-                  </button>
-                </div>
-              ))}
-              <CloudinaryUpload
-                onSuccess={handleUpload}
-                caption={"Upload Image"}
-              />
-              {imageError && (
-                <span className="tooltip">{imageError}</span>
-              )}
-              <br />
-              <br />
-            </>
-          )}
-        </label>
-
-        {variations.map((variation, variationIndex) => (
-          <div key={variationIndex} className="variation-section">
-            <div className="variation-header">
-              <button
-                className="remove-variation"
-                type="button"
-                onClick={() => handleRemoveVariation(variationIndex)}
-              >
-                &#10006;
-              </button>
-            </div>
-
-            <div className="variation-content">
-              <label>
-                Variation Name:
-                <input
-                  className="text-black border-gray-300 rounded-md shadow-sm"
-                  type="text"
-                  value={variation.name}
-                  onChange={(e) => handleVariationNameChange(variationIndex, e.target.value)}
-                />
-              </label>
-
-              {variation.values.map((value, valueIndex) => (
-                <div key={valueIndex}>
-                  <label>
-                    Variation Value:
-                    <input
-                      className="text-black border-gray-300 rounded-md shadow-sm"
-                      type="text"
-                      value={value}
-                      onChange={(e) => handleVariationValueChange(variationIndex, valueIndex, e.target.value)}
-                    />
-                  </label>
-
-                  {valueIndex === variation.values.length - 1 && (
-                    <button
-                      className="text-black border-gray-300 rounded-md shadow-sm"
-                      type="button"
-                      onClick={() => handleAddVariationValue(variationIndex)}
-                    >
-                      Add Value
-                    </button>
-                  )}
-
-                  {valueIndex !== 0 && (
-                    <button
-                      className="text-black border-gray-300 rounded-md shadow-sm"
-                      type="button"
-                      onClick={() => handleRemoveVariationValue(variationIndex, valueIndex)}
-                    >
-                      Remove Value
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-
-          {showAddVariation && (
-            <button
-              className="text-black border-gray-300 rounded-md shadow-sm"
-              type="button"
-              onClick={handleAddVariation}
-            >
-              Add Variation ({variations.length}/{maximumVariations})
-            </button>
-          )}
-      </section>
-
-      <section>
-        <br />
-        
-          {(variations.length !== 0 && <MaterialReactTable
-            key={productVariations.map((item) => item.name + item.price + item.quantity).join("-")}
-            displayColumnDefOptions={{
-            'mrt-row-actions': {
-              muiTableHeadCellProps: {
-                align: 'center',
-              },
-              size: 120,
-            },
-            }}
-            columns={columns}
-            data={productVariations}
-            enableColumnOrdering
-            enableEditing
-            editingMode='table'
-            muiTableBodyCellEditTextFieldProps={({ cell }) => ({
-              //onBlur is more efficient, but could use onChange instead
-              onBlur: (event) => {
-                handleSaveCell(cell, event.target.value);
-              }
-            })}
-            renderTopToolbarCustomActions={() => (
-                <div>
-                    <input 
-                        className="text-black placeholder-gray-800 border-gray-300 rounded-md shadow-sm" 
-                        type="number" 
-                        name="price" 
-                        value={priceForAll}
-                        placeholder="Price"
-                        onChange={(e) => handlePriceForAllChange(e)}
-                    />
-                    <input 
-                        className="text-black placeholder-gray-800 border-gray-300 rounded-md shadow-sm" 
-                        type="number" 
-                        name="quantity" 
-                        value={quantityForAll}
-                        placeholder="Stock"
-                        onChange={(e) => handleQuantityForAllChange(e)}
-                    />
-                    <button
-                    type="submit"
-                    name="applyToAll"
-                    onClick={(e) => handleApplyToAll(e)}
-                    >
-                    Apply To All
-                    </button>
-                </div>
-            )}
-        />)}        
-        <br />
-        {rowErrors && (
-          <span className="tooltip">{rowErrors}</span>
-        )}
-      </section>
-
-      <br />
-      {submitStatus && (
-        <span className="tooltip">{submitStatus}</span>
-      )}
-
-      <button
-        className="text-black p-3 border-gray-300 rounded-md shadow-sm"
-        type="submit"
-        name="submit"
-        value="Submit"
-      >
-        Submit
-      </button>
-
-        <button 
-          className="text-black p-3 border-gray-300 rounded-md shadow-sm" 
-          type="reset" 
-          name="reset" 
-          value="Reset"
-        >
-          Reset
-        </button>
-      </form> */}
     </Box>
   )
 }

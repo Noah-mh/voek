@@ -12,7 +12,7 @@ const AddProduct = () => {
   const [duplicateExists, setDuplicateExists] = useState<string>("");
 
   const handleSubmit = async (e: any) => {
-    console.log("e", e);
+    console.log("event", e);
     const addProduct = async () => {
       try {
         const response = await axiosPrivateSeller.post(
@@ -28,7 +28,7 @@ const AddProduct = () => {
       }
     }
 
-    addProduct();
+    // addProduct();
   }
 
   return (
