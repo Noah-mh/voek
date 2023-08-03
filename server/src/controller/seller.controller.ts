@@ -55,10 +55,11 @@ export const processAddProduct = async (req: Request, res: Response, next: NextF
 // POST update product
 export const processEditProduct = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const sellerId: number = parseInt(req.params.productId);
-        const { values, variations } = req.body;
-        if (!values || !variations) return res.sendStatus(400);
-        const response: any = await sellerModel.handleEditProduct(sellerId, values, variations);
+        const productId: number = parseInt(req.params.productId);
+        const { keys, values, variations } = req.body;
+        console.log("req.body", req.body);
+        if (!variations) return res.sendStatus(400);
+        const response: any = await sellerModel.handleEditProduct(productId, keys, values, variations);
         return res.json(response);
     } catch (err: any) {
         return next(err);

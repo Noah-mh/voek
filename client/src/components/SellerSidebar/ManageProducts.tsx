@@ -35,8 +35,8 @@ interface Product {
   category?: string;
 
   // product variations only
-  variation1?: string;
-  variation2?: string;
+  variation1?: string | null;
+  variation2?: string | null;
 }
 
 interface TabPanelProps {
