@@ -42,7 +42,6 @@ export const processGetAllCategories = async (req: Request, res: Response, next:
 export const processAddProduct = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const sellerId: number = parseInt(req.params.sellerId);
-        console.log("req.body", req.body);
         const { name, description, categoryId, variations, quantity, price, imageUrl } = req.body;
         if (!name || !categoryId || !quantity || !price || (!imageUrl && variations.length === 0)) return res.sendStatus(400);
         const response: any = await sellerModel.handleAddProduct(sellerId, name, description, categoryId, variations, quantity, price, imageUrl);
@@ -57,7 +56,6 @@ export const processEditProduct = async (req: Request, res: Response, next: Next
     try {
         const productId: number = parseInt(req.params.productId);
         const { keys, values, variations } = req.body;
-        console.log("req.body", req.body);
         if (!variations) return res.sendStatus(400);
         const response: any = await sellerModel.handleEditProduct(productId, keys, values, variations);
         return res.json(response);

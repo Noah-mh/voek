@@ -1,8 +1,8 @@
-import { useLocation } from 'react-router-dom';
 import { axiosPrivateSeller } from '../../api/axios.tsx';
 import ProductForm from "./ProductForm.tsx";
-import SellerSidebar from "../SellerSidebar/SellerSidebar.js";
 import { useState } from 'react';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface SubmitVariationsInterface {
   name?: string;
@@ -11,22 +11,6 @@ interface SubmitVariationsInterface {
   price: number;
   quantity: number;
   imageUrl: string;
-  sku?: string;
-}
-
-interface SubmitInterface {
-  name: string;
-  description: string;
-  price: number;
-  quantity: number;
-  imageUrl: string;
-  categoryId: number;
-  category: string;
-  variations: Array<SubmitVariationsInterface>;
-
-  // optional properties
-  // edit product only
-  productId?: number;
   sku?: string;
 }
 
@@ -55,14 +39,10 @@ interface Product {
 // const EditProduct = ( prop: Product ) => {
   const EditProduct: React.FC<{ product: Product }> = ({ product }) => {
 
-  // let { state } = useLocation();
-  
-  // let product: Product = state;
-  // let product: Product = prop;
-  console.log("product", product)
-  // const currentProduct: Product = JSON.parse(JSON.stringify(Object.values(product)[0]));
-  const [currentProduct, setCurrentProduct] = useState<Product>(product);
-  console.log("currentProduct", currentProduct);
+  // console.log("product", product)
+  // const [currentProduct, setCurrentProduct] = useState<Product>(product);
+  // console.log("currentProduct", currentProduct);
+  const currentProduct: Product = product;
 
   const handleSubmit = async (e: any) => {
     console.log("event", e);
@@ -92,7 +72,7 @@ interface Product {
 
     const editProduct = async () => {
       try {
-        await axiosPrivateSeller.post(
+        const response = await axiosPrivateSeller.post(
           `/editProduct/${currentProduct.productId}`,
           {
             keys: keys,
@@ -100,8 +80,30 @@ interface Product {
             variations: e.variations.length === 0 ? noVariations : e.variations,
           }
         )
+        if (response) {
+          toast.success("Successfully updated " + e.name, {
+              position: "top-center",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "light",
+          });
+        }
       } catch (err) {
         console.log(err);
+        toast.error("Error updating " + e.name, {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
       }
     }
 
@@ -114,6 +116,7 @@ interface Product {
       <div className="flex flex-col w-max">
         <h1 className="text-xl font-medium mb-2">Edit Product</h1>
 
+        <ToastContainer />
         <ProductForm 
           product={currentProduct}
           onSubmit={handleSubmit}
