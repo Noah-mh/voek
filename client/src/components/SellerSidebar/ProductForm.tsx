@@ -490,101 +490,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     [productVariations]
   );
 
-  // const [nameError, setNameError] = useState("");
-  // const [priceError, setPriceError] = useState("");
-  // const [quantityError, setQuantityError] = useState("");
-  // const [imageError, setImageError] = useState<string>("");
-  // const [submitStatus, setSubmitStatus] = useState("");
-
-  // const handleProductFormSubmit = (e: React.FormEvent) => {
-  //   e.preventDefault();
-
-  //   setSubmitStatus("Please try again.");
-  //   setRowErrors("");
-
-  //   const form = e.target as HTMLFormElement;
-    
-  //   const name = form.elements.namedItem('name') as HTMLInputElement;
-
-  //   if (name.value.trim() === "") {
-  //     setNameError("Please input a name.");
-  //     return;
-  //   }
-
-  //   const description = form.elements.namedItem('description') as HTMLTextAreaElement;
-
-  //   const category = form.elements.namedItem('category') as HTMLSelectElement;
-  //   const categoryName = category.options[category.selectedIndex].text;
-
-  //   const price = form.elements.namedItem('priceNoVariation') as HTMLInputElement;
-
-  //   if (!price.disabled && (isNaN(parseFloat(price.value)) || parseFloat(price.value) <= 0)) {
-  //     setPriceError("Please input a valid price that is more than 0 cents.");
-  //     return;
-  //   } else if (priceError !== "") setPriceError("");
-
-  //   const quantity = form.elements.namedItem('quantityNoVariation') as HTMLInputElement;
-
-  //   if (!quantity.disabled && (isNaN(parseInt(quantity.value)) || parseInt(quantity.value) <= 0)) {
-  //     setQuantityError("Please input a valid quantity that is more than 0.");
-  //     return;
-  //   } else if (quantityError !== "") setQuantityError("");
-
-  //   if (variations.length === 0 && imageURL.length === 0) {
-  //     setImageError("Please upload an image.");
-  //     return;
-  //   } else if (imageError != "") setImageError("");
-
-  //   let validVariationInput = true;
-
-  //   if (variations.length > 0 && productVariations.length === 0) {
-  //     setRowErrors("Please either enter a variation or delete the variation field.");
-  //     return;
-  //   } else {
-  //     productVariations.forEach((variation) => {
-  //       if (isNaN(variation.price) || isNaN(variation.quantity) || variation.price <= 0 || variation.quantity <= 0) {
-  //         setRowErrors("Please input valid values greater than zero.");
-  //         validVariationInput = false;
-  //         return;
-  //       } 
-  //     }) 
-    
-  //     if (validVariationInput) {
-  //       productVariations.forEach((variation) => {
-  //         if (variation.imageUrl.length === 0) {
-  //           setRowErrors("Please upload at least 1 image for each variation.");
-  //           validVariationInput = false;
-  //           return; 
-  //         }
-  //       })
-  //       if (validVariationInput) {
-  //         setRowErrors("");
-  //       }
-  //     }
-  //   }
-
-  //   if (!validVariationInput) return;
-
-  //   const formData: SubmitInterface = {
-  //     name: name.value,
-  //     description: description.value,
-  //     price: Number.isNaN(parseFloat(price.value)) ? -1 : parseFloat(price.value),
-  //     quantity: Number.isNaN(parseFloat(quantity.value)) ? -1 : parseFloat(quantity.value),
-  //     imageUrl: imageURL,
-  //     categoryId: selectedCategory ? selectedCategory : 1,
-  //     category: categoryName,
-  //     variations: productVariations,
-  //   };
-
-  //   if (currentProduct) {
-  //     formData.productId = currentProduct.productId;
-  //     formData.sku = currentProduct.sku;
-  //   }
-
-  //   onSubmit(formData);
-  //   setSubmitStatus("Success!");
-  // };
-
   const [selectedCategory, setSelectedCategory] = useState<number>(0);
 
   const [formValues, setFormValues] = useState<FormValues>({
@@ -730,20 +635,12 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     setProductVariations(updatedProductVariations);
   }
 
-  const [submitStatus, setSubmitStatus] = useState<string>("");
-
-  // console.log submitStatus every time it changes
-  useEffect(() => {
-    console.log("submitStatus", submitStatus);
-  }, [submitStatus])
-
   // reset form to default
   const handleReset = async () => {
     setFormValuesDefault();
     setVariationsDefault();
     setShowAddVariation(true);
     setProductVariationsDefault();
-    setSubmitStatus("");
   }
 
   // submit form to parent component, either AddProduct.tsx or EditProduct.tsx
@@ -751,7 +648,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     e.preventDefault();
 
     if (formValues.name.error || formValues.description.error || (formValues.price.error && variations.length == 0) || (formValues.quantity.error && variations.length == 0)) {
-      setSubmitStatus("Please try again.");
       return;
     } else if (formValues.selectedCategory.value === null) {
       setFormValues({
@@ -761,9 +657,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
           error: true
         }
       })
-      setSubmitStatus("Please try again.");
       return;
-    } else if (!variations && formValues.imageUrl.value === "") {
+    } else if (variations.length === 0 && formValues.imageUrl.value === "") {
       if (formValues.selectedCategory.error === true) {
         setFormValues({
           ...formValues,
@@ -780,7 +675,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
           error: true
         }
       })
-      setSubmitStatus("Please try again.");
       return;
     } 
 
@@ -813,7 +707,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     }
 
     if (!validVariationInput) {
-      setSubmitStatus("Please try again.");
       return;
     }
 
@@ -832,11 +725,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
       formData.sku = currentProduct.sku;
     }
 
-    // else {
-      onSubmit(formData);
-      setSubmitStatus("Success!");
-      // handleReset();
-    // }
+    onSubmit(formData);
+    if (!currentProduct) handleReset();
   }
 
   useEffect(() => {
@@ -1193,15 +1083,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
           />
           </div>
         </Box>
-        )}        
-        <br />
+        )}
+        
         {rowErrors && (
           <span className="tooltip">{rowErrors}</span>
-        )}
-
-        <br />
-        {submitStatus && (
-          <span className="tooltip">{submitStatus}</span>
         )}
 
         {variations.length === 0 &&

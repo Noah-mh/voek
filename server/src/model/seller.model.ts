@@ -149,6 +149,7 @@ export const handleAddProduct = async (
     // insert into products table unless there is a duplicate, in which case lasatInsertId will be 0
     return Promise.resolve(connection.query(insertProducts, [name, description, categoryId, name, description, categoryId]))
     .then(async (response) => {
+      // console.log("model response", response)
       let lastInsertId = Object.values(response[0])[2];
       // console.log("lastInsertId", lastInsertId);
       // if product exists, do not insert into products table and return lastInsertId

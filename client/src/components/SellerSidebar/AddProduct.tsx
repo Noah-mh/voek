@@ -4,12 +4,13 @@ import useSeller from '../../hooks/useSeller.tsx';
 
 import ProductForm from "./ProductForm.tsx";
 import Box from '@mui/material/Box';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AddProduct = () => {
 
   const { seller } = useSeller();
   const sellerId = seller.seller_id;
-  const [duplicateExists, setDuplicateExists] = useState<string>("");
 
   const handleSubmit = async (e: any) => {
     console.log("event", e);
@@ -19,12 +20,42 @@ const AddProduct = () => {
           `/addProduct/${sellerId}`,
           e
         );
-
+        console.log("addProduct response", response)
         if (response.data.productId === 0) {
-          setDuplicateExists("Product could not be created as it already exists.");
+          toast.error(e.name + " could not be created as it already exists.", {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+        } else {
+          toast.success("Successfully added " + e.name, {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
         }
       } catch (err) {
         console.log(err);
+        toast.error("Error adding " + e.name, {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
       }
     }
 
@@ -33,8 +64,6 @@ const AddProduct = () => {
 
   return (
     <div className="flex flex-row grow">
-
-      {/* <div className="flex flex-col w-max"> */}
       <Box
         sx={{
           display: 'flex',
@@ -44,13 +73,11 @@ const AddProduct = () => {
       >
         <h1 className="text-xl font-medium mb-2">Add Product</h1>
 
+        <ToastContainer />
         <ProductForm
           onSubmit={handleSubmit}
         />
-
-        {duplicateExists}
       </Box>
-      {/* </div> */}
     </div>
   )
 }
