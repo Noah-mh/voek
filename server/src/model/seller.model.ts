@@ -4,7 +4,6 @@ import Sib from "../../config/sendInBlue";
 import client from "../../config/teleSign";
 import config from "../../config/config";
 import jwt from "jsonwebtoken";
-import e from "express";
 import * as dotenv from "dotenv";
 dotenv.config({
   path: __dirname + "../../env",
@@ -18,21 +17,6 @@ interface SubmitVariationsInterface {
   price: number;
   quantity: number;
   imageUrl: string;
-  sku?: string;
-}
-
-interface Product {
-  name: string;
-  description: string;
-  price: number;
-  quantity: number;
-  categoryId: number;
-  category: string;
-  variations: Array<SubmitVariationsInterface>;
-
-  // optional properties
-  // edit product only
-  productId?: number;
   sku?: string;
 }
 
@@ -107,16 +91,6 @@ export const handleGetAllCategories = async (): Promise<any[]> => {
     await connection.release();
   }
 };
-
-// export const handleCreateSku = async () => {
-//   try {
-//     const sku = uuidv4();
-//     return sku as string;
-//   } catch (err: any) {
-//     console.log(err);
-//     throw new Error(err);
-//   }
-// };
 
 // POST insert a new product
 export const handleAddProduct = async (
@@ -213,6 +187,7 @@ export const handleEditProduct = async (
   let updateProducts = `UPDATE products SET `;
   const updateProductVariationsValid = `UPDATE product_variations SET valid_variation = 0 WHERE product_id = ?;`;
   const updateProductVariations = `UPDATE product_variations SET quantity = ?, price = ?, valid_variation = 1 WHERE sku = ?;`;
+  // getSku template
   // getSku = `DELETE FROM product_images WHERE sku = ? AND image_url = ?;`;
   // let getSku = `SELECT
   //   IF(COUNT(*) > 0, 'Table', 'UUID') AS source,

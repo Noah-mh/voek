@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect, useRef } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import MaterialReactTable, {
   MRT_Cell,
   type MRT_ColumnDef,
@@ -12,7 +12,6 @@ import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller.js";
 import { cld } from "../../Cloudinary/Cloudinary";
 import { AdvancedImage } from "@cloudinary/react";
 import CloudinaryUploader from "../../Cloudinary/CloudinaryUploader";
-import CloudinaryUpload from '../../Cloudinary/CloudinaryUpload.js';
 import MenuItem from '@mui/material/MenuItem';
 import InputAdornment from '@mui/material/InputAdornment';
 import Button from '@mui/material/Button';
@@ -79,17 +78,6 @@ interface Product {
   // product variations only
   variation1?: string | null;
   variation2?: string | null;
-}
-
-interface VariationsInterface {
-  var1: string; 
-  var2: string;
-  price: number;
-  quantity: number;
-  imageUrl: string;
-  sku?: string;
-  error: boolean;
-  errorMessage: string;
 }
 
 interface FormValues {
