@@ -1,10 +1,7 @@
 import jwt from 'jsonwebtoken';
 import config from '../../config/config';
-import { UserInfo } from '../interfaces/interfaces';
 import { Request, Response, NextFunction } from "express";
 import * as sellerModel from "../model/seller.model";
-import { parse } from 'path';
-import { P } from 'pino';
 
 // GET all products from 1 seller
 export const processGetAllProductsOfSeller = async (req: Request, res: Response, next: NextFunction) => {
