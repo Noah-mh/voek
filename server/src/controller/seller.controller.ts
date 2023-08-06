@@ -55,9 +55,9 @@ export const processAddProduct = async (req: Request, res: Response, next: NextF
 export const processEditProduct = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const sellerId: number = parseInt(req.params.productId);
-        const { values, variations, imageURLMap, deleteImageURLMap } = req.body;
-        if (!values || !variations || !imageURLMap || !deleteImageURLMap) return res.sendStatus(400);
-        const response: any = await sellerModel.handleEditProduct(sellerId, values, variations, imageURLMap, deleteImageURLMap);
+        const { values, variations } = req.body;
+        if (!values || !variations) return res.sendStatus(400);
+        const response: any = await sellerModel.handleEditProduct(sellerId, values, variations);
         return res.json(response);
     } catch (err: any) {
         return next(err);
@@ -185,6 +185,7 @@ export const processVerifyOTP = async (req: Request, res: Response, next: NextFu
 export const processSendEmailLink = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email, shopName, phone_number, password } = req.body;
+        console.log(email, shopName, phone_number, password)
         if (!email || !shopName || !phone_number || !password) return res.sendStatus(400);
         const result = await sellerModel.handleSignUp(shopName, password, email, phone_number);
         if (result === 1062) {

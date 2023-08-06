@@ -4,6 +4,10 @@ import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
 import useCustomer from "../../hooks/UseCustomer";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import { ToastContainer, toast } from "react-toastify";
@@ -24,10 +28,10 @@ interface newAddress {
 interface AddressModalProps {
     getAll: () => void;
     addAddress: (newAddress: newAddress) => void;
-
+    countries: string[];
 }
 
-const AddressModal: React.FC<AddressModalProps> = ({ getAll, addAddress }) => {
+const AddressModal: React.FC<AddressModalProps> = ({ getAll, addAddress, countries }) => {
     const { customer } = useCustomer();
     const customer_id = customer.customer_id;
     const axiosPrivateCustomer = useAxiosPrivateCustomer();
@@ -68,6 +72,16 @@ const AddressModal: React.FC<AddressModalProps> = ({ getAll, addAddress }) => {
     };
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setAddress({
+            ...address,
+            [event.target.name]: event.target.value
+        });
+        setError({
+            ...error,
+            [event.target.name]: !event.target.value
+        });
+    };
+    const handleSelectChange = (event: SelectChangeEvent<string>) => {
         setAddress({
             ...address,
             [event.target.name]: event.target.value
@@ -141,14 +155,30 @@ const AddressModal: React.FC<AddressModalProps> = ({ getAll, addAddress }) => {
                 Enter Address
             </Typography>
 
-            <TextField error={error.block} name="block" label="Block *" variant="outlined" fullWidth margin="normal" value={address.block} onChange={handleChange} />
-            <TextField error={error.unit_no} name="unit_no" label="Unit No *" variant="outlined" fullWidth margin="normal" value={address.unit_no} onChange={handleChange} />
-            <TextField error={error.street_name} name="street_name" label="Street Name *" variant="outlined" fullWidth margin="normal" value={address.street_name} onChange={handleChange} />
-            <TextField error={error.postal_code} name="postal_code" label="Postal Code *" variant="outlined" fullWidth margin="normal" value={address.postal_code} onChange={handleChange} />
-            <TextField error={error.country} name="country" label="Country *" variant="outlined" fullWidth margin="normal" value={address.country} onChange={handleChange} />
-            <Typography id="modal-modal-description" sx={{ m: 2 }}>
+            <TextField required error={error.block} name="block" label="Block" variant="outlined" fullWidth margin="normal" value={address.block} onChange={handleChange} />
+            <TextField required error={error.unit_no} name="unit_no" label="Unit No" variant="outlined" fullWidth margin="normal" value={address.unit_no} onChange={handleChange} />
+            <TextField required error={error.street_name} name="street_name" label="Street Name" variant="outlined" fullWidth margin="normal" value={address.street_name} onChange={handleChange} />
+            <TextField required error={error.postal_code} name="postal_code" label="Postal Code" variant="outlined" fullWidth margin="normal" value={address.postal_code} onChange={handleChange} />
+            {/* <TextField required error={error.country} name="country" label="Country" variant="outlined" fullWidth margin="normal" value={address.country} onChange={handleChange} /> */}
+            <FormControl variant="outlined" fullWidth margin="normal" error={error.country}>
+                <InputLabel id="country-label">Country</InputLabel>
+                <Select
+                    labelId="country-label"
+                    id="country-select"
+                    value={address.country}
+                    onChange={handleSelectChange}
+                    name="country"
+                    label="Country"
+                >
+                    {countries.map((country, index) => (
+                        <MenuItem key={index} value={country}>{country}</MenuItem>
+                    ))}
+                </Select>
+            </FormControl>
+
+            {/* <Typography id="modal-modal-description" sx={{ m: 2 }}>
                 * means required
-            </Typography>
+            </Typography> */}
             <div className="flex justify-between">
                 <Button variant="contained" color="primary" onClick={handleSave}>
                     Save
