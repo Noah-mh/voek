@@ -9,7 +9,7 @@ import { ToastContainer } from "react-toastify";
 const LoginBannerSeller = () => {
   
   const [userDetails, setUserDetails] = useState<object>({});
-  const [login, setLogin] = useState<boolean>(true);
+  const [login, setLogin] = useState<boolean>(false);
   return (
     <div className="containerZ main w-screen h-screen flex">
       <ToastContainer />
