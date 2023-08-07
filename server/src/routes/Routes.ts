@@ -211,6 +211,12 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     customerController.processDeleteVouchers
   );
+  router.get(
+    "/customer/orders/allTime/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processGetTotalSpentAllTime
+  )
 
   // NOAH ENDPOINTS - reviews, customer profile, customer address, add to cart, ratings, product details, seller details, seller categories
   router.get(

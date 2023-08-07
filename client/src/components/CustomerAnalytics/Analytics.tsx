@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import useCustomer from '../../hooks/UseCustomer';
 import useAxiosPrivateCustomer from '../../hooks/useAxiosPrivateCustomer';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -48,32 +48,54 @@ const data = [
     },
 ];
 
+interface TotalSpent {
+    total_spent: number;
+    orders_id: number;
+    orders_date: string;
+}
+
 const Analytics = () => {
 
-    // const { customer } = useCustomer();
-    // const axiosPrivateCustomer = useAxiosPrivateCustomer();
+    const { customer } = useCustomer();
+    const axiosPrivateCustomer = useAxiosPrivateCustomer();
+
+    const [totalSpentFilter, setTotalSpentFilter] = useState<number>(0);
+    const [totalSpent, setTotalSpent] = useState<TotalSpent[]>([]);
+
+    const getTotalSpentAllTime = async () => {
+        try {
+            const { data } = await axiosPrivateCustomer.get(`/customer/orders/allTime/${customer.customer_id}`);
+            setTotalSpent(data.customer_spent);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    useEffect(() => {
+        getTotalSpentAllTime();
+        console.log(totalSpent)
+    }, [])
 
     return (
-        <div style={{ height: 500, width: 500 }}>
+        <div style={{ height: 400, width: 1000 }}>
             <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                     width={500}
                     height={300}
-                    data={data}
+                    data={totalSpent}
                     margin={{
-                        top: 5,
+                        top: 30,
                         right: 30,
                         left: 20,
                         bottom: 5,
                     }}
                 >
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
+                    <XAxis dataKey="orders_date" />
+                    <YAxis domain={['dataMin', 'dataMax']} />
                     <Tooltip />
                     <Legend />
-                    <Line type="monotone" dataKey="pv" stroke="#8884d8" activeDot={{ r: 8 }} />
-                    <Line type="monotone" dataKey="uv" stroke="#82ca9d" />
+                    <Line type="monotone" dataKey="total_spent" stroke="#8884d8" activeDot={{ r: 8 }} />
                 </LineChart>
             </ResponsiveContainer>
         </div>
