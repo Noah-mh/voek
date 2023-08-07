@@ -48,7 +48,52 @@
 // };
 
 // export default CloudinaryUpload;
-import React, { ChangeEvent } from 'react';
+// import React, { ChangeEvent } from 'react';
+// import axios from 'axios';
+
+// interface CloudinaryUploadProps {
+//     onSuccess: (resultInfo: any) => void;
+//     caption: string;
+// }
+
+// const CloudinaryUpload: React.FC<CloudinaryUploadProps> = ({ onSuccess, caption }) => {
+
+//     const handleUpload = async (file: File | null) => {
+//         if (file) {
+//             const formData = new FormData();
+//             formData.append('file', file);
+//             formData.append('upload_preset', 'vesexyvh');
+
+//             try {
+//                 const response = await axios.post(
+//                     `https://api.cloudinary.com/v1_1/dgheg6ml5/image/upload`,
+//                     formData
+//                 );
+//                 onSuccess(response.data);
+//             } catch (error) {
+//                 console.error('Upload failed', error);
+//             }
+//         }
+//     };
+
+//     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+//         const file = event.target.files ? event.target.files[0] : null;
+//         handleUpload(file);
+//     };
+
+//     return (
+//         <div className="flex flex-col items-center justify-center py-10">
+//             <input id="file-upload" type="file" accept="image/png, image/jpeg" onChange={handleFileChange} className="hidden" />
+//             <label htmlFor="file-upload" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer">
+//                 {caption}
+//             </label>
+//         </div>
+//     );
+// };
+
+// export default CloudinaryUpload;
+
+import React, { useEffect, useState, useCallback, ChangeEvent } from 'react';
 import axios from 'axios';
 
 interface CloudinaryUploadProps {
@@ -57,11 +102,13 @@ interface CloudinaryUploadProps {
 }
 
 const CloudinaryUpload: React.FC<CloudinaryUploadProps> = ({ onSuccess, caption }) => {
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [isUploaded, setIsUploaded] = useState(false);
 
-    const handleUpload = async (file: File | null) => {
-        if (file) {
+    const handleUpload = useCallback(async () => {
+        if (selectedFile) {
             const formData = new FormData();
-            formData.append('file', file);
+            formData.append('file', selectedFile);
             formData.append('upload_preset', 'vesexyvh');
 
             try {
@@ -70,16 +117,24 @@ const CloudinaryUpload: React.FC<CloudinaryUploadProps> = ({ onSuccess, caption 
                     formData
                 );
                 onSuccess(response.data);
+                setIsUploaded(true);
             } catch (error) {
                 console.error('Upload failed', error);
             }
         }
-    };
+    }, [selectedFile, onSuccess]);
 
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files ? event.target.files[0] : null;
-        handleUpload(file);
+        setSelectedFile(file);
+        setIsUploaded(false); // Reset the upload status whenever the file changes
     };
+
+    useEffect(() => {
+        if (selectedFile && !isUploaded) {
+            handleUpload();
+        }
+    }, [selectedFile, handleUpload, isUploaded]);
 
     return (
         <div className="flex flex-col items-center justify-center py-10">
