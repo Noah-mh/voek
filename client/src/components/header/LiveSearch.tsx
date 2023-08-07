@@ -71,7 +71,7 @@ const LiveSearch: FC<LiveSearchProps> = ({
         />
         <Link
           to={link}
-          // className={userInput === "" ? "opacity-50 pointer-events-none" : ""}
+        // className={userInput === "" ? "opacity-50 pointer-events-none" : ""}
         >
           <button
             type="submit"
