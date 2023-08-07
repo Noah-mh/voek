@@ -1,10 +1,7 @@
 import jwt from 'jsonwebtoken';
 import config from '../../config/config';
-import { UserInfo } from '../interfaces/interfaces';
 import { Request, Response, NextFunction } from "express";
 import * as sellerModel from "../model/seller.model";
-import { parse } from 'path';
-import { P } from 'pino';
 
 // GET all products from 1 seller
 export const processGetAllProductsOfSeller = async (req: Request, res: Response, next: NextFunction) => {
@@ -43,7 +40,7 @@ export const processAddProduct = async (req: Request, res: Response, next: NextF
     try {
         const sellerId: number = parseInt(req.params.sellerId);
         const { name, description, categoryId, variations, quantity, price, imageUrl } = req.body;
-        if (!name || !categoryId || !quantity || !price || !imageUrl) return res.sendStatus(400);
+        if (!name || !categoryId || !quantity || !price || (!imageUrl && variations.length === 0)) return res.sendStatus(400);
         const response: any = await sellerModel.handleAddProduct(sellerId, name, description, categoryId, variations, quantity, price, imageUrl);
         return res.json({ productId: response });
     } catch (err: any) {
@@ -54,10 +51,10 @@ export const processAddProduct = async (req: Request, res: Response, next: NextF
 // POST update product
 export const processEditProduct = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const sellerId: number = parseInt(req.params.productId);
-        const { values, variations } = req.body;
-        if (!values || !variations) return res.sendStatus(400);
-        const response: any = await sellerModel.handleEditProduct(sellerId, values, variations);
+        const productId: number = parseInt(req.params.productId);
+        const { keys, values, variations } = req.body;
+        if (!variations) return res.sendStatus(400);
+        const response: any = await sellerModel.handleEditProduct(productId, keys, values, variations);
         return res.json(response);
     } catch (err: any) {
         return next(err);
