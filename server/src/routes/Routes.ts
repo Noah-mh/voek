@@ -491,7 +491,7 @@ export default function (app: Express, router: Router) {
 
   // router.get("/getProductCat/:product_id", productController.getProductCat);
 
-  // ALLISON'S ENDPOINTS get Cart details, altering quantity, insert payment, insert order, insert order product, update product stock, deleting cart, redeem voucher
+  // ALLISON'S ENDPOINTS get Cart details, altering quantity, insert payment, insert order, insert order product, update product stock, deleting cart, redeem voucher, last checked in
 
   router.get(
     "/customer/cart/getCart/:customer_id",
@@ -580,5 +580,23 @@ export default function (app: Express, router: Router) {
     verifyJWT,
     verifyRoles("customer"),
     cartController.clearCart
+  );
+  router.post(
+    "/customer/checkIn/newCheckIn",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processNewLastCheckedIn
+  );
+  router.put(
+    "/customer/checkIn/updateCheckIn",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processUpdateLastCheckedIn
+  );
+  router.get(
+    "/customer/checkIn/getCheckIn/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processGetLastCheckedIn
   );
 }

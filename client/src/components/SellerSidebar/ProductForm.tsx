@@ -30,7 +30,7 @@ interface ProductVariations {
   price: number;
   quantity: number;
   imageUrl: string;
-  // sku?: string;
+  sku?: string;
 }
 
 interface SubmitVariationsInterface {
@@ -76,19 +76,8 @@ interface Product {
   category?: string;
 
   // product variations only
-  variation1?: string;
-  variation2?: string;
-}
-
-interface VariationsInterface {
-  var1: string; 
-  var2: string;
-  price: number;
-  quantity: number;
-  imageUrl: string;
-  sku?: string;
-  error: boolean;
-  errorMessage: string;
+  variation1?: string | null;
+  variation2?: string | null;
 }
 
 interface FormValues {
@@ -138,12 +127,15 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
 
   const [currentProduct, setCurrentProduct] = useState<Product>();
 
+  // setCurrentProduct to product if product exists
   useEffect(() => {
     if (product) {
-      setCurrentProduct(Object.values(product)[0]);
+      // setCurrentProduct(Object.values(product)[0]);
+      setCurrentProduct(product);
     }
   }, [])
 
+  // console.log currentProduct every time it changes
   useEffect(() => {
     console.log("currentProduct", currentProduct);
     currentProduct ? console.log("currentProduct name", currentProduct.name) : "";
@@ -151,8 +143,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
 
   // maximum number of variations allowed
   const maximumVariations = 2;
+  // variations state --> stores category name (e.g. colour, size) and variations (e.g. red, blue, small, medium, etc.)
   const [variations, setVariations] = useState([{ name: "", values: [""] }]);
-
+  // formatted variations' names state
   const [var1Arr, setVar1Arr] = useState<string[]>([]);
   const [var2Arr, setVar2Arr] = useState<string[]>([]);
 
@@ -160,7 +153,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
 
-  useEffect(() => {
+  // setVariations default a.k.a. according to currentProduct if exists
+  const setVariationsDefault = () => {
     let defaultVariation: { name: string; values: string[]; }[] = [];
     if (currentProduct && currentProduct?.subRows.length > 0) {
       if (currentProduct?.subRows[0].variation1) {
@@ -195,8 +189,14 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
       }
     }
     setVariations(defaultVariation);
+  }
+  
+  // setVariations default a.k.a. according to currentProduct if it changes
+  useEffect(() => {
+    setVariationsDefault();
   }, [currentProduct])
 
+  // setVar1Arr and setVar2Arr when variations changes
   useEffect(() => {
     let arr1: string[] = [];
     let arr2: string[] = [];
@@ -264,41 +264,11 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     }
   };
 
-  // const [categories, setCategories] = useState<Category[]>([]);
-
-  // useEffect(() => {
-  //   const getAllCategories = async () => {
-  //     try {
-  //       const response = await axiosPrivateSeller.get(`/categories`);
-  //       setCategories(response.data);
-  //     } catch (error: any) {
-  //       console.error('Error fetching data:', error);
-  //     }
-  //   }
-
-  //   getAllCategories();
-  // }, []);
-
-  // const [selectedCategory, setSelectedCategory] = useState<number>(1);
-
-  // useEffect(() => {
-  //   console.log(selectedCategory)
-  // }, [selectedCategory])
-
-  // useEffect(() => {
-  //   if (currentProduct && currentProduct.categoryId) {
-  //     setSelectedCategory(currentProduct.categoryId);
-  //   }
-  // }, [currentProduct])
-
-  // const handleCategoryChange = (event: any) => {
-  //   const selectedValue = event.target.value;
-  //   setSelectedCategory(selectedValue);
-  // };
-
+  // productVariations state --> stores productVariations to be submitted
   const [productVariations, setProductVariations] = useState<ProductVariations[]>([]);
 
-  useEffect(() => {
+  // setProductVariations default a.k.a. according to currentProduct if it exists
+  const setProductVariationsDefault = () => {
     let updatedProductVariations: ProductVariations[] = [];
 
     if (currentProduct) {
@@ -310,27 +280,38 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
           price: variation.price ? parseFloat(variation.price.toString()) : 0,
           quantity: variation.quantity,
           imageUrl: variation.imageUrl,
+          sku: variation.sku
         })
       });
     }
 
     setProductVariations(updatedProductVariations);
+  }
+
+  // setProductVariations default a.k.a. according to currentProduct if it changes
+  useEffect(() => {
+    setProductVariationsDefault();
   }, [currentProduct])
 
+  // console.log productVariations every time it changes
   useEffect(() => {
     console.log("useEffect productVariations", productVariations)
   }, [productVariations]);
 
+  // setProductVariations if var1Arr and var2Arr changes, meaning that variations changed
   useEffect(() => {
     let updatedProductVariations: ProductVariations[] = [];
 
+    // if there are 2 variation categories
     if (var2Arr.length > 0) {
       var1Arr.forEach((var1) => {
           var2Arr.forEach((var2) => {
+            // check if variation already exists in currentProduct
             let currentVariation1: Product | undefined = currentProduct?.subRows.find(
               (variation) =>
                 variation.variation1 === var1 && variation.variation2 === var2
             );
+            // if variation does not exist in currentProduct, check if it exists in productVariations a.k.a. exists in product form but not in database
             let currentVariation2: ProductVariations | undefined;
             if (!currentVariation1 && productVariations) {
               currentVariation2 = productVariations.find(
@@ -338,6 +319,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                   variation.var1 === var1 && variation.var2 === var2
               );
             }
+            // updated variation
             let newVar: ProductVariations = {
               name: `${var1} + ${var2}`,
               var1: var1,
@@ -345,16 +327,20 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
               price: currentVariation1 ? currentVariation1.price : currentVariation2 ? currentVariation2.price : 0,
               quantity: currentVariation1 ? currentVariation1.quantity : currentVariation2 ? currentVariation2.quantity : 0,
               imageUrl: currentVariation1 ? currentVariation1.imageUrl : currentVariation2 ? currentVariation2.imageUrl : "",
+              sku: currentVariation1 ? currentVariation1.sku : currentVariation2 ? currentVariation2.sku : "",
             };
+            // add variation to updatedProductVariations array
             updatedProductVariations.push(newVar);
           })
       })
-    } else {
+    } else { // only 1 variation category
       var1Arr.forEach((var1) => {
+        // check if variation already exists in currentProduct
         let currentVariation1: Product | undefined = currentProduct?.subRows.find(
           (variation) =>
             variation.variation1 === var1 && !variation.variation2
         );
+        // if variation does not exist in currentProduct, check if it exists in productVariations a.k.a. exists in product form but not in database
         let currentVariation2: ProductVariations | undefined;
         if (!currentVariation1 && productVariations) {
           currentVariation2 = productVariations.find(
@@ -362,6 +348,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
               variation.var1 === var1 && !variation.var2
           );
         }
+        // updated variation
         let newVar: ProductVariations = {
           name: `${var1}`,
           var1: var1,
@@ -369,7 +356,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
           price: currentVariation1 ? currentVariation1.price : currentVariation2 ? currentVariation2.price : 0,
           quantity: currentVariation1 ? currentVariation1.quantity : currentVariation2 ? currentVariation2.quantity : 0,
           imageUrl: currentVariation1 ? currentVariation1.imageUrl : currentVariation2 ? currentVariation2.imageUrl : "",
+          sku: currentVariation1 ? currentVariation1.sku : currentVariation2 ? currentVariation2.sku : "",
         };
+        // add variation to updatedProductVariations array
         updatedProductVariations.push(newVar);
       })
     }
@@ -413,45 +402,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     setProductVariations([...productVariations]);
   }
 
-  // const [imageUrl, setImageUrl] = useState<string>("");
-  // const [imageUrlMap, setImageUrlMap] = useState<string[]>([]);
-
-  // useEffect(() => {
-  //   console.log("imageURL", imageUrl);
-  // }, [imageUrl])
-
-  // useEffect(() => {
-  //   console.log("imageURLMap", imageUrlMap);
-  // }, [imageUrlMap])
-
-  // useEffect(() => {
-  //   if (currentProduct) {
-  //     if (currentProduct.subRows.length === 0) setImageUrl(currentProduct.imageUrl);
-  //     else {
-  //       let urlArr: string[][] = [];
-  //       currentProduct.subRows.forEach((variation) => {
-  //         urlArr.push(variation.imageUrl);
-  //       })
-  //       setImageURLMap(urlArr);
-  //     }
-  //   }
-  // }, [currentProduct])
-
-  // const handleUpload = async (resultInfo: any) => {
-  //   console.log("Successfully uploaded:", resultInfo.public_id);
-  //   // setImageUrl((prevImageUrl) => [...prevImageURL, resultInfo.public_id]);
-  //   setImageUrl(resultInfo.public_id);
-  // }
-
-  // const handleDeleteImage = () => {
-  //   // setImageURL((prevImageURL) => {
-  //   //   const updatedImageURL = [...prevImageURL];
-  //   //   updatedImageURL.splice(index, 1);
-  //   //   return updatedImageURL;
-  //   // });
-  //   setImageUrl("");
-  // };
-
   const columns = useMemo<MRT_ColumnDef<ProductVariations>[]>(
     () => [
       {
@@ -479,27 +429,25 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
         size: 80,
         enableEditing: false,
         Cell: ({ row }) => (
-          <>
-            {/* {imageURLMap[productVariations.findIndex(variation => variation.name === row.original.name)] && 
-              imageURLMap[productVariations.findIndex(variation => variation.name === row.original.name)].map((imageUrl: string, index: number) => ( */}
+          <Box key={row.index+row.original.name}>
             {(row.original.imageUrl && (
-                <div key={row.index} className="flex flex-row w-40 h-40 mb-5">
+                <div className="flex flex-row w-40 h-40 mb-5">
                 <AdvancedImage cldImg={cld.image(row.original.imageUrl)} />
                 <Box>
                   <IconButton 
                     type="button"
                     className="flex"
                     onClick={() => {
-                      // row.original.imageUrl.splice(index, 1);
-                      // const updatedImageURLMap = [...imageURLMap];
-                      // updatedImageURLMap[row.index] = row.original.imageUrl;
-                      // setImageURLMap(updatedImageURLMap);
-                      // setImageUrl("");
-                      let updatedProductVariations = productVariations;
-                      updatedProductVariations[row.index].imageUrl = "";
-                      row.original.imageUrl = "";
-                  
-                      setProductVariations(updatedProductVariations);
+                      console.log("row", row)
+                      setProductVariations((prevProductVariations) => {
+                        const updatedVariations = [...prevProductVariations];
+                        updatedVariations[row.index] = {
+                          ...updatedVariations[row.index],
+                          imageUrl: "", 
+                        };
+                        return updatedVariations;
+                      })
+                      console.log("updated product variations", productVariations)
                     }}
                   >
                     <DeleteIcon />
@@ -507,137 +455,30 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                 </Box>
               </div>
             ))}
-            <CloudinaryUploader 
-              onSuccess={(resultInfo: any) => {
-                // row.original.imageUrl.push(resultInfo.public_id);
-                // const updatedImageURLMap = [...imageURLMap];
-                // updatedImageURLMap[row.index] = row.original.imageUrl;
-                // setImageURLMap(updatedImageURLMap);
-                // setImageUrl(resultInfo.public_id);
-                console.log("row", row)
-                console.log("productVariations", productVariations);
-                let updatedProductVariations = productVariations;
-                console.log("updatedProductVariations", updatedProductVariations)
-                updatedProductVariations[row.index].imageUrl = resultInfo.public_id;
-                console.log("row.original.imageUrl", row.original.imageUrl)
-                row.original.imageUrl = resultInfo.public_id;
-                console.log("row.original.imageUrl", row.original.imageUrl)
-
-                console.log("updatedProductVariations", updatedProductVariations)
-
-            
-                setProductVariations(updatedProductVariations);
+            <CloudinaryUploader
+              onSuccess={async (resultInfo: any) => {
+                  console.log("row3", row)
+                  console.log("resultInfo", resultInfo)
+                  setProductVariations((prevProductVariations) => {
+                  const updatedVariations = [...prevProductVariations];
+                  updatedVariations[row.index] = {
+                    ...updatedVariations[row.index],
+                    imageUrl: resultInfo.public_id, 
+                  };
+                  return updatedVariations;
+                  })
               }} 
               caption={"Upload Image"}
+              key={row.index}
             />
-          </>
+          </Box>
         )
       },
     ],
     [productVariations]
   );
 
-  // const [nameError, setNameError] = useState("");
-  // const [priceError, setPriceError] = useState("");
-  // const [quantityError, setQuantityError] = useState("");
-  // const [imageError, setImageError] = useState<string>("");
-  // const [submitStatus, setSubmitStatus] = useState("");
-
-  // const handleProductFormSubmit = (e: React.FormEvent) => {
-  //   e.preventDefault();
-
-  //   setSubmitStatus("Please try again.");
-  //   setRowErrors("");
-
-  //   const form = e.target as HTMLFormElement;
-    
-  //   const name = form.elements.namedItem('name') as HTMLInputElement;
-
-  //   if (name.value.trim() === "") {
-  //     setNameError("Please input a name.");
-  //     return;
-  //   }
-
-  //   const description = form.elements.namedItem('description') as HTMLTextAreaElement;
-
-  //   const category = form.elements.namedItem('category') as HTMLSelectElement;
-  //   const categoryName = category.options[category.selectedIndex].text;
-
-  //   const price = form.elements.namedItem('priceNoVariation') as HTMLInputElement;
-
-  //   if (!price.disabled && (isNaN(parseFloat(price.value)) || parseFloat(price.value) <= 0)) {
-  //     setPriceError("Please input a valid price that is more than 0 cents.");
-  //     return;
-  //   } else if (priceError !== "") setPriceError("");
-
-  //   const quantity = form.elements.namedItem('quantityNoVariation') as HTMLInputElement;
-
-  //   if (!quantity.disabled && (isNaN(parseInt(quantity.value)) || parseInt(quantity.value) <= 0)) {
-  //     setQuantityError("Please input a valid quantity that is more than 0.");
-  //     return;
-  //   } else if (quantityError !== "") setQuantityError("");
-
-  //   if (variations.length === 0 && imageURL.length === 0) {
-  //     setImageError("Please upload an image.");
-  //     return;
-  //   } else if (imageError != "") setImageError("");
-
-  //   let validVariationInput = true;
-
-  //   if (variations.length > 0 && productVariations.length === 0) {
-  //     setRowErrors("Please either enter a variation or delete the variation field.");
-  //     return;
-  //   } else {
-  //     productVariations.forEach((variation) => {
-  //       if (isNaN(variation.price) || isNaN(variation.quantity) || variation.price <= 0 || variation.quantity <= 0) {
-  //         setRowErrors("Please input valid values greater than zero.");
-  //         validVariationInput = false;
-  //         return;
-  //       } 
-  //     }) 
-    
-  //     if (validVariationInput) {
-  //       productVariations.forEach((variation) => {
-  //         if (variation.imageUrl.length === 0) {
-  //           setRowErrors("Please upload at least 1 image for each variation.");
-  //           validVariationInput = false;
-  //           return; 
-  //         }
-  //       })
-  //       if (validVariationInput) {
-  //         setRowErrors("");
-  //       }
-  //     }
-  //   }
-
-  //   if (!validVariationInput) return;
-
-  //   const formData: SubmitInterface = {
-  //     name: name.value,
-  //     description: description.value,
-  //     price: Number.isNaN(parseFloat(price.value)) ? -1 : parseFloat(price.value),
-  //     quantity: Number.isNaN(parseFloat(quantity.value)) ? -1 : parseFloat(quantity.value),
-  //     imageUrl: imageURL,
-  //     categoryId: selectedCategory ? selectedCategory : 1,
-  //     category: categoryName,
-  //     variations: productVariations,
-  //   };
-
-  //   if (currentProduct) {
-  //     formData.productId = currentProduct.productId;
-  //     formData.sku = currentProduct.sku;
-  //   }
-
-  //   onSubmit(formData);
-  //   setSubmitStatus("Success!");
-  // };
-
-  // const [name, setName] = useState<string>("");
-  // const [description, setDescription] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<number>(0);
-  // const [price, setPrice] = useState<number>();
-  // const [quantity, setQuantity] = useState<number>();
-  // const [imageUrl, setImageUrl] = useState<string>("");
 
   const [formValues, setFormValues] = useState<FormValues>({
     name: {
@@ -674,17 +515,14 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     }
   })
 
+  // console.log formValues every time it changes
   useEffect(() => {
     console.log("formValues", formValues);
   }, [formValues])
 
-  useEffect(() => {
-    // currentProduct?.name ? setName(currentProduct.name) : "";
-    // currentProduct?.description ? setDescription(currentProduct.description) : "";
+  // setFormValues default a.k.a. according to currentProduct if it exists
+  const setFormValuesDefault = () => {
     currentProduct?.categoryId ? setSelectedCategory(currentProduct.categoryId) : "";
-    // currentProduct?.price ? setPrice(currentProduct.price) : "";
-    // currentProduct?.quantity ? setQuantity(currentProduct.quantity) : "";
-    // setImageUrl(currentProduct ? currentProduct.imageUrl[0] : "");
     if (currentProduct && currentProduct.categoryId) {
       setSelectedCategory(currentProduct.categoryId);
     }
@@ -718,43 +556,21 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
         value: currentProduct?.imageUrl[0] || ""
       },
     }));
+  }
+
+  // setFormValues default a.k.a. according to currentProduct if it changes
+  useEffect(() => {
+    setFormValuesDefault();
   }, [currentProduct]);
 
+  // console.log selectedCategory every time it changes
   useEffect(() => {
-    console.log(selectedCategory)
+    console.log("selectedCategory", selectedCategory);
   }, [selectedCategory])
 
   const [categories, setCategories] = useState<Category[]>([]);
-
-  const handleUpload = async (resultInfo: any) => {
-    console.log("Successfully uploaded:", resultInfo.public_id);
-    // setImageUrl((prevImageUrl) => [...prevImageURL, resultInfo.public_id]);
-    // setImageUrl(resultInfo.public_id);
-    setFormValues({
-      ...formValues,
-      imageUrl: {
-        ...formValues.imageUrl,
-        value: resultInfo.public_id
-      }
-    })
-  }
-
-  const handleDeleteImage = () => {
-    // setImageURL((prevImageURL) => {
-    //   const updatedImageURL = [...prevImageURL];
-    //   updatedImageURL.splice(index, 1);
-    //   return updatedImageURL;
-    // });
-    // setImageUrl("");
-    setFormValues({
-      ...formValues,
-      imageUrl: {
-        ...formValues.imageUrl,
-        value: ""
-      }
-    })
-  };
-
+  
+  // get categories options
   useEffect(() => {
     const getAllCategories = async () => {
       try {
@@ -767,6 +583,27 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
 
     getAllCategories();
   }, []);
+
+  const handleUploadImage = async (resultInfo: any) => {
+    console.log("Successfully uploaded:", resultInfo.public_id);
+    setFormValues({
+      ...formValues,
+      imageUrl: {
+        ...formValues.imageUrl,
+        value: resultInfo.public_id
+      }
+    })
+  }
+
+  const handleDeleteImage = () => {
+    setFormValues({
+      ...formValues,
+      imageUrl: {
+        ...formValues.imageUrl,
+        value: ""
+      }
+    })
+  };
 
   const [priceForAll, setPriceForAll] = useState<number>();
   const [priceForAllError, setPriceForAllError] = useState<boolean>(false);
@@ -786,17 +623,19 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     setProductVariations(updatedProductVariations);
   }
 
-  const [submitStatus, setSubmitStatus] = useState<string>("");
+  // reset form to default
+  const handleReset = async () => {
+    setFormValuesDefault();
+    setVariationsDefault();
+    setShowAddVariation(true);
+    setProductVariationsDefault();
+  }
 
-  useEffect(() => {
-    console.log("submitStatus", submitStatus);
-  }, [submitStatus])
-
+  // submit form to parent component, either AddProduct.tsx or EditProduct.tsx
   const handleProductFormSubmit = async (e: any) => {
     e.preventDefault();
 
-    if (formValues.name.error || formValues.description.error || formValues.price.error || formValues.quantity.error) {
-      setSubmitStatus("Please try again.");
+    if (formValues.name.error || formValues.description.error || (formValues.price.error && variations.length == 0) || (formValues.quantity.error && variations.length == 0)) {
       return;
     } else if (formValues.selectedCategory.value === null) {
       setFormValues({
@@ -806,9 +645,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
           error: true
         }
       })
-      setSubmitStatus("Please try again.");
       return;
-    } else if (!variations && formValues.imageUrl.value === "") {
+    } else if (variations.length === 0 && formValues.imageUrl.value === "") {
       if (formValues.selectedCategory.error === true) {
         setFormValues({
           ...formValues,
@@ -825,7 +663,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
           error: true
         }
       })
-      setSubmitStatus("Please try again.");
       return;
     } 
 
@@ -858,7 +695,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     }
 
     if (!validVariationInput) {
-      setSubmitStatus("Please try again.");
       return;
     }
 
@@ -877,27 +713,19 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
       formData.sku = currentProduct.sku;
     }
 
-    // else {
-      onSubmit(formData);
-      setSubmitStatus("Success!");
-    // }
+    onSubmit(formData);
+    if (!currentProduct) handleReset();
   }
 
   useEffect(() => {
     console.log("rowErrors", rowErrors);
   }, [rowErrors])
-
-  console.log("current", currentProduct)
   
   useEffect(() => {
     console.log("formValues.imageUrl.errorMessage", formValues.imageUrl.errorMessage)
   }, [formValues.imageUrl.error, formValues.imageUrl.errorMessage])
 
   return (
-    // <form 
-    //   // className="flex flex-col"
-    //   onSubmit={handleProductFormSubmit}
-    // >
     <Box
       component="form"
       onSubmit={handleProductFormSubmit}
@@ -922,6 +750,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
           label="Name"
           required
           variant="outlined"
+          autoComplete="off"
           value={formValues.name.value}
           error={formValues.name.error}
           helperText={formValues.name.error && formValues.name.errorMessage}
@@ -937,7 +766,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
             })
           }}
           fullWidth
-          sx={{ m: 2 }} // Apply padding
+          sx={{ m: 2 }} 
         />
         <TextField
           id="description"
@@ -959,7 +788,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
             })
           }}
           fullWidth
-          sx={{ m: 2, height: 'auto' }} // Apply padding
+          sx={{ m: 2, height: 'auto' }}
         />
         <TextField
           id="category"
@@ -984,7 +813,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
             })
           }}
           fullWidth
-          sx={{ m: 2 }} // Apply padding
+          sx={{ m: 2 }}
         >
           {categories.map((category: Category) => (
             <MenuItem key={category.categoryId} value={category.categoryId}>
@@ -992,135 +821,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
             </MenuItem>
           ))}
         </TextField>
-        {variations.length === 0 &&
-          <TextField
-            id="price"
-            label="Price"
-            type="number"
-            variant="outlined"
-            required
-            InputProps={{
-              startAdornment: <InputAdornment position="start">$</InputAdornment>,
-            }}
-            value={formValues.price.value}
-            error={formValues.price.error}
-            helperText={formValues.price.error && formValues.price.errorMessage}
-            onChange={(e) => {
-              const {value} = e.target;
-              setFormValues({
-                ...formValues,
-                price: {
-                  ...formValues.price,
-                  value: value,
-                  parsedValue: parseFloat(value),
-                  error: isNaN(parseFloat(value)) || parseFloat(value) < 0 || value.includes("e")
-                }
-              })
-            }} 
-            fullWidth 
-            sx={{ m: 2 }}
-          />
-        }
 
-        {variations.length === 0 &&
-          <TextField
-            id="quantity"
-            label="Quantity"
-            type="number"
-            variant="outlined"
-            required
-            value={formValues.quantity.value}
-            error={formValues.quantity.error}
-            helperText={formValues.quantity.error && formValues.quantity.errorMessage}
-            onChange={(e) => {
-              const {value} = e.target;
-              setFormValues({
-                ...formValues,
-                quantity: {
-                  ...formValues.quantity,
-                  value: value,
-                  parsedValue: parseInt(value),
-                  error: isNaN(parseInt(value)) || parseInt(value) <= 0 || value.includes("e")
-                }
-              })
-            }}
-            fullWidth
-            sx={{ m: 2 }} // Apply padding
-          />
-        }
-
-        {variations.length === 0 && (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              m: 2,
-              // maxWidth: '75%' 
-            }}
-          >
-            {(formValues.imageUrl.value && (
-              <div key={formValues.imageUrl.value} className="flex flex-row w-40 h-40 mb-5">
-                <AdvancedImage cldImg={cld.image(formValues.imageUrl.value)} />
-                <Box>
-                  <IconButton 
-                    type="button"
-                    onClick={() => handleDeleteImage()}
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      justifyContent: 'flex-end'
-                    }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </Box>
-              </div>
-            ))}
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center'                
-              }}
-            > 
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'center'                
-                }}
-              >
-                <CloudinaryUploader 
-                  onSuccess={handleUpload} 
-                  caption={"UPLOAD IMAGE"}
-                />
-              </Box>
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'center'                
-                }}
-              >
-                {(!formValues.imageUrl.error && 
-                  <FormHelperText className="outlined-image-helper-text">
-                    {formValues.imageUrl.errorMessage}
-                  </FormHelperText>
-                )}
-                {(formValues.imageUrl.error && 
-                  <FormHelperText 
-                    className="outlined-image-helper-text" 
-                    sx={{ color: 'red' }}
-                  >
-                    {formValues.imageUrl.errorMessage}
-                  </FormHelperText>
-                )}
-              </Box>
-            </Box>
-          </Box>
-        )}
-      </Box>
-
-      {variations.map((variation, variationIndex) => (
+        {variations.map((variation, variationIndex) => (
         <Box
           sx={{ 
             display: 'flex',
@@ -1146,10 +848,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                 m: 2,
                 bgcolor: 'background.paper',
                 borderRadius: '16px'
-              }} // Apply padding
+              }} 
             >
               <TextField
-                  id="variation-name"
+                  id="variation-category"
                   label="Category of Variation"
                   variant="outlined"
                   required
@@ -1160,7 +862,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                   sx={{ 
                     m: 2,
                     flexGrow: 1
-                  }} // Apply padding
+                  }} 
               />
             </Box>
             
@@ -1176,17 +878,18 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                 }}
               >
                 <TextField
-                    id="variation-name"
+                    className="variation-name"
                     label="Variation"
                     variant="outlined"
                     required
+                    helperText="E.g. Red, Blue, Small, Medium, etc."
                     value={value}
                     onChange={(e) => handleVariationValueChange(variationIndex, valueIndex, e.target.value)}
                     fullWidth
                     sx={{ 
                       m: 2,
                       flexGrow: 1
-                    }} // Apply padding
+                    }} 
                 />
 
                 {valueIndex === variation.values.length - 1 && (
@@ -1252,7 +955,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
             // fullWidth
             sx={{ 
               
-            }} // Apply padding
+            }} 
           >
             Add Variation ({variations.length}/{maximumVariations})
           </Button>
@@ -1348,7 +1051,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                   sx={{ 
                     m: 1,
                     maxWidth: 250
-                  }} // Apply padding
+                  }} 
                 />
                 <Button
                   variant="contained"
@@ -1368,16 +1071,139 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
           />
           </div>
         </Box>
-        )}        
-        <br />
+        )}
+        
         {rowErrors && (
           <span className="tooltip">{rowErrors}</span>
         )}
 
-        <br />
-        {submitStatus && (
-          <span className="tooltip">{submitStatus}</span>
+        {variations.length === 0 &&
+          <TextField
+            id="price"
+            label="Price"
+            type="number"
+            variant="outlined"
+            required
+            InputProps={{
+              startAdornment: <InputAdornment position="start">$</InputAdornment>,
+            }}
+            value={formValues.price.value}
+            error={formValues.price.error}
+            helperText={formValues.price.error && formValues.price.errorMessage}
+            onChange={(e) => {
+              const {value} = e.target;
+              setFormValues({
+                ...formValues,
+                price: {
+                  ...formValues.price,
+                  value: value,
+                  parsedValue: parseFloat(value),
+                  error: isNaN(parseFloat(value)) || parseFloat(value) < 0 || value.includes("e")
+                }
+              })
+            }} 
+            fullWidth 
+            sx={{ m: 2 }}
+          />
+        }
+
+        {variations.length === 0 &&
+          <TextField
+            id="quantity"
+            label="Quantity"
+            type="number"
+            variant="outlined"
+            required
+            value={formValues.quantity.value}
+            error={formValues.quantity.error}
+            helperText={formValues.quantity.error && formValues.quantity.errorMessage}
+            onChange={(e) => {
+              const {value} = e.target;
+              setFormValues({
+                ...formValues,
+                quantity: {
+                  ...formValues.quantity,
+                  value: value,
+                  parsedValue: parseInt(value),
+                  error: isNaN(parseInt(value)) || parseInt(value) <= 0 || value.includes("e")
+                }
+              })
+            }}
+            fullWidth
+            sx={{ m: 2 }} 
+          />
+        }
+
+        {variations.length === 0 && (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              m: 2,
+              // maxWidth: '75%' 
+            }}
+          >
+            {(formValues.imageUrl.value && (
+              <div key={formValues.imageUrl.value} className="flex flex-row w-40 h-40 mb-5">
+                <AdvancedImage cldImg={cld.image(formValues.imageUrl.value)} />
+                <Box>
+                  <IconButton 
+                    type="button"
+                    onClick={() => handleDeleteImage()}
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      justifyContent: 'flex-end'
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Box>
+              </div>
+            ))}
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center'                
+              }}
+            > 
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center'                
+                }}
+              >
+                <CloudinaryUploader 
+                  onSuccess={handleUploadImage} 
+                  caption={"UPLOAD IMAGE"}
+                />
+              </Box>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center'                
+                }}
+              >
+                {(!formValues.imageUrl.error && 
+                  <FormHelperText className="outlined-image-helper-text">
+                    {formValues.imageUrl.errorMessage}
+                  </FormHelperText>
+                )}
+                {(formValues.imageUrl.error && 
+                  <FormHelperText 
+                    className="outlined-image-helper-text" 
+                    sx={{ color: 'red' }}
+                  >
+                    {formValues.imageUrl.errorMessage}
+                  </FormHelperText>
+                )}
+              </Box>
+            </Box>
+          </Box>
         )}
+      </Box>
 
       <Box
         sx={{
@@ -1400,282 +1226,11 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
           variant="contained"
           type="reset"
           color="error"
-          // onClick=
+          onClick={handleReset}
         >
           Reset
         </Button>
       </Box>
-
-    {/* <form 
-      // className="flex flex-col"
-      onSubmit={handleProductFormSubmit}
-    >
-      <section className="flex flex-col">
-        <label>
-          Name:
-          <input
-            className="text-black border-gray-300 rounded-md shadow-sm"
-            type="text"
-            name="name"
-            defaultValue={currentProduct ? currentProduct.name : ""}
-            required
-          />
-        </label>
-
-        {nameError && (
-          <span className="tooltip">{nameError}</span>
-        )}
-        <br />
-
-        <label>
-          Description:
-          <br />
-          <textarea
-            className="text-black border-gray-300 rounded-md shadow-sm"
-            name="description"
-            defaultValue={currentProduct ? currentProduct.description : ""}
-          />
-        </label>
-
-        <label>
-          <select
-            name="category"
-            value={selectedCategory}
-            onChange={handleCategoryChange}
-          >
-            {categories.map((category: Category) => {
-              return (
-                <>
-                  {category.categoryId === selectedCategory ? (
-                    <option key={category.categoryId} value={category.categoryId} selected>
-                      {category.name}
-                    </option>
-                  ) : (<option key={category.categoryId} value={category.categoryId}>
-                    {category.name}
-                  </option>)}
-                </>
-              );
-            })}
-          </select>
-        </label>
-        <br />
-
-        {variations.length === 0 && (
-          <span className="tooltip">This field is required for products without variations.</span>
-        )}
-
-        <label>
-          Price:
-          <input
-            className="text-black border-gray-300 rounded-md shadow-sm disabled:opacity-25 disabled:text-gray-500 disabled:bg-gray-400"
-            type="number"
-            step=".01"
-            disabled={variations.length > 0}
-            name="priceNoVariation"
-            defaultValue={currentProduct ? currentProduct.price : ""}
-          />
-          <br />
-          {priceError && (
-            <span className="tooltip">{priceError}</span>
-          )}
-        </label>
-
-        <label>
-          Quantity:
-          <input
-            className="text-black border-gray-300 rounded-md shadow-sm disabled:opacity-25 disabled:text-gray-500 disabled:bg-gray-400"
-            type="number"
-            disabled={variations.length > 0}
-            name="quantityNoVariation"
-            defaultValue={currentProduct ? currentProduct.quantity : ""}
-          />
-          <br />
-          {quantityError && (
-            <span className="tooltip">{quantityError}</span>
-          )}
-        </label>
-
-        <label>
-          {variations.length === 0 && (
-            <>
-              <br />
-              {imageURL && imageURL.map((imageUrl: string, index: number) => (
-                <div key={index} className="flex flex-row w-40 h-40 mb-5">
-                  <AdvancedImage cldImg={cld.image(imageUrl)} />
-                  <button
-                    type="button"
-                    className="flex"
-                    onClick={() => handleDeleteImage(index)}
-                  >
-                    <DeleteIcon />
-                  </button>
-                </div>
-              ))}
-              <CloudinaryUpload
-                onSuccess={handleUpload}
-                caption={"Upload Image"}
-              />
-              {imageError && (
-                <span className="tooltip">{imageError}</span>
-              )}
-              <br />
-              <br />
-            </>
-          )}
-        </label>
-
-        {variations.map((variation, variationIndex) => (
-          <div key={variationIndex} className="variation-section">
-            <div className="variation-header">
-              <button
-                className="remove-variation"
-                type="button"
-                onClick={() => handleRemoveVariation(variationIndex)}
-              >
-                &#10006;
-              </button>
-            </div>
-
-            <div className="variation-content">
-              <label>
-                Variation Name:
-                <input
-                  className="text-black border-gray-300 rounded-md shadow-sm"
-                  type="text"
-                  value={variation.name}
-                  onChange={(e) => handleVariationNameChange(variationIndex, e.target.value)}
-                />
-              </label>
-
-              {variation.values.map((value, valueIndex) => (
-                <div key={valueIndex}>
-                  <label>
-                    Variation Value:
-                    <input
-                      className="text-black border-gray-300 rounded-md shadow-sm"
-                      type="text"
-                      value={value}
-                      onChange={(e) => handleVariationValueChange(variationIndex, valueIndex, e.target.value)}
-                    />
-                  </label>
-
-                  {valueIndex === variation.values.length - 1 && (
-                    <button
-                      className="text-black border-gray-300 rounded-md shadow-sm"
-                      type="button"
-                      onClick={() => handleAddVariationValue(variationIndex)}
-                    >
-                      Add Value
-                    </button>
-                  )}
-
-                  {valueIndex !== 0 && (
-                    <button
-                      className="text-black border-gray-300 rounded-md shadow-sm"
-                      type="button"
-                      onClick={() => handleRemoveVariationValue(variationIndex, valueIndex)}
-                    >
-                      Remove Value
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-
-          {showAddVariation && (
-            <button
-              className="text-black border-gray-300 rounded-md shadow-sm"
-              type="button"
-              onClick={handleAddVariation}
-            >
-              Add Variation ({variations.length}/{maximumVariations})
-            </button>
-          )}
-      </section>
-
-      <section>
-        <br />
-        
-          {(variations.length !== 0 && <MaterialReactTable
-            key={productVariations.map((item) => item.name + item.price + item.quantity).join("-")}
-            displayColumnDefOptions={{
-            'mrt-row-actions': {
-              muiTableHeadCellProps: {
-                align: 'center',
-              },
-              size: 120,
-            },
-            }}
-            columns={columns}
-            data={productVariations}
-            enableColumnOrdering
-            enableEditing
-            editingMode='table'
-            muiTableBodyCellEditTextFieldProps={({ cell }) => ({
-              //onBlur is more efficient, but could use onChange instead
-              onBlur: (event) => {
-                handleSaveCell(cell, event.target.value);
-              }
-            })}
-            renderTopToolbarCustomActions={() => (
-                <div>
-                    <input 
-                        className="text-black placeholder-gray-800 border-gray-300 rounded-md shadow-sm" 
-                        type="number" 
-                        name="price" 
-                        value={priceForAll}
-                        placeholder="Price"
-                        onChange={(e) => handlePriceForAllChange(e)}
-                    />
-                    <input 
-                        className="text-black placeholder-gray-800 border-gray-300 rounded-md shadow-sm" 
-                        type="number" 
-                        name="quantity" 
-                        value={quantityForAll}
-                        placeholder="Stock"
-                        onChange={(e) => handleQuantityForAllChange(e)}
-                    />
-                    <button
-                    type="submit"
-                    name="applyToAll"
-                    onClick={(e) => handleApplyToAll(e)}
-                    >
-                    Apply To All
-                    </button>
-                </div>
-            )}
-        />)}        
-        <br />
-        {rowErrors && (
-          <span className="tooltip">{rowErrors}</span>
-        )}
-      </section>
-
-      <br />
-      {submitStatus && (
-        <span className="tooltip">{submitStatus}</span>
-      )}
-
-      <button
-        className="text-black p-3 border-gray-300 rounded-md shadow-sm"
-        type="submit"
-        name="submit"
-        value="Submit"
-      >
-        Submit
-      </button>
-
-        <button 
-          className="text-black p-3 border-gray-300 rounded-md shadow-sm" 
-          type="reset" 
-          name="reset" 
-          value="Reset"
-        >
-          Reset
-        </button>
-      </form> */}
     </Box>
   )
 }

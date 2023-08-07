@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { AdvancedImage } from "@cloudinary/react";
-import { fill } from "@cloudinary/url-gen/actions/resize";
-import { focusOn } from "@cloudinary/url-gen/qualifiers/gravity";
-import { FocusOn } from "@cloudinary/url-gen/qualifiers/focusOn";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { Product, ProductVariation, Review } from "./ProductDetailsWithReviews";
 import { cld } from "../../Cloudinary/Cloudinary";
@@ -562,13 +559,8 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                                   <AdvancedImage
                                     cldImg={cld
                                       .image(review.customerImage)
-                                      .resize(
-                                        fill()
-                                          .width(250)
-                                          .height(250)
-                                          .gravity(focusOn(FocusOn.faces()))
-                                      )}
-                                    className="object-cover rounded-lg"
+                                      }
+                                    className="h-10 aspect-square object-cover rounded-lg"
                                   />
                                 </div>
                                 <h1 className="text-[18px] font-medium break-words">
