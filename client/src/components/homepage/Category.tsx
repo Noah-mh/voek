@@ -15,7 +15,7 @@ const Clothes: React.FC = () => {
         whileTap={{ scale: 0.9 }}
       >
         <img src={clothesImg} alt="Clothes" className="h-full rounded-xl" />
-        <div className="absolute top-0 left-0 right-0 bottom-0 flex items-end justify-end pb-2 pr-5 text-gray-100 text-5xl font-bold categoryText">
+        <div className="absolute top-0 left-0 right-0 bottom-0 flex items-end justify-end pb-2 pr-5 text-gray-100 sm:text-3xl md:text-2xl xl:text-5xl font-bold categoryText">
           Shirts
         </div>
       </motion.div>
@@ -33,7 +33,7 @@ const Shoes: React.FC = () => {
         whileTap={{ scale: 0.9 }}
       >
         <img src={shoesImg} alt="Clothes" className="h-full rounded-xl" />
-        <div className="absolute top-0 left-0 right-0 bottom-0 flex items-end justify-end pb-2 pr-5 text-gray-100 text-5xl font-bold categoryText">
+        <div className="absolute top-0 left-0 right-0 bottom-0 flex items-end justify-end pb-2 pr-5 text-gray-100 sm:text-3xl md:text-2xl xl:text-5xl font-bold categoryText">
           Shoes
         </div>
       </motion.div>
@@ -51,7 +51,7 @@ const Tech: React.FC = () => {
         whileTap={{ scale: 0.9 }}
       >
         <img src={techImg} alt="Tech" className="h-full rounded-xl" />
-        <div className="absolute top-0 left-0 right-0 bottom-0 flex items-end justify-end pb-2 pr-5 text-gray-100 text-5xl font-bold categoryText">
+        <div className="absolute top-0 left-0 right-0 bottom-0 flex items-end justify-end pb-2 pr-5 text-gray-100 sm:text-3xl md:text-2xl xl:text-5xl font-bold categoryText">
           Tech
         </div>
       </motion.div>
@@ -69,7 +69,7 @@ const Books: React.FC = () => {
         whileTap={{ scale: 0.9 }}
       >
         <img src={booksImg} alt="Books" className="h-full rounded-xl" />
-        <div className="absolute top-0 left-0 right-0 bottom-0 flex items-end justify-end pb-2 pr-5 text-gray-100 text-5xl font-bold categoryText">
+        <div className="absolute top-0 left-0 right-0 bottom-0 flex items-end justify-end pb-2 pr-5 text-gray-100 sm:text-3xl md:text-2xl xl:text-5xl font-bold categoryText">
           Books
         </div>
       </motion.div>
@@ -87,7 +87,7 @@ const Watches: React.FC = () => {
         whileTap={{ scale: 0.9 }}
       >
         <img src={watchcesImg} alt="Watches" className="h-full rounded-xl" />
-        <div className="absolute top-0 left-0 right-0 bottom-0 flex items-end justify-end pb-2 pr-5 text-gray-100 text-5xl font-bold categoryText">
+        <div className="absolute top-0 left-0 right-0 bottom-0 flex items-end justify-end pb-2 pr-5 text-gray-100 sm:text-3xl md:text-2xl xl:text-5xl font-bold categoryText">
           Watches
         </div>
       </motion.div>
@@ -105,7 +105,7 @@ const Bags: React.FC = () => {
         whileTap={{ scale: 0.9 }}
       >
         <img src={bagsImg} alt="Bags" className="h-full rounded-xl" />
-        <div className="absolute top-0 left-0 right-0 bottom-0 flex items-end justify-end pb-2 pr-5 text-gray-100 text-5xl font-bold categoryText">
+        <div className="absolute top-0 left-0 right-0 bottom-0 flex items-end justify-end pb-2 pr-5 text-gray-100 sm:text-3xl md:text-2xl xl:text-5xl font-bold categoryText">
           Bags
         </div>
       </motion.div>
@@ -127,7 +127,7 @@ const Accessories: React.FC = () => {
           alt="Accessories"
           className="h-full rounded-xl"
         />
-        <div className="absolute top-0 left-0 right-0 bottom-0 flex items-end justify-end pb-2 pr-5 text-gray-100 text-5xl font-bold categoryText">
+        <div className="absolute top-0 left-0 right-0 bottom-0 flex items-end justify-end pb-2 pr-5 text-gray-100 sm:text-3xl md:text-2xl xl:sm:text-3xl md:text-2xl xl:text-5xl font-bold categoryText">
           Accessories
         </div>
       </motion.div>

@@ -20,7 +20,7 @@ const LoginBanner = () => {
           </h1>
         </div>
         {login ? (
-          <OTP userDetails={userDetails} />
+          <OTP userDetails={userDetails} setLogin={setLogin} />
         ) : (
           <LBRight setLogin={setLogin} setUserDetails={setUserDetails} />
         )}

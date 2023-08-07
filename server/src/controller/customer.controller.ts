@@ -14,8 +14,10 @@ export const processLogin = async (
     return res.sendStatus(400);
   } else {
     try {
-      const response: UserInfo | null =
-        await customerModel.handleLogin(email, password);
+      const response: UserInfo | null = await customerModel.handleLogin(
+        email,
+        password
+      );
       if (response) {
         return res.json(response);
       } else {
@@ -53,10 +55,7 @@ export const processSendEmailOTP = async (
   try {
     const { email, customer_id } = req.body;
     if (!email || !customer_id) return res.sendStatus(400);
-    const response = await customerModel.handleSendEmailOTP(
-      email,
-      customer_id
-    );
+    const response = await customerModel.handleSendEmailOTP(email, customer_id);
     return res.sendStatus(200);
   } catch (err: any) {
     return next(err);
@@ -71,10 +70,7 @@ export const processVerifyOTP = async (
   try {
     const { customer_id, OTP } = req.body;
     if (!customer_id || !OTP) return res.sendStatus(400);
-    const response: any = await customerModel.handleVerifyOTP(
-      customer_id,
-      OTP
-    );
+    const response: any = await customerModel.handleVerifyOTP(customer_id, OTP);
     if (response.length) {
       const accessToken = jwt.sign(
         {
@@ -140,10 +136,7 @@ export const processSendEmailLink = async (
       config.signUpCustomerTokenSecret!,
       { expiresIn: "300s" }
     );
-    const result2 = await customerModel.handleSendEmailLink(
-      signUpToken,
-      email
-    );
+    const result2 = await customerModel.handleSendEmailLink(signUpToken, email);
     return res.sendStatus(200);
   } catch (err: any) {
     return next(err);
@@ -202,9 +195,7 @@ export const processForgetPassword = async (
   try {
     const { email } = req.body;
     if (!email) return res.sendStatus(400);
-    const result: any = await customerModel.handleForgetPassword(
-      email
-    );
+    const result: any = await customerModel.handleForgetPassword(email);
     if (result.length) {
       const forgetPasswordToken = jwt.sign(
         { customer_id: result[0].customer_id },
@@ -270,9 +261,7 @@ export const processGetReferralId = async (
   try {
     const { customer_id } = req.params;
     if (!customer_id) return res.sendStatus(400);
-    const result = await customerModel.handleGetReferralId(
-      customer_id
-    );
+    const result = await customerModel.handleGetReferralId(customer_id);
     return res.json({ referral_id: result });
   } catch (err: any) {
     return next(err);
@@ -303,10 +292,56 @@ export const processGetAddress = async (
 ) => {
   try {
     const { customer_id } = req.params;
-    const result = await customerModel.handleGetCustomerAddresses(
-      customer_id
-    );
+    const result = await customerModel.handleGetCustomerAddresses(customer_id);
     console.log("Successfully got address");
+    return res.json(result);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const processGetLastCheckedIn = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.params;
+
+    const result = await customerModel.handleGetLastCheckedIn(customer_id);
+    console.log("Successfully got last checked in");
+    return res.json(result);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const processUpdateLastCheckedIn = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.body;
+
+    const result = await customerModel.handleUpdateCheckIn(customer_id);
+    console.log("Successfully update last checked in");
+    return res.json(result);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const processNewLastCheckedIn = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.body;
+
+    const result = await customerModel.handleNewLastCheckedIn(customer_id);
+    console.log("Successfully added new checkedin");
     return res.json(result);
   } catch (err: any) {
     return next(err);
@@ -425,11 +460,10 @@ export const updateCustomerPhoto = async (
     const { customer_id } = req.params;
     const { image_url } = req.body;
     const customerId = parseInt(customer_id);
-    const response: number =
-      await customerModel.handleCustomerProfilePhotoEdit(
-        image_url,
-        customerId
-      );
+    const response: number = await customerModel.handleCustomerProfilePhotoEdit(
+      image_url,
+      customerId
+    );
     if (!response) return res.sendStatus(404);
     return res.sendStatus(200);
   } catch (err: any) {
@@ -444,9 +478,7 @@ export const deactivateAccount = async (
 ) => {
   try {
     const { customer_id } = req.params;
-    await customerModel.handleDeactivateAccount(
-      parseInt(customer_id)
-    );
+    await customerModel.handleDeactivateAccount(parseInt(customer_id));
     return res.sendStatus(200);
   } catch (err: any) {
     return next(err);
@@ -491,18 +523,16 @@ export const processCustomerAddressAdd = async (
 ) => {
   try {
     const { customer_id } = req.params;
-    const { postal_code, block, street_name, country, unit_no } =
-      req.body;
+    const { postal_code, block, street_name, country, unit_no } = req.body;
     const customerId = parseInt(customer_id);
-    const response: number =
-      await customerModel.handleCustomerAddressAdd(
-        postal_code,
-        block,
-        street_name,
-        country,
-        unit_no,
-        customerId
-      );
+    const response: number = await customerModel.handleCustomerAddressAdd(
+      postal_code,
+      block,
+      street_name,
+      country,
+      unit_no,
+      customerId
+    );
     if (!response) return res.sendStatus(404);
     console.log("Successfully added address with id ", response);
     return res.json(response);
@@ -521,11 +551,10 @@ export const processCustomerAddressDelete = async (
     const { customer_id, address_id } = req.params;
     const customerId = parseInt(customer_id);
     const addressId = parseInt(address_id);
-    const response: number =
-      await customerModel.handleCustomerAddressDelete(
-        addressId,
-        customerId
-      );
+    const response: number = await customerModel.handleCustomerAddressDelete(
+      addressId,
+      customerId
+    );
     if (!response) return res.sendStatus(404);
     console.log("Successfully deleted address");
     return res.sendStatus(200);
@@ -542,26 +571,19 @@ export const processCustomerAddressUpdate = async (
 ) => {
   try {
     const { customer_id } = req.params;
-    const {
-      address_id,
+    const { address_id, postal_code, block, street_name, country, unit_no } =
+      req.body;
+    const customerId = parseInt(customer_id);
+    const addressId = parseInt(address_id);
+    const response: number = await customerModel.handleCustomerAddressUpdate(
+      addressId,
       postal_code,
       block,
       street_name,
       country,
       unit_no,
-    } = req.body;
-    const customerId = parseInt(customer_id);
-    const addressId = parseInt(address_id);
-    const response: number =
-      await customerModel.handleCustomerAddressUpdate(
-        addressId,
-        postal_code,
-        block,
-        street_name,
-        country,
-        unit_no,
-        customerId
-      );
+      customerId
+    );
     if (!response) return res.sendStatus(404);
     console.log("Successfully updated address");
     return res.sendStatus(200);

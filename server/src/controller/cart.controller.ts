@@ -49,10 +49,10 @@ export const processRemoveItemCart = async (
     const { customer_id, sku } = req.params;
     await cartModel.handleRemoveItemCart(parseInt(customer_id), sku);
     return res.sendStatus(200);
-  }  catch (err: any) {
+  } catch (err: any) {
     return next(err);
-  } 
-}
+  }
+};
 
 export const insertCart = async (
   req: Request,
@@ -198,6 +198,27 @@ export const processRedeemVoucher = async (
       order_id
     );
     return res.sendStatus(200);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const getQuantityOfProductInCart = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customerID, productID, sku } = req.query;
+    if (!customerID || !productID || !sku) {
+      throw new Error("Missing required fields");
+    }
+    const response: any = await cartModel.handleGetQuantityOfProductInCart(
+      customerID as string,
+      productID as string,
+      sku as string
+    );
+    return res.status(200).json(response);
   } catch (err: any) {
     return next(err);
   }
