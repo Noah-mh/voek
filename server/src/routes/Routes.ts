@@ -482,6 +482,12 @@ export default function (app: Express, router: Router) {
     "/getProductRating/:product_id",
     productController.getProductRating
   );
+  router.get(
+    "/getQuantityOfProductInCart",
+    verifyJWT,
+    verifyRoles("customer"),
+    cartController.getQuantityOfProductInCart
+  );
 
   // router.get("/getProductCat/:product_id", productController.getProductCat);
 

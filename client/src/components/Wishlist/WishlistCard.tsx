@@ -102,9 +102,9 @@ const WishlistCard = () => {
                     key={index}
                   >
                     <div className="p-1">
-                      <div className="flex flex-col items-center bg-gray-100 rounded-lg shadow md:flex-row md:max-w-xl hover:bg-lighterGreyAccent hover:cursor-pointer">
+                      <div className="flex flex-col h-[192px] items-center bg-gray-100 rounded-lg shadow md:flex-row md:max-w-xl hover:bg-lighterGreyAccent hover:cursor-pointer">
                         <AdvancedImage
-                          className="object-cover w-full rounded-t-lg h-96 md:h-auto md:w-48 md:rounded-none md:rounded-l-lg"
+                          className="object-cover w-full h-[192px] rounded-t-lg md:w-48 md:rounded-none md:rounded-l-lg"
                           cldImg={cld.image(item.image)}
                           alt="product image"
                         />
@@ -118,7 +118,7 @@ const WishlistCard = () => {
                               ? item?.lowestPrice
                               : item?.lowestPrice + " - $" + item?.highestPrice}
                           </h5>
-                          <p className="whislistDescription mb-3 font-normal text-greyAccent dark:text-gray-400">
+                          <p className="whislistDescription mb-3 hidden 2xl:flex font-normal text-greyAccent dark:text-gray-400">
                             {item.description}
                           </p>
                         </div>
@@ -154,14 +154,14 @@ const WishlistCard = () => {
                     key={index}
                   >
                     <div className="p-1">
-                      <div className="flex flex-col items-center bg-gray-100 rounded-lg shadow md:flex-row md:max-w-xl hover:bg-lighterGreyAccent hover:cursor-pointer">
+                      <div className="flex flex-col items-center bg-gray-100 rounded-lg shadow 3xl:flex-row 3xl:w-[415.328px] hover:bg-lighterGreyAccent hover:cursor-pointer">
                         <AdvancedImage
-                          className="object-cover w-full rounded-t-lg h-96 md:h-auto md:w-48 md:rounded-none md:rounded-l-lg"
+                          className="object-cover w-[341px] h-[192px] rounded-t-lg 3xl:auto 3xl:w-48 3xl:rounded-none 3xl:rounded-l-lg"
                           cldImg={cld.image(item.image)}
                           alt="product image"
                         />
                         <div className="flex flex-col justify-between p-4 leading-normal">
-                          <h5 className="mb-2 text-2xl font-bold tracking-wider text-greyAccent">
+                          <h5 className="mb-2 text-2xl font-bold tracking-wider text-greyAccent break-words">
                             {item.name}
                           </h5>
                           <h5 className="whislistPrice mb-2 text-2xl font-bold tracking-wider dark:text-white">
