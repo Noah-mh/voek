@@ -97,9 +97,6 @@ const LBRight = ({ setLogin, setUserDetails }: props): JSX.Element => {
         <div className="field-wrapper flex justify-center">
           <Link to="/forgetpassword">Forget Password?</Link>
         </div>
-        <div className="field-wrapper flex justify-center">
-          <Link to="/signup">Sign Up</Link>
-        </div>
         <p>{errMsg}</p>
         <input
           disabled={disabled}
@@ -107,6 +104,9 @@ const LBRight = ({ setLogin, setUserDetails }: props): JSX.Element => {
           value="LOG IN"
           className="submitLogin"
         />
+        <div className="field-wrapper flex justify-center">
+          <Link to="/signup">Don't have an account? <span className="text-white">Sign up!</span></Link>
+        </div>
       </form>
     </div>
   );

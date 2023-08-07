@@ -21,7 +21,7 @@ const LoginBannerSeller = () => {
           </h1>
         </div>
           {
-            login ? <OTP userDetails={userDetails} />
+            login ? <OTP userDetails={userDetails} setLogin={setLogin} />
             : <LBRight setLogin={setLogin} setUserDetails={setUserDetails}/>
           }
       </div>
