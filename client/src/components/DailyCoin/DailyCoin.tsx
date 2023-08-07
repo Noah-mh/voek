@@ -33,10 +33,10 @@ const DailyCoin: React.FC = () => {
         setCurrentDayStreak(0);
         setNewCheckIn(true);
       } else {
-        if (res.data.daysSinceLastCheckIn < 1) {
+        if (res.data[0].daysSinceLastCheckIn < 1) {
           setAlreadyCheckedIn(true);
         }
-        setCurrentDayStreak(res.data.current_day_streak);
+        setCurrentDayStreak(res.data[0].current_day_streak);
       }
     } catch (err: any) {
       console.log(err);
@@ -61,11 +61,11 @@ const DailyCoin: React.FC = () => {
           await axiosPrivateCustomer.post(`/customer/checkIn/newCheckIn`, {
             customer_id: customer_id,
           });
+        } else {
+          await axiosPrivateCustomer.put(`/customer/checkIn/updateCheckIn`, {
+            customer_id: customer_id,
+          });
         }
-
-        await axiosPrivateCustomer.put(`/customer/checkIn/updateCheckIn`, {
-          customer_id: customer_id,
-        });
 
         toast.success("You have checked in for today!", {
           position: "top-center",

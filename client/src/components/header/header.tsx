@@ -95,7 +95,6 @@ const Header = ({ isCustomer, isSeller }: Props) => {
                       Profile
                     </p>
                   </div>
-
                   <Link to="/chat" className="mx-2">
                     <p className="text-purpleAccent">Chat</p>
                   </Link>
@@ -140,6 +139,7 @@ const Header = ({ isCustomer, isSeller }: Props) => {
         </div>
       </div>
       {openProfile && <DropDownProfile />}
+      <br />
     </nav>
   );
 };

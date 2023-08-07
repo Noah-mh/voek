@@ -22,7 +22,7 @@ const LBRight = ({ setLogin, setUserDetails }: props): JSX.Element => {
   const [inputEmail, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [errMsg, setErrMsg] = useState<string>("");
-  const [disabled, setDisabled] = useState<boolean>(true);
+  const [disabled, setDisabled] = useState<boolean>(false);
 
   useEffect(() => {
     setErrMsg("");
@@ -63,7 +63,7 @@ const LBRight = ({ setLogin, setUserDetails }: props): JSX.Element => {
   }
 
   return (
-    <div className="right w-1/2  h-full flex-wrap justify-center p-12">
+    <div className="right w-1/2  h-full flex flex-col items-center justify-center p-12">
       <h1 className=" text-center font-bold">LOG IN</h1>
       <form className="pt-6" onSubmit={submitHandler}>
         <div className="field-wrapper flex">
@@ -92,11 +92,11 @@ const LBRight = ({ setLogin, setUserDetails }: props): JSX.Element => {
         <div className="field-wrapper flex justify-center">
           <Link to='/seller/forgetPassword'>Forget Password?</Link>
         </div>
-        <div className="field-wrapper flex justify-center">
-          <Link to='/seller/signup'>Sign Up</Link>
-        </div>
         <p>{errMsg}</p>
         <input disabled={disabled} type="submit" value="LOG IN" className="submitLogin" />
+        <div className="field-wrapper flex justify-center">
+          <Link to='/seller/signup'>Don't have an account? <span className="text-white">Sign up!</span></Link>
+        </div>
       </form>
     </div>
   );

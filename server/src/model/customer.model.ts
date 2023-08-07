@@ -732,7 +732,13 @@ export const handleNewLastCheckedIn = async (customer_id: number) => {
   const connection = await promisePool.getConnection();
   const sql = `INSERT INTO daily_checkin (customer_id, last_checked_in, current_day_streak) VALUES (?, NOW(), 0);`;
   try {
-    let result = await connection.query(sql, [customer_id]);
+    await connection.query(sql, [customer_id]);
+    const updateSql = `
+      UPDATE daily_checkin 
+      SET current_day_streak = ?, 
+          last_checked_in = NOW()
+      WHERE customer_id = ?`;
+    let result = await connection.query(updateSql, [1, customer_id]);
     return (result[0] as OkPacket).affectedRows as number;
   } catch (err: any) {
     throw new Error(err);
