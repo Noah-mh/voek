@@ -36,6 +36,8 @@ import SellerVouchers from "./components/SellerVouchers/SellerVouchers.js";
 import RedeemVoucher from "./components/RedeemVoucher/RedeemVoucher.js";
 import CustomerSellerProfilePage from "./components/Product/CustomerSellerProfilePage.js";
 import Chat from "./components/Chat/Chat.js";
+import Game from "./components/Game/Game.js";
+import MainGame from "./components/Game/assets/MainGame.js";
 
 function App() {
   return (
@@ -47,6 +49,8 @@ function App() {
           element={<ResetPasswordCustomer />}
         />
         <Route path="forgetPassword" element={<ForgetPasswordCustomer />} />
+        <Route path="monkeyRun" element={<Game />} />
+        <Route path="hell" element={<MainGame />} />
 
         {/* Customer Routes */}
         <Route element={<PersistLoginCustomer />}>
