@@ -84,6 +84,9 @@ const Header = ({ isCustomer, isSeller }: Props) => {
                   setSearchResults={setSearchResults}
                 />
                 <div className="ml-5 flex">
+                  <Link to="/customer/dailyCheckIn" className="mx-2">
+                    <p className="text-purpleAccent">Check In</p>
+                  </Link>
                   <div className="mx-2">
                     <p
                       className="text-purpleAccent hover:cursor-pointer"
@@ -92,6 +95,7 @@ const Header = ({ isCustomer, isSeller }: Props) => {
                       Profile
                     </p>
                   </div>
+
                   <Link to="/chat" className="mx-2">
                     <p className="text-purpleAccent">Chat</p>
                   </Link>

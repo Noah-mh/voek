@@ -5,6 +5,8 @@ import client from "../../config/teleSign";
 import { ResultSetHeader } from "mysql2";
 import config from "../../config/config";
 import jwt from "jsonwebtoken";
+import { OkPacket } from "mysql2";
+import moment from "moment";
 import * as dotenv from "dotenv";
 dotenv.config({
   path: __dirname + "../../env",
@@ -626,6 +628,119 @@ export const handleGetCustomerAddresses = async (
   }
 };
 
+export const handleGetLastCheckedIn = async (
+  customer_id: string
+): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT 
+  last_checked_in, 
+  current_day_streak,
+  DATEDIFF(NOW(), last_checked_in) AS daysSinceLastCheckIn
+FROM daily_checkin
+WHERE customer_id = ?`;
+  try {
+    let result: any = await connection.query(sql, [customer_id]);
+    const userData = result[0];
+    console.log(":userdata");
+    console.log(userData);
+    if (userData.daysSinceLastCheckIn > 1) {
+      // Reset streak to 0
+      userData.current_day_streak = 0;
+      console.log("set to 0??");
+      const updateSql = `UPDATE daily_checkin SET current_day_streak = 0 WHERE customer_id = ?`;
+      await connection.query(updateSql, [customer_id]);
+    }
+
+    return userData;
+  } catch (err: any) {
+    throw new Error(err.message);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handleUpdateCheckIn = async (
+  customer_id: number
+): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT 
+  last_checked_in, 
+  current_day_streak,
+  DATEDIFF(NOW(), last_checked_in) AS daysSinceLastCheckIn
+FROM daily_checkin
+WHERE customer_id = ?`;
+  try {
+    const result: any = await connection.query(sql, [customer_id]);
+    const userData = result[0][0];
+
+    if (userData.daysSinceLastCheckIn === 0) {
+      throw new Error("User has already checked in today.");
+    }
+
+    if (userData.daysSinceLastCheckIn === 1) {
+      userData.current_day_streak =
+        userData.current_day_streak === 7 ? 1 : userData.current_day_streak + 1;
+    } else {
+      userData.current_day_streak = 1;
+    }
+    const updateSql = `
+      UPDATE daily_checkin 
+      SET current_day_streak = ?, 
+          last_checked_in = NOW()
+      WHERE customer_id = ?`;
+    await connection.query(updateSql, [
+      userData.current_day_streak,
+      customer_id,
+    ]);
+
+    handleAddLastCheckedInCoins(customer_id, userData.current_day_streak);
+
+    return userData;
+  } catch (err: any) {
+    throw new Error(err.message);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handleAddLastCheckedInCoins = async (
+  customer_id: number,
+  current_day_streak: number
+) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const coins = [10, 10, 20, 10, 10, 10, 70];
+
+  const sql = `UPDATE customer SET coins = (coins + ?) WHERE customer_id = ?;`;
+  try {
+    const result = await connection.query(sql, [
+      coins[current_day_streak - 1],
+      customer_id,
+    ]);
+    return (result[0] as OkPacket).affectedRows as number;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handleNewLastCheckedIn = async (customer_id: number) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `INSERT INTO daily_checkin (customer_id, last_checked_in, current_day_streak) VALUES (?, NOW(), 0);`;
+  try {
+    let result = await connection.query(sql, [customer_id]);
+    return (result[0] as OkPacket).affectedRows as number;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
 // NHAT TIEN :D
 
 export const handlesUpdateCustomerLastViewedCat = async (
@@ -637,7 +752,7 @@ export const handlesUpdateCustomerLastViewedCat = async (
   const sql = `UPDATE customer SET last_viewed_cat_id = ? WHERE customer_id = ?;`;
   try {
     const result = await connection.query(sql, [categoryId, customerId]);
-    return result[0] as Array<Object>;
+    return result as Array<Object>;
   } catch (err: any) {
     throw new Error(err);
   } finally {
