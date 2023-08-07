@@ -83,7 +83,7 @@ const Header = ({ isCustomer, isSeller }: Props) => {
           ) : null}
         </div>
       </div>
-      <div className="block justify-end">
+      <div className="block justify-end w-1/2">
         <div className="text-sm lg:flex-grow inline-block  px-4  leading-none">
           {isCustomer ? (
             customer?.customer_id ? (
@@ -102,6 +102,9 @@ const Header = ({ isCustomer, isSeller }: Props) => {
                       Profile
                     </p>
                   </div>
+                  <Link to="/customer/dailyCheckIn" className="mx-2">
+                    <p className="text-purpleAccent">Check In</p>
+                  </Link>
                   <Link to="/chat" className="mx-2">
                     <p className="text-purpleAccent">Chat</p>
                   </Link>
@@ -127,30 +130,30 @@ const Header = ({ isCustomer, isSeller }: Props) => {
                   <Link to="/customer/cart" className="mx-2">
                     <p className="text-purpleAccent">Cart</p>
                   </Link>
-                </div>
-              </div>
+                </div >
+              </div >
             )
           ) : isSeller ? (
-            seller?.seller_id ? (
-              <div className="ml-5 flex">
-                <Link to="/seller/profile" className="mx-2">
-                  <p className="text-purpleAccent">Profile</p>
-                </Link>
-                <Link to="/seller/chat" className="mx-2">
-                  <p className="text-purpleAccent">Chat</p>
-                </Link>
-              </div>
-            ) : (
-              <Link to="/seller/login">
-                <p className="text-purpleAccent">Login</p>
-              </Link>
-            )
-          ) : null}
-        </div>
-      </div>
-      {openProfile && <DropDownProfile />}
-      <br />
-    </nav>
+  seller?.seller_id ? (
+    <div className="ml-5 flex">
+      <Link to="/seller/profile" className="mx-2">
+        <p className="text-purpleAccent">Profile</p>
+      </Link>
+      <Link to="/seller/chat" className="mx-2">
+        <p className="text-purpleAccent">Chat</p>
+      </Link>
+    </div>
+  ) : (
+    <Link to="/seller/login">
+      <p className="text-purpleAccent">Login</p>
+    </Link>
+  )
+) : null}
+        </div >
+      </div >
+  { openProfile && <DropDownProfile />}
+<br />
+    </nav >
   );
 };
 export default Header;

@@ -595,7 +595,7 @@ export default function cartPage(): JSX.Element {
 
   return (
     <div className="container flex">
-      <div className="w-2/3 bg-white rounded-lg shadow-lg p-2">
+      <div className="w-3/4 bg-white rounded-lg shadow-lg p-2">
         {groupItems && (
           <div className="grid grid-cols-5 gap-2">
             <div className="col-span-2 sm:col-span-1"></div>
@@ -662,7 +662,7 @@ export default function cartPage(): JSX.Element {
                   <div>{item.variation_2 ? item.variation_2 : "-"}</div>
                 </div>
                 <div className="col-span-2 sm:col-span-1">${item.price}</div>
-                <div className="col-span-3 sm:col-span-1">
+                <div className="col-span-4 sm:col-span-1 justify-center">
                   <button
                     className="text-sm border px-1 py-0.5 mx-2"
                     onClick={(event) => {
@@ -696,7 +696,7 @@ export default function cartPage(): JSX.Element {
                     +
                   </button>
                   <button
-                    className="text-white bg-purpleAccent hover:bg-softerPurple focus:ring-4 focus:outline-none focus:ring-softerPurple font-medium rounded-lg text-xs px-2.5 py-2 text-center hover:cursor-pointer"
+                    className="text-white bg-purpleAccent hover:bg-softerPurple focus:ring-4 focus:outline-none focus:ring-softerPurple font-medium text-xs px-1.5 py-1 text-center hover:cursor-pointer"
                     onClick={(event) => {
                       event.preventDefault();
                       removeCartItem(item.sku);

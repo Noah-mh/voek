@@ -1,0 +1,6 @@
+.dayCard.active {
+  border: 1px solid var(--purpleAccent);
+  box-shadow: 0 0 15px rgba(128, 0, 128, 0.3);
+  color: var(--softerPurple);
+  fill: var(--softerPurple);
+}
