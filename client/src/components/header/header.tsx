@@ -49,95 +49,108 @@ const Header = ({ isCustomer, isSeller }: Props) => {
   }, [location]);
 
   return (
-      <nav
-        ref={ref}
-        className="flex items-center justify-center bg-white p-6 px-8 drop-shadow-md"
-      >
-        <div className=" w-9/12 flex">
-          <div className="flex items-center  mr-6">
-            <span className="font-bold text-xl tracking-widest">
-              {seller?.seller_id ? (
-                <Link to="/seller/home">VOEK</Link>
-              ) : (
-                <Link to="/">VOEK</Link>
-              )}
-            </span>
-          </div>
-          <div className="flex items-center px-3 ">
-            {isCustomer ? (
+    <nav
+      ref={ref}
+      className="flex items-center justify-center bg-white p-6 px-8 drop-shadow-md"
+    >
+      <div className={`w-${customer?.customer_id ? 9 : 7}/12 flex`}>
+        <div className="flex items-center  mr-6">
+          <span className="font-bold text-xl tracking-widest">
+            {seller?.seller_id ? (
+              <Link to="/seller/home">VOEK</Link>
+            ) : (
+              <Link to="/">VOEK</Link>
+            )}
+          </span>
+        </div>
+        <div className="flex items-center px-3 ">
+          {isCustomer ? (
+            <>
               <Link to="/">
                 <p className="text-purpleAccent">Products</p>
               </Link>
-            ) : isSeller ? (
+              <Link to="/seller/signup">
+                <p className="ms-5 text-purpleAccent font-bold">Become a seller today!</p>
+              </Link>
+            </>
+          ) : isSeller ? (
+            <>
               <h1>Seller Centre</h1>
-            ) : null}
-          </div>
+              <Link to="/">
+                <p className="ms-5 text-purpleAccent font-bold">Go back to shopping!</p>
+              </Link>
+            </>
+          ) : null}
         </div>
-        <div className="block justify-end">
-          <div className="text-sm lg:flex-grow inline-block  px-4  leading-none">
-            {isCustomer ? (
-              customer?.customer_id ? (
-                <div className="flex flex-row justify-center items-center">
-                  <LiveSearch
-                    results={results}
-                    searchResults={searchResults}
-                    setSearchResults={setSearchResults}
-                  />
-                  <div className="ml-5 flex">
-                    <div className="mx-2">
-                      <p
-                        className="text-purpleAccent hover:cursor-pointer"
-                        onClick={() => setOpenProfile(!openProfile)}
-                      >
-                        Profile
-                      </p>
-                    </div>
-                    <Link to="/chat" className="mx-2">
-                      <p className="text-purpleAccent">Chat</p>
-                    </Link>
-                    <Link to="/customer/cart" className="mx-2">
-                      <p className="text-purpleAccent">Cart</p>
-                    </Link>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex flex-row justify-center items-center">
-                  <LiveSearch
-                    results={results}
-                    searchResults={searchResults}
-                    setSearchResults={setSearchResults}
-                  />
-                  <div className="ml-5 flex flex-row">
-                    <Link to="/login" className="mx-2">
-                      <p className="text-purpleAccent">Login</p>
-                    </Link>
-                    <Link to="/customer/cart" className="mx-2">
-                      <p className="text-purpleAccent">Cart</p>
-                    </Link>
-                  </div>
-                </div>
-              )
-            ) : isSeller ? (
-              seller?.seller_id ? (
+      </div>
+      <div className="block justify-end">
+        <div className="text-sm lg:flex-grow inline-block  px-4  leading-none">
+          {isCustomer ? (
+            customer?.customer_id ? (
+              <div className="flex flex-row justify-center items-center">
+                <LiveSearch
+                  results={results}
+                  searchResults={searchResults}
+                  setSearchResults={setSearchResults}
+                />
                 <div className="ml-5 flex">
-                  <Link to="/seller/profile" className="mx-2">
-                    <p className="text-purpleAccent">Profile</p>
-                  </Link>
-                  <Link to="/seller/chat" className="mx-2">
+                  <div className="mx-2">
+                    <p
+                      className="text-purpleAccent hover:cursor-pointer"
+                      onClick={() => setOpenProfile(!openProfile)}
+                    >
+                      Profile
+                    </p>
+                  </div>
+                  <Link to="/chat" className="mx-2">
                     <p className="text-purpleAccent">Chat</p>
                   </Link>
+                  <Link to="/customer/cart" className="mx-2">
+                    <p className="text-purpleAccent">Cart</p>
+                  </Link>
                 </div>
-              ) : (
-                <Link to="/seller/login">
-                  <p className="text-purpleAccent">Login</p>
+              </div>
+            ) : (
+              <div className="flex flex-row justify-center items-center">
+                <LiveSearch
+                  results={results}
+                  searchResults={searchResults}
+                  setSearchResults={setSearchResults}
+                />
+                <div className="ml-5 flex flex-row">
+                  <Link to="/login" className="mx-2">
+                    <p className="text-purpleAccent">Login</p>
+                  </Link>
+                  <Link to="/signup" className="mx-2">
+                    <p className="text-purpleAccent font-bold">Sign up today!</p>
+                  </Link>
+                  <Link to="/customer/cart" className="mx-2">
+                    <p className="text-purpleAccent">Cart</p>
+                  </Link>
+                </div>
+              </div>
+            )
+          ) : isSeller ? (
+            seller?.seller_id ? (
+              <div className="ml-5 flex">
+                <Link to="/seller/profile" className="mx-2">
+                  <p className="text-purpleAccent">Profile</p>
                 </Link>
-              )
-            ) : null}
-          </div>
+                <Link to="/seller/chat" className="mx-2">
+                  <p className="text-purpleAccent">Chat</p>
+                </Link>
+              </div>
+            ) : (
+              <Link to="/seller/login">
+                <p className="text-purpleAccent">Login</p>
+              </Link>
+            )
+          ) : null}
         </div>
-        {openProfile && <DropDownProfile />}
-        <br />
-      </nav>
+      </div>
+      {openProfile && <DropDownProfile />}
+      <br />
+    </nav>
   );
 };
 export default Header;
