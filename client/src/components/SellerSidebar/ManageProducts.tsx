@@ -4,6 +4,12 @@ import MaterialReactTable, {
   type MRT_Row,
 } from 'material-react-table';
 
+// import SellerSidebar from "../SellerSidebar/SellerSidebar.js";
+import EditProduct from "../SellerSidebar/EditProduct.js";
+import Box from "@mui/material/Box";
+import EditIcon from '@mui/icons-material/Edit';
+import IconButton from '@mui/material/IconButton';
+
 import useSeller from "../../hooks/useSeller.js";
 import Active from "./Active.tsx"
 
@@ -19,7 +25,7 @@ interface Product {
   quantity: number;
   sku: string;
   subRows: Array<Product>;
-  imageUrl: string[]
+  imageUrl: string
 
   // optional properties
   // product only
@@ -29,11 +35,50 @@ interface Product {
   category?: string;
 
   // product variations only
-  variation1?: string;
-  variation2?: string;
+  variation1?: string | null;
+  variation2?: string | null;
 }
 
-const ManageProducts = () => {
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
+}
+
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`vertical-tabpanel-${index}`}
+      aria-labelledby={`vertical-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box
+          sx={{
+            p: 3,
+            flexGrow: 1, // make it take up the remaining space
+
+            width: "100%",
+          }}
+        >
+          {children}
+        </Box>
+      )}
+    </div>
+  );
+}
+
+interface ManageProductProps {
+  // updateTabPanelValue: (newValue: number) => void;
+  updateProductValue: (newProduct: Product) => void;
+}
+
+const ManageProducts: React.FC<ManageProductProps> = ({ updateProductValue }) => {
+// const ManageProducts = (updateTabPanelValue: (newValue: number) => void;) => {
 
   const axiosPrivateSeller = useAxiosPrivateSeller();
 
@@ -59,7 +104,7 @@ const ManageProducts = () => {
           quantity: 0,
           sku: "",
           subRows: [],
-          imageUrl: [],
+          imageUrl: "",
         };
         let currentProductId: number = 0;
         let currentProductSku: string = "";
@@ -88,7 +133,7 @@ const ManageProducts = () => {
               subRows: [],
               sku: "",
               quantity: 0,
-              imageUrl: [],
+              imageUrl: "",
             }
 
             // check for existing product variation
@@ -102,7 +147,7 @@ const ManageProducts = () => {
                 variation1: item.variation_1,
                 variation2: item.variation_2,
                 quantity: item.quantity,
-                imageUrl: [item.image_url],
+                imageUrl: item.image_url,
                 subRows: [],
               }
               sellerProduct.subRows.push(sellerProductVariation);
@@ -115,7 +160,7 @@ const ManageProducts = () => {
             } else {
               sellerProduct.sku = item.sku;
               sellerProduct.quantity = item.quantity;
-              sellerProduct.imageUrl.push(item.image_url);
+              sellerProduct.imageUrl = item.image_url;
               newIsCheckedMap.push([item.active]);
             }
 
@@ -136,7 +181,7 @@ const ManageProducts = () => {
               variation1: item.variation_1,
               variation2: item.variation_2,
               quantity: item.quantity,
-              imageUrl: [item.image_url],
+              imageUrl: item.image_url,
               subRows: [],
             }
             sellerProducts[currentIdx].subRows.push(sellerProductVariation);              
@@ -147,9 +192,9 @@ const ManageProducts = () => {
             // finding lowest price among all variations
             if (parseFloat(item.price) < sellerProducts[currentIdx].price) sellerProducts[currentIdx].price =  parseFloat(item.price);
           
-            newIsCheckedMap[currentIdx-1].push(item.availability);
-          } else {
-            sellerProducts[currentIdx].subRows[sellerProducts[currentIdx].subRows.length-1].imageUrl.push(item.image_url);
+            newIsCheckedMap[currentIdx].push(item.availability);
+          // } else {
+          //   sellerProducts[currentIdx].subRows[sellerProducts[currentIdx].subRows.length-1].imageUrl = item.image_url;
           }
 
         }))
@@ -312,12 +357,23 @@ const ManageProducts = () => {
         Cell: ({ row }: { row: MRT_Row<Product> }) => (
           <>
             {!row.getParentRow() && (
-              <Link 
-                to="/seller/editProduct/" 
-                state={{ Product: row.original }} 
-              >
-                Edit
-              </Link>
+              // <Link 
+              //   to="/seller/editProduct/" 
+              //   state={{ Product: row.original }} 
+              // >
+              //   Edit
+              // </Link>
+              <Box>
+                <IconButton 
+                  type="button"
+                  className="flex"
+                  onClick={async () => {
+                    updateProductValue(row.original);
+                  }}
+                >
+                  <EditIcon />
+                </IconButton>
+              </Box>
             )}
           </>
         ),

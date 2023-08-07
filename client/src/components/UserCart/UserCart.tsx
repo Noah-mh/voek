@@ -171,7 +171,9 @@ export default function cartPage(): JSX.Element {
 
   const removeCartItem = async (sku: string) => {
     try {
-      await axiosPrivateCustomer.delete(`/customer/cart/deleteCart/${customer_id}/${sku}`);
+      await axiosPrivateCustomer.delete(
+        `/customer/cart/deleteCart/${customer_id}/${sku}`
+      );
       toast.success("Item removed from cart. 🤡", {
         position: "top-center",
         autoClose: 5000,
@@ -182,11 +184,11 @@ export default function cartPage(): JSX.Element {
         progress: undefined,
         theme: "light",
       });
-      getUserCart()
+      getUserCart();
     } catch (err: any) {
       console.log(err);
     }
-  }
+  };
 
   const handleQuantityChange = (item: cartItem, change: number) => {
     const updatedGroupedCart = Object.keys(groupItems).map((sellerKey) => {
@@ -473,7 +475,7 @@ export default function cartPage(): JSX.Element {
                 setTotalAmt((prevState) => {
                   const newShippingAmt = Number(
                     Number(prevState.shippingFee) /
-                    (1 - Number(voucher.percentage_amount))
+                      (1 - Number(voucher.percentage_amount))
                   );
 
                   return {
@@ -589,7 +591,7 @@ export default function cartPage(): JSX.Element {
         theme: "light",
       });
     }
-  }
+  };
 
   return (
     <div className="container flex">
@@ -693,7 +695,8 @@ export default function cartPage(): JSX.Element {
                   >
                     +
                   </button>
-                  <button className="text-white bg-purpleAccent hover:bg-softerPurple focus:ring-4 focus:outline-none focus:ring-softerPurple font-medium rounded-lg text-xs px-2.5 py-2 text-center hover:cursor-pointer"
+                  <button
+                    className="text-white bg-purpleAccent hover:bg-softerPurple focus:ring-4 focus:outline-none focus:ring-softerPurple font-medium rounded-lg text-xs px-2.5 py-2 text-center hover:cursor-pointer"
                     onClick={(event) => {
                       event.preventDefault();
                       removeCartItem(item.sku);
@@ -776,10 +779,10 @@ export default function cartPage(): JSX.Element {
                 value={
                   selectedAddress
                     ? {
-                      value: selectedAddress,
-                      label: `${selectedAddress.street_name}, ${selectedAddress.block}, ${selectedAddress.postal_code}`,
-                      address: selectedAddress,
-                    }
+                        value: selectedAddress,
+                        label: `${selectedAddress.street_name}, ${selectedAddress.block}, ${selectedAddress.postal_code}`,
+                        address: selectedAddress,
+                      }
                     : null
                 }
                 styles={{

@@ -4,11 +4,19 @@ import MaterialReactTable, {
   type MRT_ColumnDef,
 } from 'material-react-table';
 import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';
+import Box from "@mui/material/Box";
+import TextField from '@mui/material/TextField';
 
 import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller.js";
 import { cld } from "../../Cloudinary/Cloudinary";
 import { AdvancedImage } from "@cloudinary/react";
-import CloudinaryUpload from '../../Cloudinary/CloudinaryUpload';
+import CloudinaryUploader from "../../Cloudinary/CloudinaryUploader";
+import MenuItem from '@mui/material/MenuItem';
+import InputAdornment from '@mui/material/InputAdornment';
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import FormHelperText from '@mui/material/FormHelperText';
 
 interface Category {
   categoryId: number;
@@ -21,8 +29,8 @@ interface ProductVariations {
   var2: string;
   price: number;
   quantity: number;
-  imageUrl: string[];
-  // sku?: string;
+  imageUrl: string;
+  sku?: string;
 }
 
 interface SubmitVariationsInterface {
@@ -30,7 +38,7 @@ interface SubmitVariationsInterface {
   var2: string;
   price: number;
   quantity: number;
-  imageUrl: string[];
+  imageUrl: string;
   // sku?: string;
 }
 
@@ -39,9 +47,9 @@ interface SubmitInterface {
   description: string;
   price: number;
   quantity: number;
-  imageUrl: string[];
+  imageUrl: string;
   categoryId: number;
-  category: string;
+  // category: string;
   variations: Array<SubmitVariationsInterface>;
 
   // optional properties
@@ -56,7 +64,7 @@ interface Product {
   name: string;
   price: number;
   quantity: number;
-  imageUrl: string[];
+  imageUrl: string;
   sku: string;
   subRows: Array<Product>;
 
@@ -68,12 +76,48 @@ interface Product {
   category?: string;
 
   // product variations only
-  variation1?: string;
-  variation2?: string;
+  variation1?: string | null;
+  variation2?: string | null;
+}
+
+interface FormValues {
+  name: {
+    value: string;
+    error: boolean;
+    errorMessage: string;
+  };
+  description: {
+    value: string;
+    error: boolean;
+    errorMessage: string;
+  };
+  selectedCategory: {
+    value: number | null;
+    error: boolean;
+    errorMessage: string;
+  };
+  price: {
+    value: string;
+    parsedValue: number | null;
+    error: boolean;
+    errorMessage: string;
+  };
+  quantity: {
+    value: string;
+    parsedValue: number | null;
+    error: boolean;
+    errorMessage: string;
+  };
+  imageUrl: {
+    value: string;
+    error: boolean;
+    errorMessage: string;
+  };
 }
 
 interface ProductFormProps {
   product?: Product;
+  // onSubmit: (data: SubmitInterface) => void;
   onSubmit: (data: SubmitInterface) => void;
 }
 
@@ -83,12 +127,15 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
 
   const [currentProduct, setCurrentProduct] = useState<Product>();
 
+  // setCurrentProduct to product if product exists
   useEffect(() => {
     if (product) {
-      setCurrentProduct(Object.values(product)[0]);
+      // setCurrentProduct(Object.values(product)[0]);
+      setCurrentProduct(product);
     }
   }, [])
 
+  // console.log currentProduct every time it changes
   useEffect(() => {
     console.log("currentProduct", currentProduct);
     currentProduct ? console.log("currentProduct name", currentProduct.name) : "";
@@ -96,8 +143,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
 
   // maximum number of variations allowed
   const maximumVariations = 2;
+  // variations state --> stores category name (e.g. colour, size) and variations (e.g. red, blue, small, medium, etc.)
   const [variations, setVariations] = useState([{ name: "", values: [""] }]);
-
+  // formatted variations' names state
   const [var1Arr, setVar1Arr] = useState<string[]>([]);
   const [var2Arr, setVar2Arr] = useState<string[]>([]);
 
@@ -105,7 +153,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
 
-  useEffect(() => {
+  // setVariations default a.k.a. according to currentProduct if exists
+  const setVariationsDefault = () => {
     let defaultVariation: { name: string; values: string[]; }[] = [];
     if (currentProduct && currentProduct?.subRows.length > 0) {
       if (currentProduct?.subRows[0].variation1) {
@@ -140,8 +189,14 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
       }
     }
     setVariations(defaultVariation);
+  }
+  
+  // setVariations default a.k.a. according to currentProduct if it changes
+  useEffect(() => {
+    setVariationsDefault();
   }, [currentProduct])
 
+  // setVar1Arr and setVar2Arr when variations changes
   useEffect(() => {
     let arr1: string[] = [];
     let arr2: string[] = [];
@@ -209,41 +264,11 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     }
   };
 
-  const [categories, setCategories] = useState<Category[]>([]);
-
-  useEffect(() => {
-    const getAllCategories = async () => {
-      try {
-        const response = await axiosPrivateSeller.get(`/categories`);
-        setCategories(response.data);
-      } catch (error: any) {
-        console.error('Error fetching data:', error);
-      }
-    }
-
-    getAllCategories();
-  }, []);
-
-  const [selectedCategory, setSelectedCategory] = useState<number>(1);
-
-  useEffect(() => {
-    console.log(selectedCategory)
-  }, [selectedCategory])
-
-  useEffect(() => {
-    if (currentProduct && currentProduct.categoryId) {
-      setSelectedCategory(currentProduct.categoryId);
-    }
-  }, [currentProduct])
-
-  const handleCategoryChange = (event: any) => {
-    const selectedValue = event.target.value;
-    setSelectedCategory(selectedValue);
-  };
-
+  // productVariations state --> stores productVariations to be submitted
   const [productVariations, setProductVariations] = useState<ProductVariations[]>([]);
 
-  useEffect(() => {
+  // setProductVariations default a.k.a. according to currentProduct if it exists
+  const setProductVariationsDefault = () => {
     let updatedProductVariations: ProductVariations[] = [];
 
     if (currentProduct) {
@@ -255,47 +280,67 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
           price: variation.price ? parseFloat(variation.price.toString()) : 0,
           quantity: variation.quantity,
           imageUrl: variation.imageUrl,
+          sku: variation.sku
         })
       });
     }
 
     setProductVariations(updatedProductVariations);
+  }
+
+  // setProductVariations default a.k.a. according to currentProduct if it changes
+  useEffect(() => {
+    setProductVariationsDefault();
   }, [currentProduct])
 
+  // console.log productVariations every time it changes
+  useEffect(() => {
+    console.log("useEffect productVariations", productVariations)
+  }, [productVariations]);
+
+  // setProductVariations if var1Arr and var2Arr changes, meaning that variations changed
   useEffect(() => {
     let updatedProductVariations: ProductVariations[] = [];
 
+    // if there are 2 variation categories
     if (var2Arr.length > 0) {
       var1Arr.forEach((var1) => {
-        var2Arr.forEach((var2) => {
-          let currentVariation1: Product | undefined = currentProduct?.subRows.find(
-            (variation) =>
-              variation.variation1 === var1 && variation.variation2 === var2
-          );
-          let currentVariation2: ProductVariations | undefined;
-          if (!currentVariation1 && productVariations) {
-            currentVariation2 = productVariations.find(
+          var2Arr.forEach((var2) => {
+            // check if variation already exists in currentProduct
+            let currentVariation1: Product | undefined = currentProduct?.subRows.find(
               (variation) =>
-                variation.var1 === var1 && variation.var2 === var2
+                variation.variation1 === var1 && variation.variation2 === var2
             );
-          }
-          let newVar: ProductVariations = {
-            name: `${var1} + ${var2}`,
-            var1: var1,
-            var2: var2,
-            price: currentVariation1 ? currentVariation1.price : currentVariation2 ? currentVariation2.price : 0,
-            quantity: currentVariation1 ? currentVariation1.quantity : currentVariation2 ? currentVariation2.quantity : 0,
-            imageUrl: currentVariation1 ? currentVariation1.imageUrl : currentVariation2 ? currentVariation2.imageUrl : [],
-          };
-          updatedProductVariations.push(newVar);
-        })
+            // if variation does not exist in currentProduct, check if it exists in productVariations a.k.a. exists in product form but not in database
+            let currentVariation2: ProductVariations | undefined;
+            if (!currentVariation1 && productVariations) {
+              currentVariation2 = productVariations.find(
+                (variation) =>
+                  variation.var1 === var1 && variation.var2 === var2
+              );
+            }
+            // updated variation
+            let newVar: ProductVariations = {
+              name: `${var1} + ${var2}`,
+              var1: var1,
+              var2: var2,
+              price: currentVariation1 ? currentVariation1.price : currentVariation2 ? currentVariation2.price : 0,
+              quantity: currentVariation1 ? currentVariation1.quantity : currentVariation2 ? currentVariation2.quantity : 0,
+              imageUrl: currentVariation1 ? currentVariation1.imageUrl : currentVariation2 ? currentVariation2.imageUrl : "",
+              sku: currentVariation1 ? currentVariation1.sku : currentVariation2 ? currentVariation2.sku : "",
+            };
+            // add variation to updatedProductVariations array
+            updatedProductVariations.push(newVar);
+          })
       })
-    } else {
+    } else { // only 1 variation category
       var1Arr.forEach((var1) => {
+        // check if variation already exists in currentProduct
         let currentVariation1: Product | undefined = currentProduct?.subRows.find(
           (variation) =>
             variation.variation1 === var1 && !variation.variation2
         );
+        // if variation does not exist in currentProduct, check if it exists in productVariations a.k.a. exists in product form but not in database
         let currentVariation2: ProductVariations | undefined;
         if (!currentVariation1 && productVariations) {
           currentVariation2 = productVariations.find(
@@ -303,14 +348,17 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
               variation.var1 === var1 && !variation.var2
           );
         }
+        // updated variation
         let newVar: ProductVariations = {
           name: `${var1}`,
           var1: var1,
           var2: "",
           price: currentVariation1 ? currentVariation1.price : currentVariation2 ? currentVariation2.price : 0,
           quantity: currentVariation1 ? currentVariation1.quantity : currentVariation2 ? currentVariation2.quantity : 0,
-          imageUrl: currentVariation1 ? currentVariation1.imageUrl : currentVariation2 ? currentVariation2.imageUrl : [],
+          imageUrl: currentVariation1 ? currentVariation1.imageUrl : currentVariation2 ? currentVariation2.imageUrl : "",
+          sku: currentVariation1 ? currentVariation1.sku : currentVariation2 ? currentVariation2.sku : "",
         };
+        // add variation to updatedProductVariations array
         updatedProductVariations.push(newVar);
       })
     }
@@ -318,28 +366,28 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     setProductVariations(updatedProductVariations);
   }, [var1Arr, var2Arr]);
 
-  const [priceForAll, setPriceForAll] = useState<number>(0);
-  const [quantityForAll, setQuantityForAll] = useState<number>(0);
+  // const [priceForAll, setPriceForAll] = useState<number>(0);
+  // const [quantityForAll, setQuantityForAll] = useState<number>(0);
 
-  const handlePriceForAllChange = (event: any) => {
-    setPriceForAll(parseFloat(event.target.value));
-  };
+  // const handlePriceForAllChange = (event: any) => {
+  //   setPriceForAll(parseFloat(event.target.value));
+  // };
+  
+  // const handleQuantityForAllChange = (event: any) => {
+  //   setQuantityForAll(parseInt(event.target.value));
+  // };
 
-  const handleQuantityForAllChange = (event: any) => {
-    setQuantityForAll(parseInt(event.target.value));
-  };
+  // const handleApplyToAll = (event: any) => {
+  //   event.preventDefault();
 
-  const handleApplyToAll = (event: any) => {
-    event.preventDefault();
+  // const updatedProductVariations = productVariations.map((variation) => ({
+  //       ...variation,
+  //       price: priceForAll >= 0 ? priceForAll : variation.price,
+  //       quantity: quantityForAll >= 0 ? quantityForAll : variation.quantity,
+  //   }));
 
-    const updatedProductVariations = productVariations.map((variation) => ({
-      ...variation,
-      price: priceForAll >= 0 ? priceForAll : variation.price,
-      quantity: quantityForAll >= 0 ? quantityForAll : variation.quantity,
-    }));
-
-    setProductVariations(updatedProductVariations);
-  }
+  //   setProductVariations(updatedProductVariations);
+  // }
 
   const [rowErrors, setRowErrors] = useState<string>("");
 
@@ -353,43 +401,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     }
     setProductVariations([...productVariations]);
   }
-
-  const [imageURL, setImageURL] = useState<string[]>([]);
-  const [imageURLMap, setImageURLMap] = useState<string[][]>([]);
-
-  useEffect(() => {
-    console.log("imageURL", imageURL);
-  }, [imageURL])
-
-  useEffect(() => {
-    console.log("imageURLMap", imageURLMap);
-  }, [imageURLMap])
-
-  useEffect(() => {
-    if (currentProduct) {
-      if (currentProduct.subRows.length === 0) setImageURL(currentProduct.imageUrl);
-      else {
-        let urlArr: string[][] = [];
-        currentProduct.subRows.forEach((variation) => {
-          urlArr.push(variation.imageUrl);
-        })
-        setImageURLMap(urlArr);
-      }
-    }
-  }, [currentProduct])
-
-  const handleUpload = async (resultInfo: any) => {
-    console.log("Successfully uploaded:", resultInfo.public_id);
-    setImageURL((prevImageURL) => [...prevImageURL, resultInfo.public_id]);
-  }
-
-  const handleDeleteImage = (index: number) => {
-    setImageURL((prevImageURL) => {
-      const updatedImageURL = [...prevImageURL];
-      updatedImageURL.splice(index, 1);
-      return updatedImageURL;
-    });
-  };
 
   const columns = useMemo<MRT_ColumnDef<ProductVariations>[]>(
     () => [
@@ -418,85 +429,242 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
         size: 80,
         enableEditing: false,
         Cell: ({ row }) => (
-          <>
-            {imageURLMap[productVariations.findIndex(variation => variation.name === row.original.name)] &&
-              imageURLMap[productVariations.findIndex(variation => variation.name === row.original.name)].map((imageUrl: string, index: number) => (
-                <div key={index} className="flex flex-row w-40 h-40 mb-5">
-                  <AdvancedImage cldImg={cld.image(imageUrl)} />
-                  <button
+          <Box key={row.index+row.original.name}>
+            {(row.original.imageUrl && (
+                <div className="flex flex-row w-40 h-40 mb-5">
+                <AdvancedImage cldImg={cld.image(row.original.imageUrl)} />
+                <Box>
+                  <IconButton 
                     type="button"
                     className="flex"
                     onClick={() => {
-                      row.original.imageUrl.splice(index, 1);
-                      const updatedImageURLMap = [...imageURLMap];
-                      updatedImageURLMap[row.index] = row.original.imageUrl;
-                      setImageURLMap(updatedImageURLMap);
+                      console.log("row", row)
+                      setProductVariations((prevProductVariations) => {
+                        const updatedVariations = [...prevProductVariations];
+                        updatedVariations[row.index] = {
+                          ...updatedVariations[row.index],
+                          imageUrl: "", 
+                        };
+                        return updatedVariations;
+                      })
+                      console.log("updated product variations", productVariations)
                     }}
                   >
                     <DeleteIcon />
-                  </button>
-                </div>
-              ))}
-            <CloudinaryUpload
-              onSuccess={(resultInfo: any) => {
-                row.original.imageUrl.push(resultInfo.public_id);
-                const updatedImageURLMap = [...imageURLMap];
-                updatedImageURLMap[row.index] = row.original.imageUrl;
-                setImageURLMap(updatedImageURLMap);
-              }}
+                  </IconButton>
+                </Box>
+              </div>
+            ))}
+            <CloudinaryUploader
+              onSuccess={async (resultInfo: any) => {
+                  console.log("row3", row)
+                  console.log("resultInfo", resultInfo)
+                  setProductVariations((prevProductVariations) => {
+                  const updatedVariations = [...prevProductVariations];
+                  updatedVariations[row.index] = {
+                    ...updatedVariations[row.index],
+                    imageUrl: resultInfo.public_id, 
+                  };
+                  return updatedVariations;
+                  })
+              }} 
               caption={"Upload Image"}
+              key={row.index}
             />
-          </>
+          </Box>
         )
       },
     ],
-    [imageURLMap]
+    [productVariations]
   );
 
-  const [nameError, setNameError] = useState("");
-  const [priceError, setPriceError] = useState("");
-  const [quantityError, setQuantityError] = useState("");
-  const [imageError, setImageError] = useState<string>("");
-  const [submitStatus, setSubmitStatus] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<number>(0);
 
-  const handleProductFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const [formValues, setFormValues] = useState<FormValues>({
+    name: {
+      value: "",
+      error: false,
+      errorMessage: "Please enter a name."
+    },
+    description: {
+      value: "",
+      error: false,
+      errorMessage: "Please enter a description."
+    },
+    selectedCategory: {
+      value: null,
+      error: false,
+      errorMessage: "Please select a category."
+    },
+    price: {
+      value: "",
+      parsedValue: null,
+      error: false,
+      errorMessage: "Please enter a valid price."
+    },
+    quantity: {
+      value: "",
+      parsedValue: null,
+      error: false,
+      errorMessage: "Please enter a valid integer."
+    },
+    imageUrl: {
+      value: "",
+      error: false,
+      errorMessage: "Please upload only one image."
+    }
+  })
 
-    setSubmitStatus("Please try again.");
-    setRowErrors("");
+  // console.log formValues every time it changes
+  useEffect(() => {
+    console.log("formValues", formValues);
+  }, [formValues])
 
-    const form = e.target as HTMLFormElement;
+  // setFormValues default a.k.a. according to currentProduct if it exists
+  const setFormValuesDefault = () => {
+    currentProduct?.categoryId ? setSelectedCategory(currentProduct.categoryId) : "";
+    if (currentProduct && currentProduct.categoryId) {
+      setSelectedCategory(currentProduct.categoryId);
+    }
+    
+    setFormValues(prevFormValues => ({
+      ...prevFormValues,
+      name: {
+        ...prevFormValues.name,
+        value: currentProduct?.name || ""
+      },
+      description: {
+        ...prevFormValues.description,
+        value: currentProduct?.description || ""
+      },
+      selectedCategory: {
+        ...prevFormValues.selectedCategory,
+        value: currentProduct?.categoryId || null
+      },
+      price: {
+        ...prevFormValues.price,
+        value: currentProduct?.price.toString() || "",
+        parsedValue: currentProduct?.price || null
+      },
+      quantity: {
+        ...prevFormValues.quantity,
+        value: currentProduct?.quantity.toString() || "",
+        parsedValue: currentProduct?.quantity || null
+      },
+      imageUrl: {
+        ...prevFormValues.imageUrl,
+        value: currentProduct?.imageUrl[0] || ""
+      },
+    }));
+  }
 
-    const name = form.elements.namedItem('name') as HTMLInputElement;
+  // setFormValues default a.k.a. according to currentProduct if it changes
+  useEffect(() => {
+    setFormValuesDefault();
+  }, [currentProduct]);
 
-    if (name.value.trim() === "") {
-      setNameError("Please input a name.");
-      return;
+  // console.log selectedCategory every time it changes
+  useEffect(() => {
+    console.log("selectedCategory", selectedCategory);
+  }, [selectedCategory])
+
+  const [categories, setCategories] = useState<Category[]>([]);
+  
+  // get categories options
+  useEffect(() => {
+    const getAllCategories = async () => {
+      try {
+        const response = await axiosPrivateSeller.get(`/categories`);
+        setCategories(response.data);
+      } catch (error: any) {
+        console.error('Error fetching data:', error);
+      }
     }
 
-    const description = form.elements.namedItem('description') as HTMLTextAreaElement;
+    getAllCategories();
+  }, []);
 
-    const category = form.elements.namedItem('category') as HTMLSelectElement;
-    const categoryName = category.options[category.selectedIndex].text;
+  const handleUploadImage = async (resultInfo: any) => {
+    console.log("Successfully uploaded:", resultInfo.public_id);
+    setFormValues({
+      ...formValues,
+      imageUrl: {
+        ...formValues.imageUrl,
+        value: resultInfo.public_id
+      }
+    })
+  }
 
-    const price = form.elements.namedItem('priceNoVariation') as HTMLInputElement;
+  const handleDeleteImage = () => {
+    setFormValues({
+      ...formValues,
+      imageUrl: {
+        ...formValues.imageUrl,
+        value: ""
+      }
+    })
+  };
 
-    if (!price.disabled && (isNaN(parseFloat(price.value)) || parseFloat(price.value) <= 0)) {
-      setPriceError("Please input a valid price that is more than 0 cents.");
+  const [priceForAll, setPriceForAll] = useState<number>();
+  const [priceForAllError, setPriceForAllError] = useState<boolean>(false);
+
+  const [quantityForAll, setQuantityForAll] = useState<number>();
+  const [quantityForAllError, setQuantityForAllError] = useState<boolean>(false);
+
+  const handleApplyToAll = (e: any) => {
+    e.preventDefault();
+
+    const updatedProductVariations = productVariations.map((variation) => ({
+      ...variation,
+      price: priceForAll && priceForAll >= 0 ? priceForAll : variation.price,
+      quantity: quantityForAll && quantityForAll >= 0 ? quantityForAll : variation.quantity,
+    }));
+
+    setProductVariations(updatedProductVariations);
+  }
+
+  // reset form to default
+  const handleReset = async () => {
+    setFormValuesDefault();
+    setVariationsDefault();
+    setShowAddVariation(true);
+    setProductVariationsDefault();
+  }
+
+  // submit form to parent component, either AddProduct.tsx or EditProduct.tsx
+  const handleProductFormSubmit = async (e: any) => {
+    e.preventDefault();
+
+    if (formValues.name.error || formValues.description.error || (formValues.price.error && variations.length == 0) || (formValues.quantity.error && variations.length == 0)) {
       return;
-    } else if (priceError !== "") setPriceError("");
-
-    const quantity = form.elements.namedItem('quantityNoVariation') as HTMLInputElement;
-
-    if (!quantity.disabled && (isNaN(parseInt(quantity.value)) || parseInt(quantity.value) <= 0)) {
-      setQuantityError("Please input a valid quantity that is more than 0.");
+    } else if (formValues.selectedCategory.value === null) {
+      setFormValues({
+        ...formValues,
+        selectedCategory: {
+          ...formValues.selectedCategory,
+          error: true
+        }
+      })
       return;
-    } else if (quantityError !== "") setQuantityError("");
-
-    if (variations.length === 0 && imageURL.length === 0) {
-      setImageError("Please upload an image.");
+    } else if (variations.length === 0 && formValues.imageUrl.value === "") {
+      if (formValues.selectedCategory.error === true) {
+        setFormValues({
+          ...formValues,
+          selectedCategory: {
+            ...formValues.selectedCategory,
+            error: false
+          }
+        })
+      }
+      setFormValues({
+        ...formValues,
+        imageUrl: {
+          ...formValues.imageUrl,
+          error: true
+        }
+      })
       return;
-    } else if (imageError != "") setImageError("");
+    } 
 
     let validVariationInput = true;
 
@@ -526,16 +694,17 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
       }
     }
 
-    if (!validVariationInput) return;
+    if (!validVariationInput) {
+      return;
+    }
 
     const formData: SubmitInterface = {
-      name: name.value,
-      description: description.value,
-      price: Number.isNaN(parseFloat(price.value)) ? -1 : parseFloat(price.value),
-      quantity: Number.isNaN(parseFloat(quantity.value)) ? -1 : parseFloat(quantity.value),
-      imageUrl: imageURL,
-      categoryId: selectedCategory ? selectedCategory : 1,
-      category: categoryName,
+      name: formValues.name.value,
+      description: formValues.description.value,
+      categoryId: formValues.selectedCategory.value,
+      price: formValues.price.parsedValue ? formValues.price.parsedValue : -1,
+      quantity: formValues.quantity.parsedValue ? formValues.quantity.parsedValue : -1,
+      imageUrl: formValues.imageUrl.value,
       variations: productVariations,
     };
 
@@ -545,280 +714,524 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     }
 
     onSubmit(formData);
-    setSubmitStatus("Success!");
-  };
+    if (!currentProduct) handleReset();
+  }
+
+  useEffect(() => {
+    console.log("rowErrors", rowErrors);
+  }, [rowErrors])
+  
+  useEffect(() => {
+    console.log("formValues.imageUrl.errorMessage", formValues.imageUrl.errorMessage)
+  }, [formValues.imageUrl.error, formValues.imageUrl.errorMessage])
 
   return (
-    <form
-      className="flex flex-col"
+    <Box
+      component="form"
       onSubmit={handleProductFormSubmit}
     >
-      <section className="flex flex-col">
-        <label>
-          Name:
-          <input
-            className="text-black border-gray-300 rounded-md shadow-sm"
-            type="text"
-            name="name"
-            defaultValue={currentProduct ? currentProduct.name : ""}
-            required
-          />
-        </label>
-
-        {nameError && (
-          <span className="tooltip">{nameError}</span>
-        )}
-        <br />
-
-        <label>
-          Description:
-          <br />
-          <textarea
-            className="text-black border-gray-300 rounded-md shadow-sm"
-            name="description"
-            defaultValue={currentProduct ? currentProduct.description : ""}
-          />
-        </label>
-
-        <label>
-          <select
-            name="category"
-            value={selectedCategory}
-            onChange={handleCategoryChange}
-          >
-            {categories.map((category: Category) => {
-              return (
-                <>
-                  {category.categoryId === selectedCategory ? (
-                    <option key={category.categoryId} value={category.categoryId} selected>
-                      {category.name}
-                    </option>
-                  ) : (<option key={category.categoryId} value={category.categoryId}>
-                    {category.name}
-                  </option>)}
-                </>
-              );
-            })}
-          </select>
-        </label>
-        <br />
-
-        {variations.length === 0 && (
-          <span className="tooltip">This field is required for products without variations.</span>
-        )}
-
-        <label>
-          Price:
-          <input
-            className="text-black border-gray-300 rounded-md shadow-sm disabled:opacity-25 disabled:text-gray-500 disabled:bg-gray-400"
-            type="number"
-            step=".01"
-            disabled={variations.length > 0}
-            name="priceNoVariation"
-            defaultValue={currentProduct ? currentProduct.price : ""}
-          />
-          <br />
-          {priceError && (
-            <span className="tooltip">{priceError}</span>
-          )}
-        </label>
-
-        <label>
-          Quantity:
-          <input
-            className="text-black border-gray-300 rounded-md shadow-sm disabled:opacity-25 disabled:text-gray-500 disabled:bg-gray-400"
-            type="number"
-            disabled={variations.length > 0}
-            name="quantityNoVariation"
-            defaultValue={currentProduct ? currentProduct.quantity : ""}
-          />
-          <br />
-          {quantityError && (
-            <span className="tooltip">{quantityError}</span>
-          )}
-        </label>
-
-        <label>
-          {variations.length === 0 && (
-            <>
-              <br />
-              {imageURL && imageURL.map((imageUrl: string, index: number) => (
-                <div key={index} className="flex flex-row w-40 h-40 mb-5">
-                  <AdvancedImage cldImg={cld.image(imageUrl)} />
-                  <button
-                    type="button"
-                    className="flex"
-                    onClick={() => handleDeleteImage(index)}
-                  >
-                    <DeleteIcon />
-                  </button>
-                </div>
-              ))}
-              <CloudinaryUpload
-                onSuccess={handleUpload}
-                caption={"Upload Image"}
-              />
-              {imageError && (
-                <span className="tooltip">{imageError}</span>
-              )}
-              <br />
-              <br />
-            </>
-          )}
-        </label>
+      <Box
+          className="flex-1"
+          // component="form"
+          sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 1,
+              width: 1,
+              flexGrow: 1,
+              flexShrink: 1,
+              // maxWidth: '75%'
+          }}
+          // noValidate
+          // autoComplete="off"
+      >
+        <TextField
+          id="name"
+          label="Name"
+          required
+          variant="outlined"
+          autoComplete="off"
+          value={formValues.name.value}
+          error={formValues.name.error}
+          helperText={formValues.name.error && formValues.name.errorMessage}
+          onChange={(e) => {
+            const {value} = e.target;
+            setFormValues({
+              ...formValues,
+              name: {
+                ...formValues.name,
+                value: value,
+                error: value.trim() === ""
+              }
+            })
+          }}
+          fullWidth
+          sx={{ m: 2 }} 
+        />
+        <TextField
+          id="description"
+          label="Description"
+          required
+          variant="outlined"
+          value={formValues.description.value}
+          error={formValues.description.error}
+          helperText={formValues.description.error && formValues.description.errorMessage}
+          onChange={(e) => {
+            const {value} = e.target;
+            setFormValues({
+              ...formValues,
+              description: {
+                ...formValues.description,
+                value: value,
+                error: value.trim() === ""
+              }
+            })
+          }}
+          fullWidth
+          sx={{ m: 2, height: 'auto' }}
+        />
+        <TextField
+          id="category"
+          select
+          label="Category"
+          required
+          // value={formValues.selectedCategory.value}
+          // defaultValue={selectedCategory}
+          value={selectedCategory}
+          error={formValues.selectedCategory.error}
+          helperText={formValues.selectedCategory.error && formValues.selectedCategory.errorMessage}
+          onChange={(e) => {
+            const {value} = e.target;
+            setSelectedCategory(parseInt(value));
+            setFormValues({
+              ...formValues,
+              selectedCategory: {
+                ...formValues.selectedCategory,
+                value: parseInt(value),
+                error: isNaN(parseInt(value))
+              }
+            })
+          }}
+          fullWidth
+          sx={{ m: 2 }}
+        >
+          {categories.map((category: Category) => (
+            <MenuItem key={category.categoryId} value={category.categoryId}>
+              {category.name}
+            </MenuItem>
+          ))}
+        </TextField>
 
         {variations.map((variation, variationIndex) => (
-          <div key={variationIndex} className="variation-section">
-            <div className="variation-header">
-              <button
-                className="remove-variation"
-                type="button"
-                onClick={() => handleRemoveVariation(variationIndex)}
-              >
-                &#10006;
-              </button>
-            </div>
-
-            <div className="variation-content">
-              <label>
-                Variation Name:
-                <input
-                  className="text-black border-gray-300 rounded-md shadow-sm"
-                  type="text"
+        <Box
+          sx={{ 
+            display: 'flex',
+            flexDirection: 'row',
+            m: 2, 
+            // width: 1,
+            bgcolor: '#bbdefb',
+            borderRadius: '16px',
+            flexShrink: 1,
+            // maxWidth: '75%'
+          }}
+        >
+          <Box
+            sx={{
+              flexGrow: 1
+            }}
+          >
+            <Box 
+              key={variationIndex} 
+              sx={{ 
+                display: 'flex',
+                flexDirection: 'row',
+                m: 2,
+                bgcolor: 'background.paper',
+                borderRadius: '16px'
+              }} 
+            >
+              <TextField
+                  id="variation-category"
+                  label="Category of Variation"
+                  variant="outlined"
+                  required
+                  helperText="E.g. Colour, Size, etc."
                   value={variation.name}
                   onChange={(e) => handleVariationNameChange(variationIndex, e.target.value)}
+                  fullWidth
+                  sx={{ 
+                    m: 2,
+                    flexGrow: 1
+                  }} 
+              />
+            </Box>
+            
+            {variation.values.map((value, valueIndex) => (
+              <Box 
+                key={valueIndex} 
+                className="flex flex-row"
+                sx = {{
+                  m: 2,
+                  alignItems: 'center',
+                  bgcolor: 'background.paper',
+                  borderRadius: '16px'
+                }}
+              >
+                <TextField
+                    className="variation-name"
+                    label="Variation"
+                    variant="outlined"
+                    required
+                    helperText="E.g. Red, Blue, Small, Medium, etc."
+                    value={value}
+                    onChange={(e) => handleVariationValueChange(variationIndex, valueIndex, e.target.value)}
+                    fullWidth
+                    sx={{ 
+                      m: 2,
+                      flexGrow: 1
+                    }} 
                 />
-              </label>
 
-              {variation.values.map((value, valueIndex) => (
-                <div key={valueIndex}>
-                  <label>
-                    Variation Value:
-                    <input
-                      className="text-black border-gray-300 rounded-md shadow-sm"
-                      type="text"
-                      value={value}
-                      onChange={(e) => handleVariationValueChange(variationIndex, valueIndex, e.target.value)}
-                    />
-                  </label>
-
-                  {valueIndex === variation.values.length - 1 && (
-                    <button
-                      className="text-black border-gray-300 rounded-md shadow-sm"
+                {valueIndex === variation.values.length - 1 && (
+                  <Box>
+                    <IconButton
+                      className="add-variation-value flex-end"
                       type="button"
                       onClick={() => handleAddVariationValue(variationIndex)}
+                      sx={{ mr: 2 }}
                     >
-                      Add Value
-                    </button>
-                  )}
+                      <AddIcon />
+                    </IconButton>
+                  </Box>
+                )}
 
-                  {valueIndex !== 0 && (
-                    <button
-                      className="text-black border-gray-300 rounded-md shadow-sm"
+                {variation.values.length !== 1  && (
+                  <Box>
+                    <IconButton
+                      className="remove-variation-value flex-end"
                       type="button"
                       onClick={() => handleRemoveVariationValue(variationIndex, valueIndex)}
+                      sx={{ mr: 2 }}
                     >
-                      Remove Value
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
+                      <DeleteIcon />
+                    </IconButton>
+                  </Box>
+                )}
 
-        {showAddVariation && (
-          <button
-            className="text-black border-gray-300 rounded-md shadow-sm"
+              </Box>
+            ))}
+          </Box>
+
+          <Box>
+            <IconButton
+              className="remove-variation flex-end"
+              type="button"
+              onClick={() => handleRemoveVariation(variationIndex)}
+              sx={{ 
+                display: 'flex',
+                alignItems: 'flex-start',
+                m: 2,
+                ml: 0
+              }}
+            >
+              &#10006;
+            </IconButton>
+          </Box>
+        </Box>
+      ))}
+
+      {showAddVariation && (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            m: 2,
+          }}
+        >
+          <Button
+            variant="contained"
             type="button"
             onClick={handleAddVariation}
+            // fullWidth
+            sx={{ 
+              
+            }} 
           >
             Add Variation ({variations.length}/{maximumVariations})
-          </button>
-        )}
-      </section>
+          </Button>
+        </Box>
+      )}
 
-      <section>
-        <br />
-
-        {(variations.length !== 0 && <MaterialReactTable
-          key={productVariations.map((item) => item.name + item.price + item.quantity).join("-")}
-          displayColumnDefOptions={{
-            'mrt-row-actions': {
-              muiTableHeadCellProps: {
-                align: 'center',
-              },
-              size: 120,
-            },
+      {(variations.length !== 0 && 
+        <Box 
+          sx={{
+            // width: 'maxContent',
+            // maxWidth: 400,
+            width: '100%',
+            overflowX: 'auto'
           }}
-          columns={columns}
-          data={productVariations}
-          enableColumnOrdering
-          enableEditing
-          editingMode='table'
-          muiTableBodyCellEditTextFieldProps={({ cell }) => ({
-            //onBlur is more efficient, but could use onChange instead
-            onBlur: (event) => {
-              handleSaveCell(cell, event.target.value);
-            }
-          })}
-          renderTopToolbarCustomActions={() => (
-            <div>
-              <input
-                className="text-black placeholder-gray-800 border-gray-300 rounded-md shadow-sm"
-                type="number"
-                name="price"
-                value={priceForAll}
-                placeholder="Price"
-                onChange={(e) => handlePriceForAllChange(e)}
-              />
-              <input
-                className="text-black placeholder-gray-800 border-gray-300 rounded-md shadow-sm"
-                type="number"
-                name="quantity"
-                value={quantityForAll}
-                placeholder="Stock"
-                onChange={(e) => handleQuantityForAllChange(e)}
-              />
-              <button
-                type="submit"
-                name="applyToAll"
-                onClick={(e) => handleApplyToAll(e)}
+        >
+        <div
+          style={{ 
+            width: 'maxContent',
+            // width: '100%',
+            overflowX: 'auto'
+          }}
+        >
+          <MaterialReactTable
+            key={productVariations.map((item) => item.name + item.price + item.quantity).join("-")}
+            displayColumnDefOptions={{
+            'mrt-row-actions': {
+                muiTableHeadCellProps: {
+                align: 'center',
+                },
+                size: 120,
+            },
+            }}
+            columns={columns}
+            data={productVariations}
+            enableColumnOrdering
+            enableEditing
+            editingMode='table'
+            muiTableBodyCellEditTextFieldProps={({ cell }) => ({
+              //onBlur is more efficient, but could use onChange instead
+              onBlur: (event) => {
+                handleSaveCell(cell, event.target.value);
+              }
+            })}
+            // muiTableBodyCellProps={{
+            //   //simple styling with the `sx` prop, works just like a style prop in this example
+            //   sx: {
+            //     borderColor: 'purple',
+            //   },
+            // }}
+            renderTopToolbarCustomActions={() => (
+              <Box
+                sx={{
+                  height:'auto',
+                  alignItems: 'center'
+                }}
               >
-                Apply To All
-              </button>
-            </div>
-          )}
-        />)}
-        <br />
+                <TextField
+                  id="price"
+                  label="Price"
+                  type="number"
+                  variant="outlined"
+                  InputProps={{
+                    startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                  }}
+                  value={priceForAll}
+                  error={priceForAllError}
+                  helperText={priceForAllError && "Please enter a valid price."}
+                  onChange={(e) => {
+                    const {value} = e.target;
+                    if (isNaN(parseFloat(value)) || value.includes("e")) setPriceForAllError(true);
+                    else setPriceForAllError(false);
+                    setPriceForAll(parseFloat(value)); 
+                  }} 
+                  sx={{ 
+                    m: 1, 
+                    maxWidth: 250
+                  }}
+                />
+                <TextField
+                  id="quantity"
+                  label="Quantity"
+                  type="number"
+                  variant="outlined"
+                  value={quantityForAll}
+                  error={quantityForAllError}
+                  helperText={quantityForAllError && "Please enter a valid price."}
+                  onChange={(e) => {
+                    const {value} = e.target;
+                    if (isNaN(parseInt(value)) || value.includes("e")) setQuantityForAllError(true);
+                    else setQuantityForAllError(false);
+                    setQuantityForAll(parseInt(value)); 
+                  }}
+                  sx={{ 
+                    m: 1,
+                    maxWidth: 250
+                  }} 
+                />
+                <Button
+                  variant="contained"
+                  type="submit"
+                  name="applyToAll"
+                  disabled={priceForAllError || quantityForAllError}
+                  onClick={(e) => handleApplyToAll(e)}
+                  sx={{
+                    m: 1,
+                    mt: 2
+                  }}
+                >
+                  Apply To All
+                </Button>
+              </Box>
+            )}
+          />
+          </div>
+        </Box>
+        )}
+        
         {rowErrors && (
           <span className="tooltip">{rowErrors}</span>
         )}
-      </section>
 
-      <br />
-      {submitStatus && (
-        <span className="tooltip">{submitStatus}</span>
-      )}
+        {variations.length === 0 &&
+          <TextField
+            id="price"
+            label="Price"
+            type="number"
+            variant="outlined"
+            required
+            InputProps={{
+              startAdornment: <InputAdornment position="start">$</InputAdornment>,
+            }}
+            value={formValues.price.value}
+            error={formValues.price.error}
+            helperText={formValues.price.error && formValues.price.errorMessage}
+            onChange={(e) => {
+              const {value} = e.target;
+              setFormValues({
+                ...formValues,
+                price: {
+                  ...formValues.price,
+                  value: value,
+                  parsedValue: parseFloat(value),
+                  error: isNaN(parseFloat(value)) || parseFloat(value) < 0 || value.includes("e")
+                }
+              })
+            }} 
+            fullWidth 
+            sx={{ m: 2 }}
+          />
+        }
 
-      <button
-        className="text-black p-3 border-gray-300 rounded-md shadow-sm"
-        type="submit"
-        name="submit"
-        value="Submit"
+        {variations.length === 0 &&
+          <TextField
+            id="quantity"
+            label="Quantity"
+            type="number"
+            variant="outlined"
+            required
+            value={formValues.quantity.value}
+            error={formValues.quantity.error}
+            helperText={formValues.quantity.error && formValues.quantity.errorMessage}
+            onChange={(e) => {
+              const {value} = e.target;
+              setFormValues({
+                ...formValues,
+                quantity: {
+                  ...formValues.quantity,
+                  value: value,
+                  parsedValue: parseInt(value),
+                  error: isNaN(parseInt(value)) || parseInt(value) <= 0 || value.includes("e")
+                }
+              })
+            }}
+            fullWidth
+            sx={{ m: 2 }} 
+          />
+        }
+
+        {variations.length === 0 && (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              m: 2,
+              // maxWidth: '75%' 
+            }}
+          >
+            {(formValues.imageUrl.value && (
+              <div key={formValues.imageUrl.value} className="flex flex-row w-40 h-40 mb-5">
+                <AdvancedImage cldImg={cld.image(formValues.imageUrl.value)} />
+                <Box>
+                  <IconButton 
+                    type="button"
+                    onClick={() => handleDeleteImage()}
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      justifyContent: 'flex-end'
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Box>
+              </div>
+            ))}
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center'                
+              }}
+            > 
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center'                
+                }}
+              >
+                <CloudinaryUploader 
+                  onSuccess={handleUploadImage} 
+                  caption={"UPLOAD IMAGE"}
+                />
+              </Box>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center'                
+                }}
+              >
+                {(!formValues.imageUrl.error && 
+                  <FormHelperText className="outlined-image-helper-text">
+                    {formValues.imageUrl.errorMessage}
+                  </FormHelperText>
+                )}
+                {(formValues.imageUrl.error && 
+                  <FormHelperText 
+                    className="outlined-image-helper-text" 
+                    sx={{ color: 'red' }}
+                  >
+                    {formValues.imageUrl.errorMessage}
+                  </FormHelperText>
+                )}
+              </Box>
+            </Box>
+          </Box>
+        )}
+      </Box>
+
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          m: 5,
+          gap: 4,
+          // maxWidth: '75%' 
+        }}
       >
-        Submit
-      </button>
-
-      <button
-        className="text-black p-3 border-gray-300 rounded-md shadow-sm"
-        type="reset"
-        name="reset"
-        value="Reset"
-      >
-        Reset
-      </button>
-    </form>
+        <Button
+          variant="contained"
+          type="submit"
+          color="success"
+          // onClick=
+        >
+          Submit
+        </Button>
+        <Button
+          variant="contained"
+          type="reset"
+          color="error"
+          onClick={handleReset}
+        >
+          Reset
+        </Button>
+      </Box>
+    </Box>
   )
 }
 

@@ -1,29 +1,16 @@
-import { useLocation } from 'react-router-dom';
 import { axiosPrivateSeller } from '../../api/axios.tsx';
 import ProductForm from "./ProductForm.tsx";
+import { useState } from 'react';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface SubmitVariationsInterface {
-  var1: string; 
-  var2: string;
+  name?: string;
+  var1: string | null; 
+  var2: string | null;
   price: number;
   quantity: number;
-  imageUrl: string[];
-  sku?: string;
-}
-
-interface SubmitInterface {
-  name: string;
-  description: string;
-  price: number;
-  quantity: number;
-  imageUrl: string[];
-  categoryId: number;
-  category: string;
-  variations: Array<SubmitVariationsInterface>;
-
-  // optional properties
-  // edit product only
-  productId?: number;
+  imageUrl: string;
   sku?: string;
 }
 
@@ -33,7 +20,7 @@ interface Product {
   name: string;
   price: number;
   quantity: number;
-  imageUrl: string[];
+  imageUrl: string;
   sku: string;
   subRows: Array<Product>;
   
@@ -45,85 +32,78 @@ interface Product {
   category?: string;
 
   // product variations only
-  variation1?: string;
-  variation2?: string;
+  variation1?: string | null;
+  variation2?: string | null;
 }
 
-const EditProduct = () => {
+// const EditProduct = ( prop: Product ) => {
+  const EditProduct: React.FC<{ product: Product }> = ({ product }) => {
 
-  let { state } = useLocation();
-  
-  let product: Product = state;
+  // console.log("product", product)
+  // const [currentProduct, setCurrentProduct] = useState<Product>(product);
+  // console.log("currentProduct", currentProduct);
+  const currentProduct: Product = product;
 
-  const originalProduct: Product = JSON.parse(JSON.stringify(Object.values(product)[0]));
-
-  const handleSubmit = async (e: SubmitInterface) => {
-    let columns: string[] = [];
-    let values: Array<string | number> = [e.name, e.description, e.categoryId];
-
-    let imageURLMap: string[][] = [];
-    let deleteImageURLMap: string[][] = [];
+  const handleSubmit = async (e: any) => {
+    console.log("event", e);
+    let keys: string[] = [];
+    let values: Array<string | number> = [];
+    let noVariations: SubmitVariationsInterface = {
+      var1: null, 
+      var2: null,
+      price: e.price,
+      quantity: e.quantity,
+      imageUrl: e.imageUrl,
+      sku: e?.sku
+    }
     
-    if (e.variations.length === 0) {
-      const newURLs = e.imageUrl.filter((url: string) =>
-        !originalProduct?.imageUrl.includes(url)
-      );
-      imageURLMap.push(newURLs);
-
-      const missingURLs = originalProduct.imageUrl.filter((url: string) =>
-        !e.imageUrl.includes(url)
-      );
-      deleteImageURLMap.push(missingURLs);
-
-      e.variations = [{
-        var1: "",
-        var2: "",
-        price: e.price,
-        quantity: e.quantity,
-        imageUrl: e.imageUrl,
-        sku: e.sku,
-      }]
-    } else {
-      e.variations.forEach((variation: SubmitVariationsInterface) => {
-        let existingVariation = originalProduct.subRows.find((existingVar: any) => {
-            return existingVar.variation1 === variation.var1 && (variation.var2 ? existingVar.variation2 === variation.var2 : true);
-          }
-        );
-
-        if (existingVariation) {
-          variation.sku = existingVariation.sku
-
-          const newURLs = variation.imageUrl.filter((url: string) =>
-            !existingVariation?.imageUrl.includes(url)
-          );
-          imageURLMap.push(newURLs);
-
-          const missingURLs = existingVariation.imageUrl.filter((url: string) =>
-            !variation.imageUrl.includes(url)
-          );
-          deleteImageURLMap.push(missingURLs);
-        } else {
-          variation.sku = "";
-          imageURLMap.push(variation.imageUrl);
-          deleteImageURLMap.push([]);
-        }
-      });    
+    if (currentProduct.name !== e.name) {
+      keys.push("name");
+      values.push(e.name);
+    }
+    if (currentProduct.description !== e.description) {
+      keys.push("description");
+      values.push(e.description);
+    }
+    if (currentProduct.categoryId !== e.categoryId) {
+      keys.push("category_id");
+      values.push(e.categoryId);
     }
 
     const editProduct = async () => {
       try {
-        await axiosPrivateSeller.post(
-          `/editProduct/${originalProduct.productId}`,
+        const response = await axiosPrivateSeller.post(
+          `/editProduct/${currentProduct.productId}`,
           {
-            columns: columns,
+            keys: keys,
             values: values,
-            variations: e.variations,
-            imageURLMap: imageURLMap,
-            deleteImageURLMap: deleteImageURLMap
+            variations: e.variations.length === 0 ? noVariations : e.variations,
           }
         )
+        if (response) {
+          toast.success("Successfully updated " + e.name, {
+              position: "top-center",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "light",
+          });
+        }
       } catch (err) {
         console.log(err);
+        toast.error("Error updating " + e.name, {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
       }
     }
 
@@ -136,8 +116,9 @@ const EditProduct = () => {
       <div className="flex flex-col w-max">
         <h1 className="text-xl font-medium mb-2">Edit Product</h1>
 
+        <ToastContainer />
         <ProductForm 
-          product={product}
+          product={currentProduct}
           onSubmit={handleSubmit}
         />
       </div>
