@@ -6,7 +6,7 @@ import ModalComponent from "./ModelForRating";
 import useCustomer from "../../hooks/UseCustomer";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import { v4 as uuidv4 } from "uuid";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 //Everything relating to Rating and Review is done by Noah
 interface Product {
   description: string;

@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import CloudinaryUpload from '../../Cloudinary/CloudinaryUpload';
-import { AdvancedImage } from '@cloudinary/react';
-import { cld } from '../../Cloudinary/Cloudinary';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 //Noah's code
@@ -18,12 +16,12 @@ const ModalComponent: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, order
     const [rating, setRating] = useState<number>(0);
     const [comment, setComment] = useState<string>("");
     const [image_urls, setImage_urls] = useState<string[]>([]);
-    const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>([]);
+
     const handleUploadSuccess = (resultInfo: any) => {
         const imageUrl = resultInfo.public_id;
-        setImage_urls(previousImageUrls => [...previousImageUrls, imageUrl]);
-        setUploadedImageUrls(previousImageUrls => [...previousImageUrls, imageUrl]);
+        setImage_urls(prev => [...prev, imageUrl]);
     };
+
 
     const [error, setError] = useState({
         rating: false,
@@ -90,7 +88,7 @@ const ModalComponent: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, order
 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-all duration-300">
-            <div className="bg-white p-5 rounded-md w-72">
+            <div className="bg-white p-5 rounded-md w-72 z-20">
                 <h2 className="text-center">Rate the product</h2>
                 <div className="flex justify-center cursor-pointer mt-4">
                     {[1, 2, 3, 4, 5].map((star) => (
@@ -100,13 +98,8 @@ const ModalComponent: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, order
                     ))}
                 </div>
                 <textarea className="w-full p-2 mt-2 rounded-md" onChange={handleCommentChange} value={comment} placeholder="Leave your comment" />
-                <div className="flex flex-col items-center border-2 border-dashed p-2">
+                <div className="flex flex-col items-center border-2 border-dashed p-2 mt-4">
                     <CloudinaryUpload onSuccess={handleUploadSuccess} caption={"Add Photo"} />
-                    {uploadedImageUrls && uploadedImageUrls.map(uploadedImageUrl => (
-                        <div className="w-20 h-20">
-                            <AdvancedImage cldImg={cld.image(uploadedImageUrl)} />
-                        </div>
-                    ))}
                 </div>
                 <div className="flex justify-between mt-2">
                     <button className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded-md transition-colors duration-300" onClick={handleSubmit}>Submit</button>
