@@ -219,10 +219,10 @@ const ViewReceived = ({ receivedOrders, getAll }: Props) => {
                               {order.variation_1 && order.variation_2
                                 ? `${order.variation_1} and ${order.variation_2}`
                                 : order.variation_1
-                                ? order.variation_1
-                                : order.variation_2
-                                ? order.variation_2
-                                : "No Variation"}
+                                  ? order.variation_1
+                                  : order.variation_2
+                                    ? order.variation_2
+                                    : "No Variation"}
                             </p>
                           </div>
                         </div>
@@ -257,19 +257,14 @@ const ViewReceived = ({ receivedOrders, getAll }: Props) => {
                           </button>
                         )}
 
-                        <ModalComponent
-                          isOpen={isModalOpen}
-                          onClose={handleCloseModal}
-                          onSubmit={handleSubmit}
-                          orders_product_id={order_product_id}
-                          customer_id={customer_id}
-                        />
+
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
             ))}
+
             <h1 className="text-md font-bold opacity-40">
               Receieved Date:{" "}
               {getLocalDate(ordersArray[0][0].shipment_delivered)}{" "}
@@ -278,6 +273,13 @@ const ViewReceived = ({ receivedOrders, getAll }: Props) => {
           </div>
         ))
         .reverse()}
+      <ModalComponent
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSubmit={handleSubmit}
+        orders_product_id={order_product_id}
+        customer_id={customer_id}
+      />
       {orderedReceivedOrders?.length === 0 && (
         <div className="flex flex-col items-center justify-center p-8 text-32xl font-barlow opacity-30 font-bold">
           No orders marked as received.

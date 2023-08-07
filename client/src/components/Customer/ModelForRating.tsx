@@ -87,8 +87,8 @@ const ModalComponent: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, order
     };
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-all duration-300">
-            <div className="bg-white p-5 rounded-md w-72 z-20">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 transition-all duration-300">
+            <div className="bg-white p-5 rounded-md w-96 z-20">
                 <h2 className="text-center">Rate the product</h2>
                 <div className="flex justify-center cursor-pointer mt-4">
                     {[1, 2, 3, 4, 5].map((star) => (
