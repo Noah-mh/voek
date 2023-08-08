@@ -70,7 +70,7 @@ export const handleRemoveItemCart = async (
   } finally {
     await connection.release();
   }
-}
+};
 
 export const handleInsertPayment = async (
   customer_id: number,
@@ -269,6 +269,24 @@ export const handlesInsertCart = async (
   }
 };
 
+export const handleGetQuantityOfProductInCart = async (
+  customerId: string,
+  productId: string,
+  SKU: string
+) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT quantity FROM cart WHERE customer_id = ? AND product_id = ? AND SKU = ?;`;
+  try {
+    const [result] = await connection.query(sql, [customerId, productId, SKU]);
+    return (result as any)[0];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
 interface Product {
   product_id: number;
   name: string;
@@ -289,7 +307,7 @@ interface CartItem {
   stock: number;
 }
 
-export interface CartDetails extends Array<CartItem> { }
+export interface CartDetails extends Array<CartItem> {}
 
 export interface CartItemUpdate {
   customer_id: number;
