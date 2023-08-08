@@ -1,42 +1,68 @@
-import React, { useEffect, useCallback, useState } from 'react';
-import { defaultPreset, cloudName } from './Cloudinary';
-//Noah's code 
-//Every getting , rendering and uploading image is done by Noah
-interface CloudinaryUploaderProps {
+import React, { useEffect, useState, useCallback, ChangeEvent } from 'react';
+import axios from 'axios';
+import { cloudName, defaultPreset } from './Cloudinary';
+import useAxiosPrivateCustomer from "../hooks/useAxiosPrivateCustomer";
+import useCustomer from "../hooks/UseCustomer";
+interface CloudinaryUploadProps {
     onSuccess: (resultInfo: any) => void;
-    caption: String;
+    caption: string;
+    image_url: string;
 }
 
-const CloudinaryUploader: React.FC<CloudinaryUploaderProps> = ({ onSuccess, caption }) => {
-    const [myWidget, setMyWidget] = useState<any>(null);
-    useEffect(() => {
-        if ((window as any).cloudinary) {
-            setMyWidget((window as any).cloudinary.createUploadWidget({
-                cloudName: cloudName,
-                uploadPreset: defaultPreset,
-            }, (error: any, result: any) => {
-                if (!error && result && result.event === 'success') {
-                    onSuccess(result.info);
-                }
-            }))
-        }
-    }, [onSuccess]);
-    const handleUploadClick = useCallback(() => {
-        myWidget?.open();
-    }, [myWidget]);
+const CloudinaryUploader: React.FC<CloudinaryUploadProps> = ({ onSuccess, caption, image_url }) => {
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [isUploaded, setIsUploaded] = useState(false);
+    const axiosPrivateCustomer = useAxiosPrivateCustomer();
+    const { customer } = useCustomer();
 
+    const handleUpload = useCallback(async () => {
+        console.log("customer ", customer);
+        if (selectedFile) {
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            formData.append('upload_preset', defaultPreset);
+
+            try {
+                await axiosPrivateCustomer.delete(
+                    `/customer/${customer.customer_id}/deleteImage?image_url=${encodeURIComponent(image_url)}`
+                );
+
+                const response = await axios.post(
+                    `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+                    formData
+                );
+                onSuccess(response.data);
+                setIsUploaded(true);
+            } catch (error) {
+                console.error('Upload failed', error);
+            }
+        }
+    }, [selectedFile, onSuccess]);
+
+    const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files ? event.target.files[0] : null;
+        setSelectedFile(file);
+        setIsUploaded(false); // Reset the upload status whenever the file changes
+    };
+
+    useEffect(() => {
+        if (selectedFile && !isUploaded) {
+            handleUpload();
+        }
+    }, [selectedFile, handleUpload, isUploaded]);
 
     return (
-        <div>
-            <button
-                type="button"
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow"
-                onClick={handleUploadClick}>
+        <div className="flex flex-col items-center justify-center py-10">
+            <input id="file-upload" type="file" accept="image/png, image/jpeg" onChange={handleFileChange} className="hidden" />
+            <label htmlFor="file-upload" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer">
                 {caption}
-            </button>
+            </label>
         </div>
-
     );
 };
 
 export default CloudinaryUploader;
+
+
+
+
