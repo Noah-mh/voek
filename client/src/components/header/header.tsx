@@ -1,12 +1,21 @@
 import "./css/header.css";
-import { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import useCustomer from "../../hooks/UseCustomer.js";
 import useSeller from "../../hooks/useSeller.js";
 import LiveSearch from "../header/LiveSearch.js";
-import DropDownProfile from "../header/DropDownProfile.js";
 import { Link } from "react-router-dom";
 import axios from "../../api/axios.js";
-import { useLocation } from "react-router-dom";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
+import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faUser,
+  faHeart,
+  faClockRotateLeft,
+  faRightFromBracket,
+} from "@fortawesome/free-solid-svg-icons";
 
 interface Props {
   isCustomer?: boolean;
@@ -20,12 +29,24 @@ interface Product {
 const Header = ({ isCustomer, isSeller }: Props) => {
   const [results, setResults] = useState<Array<object>>([]);
   const [searchResults, setSearchResults] = useState<Product[]>([]);
-  const [openProfile, setOpenProfile] = useState<boolean>(false);
+
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event: React.MouseEvent<HTMLParagraphElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   const ref: any = useRef();
 
   const { customer } = useCustomer();
   const { seller } = useSeller();
+
+  const { setCustomer } = useCustomer();
+  const axiosPrivateCustomer = useAxiosPrivateCustomer();
+  const navigate = useNavigate();
 
   useEffect(() => {
     axios
@@ -43,10 +64,15 @@ const Header = ({ isCustomer, isSeller }: Props) => {
       });
   }, []);
 
-  const location = useLocation();
-  useEffect(() => {
-    setOpenProfile(false);
-  }, [location]);
+  const handleLogOut = async () => {
+    try {
+      setCustomer({});
+      await axiosPrivateCustomer.put("/customer/logout");
+      navigate("/login", { replace: true });
+    } catch (err: any) {
+      console.log(err);
+    }
+  };
 
   return (
     <nav
@@ -74,6 +100,9 @@ const Header = ({ isCustomer, isSeller }: Props) => {
                   Become a seller today!
                 </p>
               </Link>
+              <Link to="/claimVouchers" className="ms-6 text-lg font-bold">
+                <p className="text-purpleAccent">Claim Vouchers</p>
+              </Link>
             </>
           ) : isSeller ? (
             <>
@@ -87,7 +116,7 @@ const Header = ({ isCustomer, isSeller }: Props) => {
           ) : null}
         </div>
       </div>
-      <div className="block justify-end w-1/2">
+      <div className={`block justify-end ${isCustomer && 'w-1/2'}`}>
         <div className="text-sm lg:flex-grow inline-block  px-4  leading-none">
           {isCustomer ? (
             customer?.customer_id ? (
@@ -104,10 +133,73 @@ const Header = ({ isCustomer, isSeller }: Props) => {
                   <div className="mx-2">
                     <p
                       className="text-purpleAccent hover:cursor-pointer"
-                      onClick={() => setOpenProfile(!openProfile)}
+                      id="basic-button"
+                      aria-controls={open ? "basic-menu" : undefined}
+                      aria-haspopup="true"
+                      aria-expanded={open ? "true" : undefined}
+                      onClick={handleClick}
                     >
                       Profile
                     </p>
+                    <Menu
+                      id="basic-menu"
+                      anchorEl={anchorEl}
+                      open={open}
+                      onClose={handleClose}
+                      MenuListProps={{
+                        "aria-labelledby": "basic-button",
+                      }}
+                      className="mt-3"
+                    >
+                      <MenuItem
+                        onClick={handleClose}
+                        className="hover:cursor-pointer hover:text-softerPurple flex flex-row items-center space-x-2"
+                      >
+                        <Link
+                          to="/profile"
+                          className="flex flex-row items-center space-x-2"
+                        >
+                          <FontAwesomeIcon icon={faUser} />
+                          <h1>Profile</h1>
+                        </Link>
+                      </MenuItem>
+                      <MenuItem
+                        onClick={handleClose}
+                        className="hover:cursor-pointer hover:text-softerPurple"
+                      >
+                        <Link
+                          to="/wishlist"
+                          className="flex flex-row items-center space-x-2"
+                        >
+                          <FontAwesomeIcon icon={faHeart} />
+                          <h1>Wishlist</h1>
+                        </Link>
+                      </MenuItem>
+                      <MenuItem
+                        onClick={handleClose}
+                        className="hover:cursor-pointer hover:text-softerPurple flex flex-row items-center space-x-2"
+                      >
+                        <Link
+                          to="/lastViewed"
+                          className="flex flex-row items-center space-x-2"
+                        >
+                          <FontAwesomeIcon icon={faClockRotateLeft} />
+                          <h1>Last Viewed</h1>
+                        </Link>
+                      </MenuItem>
+                      <MenuItem
+                        onClick={handleClose}
+                        className="hover:cursor-pointer hover:text-pink flex flex-row items-center space-x-2"
+                      >
+                        <button
+                          onClick={handleLogOut}
+                          className="flex flex-row items-center space-x-2"
+                        >
+                          <FontAwesomeIcon icon={faRightFromBracket} />
+                          <h1>Log Out</h1>
+                        </button>
+                      </MenuItem>
+                    </Menu>
                   </div>
                   <Link to="/customer/dailyCheckIn" className="mx-2">
                     <p className="text-purpleAccent">Check In</p>
@@ -161,7 +253,6 @@ const Header = ({ isCustomer, isSeller }: Props) => {
           ) : null}
         </div>
       </div>
-      {openProfile && <DropDownProfile />}
       <br />
     </nav>
   );

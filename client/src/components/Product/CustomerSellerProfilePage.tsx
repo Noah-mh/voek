@@ -9,13 +9,15 @@ import { useParams } from "react-router-dom";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
 import AllProducts from "./AllProducts";
 import CategoryProducts from "./CategoryProducts";
 import RedeemVoucher from "../RedeemVoucher/RedeemVoucher";
-import { AiOutlineShop } from "react-icons/ai";
+import { AiOutlineShop, AiOutlineStar, AiOutlineShopping } from "react-icons/ai";
+import { GrUserExpert } from "react-icons/gr";
+import { CiChat1 } from "react-icons/ci";
 import { ToastContainer, toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
+import moment from "moment";
 import "./css/CustomerSellerProfilePage.css";
 
 //Noah's code
@@ -36,6 +38,7 @@ interface seller {
   image_url: string;
   total_products: number;
   total_reviews: number;
+  rating: number;
   date_created: Date;
 }
 
@@ -76,6 +79,7 @@ const CustomerSellerProfilePage: React.FC = () => {
   const params = useParams();
   const { seller_id } = params;
   const [sellerData, setSellerData] = useState<seller[]>([]);
+  const [diffInMonths, setDiffInMonths] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [categoryData, setCategoryData] = useState<Category[]>([]);
   const [productData, setProductData] = useState<Product[]>([]);
@@ -128,6 +132,16 @@ const CustomerSellerProfilePage: React.FC = () => {
   useEffect(() => {
     getAllData();
   }, []);
+
+  useEffect(() => {
+    if (sellerData.length > 0) {
+      const date_created = moment(sellerData[0].date_created);
+
+      const diffInMonths = moment().diff(date_created, "months");
+      console.log(diffInMonths);
+      setDiffInMonths(diffInMonths);
+    }
+  }, [sellerData]);
 
   const handleOnClickChat = () => {
     if (!customer_id) {
@@ -203,47 +217,72 @@ const CustomerSellerProfilePage: React.FC = () => {
     return (
       <div className="">
         <ToastContainer />
-        <div className=" flex items-center justify-center sellerBanner ">
-          <div className="w-40 h-40 mb-5 mr-5">
-            <AdvancedImage cldImg={cld.image(sellerData[0].image_url)} />
-          </div>
-          <div className="flex flex-col justify-center w-1/3  text-white opacity-90">
-            <Typography
-              gutterBottom
-              variant="h4"
-              component="div"
-              classes="font-Barlow font-semibold"
-            >
-              {sellerData[0].shop_name}
-            </Typography>
-            <div className="flex">
-              <AiOutlineShop className="mr-1" />
-              <Typography variant="body2">
-                Products: {sellerData[0].total_products}
-              </Typography>
+        <div className="flex my-8 items-center justify-center">
+          <div className="mx-auto">
+            <div className="w-full">
+              <div className="w-full bg-white flex p-6 content-between items-center overflow-visible shadow-sm">
+
+                <div className="pr-12 box-border border-r border-gray-200 flex max-w-[27.5rem] justify-center items-center">
+                  <Link
+                    to={`/customerSellerProfile/${sellerData[0].seller_id}`}
+                    className="flex-shrink-0 mr-5 relative overflow-visible outline-0"
+                  >
+                    <div className="w-20 h-20">
+                      <AdvancedImage
+                        cldImg={cld.image(sellerData[0].image_url)}
+                        className="w-full h-full object-cover rounded-full"
+                      />
+                    </div>
+                  </Link>
+                  <div className="grow flex flex-col content-center overflow-hidden">
+                    <Link
+                      to={`/customerSellerProfile/${sellerData[0].seller_id}`}
+                      className="overflow-hidden text-ellipsis whitespace-nowrap"
+                    >
+                      {sellerData[0].shop_name}
+                    </Link>
+                    <div className="mt-2 flex space-x-2">
+                      <div
+                        onClick={handleOnClickChat}
+                        className="outline-0 border border-purpleAccent bg-pink bg-opacity-10 relative overflow-visible h-9 px-4 flex justify-center items-center hover:cursor-pointer"
+                      >
+                        <CiChat1 /> <h1 className="ml-2">Chat</h1>
+                      </div>
+                      <Link
+                        to={`/customerSellerProfile/${sellerData[0].seller_id}`}
+                        className="outline-0 border border-opacity-10 relative overflow-visible h-9 px-4 flex justify-center items-center"
+                      >
+                        <AiOutlineShop /> <h1 className="ml-2">Shop</h1>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+                <div className="grow grid grid-cols-3 gap-x-36 gap-y-20 pl-10 text-gray-900">
+                  <div className="flex space-x-3 relative overflow-visible items-center">
+                    <AiOutlineShopping />
+                    <h1>Total Products:</h1>{" "}
+                    <h1 className="text-pink">
+                      {sellerData[0].total_products}
+                    </h1>
+                  </div>
+                  <div className="flex space-x-3 relative overflow-visible items-center">
+                    <AiOutlineStar />
+                    <h1>Ratings:</h1>{" "}
+                    <h1 className="text-pink">{sellerData[0].rating}</h1>
+                    <h1 className="text-pink">( {sellerData[0].total_reviews} {sellerData[0].total_reviews < 2 ? "Rating" : "Ratings"} )</h1>
+                  </div>
+                  <div className="flex space-x-3 relative overflow-visible items-center">
+                    <GrUserExpert />
+                    <h1>Joined:</h1>{" "}
+                    <h1 className="text-pink">
+                      {diffInMonths}{" "}
+                      {diffInMonths === 1 || diffInMonths === 0 ? "month" : "months"}
+                    </h1>
+                    <span>ago</span>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-          <div>
-            <button
-              className=" flex items-center bg-transparent border-2 border-white  p-2 px-4 font-Barlow font-semibold uppercase text-white rounded-md text-xs  hover:bg-white  hover:text-darkerPurple"
-              onClick={handleOnClickChat}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                className="w-6 h-6 mr-2"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"
-                />
-              </svg>
-              Chat
-            </button>
           </div>
         </div>
         <div className="voucherBox">

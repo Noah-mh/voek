@@ -10,6 +10,7 @@ dotenv.config({
 });
 
 import { v4 as uuidv4 } from "uuid";
+import { time } from "console";
 
 interface SubmitVariationsInterface {
   var1: string;
@@ -94,13 +95,13 @@ export const handleGetAllCategories = async (): Promise<any[]> => {
 
 // POST insert a new product
 export const handleAddProduct = async (
-  sellerId: number, 
-  name: string, 
-  description: string, 
-  categoryId: number, 
-  variations: Array<SubmitVariationsInterface>, 
-  quantity: number, 
-  price: number, 
+  sellerId: number,
+  name: string,
+  description: string,
+  categoryId: number,
+  variations: Array<SubmitVariationsInterface>,
+  quantity: number,
+  price: number,
   imageUrl: string
 ) => {
   const promisePool = pool.promise();
@@ -122,47 +123,47 @@ export const handleAddProduct = async (
 
     // insert into products table unless there is a duplicate, in which case lasatInsertId will be 0
     return Promise.resolve(connection.query(insertProducts, [name, description, categoryId, name, description, categoryId]))
-    .then(async (response) => {
-      // console.log("model response", response)
-      let lastInsertId = Object.values(response[0])[2];
-      // console.log("lastInsertId", lastInsertId);
-      // if product exists, do not insert into products table and return lastInsertId
-      if (lastInsertId === 0) {
-        // console.log("Product already exists.");
-        return lastInsertId;
-      } else {
+      .then(async (response) => {
+        // console.log("model response", response)
         let lastInsertId = Object.values(response[0])[2];
-        // insert into listed products table
-        await connection.query(insertListedProducts, [lastInsertId, sellerId]);
-        // if variations exist, map variations
-        if (variations.length !== 0) {
-          // console.log("variations", variations);
-          await Promise.all(variations.map(async (variation) => {
+        // console.log("lastInsertId", lastInsertId);
+        // if product exists, do not insert into products table and return lastInsertId
+        if (lastInsertId === 0) {
+          // console.log("Product already exists.");
+          return lastInsertId;
+        } else {
+          let lastInsertId = Object.values(response[0])[2];
+          // insert into listed products table
+          await connection.query(insertListedProducts, [lastInsertId, sellerId]);
+          // if variations exist, map variations
+          if (variations.length !== 0) {
+            // console.log("variations", variations);
+            await Promise.all(variations.map(async (variation) => {
+              // create sku
+              const sku = uuidv4();
+              // insert into product variations table
+              connection.query(insertProductVariations, [sku, lastInsertId, variation.var1, variation.var2 ? variation.var2 : null, variation.quantity, variation.price]);
+              // insert into product images table
+              connection.query(insertProductImages, [lastInsertId, variation.imageUrl, sku]);
+              // console.log("variation inserted");
+              return lastInsertId;
+            }));
+          } else {
+            // console.log("variations DONT exist");
             // create sku
             const sku = uuidv4();
-            // insert into product variations table
-            connection.query(insertProductVariations, [sku, lastInsertId, variation.var1, variation.var2 ? variation.var2 : null, variation.quantity, variation.price]);
-            // insert into product images table
-            connection.query(insertProductImages, [lastInsertId, variation.imageUrl, sku]);
-            // console.log("variation inserted");
+            connection.query(insertProductVariations, [sku, lastInsertId, null, null, quantity, price]);
+            connection.query(insertProductImages, [lastInsertId, imageUrl, sku]);
+            // console.log("single variation inserted");
             return lastInsertId;
-          }));
-        } else {
-          // console.log("variations DONT exist");
-          // create sku
-          const sku = uuidv4();
-          connection.query(insertProductVariations, [sku, lastInsertId, null, null, quantity, price]);
-          connection.query(insertProductImages, [lastInsertId, imageUrl, sku]);
-          // console.log("single variation inserted");
+          }
+          // console.log("Product has been inserted.");
           return lastInsertId;
         }
-        // console.log("Product has been inserted.");
-        return lastInsertId;
-      }
-    })
-    .then((response) => {
-      return response as number;  
-    })
+      })
+      .then((response) => {
+        return response as number;
+      })
   } catch (err: any) {
     connection.rollback();
     connection.release();
@@ -202,25 +203,25 @@ export const handleEditProduct = async (
   //       AND (variation_2 = ? OR variation_2 IS NULL)
   //     LIMIT 1
   //   ) AS subquery;`;
-    let getSku1 = `SELECT
+  let getSku1 = `SELECT
     IF(COUNT(*) > 0, 'Table', 'UUID') AS source,
     IF(COUNT(*) > 0, (SELECT sku FROM product_variations WHERE product_id = ?`;
-    let getSku2 = `), UUID()) AS sku
+  let getSku2 = `), UUID()) AS sku
     FROM (
       SELECT 1
       FROM product_variations
       WHERE product_id = ?`;
-    let getSku3 = `LIMIT 1
+  let getSku3 = `LIMIT 1
     ) AS subquery;`;
-    let getSkuVar1 = ` AND variation_1 = ?`;
-    let getSkuVar1Null = ` AND variation_1 IS NULL`;
-    let getSkuVar2 = ` AND variation_2 = ?`;
-    let getSkuVar2Null = ` AND variation_2 IS NULL`;
+  let getSkuVar1 = ` AND variation_1 = ?`;
+  let getSkuVar1Null = ` AND variation_1 IS NULL`;
+  let getSkuVar2 = ` AND variation_2 = ?`;
+  let getSkuVar2Null = ` AND variation_2 IS NULL`;
   const insertProductVariations = `INSERT INTO product_variations (sku, product_id, variation_1, variation_2, quantity, price)
     VALUES (?, ?, ?, ?, ?, ?);`;
   const insertProductImages = `INSERT INTO product_images (product_id, image_url, sku)
     VALUES (?, ?, ?);`;
-  const updateProductImages = 
+  const updateProductImages =
     `UPDATE product_images SET image_url = ? WHERE sku = ?`;
 
   try {
@@ -238,10 +239,10 @@ export const handleEditProduct = async (
 
       let tempArr: (string | number)[] = [...values, productId];
       // console.log("tempArr", tempArr);
-      await connection.query(updateProducts, tempArr);   
+      await connection.query(updateProducts, tempArr);
       // console.log("products table updated");
     }
-   
+
     // reset product variations valid_variations column to 0, will set it back to 1 if it is a valid variation
     await connection.query(updateProductVariationsValid, [productId]);
 
@@ -275,29 +276,29 @@ export const handleEditProduct = async (
         // console.log("getSku", getSku);
         // console.log("parameters", parameters)
         await connection.query(getSku, parameters)
-        .then(async (response) => {
-          let exists = Object.values(response[0])[0].source;
-          let sku = Object.values(response[0])[0].sku;
-          // console.log("exists", exists);
-          // console.log("sku", sku);
-          // if variation exists but is not active
-          if (exists === "Table") {
-            // console.log("variation exists but is not active")
-            // update product variations table, also sets valid_variation to 1
-            await connection.query(updateProductVariations, [variation.quantity, variation.price, sku]);
-            // update product images table
-            await connection.query(updateProductImages, [variation.imageUrl, sku])
-            // console.log("inactive but existing variation updated, active now");
-          } else { // if variation does not exist
-            // console.log("variation does not exist")
-            // insert into product variations table
-            connection.query(insertProductVariations, [sku, productId, variation.var1 ? variation.var1 : null, variation.var2 ? variation.var2 : null, variation.quantity, variation.price]);
-            // insert into product images table
-            connection.query(insertProductImages, [productId, variation.imageUrl, sku]);
-            // console.log("new variation inserted, active now");
-          }
-          return productId;
-        })
+          .then(async (response) => {
+            let exists = Object.values(response[0])[0].source;
+            let sku = Object.values(response[0])[0].sku;
+            // console.log("exists", exists);
+            // console.log("sku", sku);
+            // if variation exists but is not active
+            if (exists === "Table") {
+              // console.log("variation exists but is not active")
+              // update product variations table, also sets valid_variation to 1
+              await connection.query(updateProductVariations, [variation.quantity, variation.price, sku]);
+              // update product images table
+              await connection.query(updateProductImages, [variation.imageUrl, sku])
+              // console.log("inactive but existing variation updated, active now");
+            } else { // if variation does not exist
+              // console.log("variation does not exist")
+              // insert into product variations table
+              connection.query(insertProductVariations, [sku, productId, variation.var1 ? variation.var1 : null, variation.var2 ? variation.var2 : null, variation.quantity, variation.price]);
+              // insert into product images table
+              connection.query(insertProductImages, [productId, variation.imageUrl, sku]);
+              // console.log("new variation inserted, active now");
+            }
+            return productId;
+          })
       }
     }));
   } catch (err: any) {
@@ -456,8 +457,8 @@ export const handleSendSMSOTP = async (
         if (err === null) {
           console.log(
             `Messaging response for messaging phone number: ${phoneNumber}` +
-              ` => code: ${res["status"]["code"]}` +
-              `, description: ${res["status"]["description"]}`
+            ` => code: ${res["status"]["code"]}` +
+            `, description: ${res["status"]["description"]}`
           );
         } else {
           console.log("Unable to send message. " + err);
@@ -572,9 +573,8 @@ export const handleSendEmailLink = async (
         sender,
         to: receivers,
         subject: "Verification Link For VOEK seller Sign Up",
-        textContent: `${
-          process.env.FRONTEND_BASE_URL || "http://localhost:5173"
-        }/seller/signup/verify?signupToken=${signUpToken}`,
+        textContent: `${process.env.FRONTEND_BASE_URL || "http://localhost:5173"
+          }/seller/signup/verify?signupToken=${signUpToken}`,
       })
       .then((response: any) => {
         console.log(response);
@@ -701,9 +701,8 @@ export const handleSendEmailForgetPassword = async (
         sender,
         to: receivers,
         subject: "VPassword reset link for seller",
-        textContent: `${
-          process.env.FRONTEND_BASE_URL || "http://localhost:5173"
-        }/seller/forgetPassword/verify?forgetPasswordToken=${forgetPasswordToken}`,
+        textContent: `${process.env.FRONTEND_BASE_URL || "http://localhost:5173"
+          }/seller/forgetPassword/verify?forgetPasswordToken=${forgetPasswordToken}`,
       })
       .then((response: any) => {
         console.log(response);
@@ -1019,9 +1018,8 @@ export const handleSendEmailChange = async (
       sender,
       to: receivers,
       subject: "Verification Link For VOEK seller Email Change",
-      textContent: `${
-        process.env.FRONTEND_BASE_URL || "http://localhost:5173"
-      }/seller/email-verification?token=${changeSellerEmailToken}`,
+      textContent: `${process.env.FRONTEND_BASE_URL || "http://localhost:5173"
+        }/seller/email-verification?token=${changeSellerEmailToken}`,
     })
     .then((response: any) => {
       console.log(response);
@@ -1108,6 +1106,166 @@ export const handleViewVouchers = async (
     await connection.release();
   }
 };
+
+export const handleGetSoldCategories = async (
+  seller_id: number,
+  time_period: string
+): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  let sql: string = "";
+  if (time_period === "all") {
+    sql = `SELECT 
+	SUM(category.category_id) as value,
+    category.name
+FROM 
+    orders
+JOIN 
+    orders_product ON orders.orders_id = orders_product.orders_id
+JOIN 
+	products ON orders_product.product_id = products.product_id
+JOIN
+	category ON products.category_id = category.category_id
+JOIN 
+	listed_products ON products.product_id = listed_products.product_id
+WHERE 
+    listed_products.seller_id = 1
+GROUP BY
+	category.category_id`;
+  } else if (time_period === "week") {
+    sql = `SELECT 
+    SUM(category.category_id) as value,
+      category.name
+  FROM 
+      orders
+  JOIN 
+      orders_product ON orders.orders_id = orders_product.orders_id
+  JOIN 
+    products ON orders_product.product_id = products.product_id
+  JOIN
+    category ON products.category_id = category.category_id
+  JOIN 
+    listed_products ON products.product_id = listed_products.product_id
+  WHERE 
+      listed_products.seller_id = 1
+    AND YEAR(orders.orders_date) = YEAR(CURDATE())
+      AND WEEK(orders.orders_date) = WEEK(CURDATE())
+  GROUP BY
+    category.category_id`;
+  } else if (time_period === "month") {
+    sql = `SELECT 
+    SUM(category.category_id) as value,
+      category.name
+  FROM 
+      orders
+  JOIN 
+      orders_product ON orders.orders_id = orders_product.orders_id
+  JOIN 
+    products ON orders_product.product_id = products.product_id
+  JOIN
+    category ON products.category_id = category.category_id
+  JOIN 
+    listed_products ON products.product_id = listed_products.product_id
+  WHERE 
+      listed_products.seller_id = 1
+    AND DATE_FORMAT(orders.orders_date, '%Y-%m') = DATE_FORMAT(CURDATE(), '%Y-%m')
+  GROUP BY
+    category.category_id`;
+  }
+  try {
+    const [result] = await connection.query(sql, [seller_id]);
+    return result as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+}
+
+export const handleGetBestSellingProducts = async (
+  seller_id: number,
+  time_period: string
+): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  let sql: string = "";
+  if (time_period === "all") {
+    sql = `SELECT 
+    SUM(orders_product.quantity) as amount,
+      products.name
+  FROM 
+      orders
+  JOIN 
+      orders_product ON orders.orders_id = orders_product.orders_id
+  JOIN 
+    products ON orders_product.product_id = products.product_id
+  JOIN 
+    listed_products ON products.product_id = listed_products.product_id
+  WHERE 
+      listed_products.seller_id = 1
+  GROUP BY
+    products.product_id
+  LIMIT 10`;
+  } else if (time_period === "month") {
+    sql = `SELECT 
+    SUM(orders_product.quantity) as amount,
+      products.name
+  FROM 
+      orders
+  JOIN 
+      orders_product ON orders.orders_id = orders_product.orders_id
+  JOIN 
+    products ON orders_product.product_id = products.product_id
+  JOIN 
+    listed_products ON products.product_id = listed_products.product_id
+  WHERE 
+      listed_products.seller_id = 1
+    AND DATE_FORMAT(orders.orders_date, '%Y-%m') = DATE_FORMAT(CURDATE(), '%Y-%m')
+  GROUP BY
+    products.product_id
+  LIMIT 10`;
+  } else if (time_period === "week") {
+    sql = `SELECT 
+    SUM(orders_product.quantity) as amount,
+      products.name
+  FROM 
+      orders
+  JOIN 
+      orders_product ON orders.orders_id = orders_product.orders_id
+  JOIN 
+    products ON orders_product.product_id = products.product_id
+  JOIN 
+    listed_products ON products.product_id = listed_products.product_id
+  WHERE 
+      listed_products.seller_id = 1
+      AND YEAR(orders.orders_date) = YEAR(CURDATE())
+    AND WEEK(orders.orders_date) = WEEK(CURDATE())GROUP BY
+    products.product_id
+  LIMIT 10`;
+  }
+  try {
+    const [result] = await connection.query(sql, [seller_id]);
+    return result as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+}
+
+export const handleGetAllSellers = async (): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT seller.seller_id, seller.shop_name, seller.image_url FROM seller RIGHT JOIN seller_voucher ON seller.seller_id = seller_voucher.seller_id WHERE seller.seller_id IS NOT NULL GROUP BY seller_voucher.seller_id`;
+  try {
+    const [result] = await connection.query(sql);
+    return result as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+}
 
 const convertLocalTimeToUTC = (): string => {
   const now = new Date();

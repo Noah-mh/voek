@@ -71,8 +71,8 @@ export const handleSendSMSOTP = async (
         if (err === null) {
           console.log(
             `Messaging response for messaging phone number: ${phoneNumber}` +
-              ` => code: ${res["status"]["code"]}` +
-              `, description: ${res["status"]["description"]}`
+            ` => code: ${res["status"]["code"]}` +
+            `, description: ${res["status"]["description"]}`
           );
         } else {
           console.log("Unable to send message. " + err);
@@ -187,9 +187,8 @@ export const handleSendEmailLink = async (
         sender,
         to: receivers,
         subject: "Verification Link For VOEK customer Sign Up",
-        textContent: `${
-          process.env.FRONTEND_BASE_URL || "http://localhost:5173"
-        }/signup/verify?signupToken=${signUpToken}`,
+        textContent: `${process.env.FRONTEND_BASE_URL || "http://localhost:5173"
+          }/signup/verify?signupToken=${signUpToken}`,
       })
       .then((response: any) => {
         console.log(response);
@@ -344,9 +343,8 @@ export const handleSendEmailForgetPassword = async (
         sender,
         to: receivers,
         subject: "Password reset link for customer",
-        textContent: `${
-          process.env.FRONTEND_BASE_URL || "http://localhost:5173"
-        }/forgetPassword/verify?forgetPasswordToken=${forgetPasswordToken}`,
+        textContent: `${process.env.FRONTEND_BASE_URL || "http://localhost:5173"
+          }/forgetPassword/verify?forgetPasswordToken=${forgetPasswordToken}`,
       })
       .then((response: any) => {
         console.log(response);
@@ -498,9 +496,8 @@ export const handleSendEmailChange = async (
       sender,
       to: receivers,
       subject: "Verification Link For VOEK customer Email Change",
-      textContent: `${
-        process.env.FRONTEND_BASE_URL || "http://localhost:5173"
-      }/customer/email-verification?token=${changeCustomerEmailToken}`,
+      textContent: `${process.env.FRONTEND_BASE_URL || "http://localhost:5173"
+        }/customer/email-verification?token=${changeCustomerEmailToken}`,
     })
     .then((response: any) => {
       console.log(response);
@@ -1192,3 +1189,29 @@ export const handleRefundVouchers = async (voucher_id: number) => {
     await connection.release();
   }
 };
+
+export const handleGetTotalSpentAllTime = async (customer_id: number): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT 
+  orders.orders_id,
+  SUM(orders_product.total_price) as total_spent,
+  orders.orders_date
+FROM 
+  orders
+JOIN 
+  orders_product ON orders.orders_id = orders_product.orders_id
+WHERE 
+  orders.customer_id = ?
+GROUP BY 
+  orders.orders_id;
+`;
+  try {
+    const [result] = await connection.query(sql, [customer_id]);
+    return result as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+}
