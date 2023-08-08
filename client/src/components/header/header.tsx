@@ -95,7 +95,7 @@ const Header = ({ isCustomer, isSeller }: Props) => {
               <Link to="/">
                 <p className="text-purpleAccent">Products</p>
               </Link>
-              <Link to="/seller/signup">
+              <Link to="/seller/home">
                 <p className="ms-5 text-purpleAccent font-bold">
                   Become a seller today!
                 </p>

@@ -85,8 +85,7 @@ const CustomerProfilePage = () => {
   const [value, setValue] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    console.log(event);
+  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 

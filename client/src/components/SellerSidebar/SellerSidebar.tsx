@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
@@ -73,8 +73,7 @@ function a11yProps(index: number) {
 }
 
 const Sidebar: React.FC = () => {
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    console.log(event);
+  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 
@@ -97,7 +96,7 @@ const Sidebar: React.FC = () => {
 
   const updateProductValue = async (newProduct: Product) => {
     Promise.resolve(setProduct(newProduct))
-    .then(() => {setValue(5)});
+      .then(() => { setValue(5) });
   }
 
   return (
@@ -135,7 +134,7 @@ const Sidebar: React.FC = () => {
         <AddProduct />
       </TabPanel>
       <TabPanel value={value} index={2}>
-        <ManageProducts updateProductValue={updateProductValue} />
+        <ManageProducts updateProductValue={() => { updateProductValue }} />
       </TabPanel>
       <TabPanel value={value} index={3}>
         <ManageOrders />
