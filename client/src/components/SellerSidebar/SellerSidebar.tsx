@@ -97,7 +97,7 @@ const Sidebar: React.FC = () => {
 
   const updateProductValue = async (newProduct: Product) => {
     Promise.resolve(setProduct(newProduct))
-    .then(() => {setValue(5)});
+      .then(() => { setValue(5) });
   }
 
   return (
@@ -135,7 +135,7 @@ const Sidebar: React.FC = () => {
         <AddProduct />
       </TabPanel>
       <TabPanel value={value} index={2}>
-        <ManageProducts updateProductValue={updateProductValue} />
+        <ManageProducts updateProductValue={() => { updateProductValue }} />
       </TabPanel>
       <TabPanel value={value} index={3}>
         <ManageOrders />

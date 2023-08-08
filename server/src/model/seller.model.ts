@@ -122,7 +122,16 @@ export const handleAddProduct = async (
     // console.log("begin transaction");
 
     // insert into products table unless there is a duplicate, in which case lasatInsertId will be 0
-    return Promise.resolve(connection.query(insertProducts, [name, description, categoryId, name, description, categoryId]))
+    return Promise.resolve(
+      connection.query(insertProducts, [
+        name,
+        description,
+        categoryId,
+        name,
+        description,
+        categoryId,
+      ])
+    )
       .then(async (response) => {
         // console.log("model response", response)
         let lastInsertId = Object.values(response[0])[2];
@@ -134,26 +143,53 @@ export const handleAddProduct = async (
         } else {
           let lastInsertId = Object.values(response[0])[2];
           // insert into listed products table
-          await connection.query(insertListedProducts, [lastInsertId, sellerId]);
+          await connection.query(insertListedProducts, [
+            lastInsertId,
+            sellerId,
+          ]);
           // if variations exist, map variations
           if (variations.length !== 0) {
             // console.log("variations", variations);
-            await Promise.all(variations.map(async (variation) => {
-              // create sku
-              const sku = uuidv4();
-              // insert into product variations table
-              connection.query(insertProductVariations, [sku, lastInsertId, variation.var1, variation.var2 ? variation.var2 : null, variation.quantity, variation.price]);
-              // insert into product images table
-              connection.query(insertProductImages, [lastInsertId, variation.imageUrl, sku]);
-              // console.log("variation inserted");
-              return lastInsertId;
-            }));
+            await Promise.all(
+              variations.map(async (variation) => {
+                // create sku
+                const sku = uuidv4();
+                // insert into product variations table
+                connection.query(insertProductVariations, [
+                  sku,
+                  lastInsertId,
+                  variation.var1,
+                  variation.var2 ? variation.var2 : null,
+                  variation.quantity,
+                  variation.price,
+                ]);
+                // insert into product images table
+                connection.query(insertProductImages, [
+                  lastInsertId,
+                  variation.imageUrl,
+                  sku,
+                ]);
+                // console.log("variation inserted");
+                return lastInsertId;
+              })
+            );
           } else {
             // console.log("variations DONT exist");
             // create sku
             const sku = uuidv4();
-            connection.query(insertProductVariations, [sku, lastInsertId, null, null, quantity, price]);
-            connection.query(insertProductImages, [lastInsertId, imageUrl, sku]);
+            connection.query(insertProductVariations, [
+              sku,
+              lastInsertId,
+              null,
+              null,
+              quantity,
+              price,
+            ]);
+            connection.query(insertProductImages, [
+              lastInsertId,
+              imageUrl,
+              sku,
+            ]);
             // console.log("single variation inserted");
             return lastInsertId;
           }
@@ -163,7 +199,7 @@ export const handleAddProduct = async (
       })
       .then((response) => {
         return response as number;
-      })
+      });
   } catch (err: any) {
     connection.rollback();
     connection.release();
@@ -181,7 +217,7 @@ export const handleEditProduct = async (
   productId: number,
   keys: string[],
   values: string[],
-  variations: Array<SubmitVariationsInterface>,
+  variations: Array<SubmitVariationsInterface>
 ) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
@@ -192,14 +228,14 @@ export const handleEditProduct = async (
   // getSku = `DELETE FROM product_images WHERE sku = ? AND image_url = ?;`;
   // let getSku = `SELECT
   //   IF(COUNT(*) > 0, 'Table', 'UUID') AS source,
-  //   IF(COUNT(*) > 0, (SELECT sku FROM product_variations WHERE product_id = ? 
-  //                     AND (variation_1 = ? OR variation_1 IS NULL) 
+  //   IF(COUNT(*) > 0, (SELECT sku FROM product_variations WHERE product_id = ?
+  //                     AND (variation_1 = ? OR variation_1 IS NULL)
   //                     AND (variation_2 = ? OR variation_2 IS NULL)), UUID()) AS sku
   //   FROM (
   //     SELECT 1
   //     FROM product_variations
-  //     WHERE product_id = ? 
-  //       AND (variation_1 = ? OR variation_1 IS NULL) 
+  //     WHERE product_id = ?
+  //       AND (variation_1 = ? OR variation_1 IS NULL)
   //       AND (variation_2 = ? OR variation_2 IS NULL)
   //     LIMIT 1
   //   ) AS subquery;`;
@@ -221,8 +257,7 @@ export const handleEditProduct = async (
     VALUES (?, ?, ?, ?, ?, ?);`;
   const insertProductImages = `INSERT INTO product_images (product_id, image_url, sku)
     VALUES (?, ?, ?);`;
-  const updateProductImages =
-    `UPDATE product_images SET image_url = ? WHERE sku = ?`;
+  const updateProductImages = `UPDATE product_images SET image_url = ? WHERE sku = ?`;
 
   try {
     connection.beginTransaction();
@@ -247,60 +282,123 @@ export const handleEditProduct = async (
     await connection.query(updateProductVariationsValid, [productId]);
 
     // products without variations will have variations.length === 1 with the var1 and var2 properties set to null
-    await Promise.all(variations.map(async (variation) => {
-      // console.log("variation.sku", variation.sku);
-      // if variation already exists in product variations table and is active
-      if (variation.sku !== "") {
-        // console.log("variation already exists in product variations table and is active");
-        // update product variations table, also sets valid_variation to 1
-        await connection.query(updateProductVariations, [variation.quantity, variation.price, variation.sku]);
-        // update product images table
-        await connection.query(updateProductImages, [variation.imageUrl, variation.sku])
-        // console.log("active existing variation updated");
-      } else { // if variation has no sku, then variation does not exist in product variations table or exists but is not active
-        // get sku if variation exists but is not active, otherwise, create sku
-        // console.log("no sku yet")
-        // build getSku query
-        let getSku = "";
-        let parameters = [];
-        if (variation.var1 && variation.var2) {
-          getSku = getSku1 + getSkuVar1 + getSkuVar2 + getSku2 + getSkuVar1 + getSkuVar2 + getSku3;
-          parameters = [productId, variation.var1, variation.var2, productId, variation.var1, variation.var2];
-        } else if (variation.var1) {
-          getSku = getSku1 + getSkuVar1 + getSkuVar2Null + getSku2 + getSkuVar1 + getSkuVar2Null + getSku3;
-          parameters = [productId, variation.var1, productId, variation.var1];
+    await Promise.all(
+      variations.map(async (variation) => {
+        // console.log("variation.sku", variation.sku);
+        // if variation already exists in product variations table and is active
+        if (variation.sku !== "") {
+          // console.log("variation already exists in product variations table and is active");
+          // update product variations table, also sets valid_variation to 1
+          await connection.query(updateProductVariations, [
+            variation.quantity,
+            variation.price,
+            variation.sku,
+          ]);
+          // update product images table
+          await connection.query(updateProductImages, [
+            variation.imageUrl,
+            variation.sku,
+          ]);
+          // console.log("active existing variation updated");
         } else {
-          getSku = getSku1 + getSkuVar1Null + getSkuVar2Null + getSku2 + getSkuVar1Null + getSkuVar2Null + getSku3;
-          parameters = [productId, productId];
+          // if variation has no sku, then variation does not exist in product variations table or exists but is not active
+          // get sku if variation exists but is not active, otherwise, create sku
+          // console.log("no sku yet")
+          // build getSku query
+          let getSku = "";
+          let parameters = [];
+          if (variation.var1 && variation.var2) {
+            getSku =
+              getSku1 +
+              getSkuVar1 +
+              getSkuVar2 +
+              getSku2 +
+              getSkuVar1 +
+              getSkuVar2 +
+              getSku3;
+            parameters = [
+              productId,
+              variation.var1,
+              variation.var2,
+              productId,
+              variation.var1,
+              variation.var2,
+            ];
+          } else if (variation.var1) {
+            getSku =
+              getSku1 +
+              getSkuVar1 +
+              getSkuVar2Null +
+              getSku2 +
+              getSkuVar1 +
+              getSkuVar2Null +
+              getSku3;
+            parameters = [
+              productId,
+              variation.var1,
+              productId,
+              variation.var1,
+            ];
+          } else {
+            getSku =
+              getSku1 +
+              getSkuVar1Null +
+              getSkuVar2Null +
+              getSku2 +
+              getSkuVar1Null +
+              getSkuVar2Null +
+              getSku3;
+            parameters = [productId, productId];
+          }
+          // console.log("getSku", getSku);
+          // console.log("parameters", parameters)
+          await connection
+            .query(getSku, parameters)
+            .then(async (response) => {
+              let exists = Object.values(response[0])[0].source;
+              let sku = Object.values(response[0])[0].sku;
+              // console.log("exists", exists);
+              // console.log("sku", sku);
+              // if variation exists but is not active
+              if (exists === "Table") {
+                // console.log("variation exists but is not active")
+                // update product variations table, also sets valid_variation to 1
+                await connection.query(updateProductVariations, [
+                  variation.quantity,
+                  variation.price,
+                  sku,
+                ]);
+                // update product images table
+                await connection.query(updateProductImages, [
+                  variation.imageUrl,
+                  sku,
+                ]);
+                // console.log("inactive but existing variation updated, active now");
+              } else {
+                // if variation does not exist
+                // console.log("variation does not exist")
+                // insert into product variations table
+                connection.query(insertProductVariations, [
+                  sku,
+                  productId,
+                  variation.var1 ? variation.var1 : null,
+                  variation.var2 ? variation.var2 : null,
+                  variation.quantity,
+                  variation.price,
+                ]);
+                // insert into product images table
+                connection.query(insertProductImages, [
+                  productId,
+                  variation.imageUrl,
+                  sku,
+                ]);
+                // console.log("new variation inserted, active now");
+              }
+              return productId;
+            });
         }
-        // console.log("getSku", getSku);
-        // console.log("parameters", parameters)
-        await connection.query(getSku, parameters)
-          .then(async (response) => {
-            let exists = Object.values(response[0])[0].source;
-            let sku = Object.values(response[0])[0].sku;
-            // console.log("exists", exists);
-            // console.log("sku", sku);
-            // if variation exists but is not active
-            if (exists === "Table") {
-              // console.log("variation exists but is not active")
-              // update product variations table, also sets valid_variation to 1
-              await connection.query(updateProductVariations, [variation.quantity, variation.price, sku]);
-              // update product images table
-              await connection.query(updateProductImages, [variation.imageUrl, sku])
-              // console.log("inactive but existing variation updated, active now");
-            } else { // if variation does not exist
-              // console.log("variation does not exist")
-              // insert into product variations table
-              connection.query(insertProductVariations, [sku, productId, variation.var1 ? variation.var1 : null, variation.var2 ? variation.var2 : null, variation.quantity, variation.price]);
-              // insert into product images table
-              connection.query(insertProductImages, [productId, variation.imageUrl, sku]);
-              // console.log("new variation inserted, active now");
-            }
-            return productId;
-          })
-      }
-    }));
+      })
+    );
   } catch (err: any) {
     connection.rollback();
     connection.release();
@@ -335,7 +433,10 @@ export const handleUpdateProductVariationActive = async (
     if (active) {
       const result2: any = await connection.query(sql2, [productId]);
     } else {
-      const result3: any = await connection.query(sql3, [productId, productId]);
+      const result3: any = await connection.query(sql3, [
+        productId,
+        productId,
+      ]);
     }
     connection.commit();
     return result1[0].affectedRows as number;
@@ -361,8 +462,14 @@ export const handleUpdateProductActive = async (
   try {
     connection.beginTransaction();
 
-    const result1: any = await connection.query(sql1, [active, productId]);
-    const result2: any = await connection.query(sql2, [active, productId]);
+    const result1: any = await connection.query(sql1, [
+      active,
+      productId,
+    ]);
+    const result2: any = await connection.query(sql2, [
+      active,
+      productId,
+    ]);
     connection.commit();
     return result1[0].affectedRows as number;
   } catch (err: any) {
@@ -409,7 +516,9 @@ export const handleLogin = async (
   const sql = `SELECT password, seller_id, phone_number, shop_name, email FROM seller WHERE email = ?`;
   try {
     const result: any = await connection.query(sql, [email]);
-    const encryptrdPassword = result[0].length ? result[0][0].password : "";
+    const encryptrdPassword = result[0].length
+      ? result[0][0].password
+      : "";
     const check = await bcrypt.compare(password, encryptrdPassword);
     if (check) {
       const seller_id: number = result[0][0]?.seller_id;
@@ -434,7 +543,10 @@ export const handleStoreRefreshToken = async (
   const connection = await promisePool.getConnection();
   const sql = `UPDATE seller SET refresh_token =? WHERE seller_id =?`;
   try {
-    const result = await connection.query(sql, [refreshtoken, seller_id]);
+    const result = await connection.query(sql, [
+      refreshtoken,
+      seller_id,
+    ]);
     return (result[0] as any).affectedRows as number;
   } catch (err: any) {
     throw new Error(err);
@@ -457,8 +569,8 @@ export const handleSendSMSOTP = async (
         if (err === null) {
           console.log(
             `Messaging response for messaging phone number: ${phoneNumber}` +
-            ` => code: ${res["status"]["code"]}` +
-            `, description: ${res["status"]["description"]}`
+              ` => code: ${res["status"]["code"]}` +
+              `, description: ${res["status"]["description"]}`
           );
         } else {
           console.log("Unable to send message. " + err);
@@ -573,8 +685,9 @@ export const handleSendEmailLink = async (
         sender,
         to: receivers,
         subject: "Verification Link For VOEK seller Sign Up",
-        textContent: `${process.env.FRONTEND_BASE_URL || "http://localhost:5173"
-          }/seller/signup/verify?signupToken=${signUpToken}`,
+        textContent: `${
+          process.env.FRONTEND_BASE_URL || "http://localhost:5173"
+        }/seller/signup/verify?signupToken=${signUpToken}`,
       })
       .then((response: any) => {
         console.log(response);
@@ -650,7 +763,9 @@ export const handleActiveAccount = async (
   }
 };
 
-export const handleLogOut = async (refreshToken: string): Promise<number> => {
+export const handleLogOut = async (
+  refreshToken: string
+): Promise<number> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `UPDATE seller SET refresh_token = '' WHERE refresh_token = ?`;
@@ -701,8 +816,9 @@ export const handleSendEmailForgetPassword = async (
         sender,
         to: receivers,
         subject: "VPassword reset link for seller",
-        textContent: `${process.env.FRONTEND_BASE_URL || "http://localhost:5173"
-          }/seller/forgetPassword/verify?forgetPasswordToken=${forgetPasswordToken}`,
+        textContent: `${
+          process.env.FRONTEND_BASE_URL || "http://localhost:5173"
+        }/seller/forgetPassword/verify?forgetPasswordToken=${forgetPasswordToken}`,
       })
       .then((response: any) => {
         console.log(response);
@@ -725,7 +841,10 @@ export const handleResetPassword = async (
   const sql = `UPDATE seller SET password = ? WHERE seller_id = ? AND active = 1`;
   try {
     const encryptedPassword = await bcrypt.hash(password, 10);
-    const result = await connection.query(sql, [encryptedPassword, seller_id]);
+    const result = await connection.query(sql, [
+      encryptedPassword,
+      seller_id,
+    ]);
     return (result[0] as any).affectedRows as number;
   } catch (err: any) {
     throw new Error(err);
@@ -892,7 +1011,10 @@ WHERE
     WHERE seller_id = ?
   )`;
   try {
-    const result = await connection.query(sql, [orders_id, seller_id]);
+    const result = await connection.query(sql, [
+      orders_id,
+      seller_id,
+    ]);
     return result[0] as Object[];
   } catch (err: any) {
     throw new Error(err);
@@ -928,12 +1050,18 @@ export const handleUpdateSellerDetails = async (
   const connection = await promisePool.getConnection();
   try {
     let sql = `SELECT * FROM seller WHERE email like ? and seller_id != ?`;
-    let result = (await connection.query(sql, [email, seller_id])) as any;
+    let result = (await connection.query(sql, [
+      email,
+      seller_id,
+    ])) as any;
     if (result[0].length != 0) {
       return { duplicateEmail: true };
     } else {
       let sql = `SELECT * FROM seller WHERE email like ? and seller_id = ?`;
-      let result = (await connection.query(sql, [email, seller_id])) as any;
+      let result = (await connection.query(sql, [
+        email,
+        seller_id,
+      ])) as any;
       if (result[0].length === 0) {
         sql =
           "UPDATE update_seller SET new_email = ?, email_sent = utc_timestamp() WHERE seller_id = ?";
@@ -1018,8 +1146,9 @@ export const handleSendEmailChange = async (
       sender,
       to: receivers,
       subject: "Verification Link For VOEK seller Email Change",
-      textContent: `${process.env.FRONTEND_BASE_URL || "http://localhost:5173"
-        }/seller/email-verification?token=${changeSellerEmailToken}`,
+      textContent: `${
+        process.env.FRONTEND_BASE_URL || "http://localhost:5173"
+      }/seller/email-verification?token=${changeSellerEmailToken}`,
     })
     .then((response: any) => {
       console.log(response);
@@ -1129,7 +1258,7 @@ JOIN
 JOIN 
 	listed_products ON products.product_id = listed_products.product_id
 WHERE 
-    listed_products.seller_id = 1
+    listed_products.seller_id = ?
 GROUP BY
 	category.category_id`;
   } else if (time_period === "week") {
@@ -1147,7 +1276,7 @@ GROUP BY
   JOIN 
     listed_products ON products.product_id = listed_products.product_id
   WHERE 
-      listed_products.seller_id = 1
+      listed_products.seller_id = ?
     AND YEAR(orders.orders_date) = YEAR(CURDATE())
       AND WEEK(orders.orders_date) = WEEK(CURDATE())
   GROUP BY
@@ -1167,7 +1296,7 @@ GROUP BY
   JOIN 
     listed_products ON products.product_id = listed_products.product_id
   WHERE 
-      listed_products.seller_id = 1
+      listed_products.seller_id = ?
     AND DATE_FORMAT(orders.orders_date, '%Y-%m') = DATE_FORMAT(CURDATE(), '%Y-%m')
   GROUP BY
     category.category_id`;
@@ -1180,7 +1309,7 @@ GROUP BY
   } finally {
     await connection.release();
   }
-}
+};
 
 export const handleGetBestSellingProducts = async (
   seller_id: number,
@@ -1202,7 +1331,7 @@ export const handleGetBestSellingProducts = async (
   JOIN 
     listed_products ON products.product_id = listed_products.product_id
   WHERE 
-      listed_products.seller_id = 1
+      listed_products.seller_id = ?
   GROUP BY
     products.product_id
   LIMIT 10`;
@@ -1219,7 +1348,7 @@ export const handleGetBestSellingProducts = async (
   JOIN 
     listed_products ON products.product_id = listed_products.product_id
   WHERE 
-      listed_products.seller_id = 1
+      listed_products.seller_id = ?
     AND DATE_FORMAT(orders.orders_date, '%Y-%m') = DATE_FORMAT(CURDATE(), '%Y-%m')
   GROUP BY
     products.product_id
@@ -1237,7 +1366,7 @@ export const handleGetBestSellingProducts = async (
   JOIN 
     listed_products ON products.product_id = listed_products.product_id
   WHERE 
-      listed_products.seller_id = 1
+      listed_products.seller_id = ?
       AND YEAR(orders.orders_date) = YEAR(CURDATE())
     AND WEEK(orders.orders_date) = WEEK(CURDATE())GROUP BY
     products.product_id
@@ -1251,7 +1380,7 @@ export const handleGetBestSellingProducts = async (
   } finally {
     await connection.release();
   }
-}
+};
 
 export const handleGetAllSellers = async (): Promise<Object[]> => {
   const promisePool = pool.promise();
@@ -1265,7 +1394,7 @@ export const handleGetAllSellers = async (): Promise<Object[]> => {
   } finally {
     await connection.release();
   }
-}
+};
 
 const convertLocalTimeToUTC = (): string => {
   const now = new Date();

@@ -34,7 +34,6 @@ const HomePage = () => {
       console.log(err);
     }
   }
-
   const getBestProducts = async (filter: string) => {
     try {
       const { data } = await axiosPrivateSeller.get(`/seller/products/best/${seller.seller_id}/${filter}`);
