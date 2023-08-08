@@ -1,0 +1,56 @@
+@font-face {
+  font-family: "Rocher";
+  src: url(https://assets.codepen.io/9632/RocherColorGX.woff2);
+}
+.startText {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+}
+
+.startText h1 {
+  font-family: "Rocher";
+}
+
+@font-palette-values --Purples {
+  font-family: Rocher;
+  base-palette: 6;
+}
+@font-palette-values --Grays {
+  font-family: Rocher;
+  base-palette: 9;
+}
+
+.purples {
+  font-palette: --Purples;
+}
+
+.grays {
+  font-palette: --Grays;
+}
+
+.shape {
+  background: var(--softerPurple);
+  animation: morph 8s ease-in-out infinite;
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  height: 400px;
+  transition: all 1s ease-in-out;
+  width: 400px;
+  z-index: 5;
+  position: absolute;
+}
+
+@keyframes morph {
+  0% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+
+  50% {
+    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+  }
+
+  100% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+}

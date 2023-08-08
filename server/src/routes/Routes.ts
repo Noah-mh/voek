@@ -533,6 +533,18 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     customerController.processGetAddress
   );
+  router.get(
+    "/customer/game/getHighestScore/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processGetHighestScore
+  );
+  router.get(
+    "/customer/checkIn/getCheckIn/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processGetLastCheckedIn
+  );
 
   router.post(
     "/customer/order/insertPayment",
@@ -577,6 +589,25 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     cartController.alterQuantCartDetails
   );
+  router.put(
+    "/customer/game/updateLastPlayed",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processUpdateLastPlayed
+  );
+  router.put(
+    "/customer/game/updateCoins",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processUpdateGameCoins
+  );
+  router.put(
+    "/customer/game/updateScore",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processUpdateHighestScore
+  );
+
   router.delete(
     "/customer/cart/deleteCart/:customer_id/:sku",
     verifyJWT,
@@ -614,11 +645,5 @@ export default function (app: Express, router: Router) {
     verifyJWT,
     verifyRoles("customer"),
     customerController.processUpdateLastCheckedIn
-  );
-  router.get(
-    "/customer/checkIn/getCheckIn/:customer_id",
-    verifyJWT,
-    verifyRoles("customer"),
-    customerController.processGetLastCheckedIn
   );
 }

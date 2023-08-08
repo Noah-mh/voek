@@ -166,12 +166,12 @@ const ViewReceived = ({ receivedOrders, getAll }: Props) => {
   }, [receivedOrders]);
 
   return (
-    <div className="flex flex-col items-center justify-center p-8">
+    <div className="flex flex-col items-center justify-center p-8 ">
       <ToastContainer />
       <h1 className="mb-8 text-4xl font-bold">Received Orders</h1>
       {orderedReceivedOrders
         ?.map((ordersArray: any) => (
-          <div key={uuidv4()} className="mb-8  shadow-md rounded p-4">
+          <div key={uuidv4()} className="mb-8  shadow-md rounded p-4 w-full">
             <div className="flex flex-col"></div>
             {ordersArray.map((Orders: any) => (
               <div>
@@ -219,10 +219,10 @@ const ViewReceived = ({ receivedOrders, getAll }: Props) => {
                               {order.variation_1 && order.variation_2
                                 ? `${order.variation_1} and ${order.variation_2}`
                                 : order.variation_1
-                                  ? order.variation_1
-                                  : order.variation_2
-                                    ? order.variation_2
-                                    : "No Variation"}
+                                ? order.variation_1
+                                : order.variation_2
+                                ? order.variation_2
+                                : "No Variation"}
                             </p>
                           </div>
                         </div>
@@ -256,8 +256,6 @@ const ViewReceived = ({ receivedOrders, getAll }: Props) => {
                             Rated
                           </button>
                         )}
-
-
                       </div>
                     </div>
                   ))}
