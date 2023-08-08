@@ -80,7 +80,7 @@ export const processVerifyOTP = async (
           },
         },
         config.accessTokenSecret!,
-        { expiresIn: "300s" }
+        { expiresIn: "7200s" }
       );
       const refreshToken = jwt.sign(
         {

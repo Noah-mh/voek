@@ -217,6 +217,18 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     customerController.processGetTotalSpentAllTime
   )
+  router.get(
+    "/seller/products/categories/:seller_id/:time_period",
+    verifyJWT,
+    verifyRoles("seller"),
+    sellerController.processGetSoldCategories
+  )
+  router.get(
+    "/seller/products/best/:seller_id/:time_period",
+    verifyJWT,
+    verifyRoles("seller"),
+    sellerController.processGetBestSellingProducts
+  )
 
   // NOAH ENDPOINTS - reviews, customer profile, customer address, add to cart, ratings, product details, seller details, seller categories
   router.get(

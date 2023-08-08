@@ -77,7 +77,7 @@ const Analytics = () => {
     }, [])
 
     return (
-        <div style={{ height: 400, width: 1000 }}>
+    <div style={{ height: 400, width: 1000 }}>
             <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                     width={500}
