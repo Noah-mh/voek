@@ -425,3 +425,12 @@ export const processGetBestSellingProducts = async (req: Request, res: Response,
         return next(err);
     }
 }
+
+export const processGetAllSellers = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await sellerModel.handleGetAllSellers();
+        return res.json({ sellers: result });
+    } catch (err: any) {
+        return next(err);
+    }
+}

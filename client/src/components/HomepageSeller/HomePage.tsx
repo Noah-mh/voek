@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import useAxiosPrivateSeller from '../../hooks/useAxiosPrivateSeller'
 import useSeller from '../../hooks/useSeller'
 import { PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, } from 'recharts';
