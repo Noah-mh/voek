@@ -10,6 +10,7 @@ dotenv.config({
 });
 
 import { v4 as uuidv4 } from "uuid";
+import { time } from "console";
 
 interface SubmitVariationsInterface {
   var1: string;
@@ -94,13 +95,13 @@ export const handleGetAllCategories = async (): Promise<any[]> => {
 
 // POST insert a new product
 export const handleAddProduct = async (
-  sellerId: number, 
-  name: string, 
-  description: string, 
-  categoryId: number, 
-  variations: Array<SubmitVariationsInterface>, 
-  quantity: number, 
-  price: number, 
+  sellerId: number,
+  name: string,
+  description: string,
+  categoryId: number,
+  variations: Array<SubmitVariationsInterface>,
+  quantity: number,
+  price: number,
   imageUrl: string
 ) => {
   const promisePool = pool.promise();
@@ -121,48 +122,84 @@ export const handleAddProduct = async (
     // console.log("begin transaction");
 
     // insert into products table unless there is a duplicate, in which case lasatInsertId will be 0
-    return Promise.resolve(connection.query(insertProducts, [name, description, categoryId, name, description, categoryId]))
-    .then(async (response) => {
-      // console.log("model response", response)
-      let lastInsertId = Object.values(response[0])[2];
-      // console.log("lastInsertId", lastInsertId);
-      // if product exists, do not insert into products table and return lastInsertId
-      if (lastInsertId === 0) {
-        // console.log("Product already exists.");
-        return lastInsertId;
-      } else {
+    return Promise.resolve(
+      connection.query(insertProducts, [
+        name,
+        description,
+        categoryId,
+        name,
+        description,
+        categoryId,
+      ])
+    )
+      .then(async (response) => {
+        // console.log("model response", response)
         let lastInsertId = Object.values(response[0])[2];
-        // insert into listed products table
-        await connection.query(insertListedProducts, [lastInsertId, sellerId]);
-        // if variations exist, map variations
-        if (variations.length !== 0) {
-          // console.log("variations", variations);
-          await Promise.all(variations.map(async (variation) => {
+        // console.log("lastInsertId", lastInsertId);
+        // if product exists, do not insert into products table and return lastInsertId
+        if (lastInsertId === 0) {
+          // console.log("Product already exists.");
+          return lastInsertId;
+        } else {
+          let lastInsertId = Object.values(response[0])[2];
+          // insert into listed products table
+          await connection.query(insertListedProducts, [
+            lastInsertId,
+            sellerId,
+          ]);
+          // if variations exist, map variations
+          if (variations.length !== 0) {
+            // console.log("variations", variations);
+            await Promise.all(
+              variations.map(async (variation) => {
+                // create sku
+                const sku = uuidv4();
+                // insert into product variations table
+                connection.query(insertProductVariations, [
+                  sku,
+                  lastInsertId,
+                  variation.var1,
+                  variation.var2 ? variation.var2 : null,
+                  variation.quantity,
+                  variation.price,
+                ]);
+                // insert into product images table
+                connection.query(insertProductImages, [
+                  lastInsertId,
+                  variation.imageUrl,
+                  sku,
+                ]);
+                // console.log("variation inserted");
+                return lastInsertId;
+              })
+            );
+          } else {
+            // console.log("variations DONT exist");
             // create sku
             const sku = uuidv4();
-            // insert into product variations table
-            connection.query(insertProductVariations, [sku, lastInsertId, variation.var1, variation.var2 ? variation.var2 : null, variation.quantity, variation.price]);
-            // insert into product images table
-            connection.query(insertProductImages, [lastInsertId, variation.imageUrl, sku]);
-            // console.log("variation inserted");
+            connection.query(insertProductVariations, [
+              sku,
+              lastInsertId,
+              null,
+              null,
+              quantity,
+              price,
+            ]);
+            connection.query(insertProductImages, [
+              lastInsertId,
+              imageUrl,
+              sku,
+            ]);
+            // console.log("single variation inserted");
             return lastInsertId;
-          }));
-        } else {
-          // console.log("variations DONT exist");
-          // create sku
-          const sku = uuidv4();
-          connection.query(insertProductVariations, [sku, lastInsertId, null, null, quantity, price]);
-          connection.query(insertProductImages, [lastInsertId, imageUrl, sku]);
-          // console.log("single variation inserted");
+          }
+          // console.log("Product has been inserted.");
           return lastInsertId;
         }
-        // console.log("Product has been inserted.");
-        return lastInsertId;
-      }
-    })
-    .then((response) => {
-      return response as number;  
-    })
+      })
+      .then((response) => {
+        return response as number;
+      });
   } catch (err: any) {
     connection.rollback();
     connection.release();
@@ -180,7 +217,7 @@ export const handleEditProduct = async (
   productId: number,
   keys: string[],
   values: string[],
-  variations: Array<SubmitVariationsInterface>,
+  variations: Array<SubmitVariationsInterface>
 ) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
@@ -191,37 +228,36 @@ export const handleEditProduct = async (
   // getSku = `DELETE FROM product_images WHERE sku = ? AND image_url = ?;`;
   // let getSku = `SELECT
   //   IF(COUNT(*) > 0, 'Table', 'UUID') AS source,
-  //   IF(COUNT(*) > 0, (SELECT sku FROM product_variations WHERE product_id = ? 
-  //                     AND (variation_1 = ? OR variation_1 IS NULL) 
+  //   IF(COUNT(*) > 0, (SELECT sku FROM product_variations WHERE product_id = ?
+  //                     AND (variation_1 = ? OR variation_1 IS NULL)
   //                     AND (variation_2 = ? OR variation_2 IS NULL)), UUID()) AS sku
   //   FROM (
   //     SELECT 1
   //     FROM product_variations
-  //     WHERE product_id = ? 
-  //       AND (variation_1 = ? OR variation_1 IS NULL) 
+  //     WHERE product_id = ?
+  //       AND (variation_1 = ? OR variation_1 IS NULL)
   //       AND (variation_2 = ? OR variation_2 IS NULL)
   //     LIMIT 1
   //   ) AS subquery;`;
-    let getSku1 = `SELECT
+  let getSku1 = `SELECT
     IF(COUNT(*) > 0, 'Table', 'UUID') AS source,
     IF(COUNT(*) > 0, (SELECT sku FROM product_variations WHERE product_id = ?`;
-    let getSku2 = `), UUID()) AS sku
+  let getSku2 = `), UUID()) AS sku
     FROM (
       SELECT 1
       FROM product_variations
       WHERE product_id = ?`;
-    let getSku3 = `LIMIT 1
+  let getSku3 = `LIMIT 1
     ) AS subquery;`;
-    let getSkuVar1 = ` AND variation_1 = ?`;
-    let getSkuVar1Null = ` AND variation_1 IS NULL`;
-    let getSkuVar2 = ` AND variation_2 = ?`;
-    let getSkuVar2Null = ` AND variation_2 IS NULL`;
+  let getSkuVar1 = ` AND variation_1 = ?`;
+  let getSkuVar1Null = ` AND variation_1 IS NULL`;
+  let getSkuVar2 = ` AND variation_2 = ?`;
+  let getSkuVar2Null = ` AND variation_2 IS NULL`;
   const insertProductVariations = `INSERT INTO product_variations (sku, product_id, variation_1, variation_2, quantity, price)
     VALUES (?, ?, ?, ?, ?, ?);`;
   const insertProductImages = `INSERT INTO product_images (product_id, image_url, sku)
     VALUES (?, ?, ?);`;
-  const updateProductImages = 
-    `UPDATE product_images SET image_url = ? WHERE sku = ?`;
+  const updateProductImages = `UPDATE product_images SET image_url = ? WHERE sku = ?`;
 
   try {
     connection.beginTransaction();
@@ -238,68 +274,131 @@ export const handleEditProduct = async (
 
       let tempArr: (string | number)[] = [...values, productId];
       // console.log("tempArr", tempArr);
-      await connection.query(updateProducts, tempArr);   
+      await connection.query(updateProducts, tempArr);
       // console.log("products table updated");
     }
-   
+
     // reset product variations valid_variations column to 0, will set it back to 1 if it is a valid variation
     await connection.query(updateProductVariationsValid, [productId]);
 
     // products without variations will have variations.length === 1 with the var1 and var2 properties set to null
-    await Promise.all(variations.map(async (variation) => {
-      // console.log("variation.sku", variation.sku);
-      // if variation already exists in product variations table and is active
-      if (variation.sku !== "") {
-        // console.log("variation already exists in product variations table and is active");
-        // update product variations table, also sets valid_variation to 1
-        await connection.query(updateProductVariations, [variation.quantity, variation.price, variation.sku]);
-        // update product images table
-        await connection.query(updateProductImages, [variation.imageUrl, variation.sku])
-        // console.log("active existing variation updated");
-      } else { // if variation has no sku, then variation does not exist in product variations table or exists but is not active
-        // get sku if variation exists but is not active, otherwise, create sku
-        // console.log("no sku yet")
-        // build getSku query
-        let getSku = "";
-        let parameters = [];
-        if (variation.var1 && variation.var2) {
-          getSku = getSku1 + getSkuVar1 + getSkuVar2 + getSku2 + getSkuVar1 + getSkuVar2 + getSku3;
-          parameters = [productId, variation.var1, variation.var2, productId, variation.var1, variation.var2];
-        } else if (variation.var1) {
-          getSku = getSku1 + getSkuVar1 + getSkuVar2Null + getSku2 + getSkuVar1 + getSkuVar2Null + getSku3;
-          parameters = [productId, variation.var1, productId, variation.var1];
+    await Promise.all(
+      variations.map(async (variation) => {
+        // console.log("variation.sku", variation.sku);
+        // if variation already exists in product variations table and is active
+        if (variation.sku !== "") {
+          // console.log("variation already exists in product variations table and is active");
+          // update product variations table, also sets valid_variation to 1
+          await connection.query(updateProductVariations, [
+            variation.quantity,
+            variation.price,
+            variation.sku,
+          ]);
+          // update product images table
+          await connection.query(updateProductImages, [
+            variation.imageUrl,
+            variation.sku,
+          ]);
+          // console.log("active existing variation updated");
         } else {
-          getSku = getSku1 + getSkuVar1Null + getSkuVar2Null + getSku2 + getSkuVar1Null + getSkuVar2Null + getSku3;
-          parameters = [productId, productId];
-        }
-        // console.log("getSku", getSku);
-        // console.log("parameters", parameters)
-        await connection.query(getSku, parameters)
-        .then(async (response) => {
-          let exists = Object.values(response[0])[0].source;
-          let sku = Object.values(response[0])[0].sku;
-          // console.log("exists", exists);
-          // console.log("sku", sku);
-          // if variation exists but is not active
-          if (exists === "Table") {
-            // console.log("variation exists but is not active")
-            // update product variations table, also sets valid_variation to 1
-            await connection.query(updateProductVariations, [variation.quantity, variation.price, sku]);
-            // update product images table
-            await connection.query(updateProductImages, [variation.imageUrl, sku])
-            // console.log("inactive but existing variation updated, active now");
-          } else { // if variation does not exist
-            // console.log("variation does not exist")
-            // insert into product variations table
-            connection.query(insertProductVariations, [sku, productId, variation.var1 ? variation.var1 : null, variation.var2 ? variation.var2 : null, variation.quantity, variation.price]);
-            // insert into product images table
-            connection.query(insertProductImages, [productId, variation.imageUrl, sku]);
-            // console.log("new variation inserted, active now");
+          // if variation has no sku, then variation does not exist in product variations table or exists but is not active
+          // get sku if variation exists but is not active, otherwise, create sku
+          // console.log("no sku yet")
+          // build getSku query
+          let getSku = "";
+          let parameters = [];
+          if (variation.var1 && variation.var2) {
+            getSku =
+              getSku1 +
+              getSkuVar1 +
+              getSkuVar2 +
+              getSku2 +
+              getSkuVar1 +
+              getSkuVar2 +
+              getSku3;
+            parameters = [
+              productId,
+              variation.var1,
+              variation.var2,
+              productId,
+              variation.var1,
+              variation.var2,
+            ];
+          } else if (variation.var1) {
+            getSku =
+              getSku1 +
+              getSkuVar1 +
+              getSkuVar2Null +
+              getSku2 +
+              getSkuVar1 +
+              getSkuVar2Null +
+              getSku3;
+            parameters = [
+              productId,
+              variation.var1,
+              productId,
+              variation.var1,
+            ];
+          } else {
+            getSku =
+              getSku1 +
+              getSkuVar1Null +
+              getSkuVar2Null +
+              getSku2 +
+              getSkuVar1Null +
+              getSkuVar2Null +
+              getSku3;
+            parameters = [productId, productId];
           }
-          return productId;
-        })
-      }
-    }));
+          // console.log("getSku", getSku);
+          // console.log("parameters", parameters)
+          await connection
+            .query(getSku, parameters)
+            .then(async (response) => {
+              let exists = Object.values(response[0])[0].source;
+              let sku = Object.values(response[0])[0].sku;
+              // console.log("exists", exists);
+              // console.log("sku", sku);
+              // if variation exists but is not active
+              if (exists === "Table") {
+                // console.log("variation exists but is not active")
+                // update product variations table, also sets valid_variation to 1
+                await connection.query(updateProductVariations, [
+                  variation.quantity,
+                  variation.price,
+                  sku,
+                ]);
+                // update product images table
+                await connection.query(updateProductImages, [
+                  variation.imageUrl,
+                  sku,
+                ]);
+                // console.log("inactive but existing variation updated, active now");
+              } else {
+                // if variation does not exist
+                // console.log("variation does not exist")
+                // insert into product variations table
+                connection.query(insertProductVariations, [
+                  sku,
+                  productId,
+                  variation.var1 ? variation.var1 : null,
+                  variation.var2 ? variation.var2 : null,
+                  variation.quantity,
+                  variation.price,
+                ]);
+                // insert into product images table
+                connection.query(insertProductImages, [
+                  productId,
+                  variation.imageUrl,
+                  sku,
+                ]);
+                // console.log("new variation inserted, active now");
+              }
+              return productId;
+            });
+        }
+      })
+    );
   } catch (err: any) {
     connection.rollback();
     connection.release();
@@ -334,7 +433,10 @@ export const handleUpdateProductVariationActive = async (
     if (active) {
       const result2: any = await connection.query(sql2, [productId]);
     } else {
-      const result3: any = await connection.query(sql3, [productId, productId]);
+      const result3: any = await connection.query(sql3, [
+        productId,
+        productId,
+      ]);
     }
     connection.commit();
     return result1[0].affectedRows as number;
@@ -360,8 +462,14 @@ export const handleUpdateProductActive = async (
   try {
     connection.beginTransaction();
 
-    const result1: any = await connection.query(sql1, [active, productId]);
-    const result2: any = await connection.query(sql2, [active, productId]);
+    const result1: any = await connection.query(sql1, [
+      active,
+      productId,
+    ]);
+    const result2: any = await connection.query(sql2, [
+      active,
+      productId,
+    ]);
     connection.commit();
     return result1[0].affectedRows as number;
   } catch (err: any) {
@@ -408,7 +516,9 @@ export const handleLogin = async (
   const sql = `SELECT password, seller_id, phone_number, shop_name, email FROM seller WHERE email = ?`;
   try {
     const result: any = await connection.query(sql, [email]);
-    const encryptrdPassword = result[0].length ? result[0][0].password : "";
+    const encryptrdPassword = result[0].length
+      ? result[0][0].password
+      : "";
     const check = await bcrypt.compare(password, encryptrdPassword);
     if (check) {
       const seller_id: number = result[0][0]?.seller_id;
@@ -433,7 +543,10 @@ export const handleStoreRefreshToken = async (
   const connection = await promisePool.getConnection();
   const sql = `UPDATE seller SET refresh_token =? WHERE seller_id =?`;
   try {
-    const result = await connection.query(sql, [refreshtoken, seller_id]);
+    const result = await connection.query(sql, [
+      refreshtoken,
+      seller_id,
+    ]);
     return (result[0] as any).affectedRows as number;
   } catch (err: any) {
     throw new Error(err);
@@ -650,7 +763,9 @@ export const handleActiveAccount = async (
   }
 };
 
-export const handleLogOut = async (refreshToken: string): Promise<number> => {
+export const handleLogOut = async (
+  refreshToken: string
+): Promise<number> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `UPDATE seller SET refresh_token = '' WHERE refresh_token = ?`;
@@ -726,7 +841,10 @@ export const handleResetPassword = async (
   const sql = `UPDATE seller SET password = ? WHERE seller_id = ? AND active = 1`;
   try {
     const encryptedPassword = await bcrypt.hash(password, 10);
-    const result = await connection.query(sql, [encryptedPassword, seller_id]);
+    const result = await connection.query(sql, [
+      encryptedPassword,
+      seller_id,
+    ]);
     return (result[0] as any).affectedRows as number;
   } catch (err: any) {
     throw new Error(err);
@@ -893,7 +1011,10 @@ WHERE
     WHERE seller_id = ?
   )`;
   try {
-    const result = await connection.query(sql, [orders_id, seller_id]);
+    const result = await connection.query(sql, [
+      orders_id,
+      seller_id,
+    ]);
     return result[0] as Object[];
   } catch (err: any) {
     throw new Error(err);
@@ -929,12 +1050,18 @@ export const handleUpdateSellerDetails = async (
   const connection = await promisePool.getConnection();
   try {
     let sql = `SELECT * FROM seller WHERE email like ? and seller_id != ?`;
-    let result = (await connection.query(sql, [email, seller_id])) as any;
+    let result = (await connection.query(sql, [
+      email,
+      seller_id,
+    ])) as any;
     if (result[0].length != 0) {
       return { duplicateEmail: true };
     } else {
       let sql = `SELECT * FROM seller WHERE email like ? and seller_id = ?`;
-      let result = (await connection.query(sql, [email, seller_id])) as any;
+      let result = (await connection.query(sql, [
+        email,
+        seller_id,
+      ])) as any;
       if (result[0].length === 0) {
         sql =
           "UPDATE update_seller SET new_email = ?, email_sent = utc_timestamp() WHERE seller_id = ?";
@@ -1101,6 +1228,166 @@ export const handleViewVouchers = async (
   const sql = `SELECT voucher_id, voucher_name, number_amount, percentage_amount, voucher_category, min_spend, active FROM seller_voucher WHERE seller_id = ?`;
   try {
     const [result] = await connection.query(sql, [seller_id]);
+    return result as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handleGetSoldCategories = async (
+  seller_id: number,
+  time_period: string
+): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  let sql: string = "";
+  if (time_period === "all") {
+    sql = `SELECT 
+	SUM(category.category_id) as value,
+    category.name
+FROM 
+    orders
+JOIN 
+    orders_product ON orders.orders_id = orders_product.orders_id
+JOIN 
+	products ON orders_product.product_id = products.product_id
+JOIN
+	category ON products.category_id = category.category_id
+JOIN 
+	listed_products ON products.product_id = listed_products.product_id
+WHERE 
+    listed_products.seller_id = ?
+GROUP BY
+	category.category_id`;
+  } else if (time_period === "week") {
+    sql = `SELECT 
+    SUM(category.category_id) as value,
+      category.name
+  FROM 
+      orders
+  JOIN 
+      orders_product ON orders.orders_id = orders_product.orders_id
+  JOIN 
+    products ON orders_product.product_id = products.product_id
+  JOIN
+    category ON products.category_id = category.category_id
+  JOIN 
+    listed_products ON products.product_id = listed_products.product_id
+  WHERE 
+      listed_products.seller_id = ?
+    AND YEAR(orders.orders_date) = YEAR(CURDATE())
+      AND WEEK(orders.orders_date) = WEEK(CURDATE())
+  GROUP BY
+    category.category_id`;
+  } else if (time_period === "month") {
+    sql = `SELECT 
+    SUM(category.category_id) as value,
+      category.name
+  FROM 
+      orders
+  JOIN 
+      orders_product ON orders.orders_id = orders_product.orders_id
+  JOIN 
+    products ON orders_product.product_id = products.product_id
+  JOIN
+    category ON products.category_id = category.category_id
+  JOIN 
+    listed_products ON products.product_id = listed_products.product_id
+  WHERE 
+      listed_products.seller_id = ?
+    AND DATE_FORMAT(orders.orders_date, '%Y-%m') = DATE_FORMAT(CURDATE(), '%Y-%m')
+  GROUP BY
+    category.category_id`;
+  }
+  try {
+    const [result] = await connection.query(sql, [seller_id]);
+    return result as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handleGetBestSellingProducts = async (
+  seller_id: number,
+  time_period: string
+): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  let sql: string = "";
+  if (time_period === "all") {
+    sql = `SELECT 
+    SUM(orders_product.quantity) as amount,
+      products.name
+  FROM 
+      orders
+  JOIN 
+      orders_product ON orders.orders_id = orders_product.orders_id
+  JOIN 
+    products ON orders_product.product_id = products.product_id
+  JOIN 
+    listed_products ON products.product_id = listed_products.product_id
+  WHERE 
+      listed_products.seller_id = ?
+  GROUP BY
+    products.product_id
+  LIMIT 10`;
+  } else if (time_period === "month") {
+    sql = `SELECT 
+    SUM(orders_product.quantity) as amount,
+      products.name
+  FROM 
+      orders
+  JOIN 
+      orders_product ON orders.orders_id = orders_product.orders_id
+  JOIN 
+    products ON orders_product.product_id = products.product_id
+  JOIN 
+    listed_products ON products.product_id = listed_products.product_id
+  WHERE 
+      listed_products.seller_id = ?
+    AND DATE_FORMAT(orders.orders_date, '%Y-%m') = DATE_FORMAT(CURDATE(), '%Y-%m')
+  GROUP BY
+    products.product_id
+  LIMIT 10`;
+  } else if (time_period === "week") {
+    sql = `SELECT 
+    SUM(orders_product.quantity) as amount,
+      products.name
+  FROM 
+      orders
+  JOIN 
+      orders_product ON orders.orders_id = orders_product.orders_id
+  JOIN 
+    products ON orders_product.product_id = products.product_id
+  JOIN 
+    listed_products ON products.product_id = listed_products.product_id
+  WHERE 
+      listed_products.seller_id = ?
+      AND YEAR(orders.orders_date) = YEAR(CURDATE())
+    AND WEEK(orders.orders_date) = WEEK(CURDATE())GROUP BY
+    products.product_id
+  LIMIT 10`;
+  }
+  try {
+    const [result] = await connection.query(sql, [seller_id]);
+    return result as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handleGetAllSellers = async (): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT seller.seller_id, seller.shop_name, seller.image_url FROM seller RIGHT JOIN seller_voucher ON seller.seller_id = seller_voucher.seller_id WHERE seller.seller_id IS NOT NULL GROUP BY seller_voucher.seller_id`;
+  try {
+    const [result] = await connection.query(sql);
     return result as Object[];
   } catch (err: any) {
     throw new Error(err);

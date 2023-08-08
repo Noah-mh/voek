@@ -6,10 +6,11 @@ import "./OTP.css";
 import useCustomer from "../../hooks/UseCustomer.js";
 import { toast } from "react-toastify";
 interface props {
-  userDetails: object
+  userDetails: object;
+  setLogin: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default function OTP({ userDetails }: props): JSX.Element {
+export default function OTP({ userDetails, setLogin }: props): JSX.Element {
 
   const { setCustomer } = useCustomer();
 
@@ -127,6 +128,7 @@ export default function OTP({ userDetails }: props): JSX.Element {
   return (
     <div className="w-1/2 flex-col justify-center pt-20">
       <div className="wrapper flex-col justify-center ">
+        <h1 className="w-4/12 text-center mb-5 text-white cursor-pointer" onClick={() => { setLogin(false) }}>Go Back</h1>
         <h1 className="text-center font-bold text-3xl">Enter OTP</h1>
         <div className="text-center mb-3  ">
           Receive OTP through{" "}

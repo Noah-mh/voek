@@ -28,12 +28,18 @@ export default function (app: Express, router: Router) {
     verifyRoles("seller"),
     sellerController.processLogout
   );
-  router.post("/customer/auth/SMS/OTP", customerController.processSendSMSOTP);
+  router.post(
+    "/customer/auth/SMS/OTP",
+    customerController.processSendSMSOTP
+  );
   router.post(
     "/customer/auth/email/OTP",
     customerController.processSendEmailOTP
   );
-  router.post("/customer/auth/verify/OTP", customerController.processVerifyOTP);
+  router.post(
+    "/customer/auth/verify/OTP",
+    customerController.processVerifyOTP
+  );
   router.post(
     "/customer/signup/link/:referral_id",
     customerController.processSendEmailLink
@@ -42,7 +48,10 @@ export default function (app: Express, router: Router) {
     "/customer/signup/verify/link",
     customerController.processSignUpLink
   );
-  router.get("/refresh/customer", authController.processRefreshTokenCustomer);
+  router.get(
+    "/refresh/customer",
+    authController.processRefreshTokenCustomer
+  );
   router.post(
     "/customer/forget/password",
     customerController.processForgetPassword
@@ -57,11 +66,26 @@ export default function (app: Express, router: Router) {
   );
 
   router.post("/login/seller", sellerController.processLogin);
-  router.post("/seller/auth/SMS/OTP", sellerController.processSendSMSOTP);
-  router.post("/seller/auth/email/OTP", sellerController.processSendEmailOTP);
-  router.post("/seller/auth/verify/OTP", sellerController.processVerifyOTP);
-  router.post("/seller/signup/link", sellerController.processSendEmailLink);
-  router.post("/seller/signup/verify/link", sellerController.processSignUpLink);
+  router.post(
+    "/seller/auth/SMS/OTP",
+    sellerController.processSendSMSOTP
+  );
+  router.post(
+    "/seller/auth/email/OTP",
+    sellerController.processSendEmailOTP
+  );
+  router.post(
+    "/seller/auth/verify/OTP",
+    sellerController.processVerifyOTP
+  );
+  router.post(
+    "/seller/signup/link",
+    sellerController.processSendEmailLink
+  );
+  router.post(
+    "/seller/signup/verify/link",
+    sellerController.processSignUpLink
+  );
   router.get("/refresh/seller", authController.processRefreshSeller);
   router.post(
     "/seller/forget/password",
@@ -71,7 +95,10 @@ export default function (app: Express, router: Router) {
     "/seller/verify/reset/password",
     sellerController.processForgetPasswordLink
   );
-  router.put("/seller/reset/password", sellerController.processResetPassword);
+  router.put(
+    "/seller/reset/password",
+    sellerController.processResetPassword
+  );
   router.get(
     "/customer/orders/:customer_id",
     verifyJWT,
@@ -145,8 +172,14 @@ export default function (app: Express, router: Router) {
     verifyRoles("seller"),
     sellerController.processUpdateSellerDetails
   );
-  router.put("/seller/email/verify", sellerController.processChangeEmail);
-  router.put("/customer/email/verify", customerController.processChangeEmail);
+  router.put(
+    "/seller/email/verify",
+    sellerController.processChangeEmail
+  );
+  router.put(
+    "/customer/email/verify",
+    customerController.processChangeEmail
+  );
   router.put(
     "/customer/deactivate/:customer_id",
     verifyJWT,
@@ -211,6 +244,28 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     customerController.processDeleteVouchers
   );
+  router.get(
+    "/customer/orders/allTime/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processGetTotalSpentAllTime
+  )
+  router.get(
+    "/seller/products/categories/:seller_id/:time_period",
+    verifyJWT,
+    verifyRoles("seller"),
+    sellerController.processGetSoldCategories
+  )
+  router.get(
+    "/seller/products/best/:seller_id/:time_period",
+    verifyJWT,
+    verifyRoles("seller"),
+    sellerController.processGetBestSellingProducts
+  )
+  router.get(
+    "/sellers",
+    sellerController.processGetAllSellers
+  )
 
   // NOAH ENDPOINTS - reviews, customer profile, customer address, add to cart, ratings, product details, seller details, seller categories
   router.get(
@@ -336,6 +391,12 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     customerController.processCustomerAddressDelete
   );
+  router.delete(
+    "/customer/:customer_id/deleteImage",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processCustomerImageDelete
+  );
   //end of NOAH ENDPOINTS
 
   // ASHLEY ENDPOINTS - seller platform
@@ -343,10 +404,19 @@ export default function (app: Express, router: Router) {
     "/products/:sellerId",
     sellerController.processGetAllProductsOfSeller
   );
-  router.get("/bestSellers/:sellerId", sellerController.processGetBestSellers);
+  router.get(
+    "/bestSellers/:sellerId",
+    sellerController.processGetBestSellers
+  );
   router.get("/categories", sellerController.processGetAllCategories);
-  router.post("/addProduct/:sellerId", sellerController.processAddProduct);
-  router.post("/editProduct/:productId", sellerController.processEditProduct);
+  router.post(
+    "/addProduct/:sellerId",
+    sellerController.processAddProduct
+  );
+  router.post(
+    "/editProduct/:productId",
+    sellerController.processEditProduct
+  );
   router.put(
     "/updateProductVariation/active/:productId",
     sellerController.processUpdateProductVariationActive
@@ -400,7 +470,10 @@ export default function (app: Express, router: Router) {
   );
 
   router.get("/topProducts", productController.getTopProducts);
-  router.get("/searchResult/:input?", productController.getSearchResult);
+  router.get(
+    "/searchResult/:input?",
+    productController.getSearchResult
+  );
   // router.get(
   //   "/productsBasedOnCategory",
   //   productController.getProductsBasedOnCategory
@@ -423,7 +496,10 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     productController.checkWishListProductExistence
   );
-  router.get("/getAllListedProducts", productController.getAllListedProducts);
+  router.get(
+    "/getAllListedProducts",
+    productController.getAllListedProducts
+  );
   router.get(
     "/getProductVariations/:product_Id",
     productController.getProductVariations
@@ -434,7 +510,10 @@ export default function (app: Express, router: Router) {
     productController.getProductVariationsPricing
   );
 
-  router.get("/getProductImage/:product_Id", productController.getProductImage);
+  router.get(
+    "/getProductImage/:product_Id",
+    productController.getProductImage
+  );
 
   router.get(
     "/getProductVariationImage/:sku",
@@ -475,17 +554,29 @@ export default function (app: Express, router: Router) {
   );
   router.put("/updateActive", voucherController.updateActive);
   router.put("/updateVoucher", voucherController.updateVoucher);
-  router.delete("/deleteVoucher/:voucherId", voucherController.deleteVoucher);
-  router.get("/getVoucherCategories", voucherController.getVoucherCategories);
+  router.delete(
+    "/deleteVoucher/:voucherId",
+    voucherController.deleteVoucher
+  );
+  router.get(
+    "/getVoucherCategories",
+    voucherController.getVoucherCategories
+  );
   router.get("/getVouchers/:sellerId", voucherController.getVouchers);
   router.get(
     "/getProductRating/:product_id",
     productController.getProductRating
   );
+  router.get(
+    "/getQuantityOfProductInCart",
+    verifyJWT,
+    verifyRoles("customer"),
+    cartController.getQuantityOfProductInCart
+  );
 
   // router.get("/getProductCat/:product_id", productController.getProductCat);
 
-  // ALLISON'S ENDPOINTS get Cart details, altering quantity, insert payment, insert order, insert order product, update product stock, deleting cart, redeem voucher
+  // ALLISON'S ENDPOINTS get Cart details, altering quantity, insert payment, insert order, insert order product, update product stock, deleting cart, redeem voucher, last checked in
 
   router.get(
     "/customer/cart/getCart/:customer_id",
@@ -504,6 +595,18 @@ export default function (app: Express, router: Router) {
     verifyJWT,
     verifyRoles("customer"),
     customerController.processGetAddress
+  );
+  router.get(
+    "/customer/game/getHighestScore/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processGetHighestScore
+  );
+  router.get(
+    "/customer/checkIn/getCheckIn/:customer_id",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processGetLastCheckedIn
   );
 
   router.post(
@@ -549,12 +652,31 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     cartController.alterQuantCartDetails
   );
+  router.put(
+    "/customer/game/updateLastPlayed",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processUpdateLastPlayed
+  );
+  router.put(
+    "/customer/game/updateCoins",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processUpdateGameCoins
+  );
+  router.put(
+    "/customer/game/updateScore",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processUpdateHighestScore
+  );
+
   router.delete(
     "/customer/cart/deleteCart/:customer_id/:sku",
     verifyJWT,
     verifyRoles("customer"),
     cartController.processRemoveItemCart
-  )
+  );
 
   router.put(
     "/customer/order/updateCustomerCoins",
@@ -574,5 +696,17 @@ export default function (app: Express, router: Router) {
     verifyJWT,
     verifyRoles("customer"),
     cartController.clearCart
+  );
+  router.post(
+    "/customer/checkIn/newCheckIn",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processNewLastCheckedIn
+  );
+  router.put(
+    "/customer/checkIn/updateCheckIn",
+    verifyJWT,
+    verifyRoles("customer"),
+    customerController.processUpdateLastCheckedIn
   );
 }

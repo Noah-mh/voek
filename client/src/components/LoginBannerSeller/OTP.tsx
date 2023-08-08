@@ -5,11 +5,13 @@ import axios from "../../api/axios.js";
 import "./OTP.css";
 import useSeller from "../../hooks/useSeller.js";
 import { toast } from "react-toastify";
+import { AxiosResponse } from "axios";
 interface props {
   userDetails: object;
+  setLogin: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export default function OTP({ userDetails }: props): JSX.Element {
+export default function OTP({ userDetails, setLogin }: props): JSX.Element {
   const { setSeller } = useSeller();
 
   const navigate = useNavigate();
@@ -36,7 +38,7 @@ export default function OTP({ userDetails }: props): JSX.Element {
 
   const emailSentHandler = async () => {
     try {
-       await axios.post(
+      await axios.post(
         "/seller/auth/email/OTP",
         JSON.stringify({ seller_id, email }),
         {
@@ -99,7 +101,7 @@ export default function OTP({ userDetails }: props): JSX.Element {
 
   const smsSentHandler = async () => {
     try {
-       await axios.post(
+      await axios.post(
         "/seller/auth/SMS/OTP",
         JSON.stringify({ phoneNumber: phone_number, seller_id }),
         {
@@ -128,7 +130,8 @@ export default function OTP({ userDetails }: props): JSX.Element {
 
   return (
     <div className="w-1/2 flex-col justify-center pt-20">
-      <div className="wrapper flex-col justify-center ">
+      <div className="wrapper flex-col justify-center">
+        <h1 className="w-4/12 text-center mb-5 text-white cursor-pointer" onClick={() => { setLogin(false) }}>Go Back</h1>
         <h1 className="text-center font-bold text-3xl">Enter OTP</h1>
         <div className="text-center mb-3  ">
           Receive OTP through{" "}

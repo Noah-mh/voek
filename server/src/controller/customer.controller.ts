@@ -3,6 +3,7 @@ import config from "../../config/config";
 import { UserInfo } from "../interfaces/interfaces";
 import { Request, Response, NextFunction } from "express";
 import * as customerModel from "../model/customer.model";
+import cloudinary from "../../config/cloudinary";
 
 export const processLogin = async (
   req: Request,
@@ -84,7 +85,7 @@ export const processVerifyOTP = async (
           },
         },
         config.accessTokenSecret!,
-        { expiresIn: "300s" }
+        { expiresIn: "7200s" }
       );
       const refreshToken = jwt.sign(
         {
@@ -307,6 +308,127 @@ export const processGetAddress = async (
       customer_id
     );
     console.log("Successfully got address");
+    return res.json(result);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const processGetLastCheckedIn = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.params;
+
+    const result = await customerModel.handleGetLastCheckedIn(
+      customer_id
+    );
+    console.log("Successfully got last checked in");
+    return res.json(result);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const processUpdateLastCheckedIn = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.body;
+
+    const result = await customerModel.handleUpdateCheckIn(
+      customer_id
+    );
+    console.log("Successfully update last checked in");
+    return res.json(result);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const processNewLastCheckedIn = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.body;
+
+    const result = await customerModel.handleNewLastCheckedIn(
+      customer_id
+    );
+    console.log("Successfully added new checkedin");
+    return res.json(result);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const processGetHighestScore = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.params;
+
+    const result = await customerModel.handleGetHighestScore(customer_id);
+    console.log("Successfully got highest score");
+    return res.json(result);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const processUpdateGameCoins = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id, score } = req.body;
+
+    const result = await customerModel.handleAddGameCoins(customer_id, score);
+    console.log("Successfully added coins");
+    return res.json(result);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const processUpdateLastPlayed = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.body;
+
+    const result = await customerModel.handleUpdateLastPlayed(customer_id);
+    console.log("Successfully updated last played");
+    return res.json(result);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const processUpdateHighestScore = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id, highest_score } = req.body;
+
+    const result = await customerModel.handleUpdateHighestScore(
+      customer_id,
+      highest_score
+    );
+    console.log("Successfully updated highest score");
     return res.json(result);
   } catch (err: any) {
     return next(err);
@@ -631,6 +753,44 @@ export const processDeleteVouchers = async (
       parseInt(voucher_id)
     );
     return res.sendStatus(200);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+export const processCustomerImageDelete = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.params;
+    const { image_url } = req.query;
+    const customerId = parseInt(customer_id);
+    const response: any = await Promise.all([
+      cloudinary.uploader.destroy(image_url as string),
+      customerModel.handleCustomerImageDelete(customerId),
+    ]);
+    if (!response[0] || !response[1]) {
+      return res.sendStatus(404);
+    }
+    return res.sendStatus(200);
+  } catch (err: any) {
+    console.log("Error deleting image: ", err);
+    return next(err);
+  }
+};
+
+export const processGetTotalSpentAllTime = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.params;
+    const result = await customerModel.handleGetTotalSpentAllTime(
+      parseInt(customer_id)
+    );
+    return res.json({ customer_spent: result });
   } catch (err: any) {
     return next(err);
   }

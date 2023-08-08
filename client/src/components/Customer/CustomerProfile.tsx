@@ -166,11 +166,8 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
   const handleDelete = async () => {
     try {
       setUpdateImage("test/blank-profile-picture-973460_1280_tj6oeb");
-      const response = await axiosPrivateCustomer.put(
-        `/customer/profile/edit/photo/${customer_id}`,
-        {
-          image_url: "test/blank-profile-picture-973460_1280_tj6oeb",
-        }
+      const response = await axiosPrivateCustomer.delete(
+        `/customer/${customer_id}/deleteImage?image_url=${encodeURIComponent(image_url)}`
       );
       if (response.status === 200) {
         toast.success("Photo deleted", {

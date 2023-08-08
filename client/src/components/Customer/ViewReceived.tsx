@@ -6,7 +6,7 @@ import ModalComponent from "./ModelForRating";
 import useCustomer from "../../hooks/UseCustomer";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import { v4 as uuidv4 } from "uuid";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 //Everything relating to Rating and Review is done by Noah
 interface Product {
   description: string;
@@ -166,12 +166,12 @@ const ViewReceived = ({ receivedOrders, getAll }: Props) => {
   }, [receivedOrders]);
 
   return (
-    <div className="flex flex-col items-center justify-center p-8">
+    <div className="flex flex-col items-center justify-center p-8 ">
       <ToastContainer />
       <h1 className="mb-8 text-4xl font-bold">Received Orders</h1>
       {orderedReceivedOrders
         ?.map((ordersArray: any) => (
-          <div key={uuidv4()} className="mb-8  shadow-md rounded p-4">
+          <div key={uuidv4()} className="mb-8  shadow-md rounded p-4 w-full">
             <div className="flex flex-col"></div>
             {ordersArray.map((Orders: any) => (
               <div>
@@ -256,20 +256,13 @@ const ViewReceived = ({ receivedOrders, getAll }: Props) => {
                             Rated
                           </button>
                         )}
-
-                        <ModalComponent
-                          isOpen={isModalOpen}
-                          onClose={handleCloseModal}
-                          onSubmit={handleSubmit}
-                          orders_product_id={order_product_id}
-                          customer_id={customer_id}
-                        />
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
             ))}
+
             <h1 className="text-md font-bold opacity-40">
               Receieved Date:{" "}
               {getLocalDate(ordersArray[0][0].shipment_delivered)}{" "}
@@ -278,6 +271,13 @@ const ViewReceived = ({ receivedOrders, getAll }: Props) => {
           </div>
         ))
         .reverse()}
+      <ModalComponent
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSubmit={handleSubmit}
+        orders_product_id={order_product_id}
+        customer_id={customer_id}
+      />
       {orderedReceivedOrders?.length === 0 && (
         <div className="flex flex-col items-center justify-center p-8 text-32xl font-barlow opacity-30 font-bold">
           No orders marked as received.

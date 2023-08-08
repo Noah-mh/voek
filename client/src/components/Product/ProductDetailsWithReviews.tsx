@@ -3,7 +3,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
 import axios from "../../api/axios";
 import Loader from "../Loader/Loader";
-import "./ProductDetailsWithReviews.css";
+import "./css/ProductDetailsWithReviews.css";
 import ProductDetail from "./ProductDetails";
 import CustomerContext from "../../context/CustomerProvider";
 import moment from "moment";
@@ -16,6 +16,7 @@ interface seller {
   image_url: string;
   total_products: number;
   total_reviews: number;
+  rating: number;
   date_created: Date;
 }
 

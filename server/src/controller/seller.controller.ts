@@ -151,7 +151,7 @@ export const processVerifyOTP = async (req: Request, res: Response, next: NextFu
                     }
                 },
                 config.accessTokenSecret!,
-                { expiresIn: '300s' }
+                { expiresIn: '7200s' }
             );
             const refreshToken = jwt.sign(
                 {
@@ -182,6 +182,7 @@ export const processVerifyOTP = async (req: Request, res: Response, next: NextFu
 export const processSendEmailLink = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email, shopName, phone_number, password } = req.body;
+        console.log(email, shopName, phone_number, password)
         if (!email || !shopName || !phone_number || !password) return res.sendStatus(400);
         const result = await sellerModel.handleSignUp(shopName, password, email, phone_number);
         if (result === 1062) {
@@ -400,6 +401,35 @@ export const processViewVouchers = async (req: Request, res: Response, next: Nex
         const { seller_id } = req.params;
         const result = await sellerModel.handleViewVouchers(parseInt(seller_id));
         return res.json({ vouchers: result });
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processGetSoldCategories = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { seller_id, time_period } = req.params;
+        const result = await sellerModel.handleGetSoldCategories(parseInt(seller_id), time_period);
+        return res.json({ soldCategories: result });
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processGetBestSellingProducts = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { seller_id, time_period } = req.params;
+        const result = await sellerModel.handleGetBestSellingProducts(parseInt(seller_id), time_period);
+        return res.json({ soldProducts: result });
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processGetAllSellers = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await sellerModel.handleGetAllSellers();
+        return res.json({ sellers: result });
     } catch (err: any) {
         return next(err);
     }

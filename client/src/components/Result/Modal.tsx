@@ -6,7 +6,6 @@ import CustomerContext from "../../context/CustomerProvider";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
-import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 
 import { ToastContainer, ToastOptions, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -15,6 +14,8 @@ import { AdvancedImage } from "@cloudinary/react";
 import { cld } from "../../Cloudinary/Cloudinary";
 
 import { motion } from "framer-motion";
+
+import WishlistButton from "../Wishlist/WishlistButton";
 
 interface ModalProps {
   setModalOpen: (modalOpen: boolean) => void;
@@ -69,142 +70,14 @@ const Modal = ({
   const [variations, setVariations] = useState<Array<Variation>>([]);
   const [quantity, setQuantity] = useState<number>(1);
   const [stock, setStock] = useState<number>(0);
+  const [quantityOfProudctInCart, setQuantityOfProudctInCart] =
+    useState<number>(0);
   const [chosenSKU, setChosenSKU] = useState<string>("");
   const [price, setPrice] = useState<number>(0);
   const [imageUrl, setImageUrl] = useState<string>("");
+
   const { customer } = useContext(CustomerContext);
   const customerId = customer.customer_id;
-
-  //wishlist
-  // wishlist
-  useEffect(() => {
-    console.log("customerID: ", customerId);
-    const checkWishlistProductExistence = async () => {
-      if (customerId != undefined) {
-        try {
-          const response = await axiosPrivateCustomer.get(
-            `/checkWishlistProductExistence/?customerId=${customerId}&productId=${product.product_id}`
-          );
-          if (response.data.length > 0) {
-            setHeart(true);
-          } else {
-            setHeart(false);
-          }
-        } catch (err: any) {
-          setHeart(false);
-        }
-      }
-    };
-    checkWishlistProductExistence();
-  }, []);
-
-  const handleAddToWishlist = () => {
-    if (customerId == undefined) {
-      toast.warn("Please Log in to add into wishlist", {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
-      return;
-    } else {
-      axiosPrivateCustomer
-        .post(
-          "/insertWishlistedProduct",
-          JSON.stringify({
-            customerId: customerId,
-            productId: product.product_id,
-          }),
-          {
-            headers: { "Content-Type": "application/json" },
-            withCredentials: true,
-          }
-        )
-        .then((response) => {
-          // On successful addition to wishlist, show the popup
-          if (response.status === 201) {
-            setHeart(true);
-            toast.success("Item Added to Wishlist! 😊", {
-              position: "top-center",
-              autoClose: 5000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "light",
-            });
-          }
-        })
-        .catch((error) => {
-          // Handle error here
-          console.error(error);
-          toast.error("Error! Adding to wishlist failed", {
-            position: "top-center",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-          });
-        });
-    }
-  };
-
-  const handleRemoveFromWishlist = () => {
-    if (customerId == undefined) {
-      toast.warn("Please Log in to use the wishlist", {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
-    } else {
-      axiosPrivateCustomer
-        .delete(
-          `/deleteWishlistedProduct?customer_id=${customerId}&product_id=${product.product_id}`
-        )
-        .then((response) => {
-          if (response.status === 200) {
-            setHeart(false);
-            toast.success("Item Removed from Wishlist! 😊", {
-              position: "top-center",
-              autoClose: 5000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "light",
-            });
-          }
-        })
-        .catch((error) => {
-          // Handle error here
-          console.error(error);
-          toast.error("Error! Removing from wishlist failed", {
-            position: "top-center",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-          });
-        });
-    }
-  };
 
   // add to cart
   const addToCart = () => {
@@ -227,6 +100,8 @@ const Modal = ({
         .then((data) => {
           if (data === 200) {
             toast.success("Item Added to Cart! 😊", toastOptions);
+            setQuantityOfProudctInCart(quantityOfProudctInCart + quantity);
+            setQuantity(1);
           } else {
             toast.error("Uh-oh! Error! 😔", toastOptions);
           }
@@ -283,7 +158,7 @@ const Modal = ({
       });
   }, []);
 
-  const updateSKU = (chosenSKU: string) => {
+  const updateSKU = async (chosenSKU: string) => {
     setChosenSKU(chosenSKU);
     setQuantity(1);
 
@@ -296,6 +171,16 @@ const Modal = ({
       const variation = variations.find(
         (variation) => variation.sku === chosenSKU
       );
+
+      if (customerId != undefined) {
+        const response = await axiosPrivateCustomer.get(
+          `/getQuantityOfProductInCart?customerID=${customerId}&productID=${product.product_id}&sku=${chosenSKU}`
+        );
+        const quantityOfProudctInCart =
+          response.data.quantity !== undefined ? response.data.quantity : 0;
+        setQuantityOfProudctInCart(quantityOfProudctInCart);
+      }
+
       if (variation) {
         setStock(variation.quantity);
         setPrice(variation.price);
@@ -387,25 +272,44 @@ const Modal = ({
                 onClick={() => {
                   if (quantity > 1) {
                     setQuantity(quantity - 1);
+                  } else {
+                    toast.warn("Quantity cannot be less than 1", toastOptions);
                   }
                 }}
-                disabled={quantity === 1}
+                // disabled={quantity === 1}
               >
                 -
               </button>
               {quantity}
               <button
                 className={
-                  quantity === stock
+                  quantity === stock ||
+                  quantity === stock - quantityOfProudctInCart
                     ? "text-sm border px-2 py-1 mx-2 opacity-95"
                     : "text-sm border px-2 py-1 mx-2 bg-lighterGreyAccent"
                 }
                 onClick={() => {
-                  if (quantity < stock) {
+                  if (quantity === stock - quantityOfProudctInCart) {
+                    toast.warn(
+                      `You have reached the maximum quantity available. You have already added ${quantityOfProudctInCart} to cart`,
+                      toastOptions
+                    );
+                    return;
+                  }
+
+                  if (
+                    quantity < stock ||
+                    quantity < stock - quantityOfProudctInCart
+                  ) {
                     setQuantity(quantity + 1);
+                  } else if (quantity === stock) {
+                    toast.warn(
+                      "You have reached the maximum quantity available",
+                      toastOptions
+                    );
                   }
                 }}
-                disabled={quantity === stock}
+                // disabled={quantity === stock - quantityOfProudctInCart}
               >
                 {" "}
                 +{" "}
@@ -418,23 +322,13 @@ const Modal = ({
                 whileHover={{ scale: 1.3 }}
                 whileTap={{ scale: 0.9 }}
               >
-                {heart ? (
-                  <AiFillHeart
-                    onClick={() => {
-                      handleRemoveFromWishlist();
-                    }}
-                    color="pink"
-                    size="1.75em"
-                  />
-                ) : (
-                  <AiOutlineHeart
-                    onClick={() => {
-                      handleAddToWishlist();
-                    }}
-                    color="pink"
-                    size="1.75em"
-                  />
-                )}
+                <WishlistButton
+                  productID={product.product_id}
+                  customerID={customerId}
+                  setHeart={setHeart}
+                  heart={heart}
+                  toast={toast}
+                />
               </motion.button>
               <button
                 className={

@@ -93,9 +93,63 @@
 
 // export default CloudinaryUpload;
 
-import React, { useEffect, useState, useCallback, ChangeEvent } from 'react';
-import axios from 'axios';
+// import React, { useEffect, useState, useCallback, ChangeEvent } from 'react';
+// import axios from 'axios';
 
+// interface CloudinaryUploadProps {
+//     onSuccess: (resultInfo: any) => void;
+//     caption: string;
+// }
+
+// const CloudinaryUpload: React.FC<CloudinaryUploadProps> = ({ onSuccess, caption }) => {
+//     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+//     const [isUploaded, setIsUploaded] = useState(false);
+
+//     const handleUpload = useCallback(async () => {
+//         if (selectedFile) {
+//             const formData = new FormData();
+//             formData.append('file', selectedFile);
+//             formData.append('upload_preset', 'vesexyvh');
+
+//             try {
+//                 const response = await axios.post(
+//                     `https://api.cloudinary.com/v1_1/dgheg6ml5/image/upload`,
+//                     formData
+//                 );
+//                 onSuccess(response.data);
+//                 setIsUploaded(true);
+//             } catch (error) {
+//                 console.error('Upload failed', error);
+//             }
+//         }
+//     }, [selectedFile, onSuccess]);
+
+//     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+//         const file = event.target.files ? event.target.files[0] : null;
+//         setSelectedFile(file);
+//         setIsUploaded(false); // Reset the upload status whenever the file changes
+//     };
+
+//     useEffect(() => {
+//         if (selectedFile && !isUploaded) {
+//             handleUpload();
+//         }
+//     }, [selectedFile, handleUpload, isUploaded]);
+
+//     return (
+//         <div className="flex flex-col items-center justify-center py-10">
+//             <input id="file-upload" type="file" accept="image/png, image/jpeg" onChange={handleFileChange} className="hidden" />
+//             <label htmlFor="file-upload" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer">
+//                 {caption}
+//             </label>
+//         </div>
+//     );
+// };
+
+
+import React, { useState, useCallback, ChangeEvent } from 'react';
+import axios from 'axios';
+import { cloudName, defaultPreset } from './Cloudinary';
 interface CloudinaryUploadProps {
     onSuccess: (resultInfo: any) => void;
     caption: string;
@@ -104,16 +158,17 @@ interface CloudinaryUploadProps {
 const CloudinaryUpload: React.FC<CloudinaryUploadProps> = ({ onSuccess, caption }) => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [isUploaded, setIsUploaded] = useState(false);
+    const [previewUrl, setPreviewUrl] = useState<string | undefined>();
 
     const handleUpload = useCallback(async () => {
         if (selectedFile) {
             const formData = new FormData();
             formData.append('file', selectedFile);
-            formData.append('upload_preset', 'vesexyvh');
+            formData.append('upload_preset', defaultPreset);
 
             try {
                 const response = await axios.post(
-                    `https://api.cloudinary.com/v1_1/dgheg6ml5/image/upload`,
+                    `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
                     formData
                 );
                 onSuccess(response.data);
@@ -128,22 +183,38 @@ const CloudinaryUpload: React.FC<CloudinaryUploadProps> = ({ onSuccess, caption 
         const file = event.target.files ? event.target.files[0] : null;
         setSelectedFile(file);
         setIsUploaded(false); // Reset the upload status whenever the file changes
-    };
-
-    useEffect(() => {
-        if (selectedFile && !isUploaded) {
-            handleUpload();
+        if (file) {
+            const url = URL.createObjectURL(file);
+            setPreviewUrl(url);
+        } else {
+            setPreviewUrl(undefined);
         }
-    }, [selectedFile, handleUpload, isUploaded]);
+    };
 
     return (
         <div className="flex flex-col items-center justify-center py-10">
             <input id="file-upload" type="file" accept="image/png, image/jpeg" onChange={handleFileChange} className="hidden" />
-            <label htmlFor="file-upload" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer">
-                {caption}
-            </label>
+            {selectedFile && !isUploaded ? (
+                <>
+                    {/* <img src={previewUrl} alt="Preview" className="mb-4 w-40 h-40 object-cover" /> */}
+                    <img src={previewUrl} alt="Preview" className="mb-2 w-40 h-40 object-cover rounded" />
+                    <button
+                        type="button"
+                        className="mt-4 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded cursor-pointer"
+                        onClick={handleUpload}
+                    >
+                        Upload
+                    </button>
+                </>
+            ) : (
+                <label htmlFor="file-upload" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer">
+                    {caption}
+                </label>
+            )}
         </div>
     );
 };
 
 export default CloudinaryUpload;
+
+

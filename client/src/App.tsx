@@ -35,6 +35,11 @@ import SellerVouchers from "./components/SellerVouchers/SellerVouchers.js";
 import RedeemVoucher from "./components/RedeemVoucher/RedeemVoucher.js";
 import CustomerSellerProfilePage from "./components/Product/CustomerSellerProfilePage.js";
 import Chat from "./components/Chat/Chat.js";
+import Analytics from "./components/CustomerAnalytics/Analytics.js";
+import Game from "./components/Game/Game.js";
+// import MainGame from "./components/Game/assets/MainGame.js";
+import DailyCoins from "./components/DailyCoin/DailyCoin.js";
+import ClaimVouchers from "./components/RedeemVoucher/ClaimVouchers.js";
 
 function App() {
   return (
@@ -46,6 +51,7 @@ function App() {
           element={<ResetPasswordCustomer />}
         />
         <Route path="forgetPassword" element={<ForgetPasswordCustomer />} />
+        {/* <Route path="monkeyRun" element={<Game />} />*/}
 
         {/* Customer Routes */}
         <Route element={<PersistLoginCustomer />}>
@@ -76,6 +82,7 @@ function App() {
             path="customerSellerProfile/:seller_id"
             element={<CustomerSellerProfilePage />}
           />
+          <Route path="claimVouchers" element={<ClaimVouchers />} />
 
           <Route element={<RequireAuthCustomer />}>
             {/* Protected Routes with persist login */}
@@ -84,7 +91,10 @@ function App() {
             <Route path="customer/checkout" element={<Checkout />} />
             <Route path="profile" element={<CustomerProfilePage />} />
             <Route path="lastViewed" element={<LastViewed />} />
+            {/* <Route path="analytics" element={<Analytics />} /> */}
             <Route path="chat" element={<Chat userType="customer" />} />
+            <Route path="customer/dailyCheckIn" element={<DailyCoins />} />
+            <Route path="customer/game" element={<Game />} />
           </Route>
         </Route>
       </Route>
