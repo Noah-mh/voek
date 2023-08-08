@@ -217,7 +217,7 @@ const CustomerSellerProfilePage: React.FC = () => {
     return (
       <div className="">
         <ToastContainer />
-        <div className="flex my-8 items-center justify-center">
+        <div className="flex my-8 items-center justify-center sellerBanner">
           <div className="mx-auto">
             <div className="w-full">
               <div className="w-full bg-white flex p-6 content-between items-center overflow-visible shadow-sm">
