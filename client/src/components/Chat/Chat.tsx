@@ -11,16 +11,8 @@ import "./css/Chat.css";
 import { AdvancedImage } from "@cloudinary/react";
 import { cld } from "../../Cloudinary/Cloudinary";
 import { Link } from "react-router-dom";
-
-// const socket = io(
-//   import.meta.env.VITE_APP_BACKEND_BASE_URL || "http://localhost:3500",
-//   {
-//     transports: ["websocket"],
-//     query: {
-//       id: "xxxxxx",
-//     },
-//   }
-// );
+import data from "@emoji-mart/data";
+import Picker from "@emoji-mart/react";
 
 interface ChatProps {
   userType: string;
@@ -98,6 +90,11 @@ const Chat = ({ userType }: ChatProps) => {
 
     const formattedTime = hours + ":" + minutes + " " + ampm;
     return formattedTime;
+  };
+
+  const addEmoji = (e: any) => {
+    let emoji = e.native;
+    setMessage(message + emoji);
   };
 
   const receiveMessageCallback = useMemo(() => {
@@ -180,14 +177,14 @@ const Chat = ({ userType }: ChatProps) => {
         />
       </div>
       <div className="w-full xl:w-3/4 flex grow">
-        <div className="chatColumn flex justify-center items-start">
+        <div className="chatColumn flex justify-center items-start grow">
           {userID == null || roomID == null ? (
-            <div className="chat-window noChatChosenBody bg-gray-50 flex justify-center items-center text-gray-300">
+            <div className="chat-window noChatChosenBody bg-gray-50 flex justify-center items-center text-gray-300 grow">
               Pick someone to start chatting!
             </div>
           ) : (
             <div
-              className="chat-window"
+              className="chat-window grow"
               onClick={async () => {
                 await axiosPrivateCustomer.put(`/updateMessagesStatus`, {
                   roomID: roomID,
@@ -282,6 +279,9 @@ const Chat = ({ userType }: ChatProps) => {
             </div>
           )}
         </div>
+      </div>
+      <div className="flex justify-start items-end grow">
+        <Picker data={data} onEmojiSelect={addEmoji} />
       </div>
     </div>
   );

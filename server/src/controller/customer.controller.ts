@@ -85,7 +85,7 @@ export const processVerifyOTP = async (
           },
         },
         config.accessTokenSecret!,
-        { expiresIn: "300s" }
+        { expiresIn: "7200s" }
       );
       const refreshToken = jwt.sign(
         {
@@ -690,7 +690,6 @@ export const processDeleteVouchers = async (
     return next(err);
   }
 };
-
 export const processCustomerImageDelete = async (
   req: Request,
   res: Response,
@@ -710,6 +709,22 @@ export const processCustomerImageDelete = async (
     return res.sendStatus(200);
   } catch (err: any) {
     console.log("Error deleting image: ", err);
+    return next(err);
+  }
+};
+
+export const processGetTotalSpentAllTime = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.params;
+    const result = await customerModel.handleGetTotalSpentAllTime(
+      parseInt(customer_id)
+    );
+    return res.json({ customer_spent: result });
+  } catch (err: any) {
     return next(err);
   }
 };

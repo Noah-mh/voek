@@ -1144,3 +1144,31 @@ export const handleCustomerImageDelete = async (
     await connection.release();
   }
 };
+
+export const handleGetTotalSpentAllTime = async (
+  customer_id: number
+): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT 
+  orders.orders_id,
+  SUM(orders_product.total_price) as total_spent,
+  orders.orders_date
+FROM 
+  orders
+JOIN 
+  orders_product ON orders.orders_id = orders_product.orders_id
+WHERE 
+  orders.customer_id = ?
+GROUP BY 
+  orders.orders_id;
+`;
+  try {
+    const [result] = await connection.query(sql, [customer_id]);
+    return result as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
