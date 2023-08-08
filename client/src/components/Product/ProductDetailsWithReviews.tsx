@@ -16,6 +16,7 @@ interface seller {
   image_url: string;
   total_products: number;
   total_reviews: number;
+  rating: number;
   date_created: Date;
 }
 

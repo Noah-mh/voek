@@ -8,10 +8,10 @@ import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import useCustomer from "../../hooks/UseCustomer";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { AiFillDelete } from "react-icons/ai";
 import Rating from "@mui/material/Rating";
 import { Link, useNavigate } from "react-router-dom";
-import { AiOutlineShop } from "react-icons/ai";
+import { AiOutlineShop, AiOutlineStar, AiOutlineShopping, AiFillDelete } from "react-icons/ai";
+import { GrUserExpert } from "react-icons/gr";
 import { CiChat1 } from "react-icons/ci";
 import WishlistButton from "../Wishlist/WishlistButton";
 
@@ -38,6 +38,7 @@ interface seller {
   image_url: string;
   total_products: number;
   total_reviews: number;
+  rating: number;
   date_created: Date;
 }
 
@@ -412,10 +413,10 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                       value={
                         selectedVariation
                           ? {
-                              label: selectedVariation,
-                              value: selectedVariation,
-                              sku: selectedSku,
-                            }
+                            label: selectedVariation,
+                            value: selectedVariation,
+                            sku: selectedSku,
+                          }
                           : null
                       }
                       onChange={(option) => {
@@ -518,27 +519,27 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                   </div>
                 </div>
                 <div className="grow grid grid-cols-3 gap-x-10 gap-y-20 pl-10 text-gray-400">
-                  <div className="flex justify-between relative overflow-visible">
+                  <div className="flex space-x-3 relative overflow-visible items-center">
+                    <AiOutlineShopping />
                     <h1>Total Products:</h1>{" "}
                     <h1 className="text-pink">
                       {sellerData[0].total_products}
                     </h1>
                   </div>
-                  <div className="flex justify-between relative overflow-visible">
-                    <h1>Total Ratings:</h1>{" "}
-                    <h1 className="text-pink">{sellerData[0].total_reviews}</h1>
+                  <div className="flex space-x-3 relative overflow-visible items-center">
+                    <AiOutlineStar />
+                    <h1>Ratings:</h1>{" "}
+                    <h1 className="text-pink">{sellerData[0].rating}</h1>
+                    <h1 className="text-pink">( {sellerData[0].total_reviews} {sellerData[0].total_reviews < 2 ? "Rating" : "Ratings"} )</h1>
                   </div>
-                  <div className="flex justify-between relative overflow-visible">
+                  <div className="flex space-x-3 relative overflow-visible items-center">
+                    <GrUserExpert />
                     <h1>Joined:</h1>{" "}
                     <h1 className="text-pink">
                       {diffInMonths}{" "}
-                      {diffInMonths === 1 || diffInMonths === 0 ? (
-                        <span>month</span>
-                      ) : (
-                        <span>months</span>
-                      )}{" "}
-                      ago
+                      {diffInMonths === 1 || diffInMonths === 0 ? "month" : "months"}
                     </h1>
+                    <span>ago</span>
                   </div>
                 </div>
               </div>
@@ -559,7 +560,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                                   <AdvancedImage
                                     cldImg={cld
                                       .image(review.customerImage)
-                                      }
+                                    }
                                     className="h-10 aspect-square object-cover rounded-lg"
                                   />
                                 </div>
