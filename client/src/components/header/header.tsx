@@ -100,6 +100,9 @@ const Header = ({ isCustomer, isSeller }: Props) => {
                   Become a seller today!
                 </p>
               </Link>
+              <Link to="/claimVouchers" className="ms-6 text-lg font-bold">
+                <p className="text-purpleAccent">Claim Vouchers</p>
+              </Link>
             </>
           ) : isSeller ? (
             <>
@@ -113,7 +116,7 @@ const Header = ({ isCustomer, isSeller }: Props) => {
           ) : null}
         </div>
       </div>
-      <div className="block justify-end w-1/2">
+      <div className={`block justify-end ${isCustomer && 'w-1/2'}`}>
         <div className="text-sm lg:flex-grow inline-block  px-4  leading-none">
           {isCustomer ? (
             customer?.customer_id ? (

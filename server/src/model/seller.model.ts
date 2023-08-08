@@ -1253,6 +1253,20 @@ export const handleGetBestSellingProducts = async (
   }
 }
 
+export const handleGetAllSellers = async (): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT seller.seller_id, seller.shop_name, seller.image_url FROM seller RIGHT JOIN seller_voucher ON seller.seller_id = seller_voucher.seller_id WHERE seller.seller_id IS NOT NULL GROUP BY seller_voucher.seller_id`;
+  try {
+    const [result] = await connection.query(sql);
+    return result as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+}
+
 const convertLocalTimeToUTC = (): string => {
   const now = new Date();
 

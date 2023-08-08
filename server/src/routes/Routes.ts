@@ -229,6 +229,10 @@ export default function (app: Express, router: Router) {
     verifyRoles("seller"),
     sellerController.processGetBestSellingProducts
   )
+  router.get(
+    "/sellers",
+    sellerController.processGetAllSellers
+  )
 
   // NOAH ENDPOINTS - reviews, customer profile, customer address, add to cart, ratings, product details, seller details, seller categories
   router.get(
