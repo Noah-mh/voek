@@ -425,3 +425,53 @@ export const processGetBestSellingProducts = async (req: Request, res: Response,
         return next(err);
     }
 }
+
+export const processGetRevenue = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { seller_id, time_period } = req.params;
+        const result = await sellerModel.handleGetRevenue(parseInt(seller_id), time_period);
+        return res.json({ revenue: result });
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processGetTotalRevenue = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { sellerId } = req.params;
+        const result = await sellerModel.handleGetTotalRevenue(parseInt(sellerId));
+        return res.json({ totalRevenue: result });
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processGetTotalProductsSold = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { sellerId } = req.params;
+        const result = await sellerModel.handleGetTotalProductsSold(parseInt(sellerId));
+        return res.json({ totalProductsSold: result });
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processGetTotalCustomers = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { sellerId } = req.params;
+        const result = await sellerModel.handleGetTotalCustomers(parseInt(sellerId));
+        return res.json({ totalCustomers : result });
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processGetAverageRatingOfProducts = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { sellerId } = req.params;
+        const result = await sellerModel.handleGetAverageRatingOfProducts(parseInt(sellerId));
+        return res.json({ averageRating : result });
+    } catch (err: any) {
+        return next(err);
+    }
+}

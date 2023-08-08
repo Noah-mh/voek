@@ -1,9 +1,22 @@
 import { useEffect, useMemo, useState } from 'react'
 import useAxiosPrivateSeller from '../../hooks/useAxiosPrivateSeller'
 import useSeller from '../../hooks/useSeller'
-import { PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, } from 'recharts';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
+import Card from '@mui/material/Card';
+import { CardHeader, Avatar, IconButton, CardContent, Typography } from '@mui/material';
+import { blue, red } from '@mui/material/colors';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import StatisticsCard from './StatisticsCard';
+import moment from 'moment';
+
+interface RevenueData {
+  Revenue: number;
+  name: string;
+}
 
 interface CategoriesData {
   value: number;
@@ -21,10 +34,113 @@ const HomePage = () => {
 
   const { seller } = useSeller();
 
+  const [totalRevenue, setTotalRevenue] = useState<string>("");
+  const [totalProductsSold, setTotalProductsSold] = useState<string>("");
+  const [totalCustomers, setTotalCustomers] = useState<string>("");
+  const [averageRatingOfProducts, setAverageRatingOfProducts] = useState<string>("");
+
+  const [revenueFilter, setRevenueFilter] = useState<string>("all");
+  const [revenueData, setRevenueData] = useState<RevenueData[]>([]);
   const [categoriesFilter, setCategoriesFilter] = useState<string>("all");
   const [categoriesData, setCategoriesData] = useState<CategoriesData[]>([]);
   const [bestProductsFilter, setBestProductsFilter] = useState<string>("all");
   const [bestProductsData, setBestProductsData] = useState<BestProductsData[]>([]);
+
+  const getTotalRevenue = async () => {
+    try {
+      const { data } = await axiosPrivateSeller.get(`/seller/totalRevenue/${seller.seller_id}`);
+      setTotalRevenue(data.totalRevenue[0].total_revenue);
+    } catch (err: any) {
+      console.log(err);
+    }
+  }
+
+  const getTotalProductsSold = async () => {
+    try {
+      const { data } = await axiosPrivateSeller.get(`/seller/totalSold/${seller.seller_id}`);
+      setTotalProductsSold(data.totalProductsSold[0].total_products_sold);
+    } catch (err: any) {
+      console.log(err);
+    }
+  }
+
+  const getTotalCustomers = async () => {
+    try {
+      const { data } = await axiosPrivateSeller.get(`/seller/totalCustomers/${seller.seller_id}`);
+      setTotalCustomers(data.totalCustomers[0].total_customers);
+    } catch (err: any) {
+      console.log(err);
+    }
+  }
+
+  const getAverageRatingOfProducts = async () => {
+    try {
+      const { data } = await axiosPrivateSeller.get(`/seller/averageRating/${seller.seller_id}`);
+      setAverageRatingOfProducts(data.averageRating[0].average_rating);
+    } catch (err: any) {
+      console.log(err);
+    }
+  }
+
+  const getRevenue = async (filter: string) => {
+    try {
+      const { data } = await axiosPrivateSeller.get(`/seller/products/revenue/${seller.seller_id}/${filter}`);
+      // setRevenueData(data.revenue.map((revenue: any) => ({ name: revenue.orders_date, Revenue: parseInt(revenue.total_revenue) })));
+      // Extract revenue data
+      const revenueData: RevenueData[] = data.revenue.map((revenue: any) => ({
+        name: revenue.orders_day,
+        Revenue: parseFloat(revenue.total_revenue),
+      }));
+      // setRevenueData(revenueData);
+
+      const timeRange = [];
+
+      if (filter === "today") {
+        // Generate a range of hours
+        const startHour = moment().startOf('day'); 
+        const endHour = moment().endOf('day'); 
+        const currentHour = startHour.clone();
+
+        while (currentHour.isBefore(endHour)) {
+          timeRange.push(currentHour.format('YYYY-MM-DD HH:00'));
+          currentHour.add(1, 'hour');
+        }
+      } else if (filter === "week" || filter === "month") {
+        // Generate a range of dates
+        const startDate = moment().subtract(1, filter); 
+        const endDate = moment(); // Current date
+        const currentDate = startDate.clone();
+
+        while (currentDate.isBefore(endDate)) {
+          timeRange.push(currentDate.format('YYYY-MM-DD'));
+          currentDate.add(1, 'day');
+        }
+      } else {
+        // Find the earliest and latest dates from the revenue data
+        const earliestDate = moment.min(revenueData.map(revenue => moment(revenue.name))).startOf('day');
+        const latestDate = moment.max(revenueData.map(revenue => moment(revenue.name))).startOf('day');
+        const currentDate = earliestDate.clone();
+
+        while (currentDate.isSameOrBefore(latestDate)) {
+          timeRange.push(currentDate.format('YYYY-MM-DD'));
+          currentDate.add(1, 'day');
+        }
+      }
+
+      // Merge the generated date range with revenue data
+      const mergedData = timeRange.map(time => {
+        const matchingRevenue = revenueData?.find(data => data.name === time);
+        return {
+          name: time,
+          Revenue: matchingRevenue ? matchingRevenue.Revenue : 0,
+        };
+      });
+
+      setRevenueData(mergedData);
+    } catch (err: any) {
+      console.log(err);
+    }
+  }
 
   const getSoldCategories = async (filter: string) => {
     try {
@@ -45,6 +161,10 @@ const HomePage = () => {
   }
 
   useEffect(() => {
+    getRevenue(revenueFilter);
+  }, [revenueFilter])
+
+  useEffect(() => {
     getSoldCategories(categoriesFilter);
   }, [categoriesFilter])
 
@@ -52,155 +172,170 @@ const HomePage = () => {
     getBestProducts(bestProductsFilter);
   }, [bestProductsFilter])
 
+  useEffect(() => {
+    getTotalRevenue();
+    getTotalProductsSold();
+    getTotalCustomers();
+    getAverageRatingOfProducts();
+  }, [])
+
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AF19FF', '#FF5733', '#FFB700', '#FFC733', '#FFD966'];
 
   return (
-<div>
-  <div>
-    <h1 className="text-2xl font-bold mb-4">Sales made based on categories</h1>
-    <TextField
-      select
-      label="Period"
-      required
-      value={categoriesFilter}
-      onChange={(e) => {
-        setCategoriesFilter(e.target.value);
-      }}
-      fullWidth
-      sx={{ m: 2 }}
-    >
-      <MenuItem value="all">All Time</MenuItem>
-      <MenuItem value="month">Month</MenuItem>
-      <MenuItem value="week">Week</MenuItem>
-    </TextField>
-    <PieChart width={400} height={300}>
-      <Pie
-        dataKey="value"
-        data={categoriesData}
-        cx="200"
-        cy="100"
-        labelLine={false}
-        outerRadius={80}
-        fill="#8884d8"
-        label
-      >
-        {categoriesData.map((entry, index) => (
-          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-        ))}
-      </Pie>
-      <Tooltip />
-      <Legend />
-    </PieChart>
-  </div>
-  <div>
-    <h1 className="text-2xl font-bold mb-4">Top Selling Products</h1>
-    <TextField
-      select
-      label="Period"
-      required
-      value={bestProductsFilter}
-      onChange={(e) => {
-        setBestProductsFilter(e.target.value);
-      }}
-      fullWidth
-      sx={{ m: 2 }}
-    >
-      <MenuItem value="all">All Time</MenuItem>
-      <MenuItem value="month">Month</MenuItem>
-      <MenuItem value="week">Week</MenuItem>
-    </TextField>
-    <BarChart
-      width={700}
-      height={300}
-      data={bestProductsData}
-      margin={{
-        top: 5,
-        right: 30,
-        left: 20,
-        bottom: 5,
-      }}
-      barSize={20}
-    >
-      <XAxis dataKey="name" scale="point" padding={{ left: 10, right: 10 }} />
-      <YAxis />
-      <Tooltip />
-      <Legend />
-      <CartesianGrid strokeDasharray="3 3" />
-      <Bar dataKey="amt" name="Amount Sold" fill="#8884d8" background={{ fill: '#eee' }} />
-    </BarChart>
-  </div>
-</div>
+    <Box>
+      {/* <Box
+        // bgColor={background || "info"}
+        height="300px"
+        width="100vw"
+        position="absolute"
+        top={0}
+        left={0}
+        // sx={darkMode && { bgColor: ({ palette: { background } }) => background.default }}
+      /> */}
+      <Box pr={3}>
+        <Grid container spacing={3} m={3} ml={0} pl={0}>
+          <StatisticsCard 
+            icon={<AttachMoneyIcon />}
+            title={"Total Revenue Earned"}
+            subheader={`$${totalRevenue}`}
+            percentage={"+55% since yesterday"}
+          />
+          <StatisticsCard 
+            icon={<AttachMoneyIcon />}
+            title={"Total Products Sold"}
+            subheader={totalProductsSold}
+            percentage={"+55% since yesterday"}
+          />
+          <StatisticsCard 
+            icon={<AttachMoneyIcon />}
+            title={"Total Customers"}
+            subheader={totalCustomers}
+            percentage={"+55% since yesterday"}
+          />
+          <StatisticsCard 
+            icon={<AttachMoneyIcon />}
+            title={"Average Rating"}
+            subheader={averageRatingOfProducts}
+            percentage={"+55% since yesterday"}
+          />
+        </Grid>
+        <Grid container spacing={3} mb={3}>
+          <Grid item xs={12} lg={7}>
+            <h1 className="text-2xl font-bold mb-4">Total Revenue</h1>
+            <TextField
+              select
+              label="Period"
+              required
+              value={revenueFilter}
+              onChange={(e) => {
+                setRevenueFilter(e.target.value);
+              }}
+              fullWidth
+              sx={{ m: 2, ml: 0 }}
+            >
+              <MenuItem value="today">Today</MenuItem>
+              <MenuItem value="all">All Time</MenuItem>
+              <MenuItem value="month">Month</MenuItem>
+              <MenuItem value="week">Week</MenuItem>
+            </TextField>
+            <LineChart
+              width={1000}
+              height={400}
+              data={revenueData}
+              margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+            >
+              <XAxis dataKey="name" />
+              <Tooltip />
+              <CartesianGrid stroke="#f5f5f5" />
+              {/* <Line type="monotone" dataKey="value" stroke="#ff7300" yAxisId={0} /> */}
+              <Line type="monotone" dataKey="Revenue" stroke="#387908" yAxisId={1} />
+            </LineChart>
+          </Grid>
+          {/* <Grid item xs={12} lg={5}>
+            <Slider /> 
+          </Grid> */}
+        </Grid>
+        <Grid container spacing={6} m={3} ml={0}>
+          <Grid item xs={12} md={7}>
+            {/* <SalesTable title="Sales by Country" rows={salesTableData} /> */}
+            <h1 className="text-2xl font-bold mb-4">Top Selling Products</h1>
+            <TextField
+              select
+              label="Period"
+              required
+              value={bestProductsFilter}
+              onChange={(e) => {
+                setBestProductsFilter(e.target.value);
+              }}
+              fullWidth
+              sx={{ m: 2, ml: 0, width: 600 }}
+            >
+              <MenuItem value="all">All Time</MenuItem>
+              <MenuItem value="month">Month</MenuItem>
+              <MenuItem value="week">Week</MenuItem>
+            </TextField>
+            <BarChart
+              width={550}
+              height={300}
+              data={bestProductsData}
+              margin={{
+                top: 5,
+                right: 30,
+                left: 20,
+                bottom: 5,
+              }}
+              barSize={20}
+            >
+              <XAxis dataKey="name" scale="point" padding={{ left: 10, right: 10 }} />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <CartesianGrid strokeDasharray="3 3" />
+              <Bar dataKey="amt" name="Amount Sold" fill="#8884d8" background={{ fill: '#eee' }} />
+            </BarChart>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            {/* <CategoriesList title="categories" categories={categoriesListData} /> */}
+            <h1 className="text-2xl font-bold mb-4">Sales Per Category</h1>
+            <TextField
+              select
+              label="Period"
+              required
+              value={categoriesFilter}
+              onChange={(e) => {
+                setCategoriesFilter(e.target.value);
+              }}
+              fullWidth
+              sx={{ m: 2, ml: 0 }}
+            >
+              <MenuItem value="all">All Time</MenuItem>
+              <MenuItem value="month">Month</MenuItem>
+              <MenuItem value="week">Week</MenuItem>
+            </TextField>
+            <PieChart width={400} height={300}>
+              <Pie
+                dataKey="value"
+                data={categoriesData}
+                cx="200"
+                cy="100"
+                labelLine={false}
+                outerRadius={80}
+                fill="#8884d8"
+                label
+              >
+                {categoriesData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+          </PieChart>
+          </Grid>
+        </Grid>
+      </Box>
+    </Box>
   );
 };
 
 export default HomePage
 
-// interface BestSellers {
-//   productId: number;
-//   name: string;
-//   category: string;
-//   totalQuantity: number;
-// }
-
-// const sellerId = seller.seller_id;
-
-// const [bestSellersData, setBestSellersData] = useState<BestSellers[]>([]);
-
-// useEffect(() => {
-//   const getBestSellers = async () => {
-//     try {
-//       const response = await axiosPrivateSeller.get(`/bestSellers/${sellerId}`);
-//       setBestSellersData(response.data);
-//     } catch (err: any) {
-//       console.log(err);
-//     }
-//   };
-  
-//   getBestSellers();
-// }, [])
-
-// const columns = useMemo<MRT_ColumnDef<BestSellers>[]>(
-//   () => [
-//     {
-//       accessorKey: 'name',
-//       header: 'Name',
-//       enableClickToCopy: true,
-//       size: 140,
-//     },
-//     {
-//       accessorKey: 'category',
-//       header: 'Category',
-//       enableClickToCopy: true,
-//       size: 80,
-//     },
-//     {
-//       accessorKey: 'totalQuantity',
-//       header: 'Sold',
-//       enableClickToCopy: true,
-//       size: 80,
-//     },
-//   ],
-//   []
-// );
-
-// <div className="flex flex-col items-center">
-//         <div className="text-9xl m-4 mb-2 font-extrabold">VOEK</div>
-//         <div className="text-4xl m-4 mt-0 mb-5 pb-5 font-semibold">Seller Centre</div>
-//       </div>
-
-//       <h1 className="text-xl font-medium mb-2">Best Sellers</h1>
-
-//       <MaterialReactTable 
-//         displayColumnDefOptions={{
-//           'mrt-row-actions': {
-//             muiTableHeadCellProps: {
-//               align: 'center',
-//             },
-//             size: 120,
-//           },
-//         }}
-//         columns={columns}
-//         data={bestSellersData}
-//         enableColumnOrdering
-//         enablePagination={false}
-//       />

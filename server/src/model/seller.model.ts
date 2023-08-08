@@ -1129,7 +1129,7 @@ JOIN
 JOIN 
 	listed_products ON products.product_id = listed_products.product_id
 WHERE 
-    listed_products.seller_id = 1
+    listed_products.seller_id = ?
 GROUP BY
 	category.category_id`;
   } else if (time_period === "week") {
@@ -1147,7 +1147,7 @@ GROUP BY
   JOIN 
     listed_products ON products.product_id = listed_products.product_id
   WHERE 
-      listed_products.seller_id = 1
+      listed_products.seller_id = ?
     AND YEAR(orders.orders_date) = YEAR(CURDATE())
       AND WEEK(orders.orders_date) = WEEK(CURDATE())
   GROUP BY
@@ -1167,7 +1167,7 @@ GROUP BY
   JOIN 
     listed_products ON products.product_id = listed_products.product_id
   WHERE 
-      listed_products.seller_id = 1
+      listed_products.seller_id = ?
     AND DATE_FORMAT(orders.orders_date, '%Y-%m') = DATE_FORMAT(CURDATE(), '%Y-%m')
   GROUP BY
     category.category_id`;
@@ -1202,7 +1202,7 @@ export const handleGetBestSellingProducts = async (
   JOIN 
     listed_products ON products.product_id = listed_products.product_id
   WHERE 
-      listed_products.seller_id = 1
+      listed_products.seller_id = ?
   GROUP BY
     products.product_id
   LIMIT 10`;
@@ -1219,7 +1219,7 @@ export const handleGetBestSellingProducts = async (
   JOIN 
     listed_products ON products.product_id = listed_products.product_id
   WHERE 
-      listed_products.seller_id = 1
+      listed_products.seller_id = ?
     AND DATE_FORMAT(orders.orders_date, '%Y-%m') = DATE_FORMAT(CURDATE(), '%Y-%m')
   GROUP BY
     products.product_id
@@ -1237,12 +1237,175 @@ export const handleGetBestSellingProducts = async (
   JOIN 
     listed_products ON products.product_id = listed_products.product_id
   WHERE 
-      listed_products.seller_id = 1
+      listed_products.seller_id = ?
       AND YEAR(orders.orders_date) = YEAR(CURDATE())
     AND WEEK(orders.orders_date) = WEEK(CURDATE())GROUP BY
     products.product_id
   LIMIT 10`;
   }
+  try {
+    const [result] = await connection.query(sql, [seller_id]);
+    return result as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+}
+
+export const handleGetRevenue = async (
+  seller_id: number,
+  time_period: string
+): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  let sql: string = "";
+  if (time_period === "all") {
+    sql = `SELECT
+    DATE(o.orders_date) AS orders_day,
+    COALESCE(SUM(op.total_price), 0) AS total_revenue
+  FROM
+    orders_product op
+  INNER JOIN
+    orders o ON op.orders_id = o.orders_id
+  INNER JOIN
+    listed_products lp ON op.product_id = lp.product_id
+  WHERE
+    lp.seller_id = ?
+  GROUP BY
+    DATE(o.orders_date)
+  ORDER BY
+    orders_day;`;
+  } else if (time_period === "month") {
+    sql = `SELECT
+    DATE(o.orders_date) AS orders_day,
+    COALESCE(SUM(op.total_price), 0) AS total_revenue
+  FROM
+    orders_product op
+  INNER JOIN
+    orders o ON op.orders_id = o.orders_id
+  INNER JOIN
+    listed_products lp ON op.product_id = lp.product_id
+  WHERE
+    lp.seller_id = ?
+    AND o.orders_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH)
+  GROUP BY
+    DATE(o.orders_date)
+  ORDER BY
+    orders_day;`;
+  } else if (time_period === "week") {
+    sql = `SELECT
+    DATE(o.orders_date) AS orders_day,
+    COALESCE(SUM(op.total_price), 0) AS total_revenue
+  FROM
+    orders_product op
+  INNER JOIN
+    orders o ON op.orders_id = o.orders_id
+  INNER JOIN
+    listed_products lp ON op.product_id = lp.product_id
+  WHERE
+    lp.seller_id = ?
+    AND o.orders_date >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+  GROUP BY
+    DATE(o.orders_date)
+  ORDER BY
+    orders_day;`;
+  } else if (time_period === "today") {
+    sql = `SELECT
+    DATE_FORMAT(o.orders_date, '%Y-%m-%d %H:00') AS date_hour,
+    COALESCE(SUM(op.total_price), 0) AS total_revenue
+  FROM
+    orders_product op
+  INNER JOIN
+    orders o ON op.orders_id = o.orders_id
+  INNER JOIN
+    listed_products lp ON op.product_id = lp.product_id
+  WHERE
+    lp.seller_id = ?
+    AND o.orders_date >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
+  GROUP BY
+    DATE_FORMAT(o.orders_date, '%Y-%m-%d %H:00')
+  ORDER BY
+    date_hour;`;
+  }
+  try {
+    const [result] = await connection.query(sql, [seller_id]);
+    return result as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+}
+
+export const handleGetTotalRevenue = async (
+  seller_id: number
+): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  let sql = `SELECT COALESCE(SUM(op.total_price), 0) AS total_revenue
+  FROM listed_products lp
+  LEFT JOIN orders_product op ON lp.product_id = op.product_id
+  WHERE lp.seller_id = ?;`;
+
+  try {
+    const [result] = await connection.query(sql, [seller_id]);
+    return result as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+}
+
+export const handleGetTotalProductsSold = async (
+  seller_id: number
+): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  let sql = `SELECT COALESCE(SUM(op.quantity), 0) AS total_products_sold FROM orders_product op 
+  INNER JOIN listed_products lp ON op.product_id = lp.product_id
+  WHERE lp.seller_id = ?;`;
+
+  try {
+    const [result] = await connection.query(sql, [seller_id]);
+    return result as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+}
+
+export const handleGetTotalCustomers = async (
+  seller_id: number
+): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  let sql = `SELECT COUNT(DISTINCT customer_id) AS total_customers FROM orders o
+  INNER JOIN orders_product op ON o.orders_id = op.orders_id
+  INNER JOIN listed_products lp ON op.product_id = lp.product_id
+  WHERE lp.seller_id = ?;`;
+
+  try {
+    const [result] = await connection.query(sql, [seller_id]);
+    return result as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+}
+
+export const handleGetAverageRatingOfProducts = async (
+  seller_id: number
+): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  let sql = `SELECT COALESCE(ROUND(AVG(r.rating), 2), 0) AS average_rating FROM review r
+  LEFT JOIN listed_products lp ON r.product_id = lp.product_id
+  WHERE lp.seller_id = ?;`;
+
   try {
     const [result] = await connection.query(sql, [seller_id]);
     return result as Object[];
