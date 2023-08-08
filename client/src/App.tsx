@@ -90,7 +90,7 @@ function App() {
             <Route path="customer/checkout" element={<Checkout />} />
             <Route path="profile" element={<CustomerProfilePage />} />
             <Route path="lastViewed" element={<LastViewed />} />
-            <Route path="analytics" element={<Analytics />} />
+            {/* <Route path="analytics" element={<Analytics />} /> */}
             <Route path="chat" element={<Chat userType="customer" />} />
             <Route path="customer/dailyCheckIn" element={<DailyCoins />} />
           </Route>
