@@ -33,6 +33,7 @@ export const getSellerDetailsByProductId = async (
         parseInt(product_id)
       );
     if (!response) return res.sendStatus(404);
+    console.log("sellerDetailsByProductId:", response);
     return res.json({ sellerDetailsByProductId: response });
   } catch (err: any) {
     next(err);
