@@ -4,6 +4,7 @@ import useCustomer from "../../hooks/UseCustomer";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import { useNavigate } from "react-router-dom";
 
+// Deprecated. No longer used.
 const DropDownProfile = () => {
   const { setCustomer } = useCustomer();
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
@@ -31,7 +32,7 @@ const DropDownProfile = () => {
         <li className="dropDownProfileText hover:cursor-pointer">
           <Link to="/lastViewed">Last Viewed</Link>
         </li>
-        <li className=" hover:cursor-pointer hover:text-red-500">
+        <li className="hover:cursor-pointer hover:text-red-500">
           <button onClick={handleLogOut}>Log Out</button>
         </li>
       </ul>
