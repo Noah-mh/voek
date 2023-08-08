@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Address } from "./Address";
 import { cld } from "../../Cloudinary/Cloudinary";
 import { AdvancedImage } from "@cloudinary/react";
-import CloudinaryUpload from "../../Cloudinary/CloudinaryUpload";
+import CloudinaryUploader from "../../Cloudinary/CloudinaryUploader";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
@@ -371,7 +371,7 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
             <AiFillDelete />
           </button>) : null}
         </div>
-        <CloudinaryUpload onSuccess={handleUpload} caption={"Upload New Photo"} />
+        <CloudinaryUploader onSuccess={handleUpload} caption={"Upload New Photo"} image_url={image_url} />
       </div>
 
       <ToastContainer />

@@ -402,27 +402,74 @@ export default function (app: Express, router: Router) {
   // ASHLEY ENDPOINTS - seller platform
   router.get(
     "/products/:sellerId",
+    verifyJWT,
+    verifyRoles("seller"),
     sellerController.processGetAllProductsOfSeller
   );
   router.get(
-    "/bestSellers/:sellerId",
+    "/bestSellers/:sellerId", 
+    verifyJWT,
+    verifyRoles("seller"),
     sellerController.processGetBestSellers
   );
-  router.get("/categories", sellerController.processGetAllCategories);
+  router.get(
+    "/categories",
+    verifyJWT,
+    verifyRoles("seller"),
+   sellerController.processGetAllCategories
+  );
+  router.get(
+    "/seller/products/revenue/:seller_id/:time_period",
+    verifyJWT,
+    verifyRoles("seller"),
+    sellerController.processGetRevenue
+  );
+  router.get(
+    "/seller/totalRevenue/:sellerId",
+    verifyJWT,
+    verifyRoles("seller"),
+    sellerController.processGetTotalRevenue
+  );
+  router.get(
+    "/seller/totalSold/:sellerId",
+    verifyJWT,
+    verifyRoles("seller"),
+    sellerController.processGetTotalProductsSold
+  );
+  router.get(
+    "/seller/totalCustomers/:sellerId",
+    verifyJWT,
+    verifyRoles("seller"),
+    sellerController.processGetTotalCustomers
+  );
+  router.get(
+    "/seller/averageRating/:sellerId",
+    verifyJWT,
+    verifyRoles("seller"),
+    sellerController.processGetAverageRatingOfProducts
+  );
   router.post(
-    "/addProduct/:sellerId",
+    "/addProduct/:sellerId", 
+    verifyJWT,
+    verifyRoles("seller"),
     sellerController.processAddProduct
   );
   router.post(
-    "/editProduct/:productId",
+    "/editProduct/:productId", 
+    verifyJWT,
+    verifyRoles("seller"),
     sellerController.processEditProduct
   );
   router.put(
     "/updateProductVariation/active/:productId",
+    verifyJWT,
+    verifyRoles("seller"),
     sellerController.processUpdateProductVariationActive
   );
   router.put(
     "/updateProduct/active/:productId",
+    verifyJWT,
+    verifyRoles("seller"),
     sellerController.processUpdateProductActive
   );
 
