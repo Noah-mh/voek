@@ -138,7 +138,6 @@ const CustomerSellerProfilePage: React.FC = () => {
       const date_created = moment(sellerData[0].date_created);
 
       const diffInMonths = moment().diff(date_created, "months");
-      console.log(diffInMonths);
       setDiffInMonths(diffInMonths);
     }
   }, [sellerData]);
@@ -202,8 +201,7 @@ const CustomerSellerProfilePage: React.FC = () => {
         });
     }
   };
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    console.log(event);
+  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 

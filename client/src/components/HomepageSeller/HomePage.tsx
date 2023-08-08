@@ -83,7 +83,7 @@ const HomePage = () => {
         fill="#8884d8"
         label
       >
-        {categoriesData.map((entry, index) => (
+        {categoriesData.map((_entry, index) => (
           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
         ))}
       </Pie>
