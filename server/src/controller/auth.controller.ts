@@ -20,7 +20,7 @@ export const processRefreshTokenCustomer = async (req: Request, res: Response, n
                     }
                 },
                 config.accessTokenSecret!,
-                { expiresIn: '300s' }
+                { expiresIn: '7200s' }
             );
             return res.json({ accessToken, customer_id: result[0].customer_id, username: result[0].username });
         })
@@ -46,7 +46,7 @@ export const processRefreshSeller = async (req: Request, res: Response, next: Ne
                     }
                 },
                 config.accessTokenSecret!,
-                { expiresIn: '300s' }
+                { expiresIn: '7200s' }
             );
             return res.json({ accessToken, seller_id: result[0].seller_id, shop_name: result[0].shop_name });
         })
