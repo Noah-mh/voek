@@ -70,14 +70,18 @@ const Header = ({ isCustomer, isSeller }: Props) => {
                 <p className="text-purpleAccent">Products</p>
               </Link>
               <Link to="/seller/signup">
-                <p className="ms-5 text-purpleAccent font-bold">Become a seller today!</p>
+                <p className="ms-5 text-purpleAccent font-bold">
+                  Become a seller today!
+                </p>
               </Link>
             </>
           ) : isSeller ? (
             <>
               <h1>Seller Centre</h1>
               <Link to="/">
-                <p className="ms-5 text-purpleAccent font-bold">Go back to shopping!</p>
+                <p className="ms-5 text-purpleAccent font-bold">
+                  Go back to shopping!
+                </p>
               </Link>
             </>
           ) : null}
@@ -94,6 +98,9 @@ const Header = ({ isCustomer, isSeller }: Props) => {
                   setSearchResults={setSearchResults}
                 />
                 <div className="ml-5 flex">
+                  <Link to="/customer/game" className="mx-2">
+                    <p className="text-purpleAccent">Play To Earn!</p>
+                  </Link>
                   <div className="mx-2">
                     <p
                       className="text-purpleAccent hover:cursor-pointer"
@@ -105,6 +112,7 @@ const Header = ({ isCustomer, isSeller }: Props) => {
                   <Link to="/customer/dailyCheckIn" className="mx-2">
                     <p className="text-purpleAccent">Check In</p>
                   </Link>
+
                   <Link to="/chat" className="mx-2">
                     <p className="text-purpleAccent">Chat</p>
                   </Link>
@@ -125,35 +133,37 @@ const Header = ({ isCustomer, isSeller }: Props) => {
                     <p className="text-purpleAccent">Login</p>
                   </Link>
                   <Link to="/signup" className="mx-2">
-                    <p className="text-purpleAccent font-bold">Sign up today!</p>
+                    <p className="text-purpleAccent font-bold">
+                      Sign up today!
+                    </p>
                   </Link>
                   <Link to="/customer/cart" className="mx-2">
                     <p className="text-purpleAccent">Cart</p>
                   </Link>
-                </div >
-              </div >
+                </div>
+              </div>
             )
           ) : isSeller ? (
-  seller?.seller_id ? (
-    <div className="ml-5 flex">
-      <Link to="/seller/profile" className="mx-2">
-        <p className="text-purpleAccent">Profile</p>
-      </Link>
-      <Link to="/seller/chat" className="mx-2">
-        <p className="text-purpleAccent">Chat</p>
-      </Link>
-    </div>
-  ) : (
-    <Link to="/seller/login">
-      <p className="text-purpleAccent">Login</p>
-    </Link>
-  )
-) : null}
-        </div >
-      </div >
-  { openProfile && <DropDownProfile />}
-<br />
-    </nav >
+            seller?.seller_id ? (
+              <div className="ml-5 flex">
+                <Link to="/seller/profile" className="mx-2">
+                  <p className="text-purpleAccent">Profile</p>
+                </Link>
+                <Link to="/seller/chat" className="mx-2">
+                  <p className="text-purpleAccent">Chat</p>
+                </Link>
+              </div>
+            ) : (
+              <Link to="/seller/login">
+                <p className="text-purpleAccent">Login</p>
+              </Link>
+            )
+          ) : null}
+        </div>
+      </div>
+      {openProfile && <DropDownProfile />}
+      <br />
+    </nav>
   );
 };
 export default Header;

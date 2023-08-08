@@ -348,6 +348,73 @@ export const processNewLastCheckedIn = async (
   }
 };
 
+export const processGetHighestScore = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.params;
+
+    const result = await customerModel.handleGetHighestScore(customer_id);
+    console.log("Successfully got highest score");
+    return res.json(result);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const processUpdateGameCoins = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id, score } = req.body;
+
+    const result = await customerModel.handleAddGameCoins(customer_id, score);
+    console.log("Successfully added coins");
+    return res.json(result);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const processUpdateLastPlayed = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id } = req.body;
+
+    const result = await customerModel.handleUpdateLastPlayed(customer_id);
+    console.log("Successfully updated last played");
+    return res.json(result);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
+export const processUpdateHighestScore = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { customer_id, highest_score } = req.body;
+
+    const result = await customerModel.handleUpdateHighestScore(
+      customer_id,
+      highest_score
+    );
+    console.log("Successfully updated highest score");
+    return res.json(result);
+  } catch (err: any) {
+    return next(err);
+  }
+};
+
 // NHAT TIEN :D
 export const updateCustomerLastViewedCat = async (
   req: Request,
