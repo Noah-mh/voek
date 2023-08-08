@@ -149,7 +149,7 @@
 
 import React, { useState, useCallback, ChangeEvent } from 'react';
 import axios from 'axios';
-
+import { cloudName, defaultPreset } from './Cloudinary';
 interface CloudinaryUploadProps {
     onSuccess: (resultInfo: any) => void;
     caption: string;
@@ -164,11 +164,11 @@ const CloudinaryUpload: React.FC<CloudinaryUploadProps> = ({ onSuccess, caption 
         if (selectedFile) {
             const formData = new FormData();
             formData.append('file', selectedFile);
-            formData.append('upload_preset', 'vesexyvh');
+            formData.append('upload_preset', defaultPreset);
 
             try {
                 const response = await axios.post(
-                    `https://api.cloudinary.com/v1_1/dgheg6ml5/image/upload`,
+                    `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
                     formData
                 );
                 onSuccess(response.data);
