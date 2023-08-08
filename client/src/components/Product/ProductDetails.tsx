@@ -10,7 +10,12 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Rating from "@mui/material/Rating";
 import { Link, useNavigate } from "react-router-dom";
-import { AiOutlineShop, AiOutlineStar, AiOutlineShopping, AiFillDelete } from "react-icons/ai";
+import {
+  AiOutlineShop,
+  AiOutlineStar,
+  AiOutlineShopping,
+  AiFillDelete,
+} from "react-icons/ai";
 import { GrUserExpert } from "react-icons/gr";
 import { CiChat1 } from "react-icons/ci";
 import WishlistButton from "../Wishlist/WishlistButton";
@@ -413,10 +418,10 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                       value={
                         selectedVariation
                           ? {
-                            label: selectedVariation,
-                            value: selectedVariation,
-                            sku: selectedSku,
-                          }
+                              label: selectedVariation,
+                              value: selectedVariation,
+                              sku: selectedSku,
+                            }
                           : null
                       }
                       onChange={(option) => {
@@ -518,7 +523,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                     </div>
                   </div>
                 </div>
-                <div className="grow grid grid-cols-3 gap-x-10 gap-y-20 pl-10 text-gray-400">
+                <div className="grow flex space-x-16 gap-y-20 pl-10 text-gray-400">
                   <div className="flex space-x-3 relative overflow-visible items-center">
                     <AiOutlineShopping />
                     <h1>Total Products:</h1>{" "}
@@ -530,14 +535,19 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                     <AiOutlineStar />
                     <h1>Ratings:</h1>{" "}
                     <h1 className="text-pink">{sellerData[0].rating}</h1>
-                    <h1 className="text-pink">( {sellerData[0].total_reviews} {sellerData[0].total_reviews < 2 ? "Rating" : "Ratings"} )</h1>
+                    <h1 className="text-pink">
+                      ( {sellerData[0].total_reviews}{" "}
+                      {sellerData[0].total_reviews < 2 ? "Rating" : "Ratings"} )
+                    </h1>
                   </div>
                   <div className="flex space-x-3 relative overflow-visible items-center">
                     <GrUserExpert />
                     <h1>Joined:</h1>{" "}
                     <h1 className="text-pink">
                       {diffInMonths}{" "}
-                      {diffInMonths === 1 || diffInMonths === 0 ? "month" : "months"}
+                      {diffInMonths === 1 || diffInMonths === 0
+                        ? "month"
+                        : "months"}
                     </h1>
                     <span>ago</span>
                   </div>
@@ -558,9 +568,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                               <div className="flex items-center space-x-3">
                                 <div className="w-10 h-10">
                                   <AdvancedImage
-                                    cldImg={cld
-                                      .image(review.customerImage)
-                                    }
+                                    cldImg={cld.image(review.customerImage)}
                                     className="h-10 aspect-square object-cover rounded-lg"
                                   />
                                 </div>
