@@ -6,7 +6,6 @@ import { ResultSetHeader } from "mysql2";
 import config from "../../config/config";
 import jwt from "jsonwebtoken";
 import { OkPacket } from "mysql2";
-import moment from "moment";
 import * as dotenv from "dotenv";
 dotenv.config({
   path: __dirname + "../../env",
