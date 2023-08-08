@@ -50,7 +50,7 @@
 }
 
 .chat-window .chat-body .message .message-content {
-  width: auto;
+  width: fit-content;
   height: auto;
   min-height: 40px;
   max-width: 400px;

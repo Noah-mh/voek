@@ -371,7 +371,7 @@ export default function cartPage(): JSX.Element {
             case "Shipping": {
               if (voucher.number_amount) {
                 const discAmt = voucher.number_amount;
-
+                console.log("1;");
                 setTotalAmt((prevState) => ({
                   ...prevState,
                   shippingFee: Number(
@@ -461,7 +461,7 @@ export default function cartPage(): JSX.Element {
           switch (voucher.voucher_category) {
             case "Shipping": {
               if (voucher.number_amount) {
-                const discAmt = 1 - Number(voucher.number_amount);
+                const discAmt = Number(voucher.number_amount);
 
                 setTotalAmt((prevState) => ({
                   ...prevState,
@@ -740,21 +740,31 @@ export default function cartPage(): JSX.Element {
             <div className=" text-white">Total</div>
             <div className="text-white">${totalAmt.total}</div>
           </div>
-          <div className="activateCoins flex justify-between border-t-2 pt-3">
-            <Button onClick={handleOpen}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 512 512"
-                width="24"
-                height="24"
-                className="walletsvg"
+          <div className="activateCoins flex justify-between border-t-2 pt-3 my-3">
+            <div
+              className={`bg-white rounded h-10 w-20 flex items-center justify-center pt-1 ${
+                wasAVVoucherClaimed ? "" : "voucherButton"
+              } `}
+            >
+              <Button
+                onClick={handleOpen}
+                className="flex items-center justify-center align-middle"
               >
-                <path
-                  fill="#ffff"
-                  d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V192c0-35.3-28.7-64-64-64H80c-8.8 0-16-7.2-16-16s7.2-16 16-16H448c17.7 0 32-14.3 32-32s-14.3-32-32-32H64zM416 272a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"
-                />
-              </svg>
-            </Button>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 512 512"
+                  width="24"
+                  height="24"
+                  className="walletsvg mt-3"
+                >
+                  <path
+                    fill="var(--softerPurple)"
+                    d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V192c0-35.3-28.7-64-64-64H80c-8.8 0-16-7.2-16-16s7.2-16 16-16H448c17.7 0 32-14.3 32-32s-14.3-32-32-32H64zM416 272a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"
+                  />
+                </svg>
+              </Button>
+            </div>
+
             <div className="showCoins text-xs text-white ">
               Coins Available: <span className="font-bold ">{userCoins}</span>
             </div>

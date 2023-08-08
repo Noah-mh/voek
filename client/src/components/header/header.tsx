@@ -95,10 +95,13 @@ const Header = ({ isCustomer, isSeller }: Props) => {
               <Link to="/">
                 <p className="text-purpleAccent">Products</p>
               </Link>
-              <Link to="/seller/signup">
+              <Link to="/seller/home">
                 <p className="ms-5 text-purpleAccent font-bold">
                   Become a seller today!
                 </p>
+              </Link>
+              <Link to="/claimVouchers" className="ms-6 text-lg font-bold">
+                <p className="text-purpleAccent">Claim Vouchers</p>
               </Link>
             </>
           ) : isSeller ? (
@@ -113,7 +116,7 @@ const Header = ({ isCustomer, isSeller }: Props) => {
           ) : null}
         </div>
       </div>
-      <div className="block justify-end w-1/2">
+      <div className={`block justify-end ${isCustomer && 'w-1/2'}`}>
         <div className="text-sm lg:flex-grow inline-block  px-4  leading-none">
           {isCustomer ? (
             customer?.customer_id ? (
@@ -124,6 +127,9 @@ const Header = ({ isCustomer, isSeller }: Props) => {
                   setSearchResults={setSearchResults}
                 />
                 <div className="ml-5 flex">
+                  <Link to="/customer/game" className="mx-2">
+                    <p className="text-purpleAccent">Play To Earn!</p>
+                  </Link>
                   <div className="mx-2">
                     <p
                       className="text-purpleAccent hover:cursor-pointer"
@@ -198,6 +204,7 @@ const Header = ({ isCustomer, isSeller }: Props) => {
                   <Link to="/customer/dailyCheckIn" className="mx-2">
                     <p className="text-purpleAccent">Check In</p>
                   </Link>
+
                   <Link to="/chat" className="mx-2">
                     <p className="text-purpleAccent">Chat</p>
                   </Link>

@@ -1,4 +1,5 @@
 import React, { useEffect, useCallback, useState } from 'react';
+import { defaultPreset, cloudName } from './Cloudinary';
 //Noah's code 
 //Every getting , rendering and uploading image is done by Noah
 interface CloudinaryUploaderProps {
@@ -11,8 +12,8 @@ const CloudinaryUploader: React.FC<CloudinaryUploaderProps> = ({ onSuccess, capt
     useEffect(() => {
         if ((window as any).cloudinary) {
             setMyWidget((window as any).cloudinary.createUploadWidget({
-                cloudName: "dgheg6ml5",
-                uploadPreset: "vesexyvh",
+                cloudName: cloudName,
+                uploadPreset: defaultPreset,
             }, (error: any, result: any) => {
                 if (!error && result && result.event === 'success') {
                     onSuccess(result.info);

@@ -138,7 +138,6 @@ const CustomerSellerProfilePage: React.FC = () => {
       const date_created = moment(sellerData[0].date_created);
 
       const diffInMonths = moment().diff(date_created, "months");
-      console.log(diffInMonths);
       setDiffInMonths(diffInMonths);
     }
   }, [sellerData]);
@@ -202,8 +201,7 @@ const CustomerSellerProfilePage: React.FC = () => {
         });
     }
   };
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    console.log(event);
+  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 
@@ -217,7 +215,7 @@ const CustomerSellerProfilePage: React.FC = () => {
     return (
       <div className="">
         <ToastContainer />
-        <div className="flex my-8 items-center justify-center">
+        <div className="flex my-8 items-center justify-center sellerBanner">
           <div className="mx-auto">
             <div className="w-full">
               <div className="w-full bg-white flex p-6 content-between items-center overflow-visible shadow-sm">

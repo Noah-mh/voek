@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import useAxiosPrivateSeller from '../../hooks/useAxiosPrivateSeller'
 import useSeller from '../../hooks/useSeller'
 import { PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, } from 'recharts';
@@ -150,7 +150,6 @@ const HomePage = () => {
       console.log(err);
     }
   }
-
   const getBestProducts = async (filter: string) => {
     try {
       const { data } = await axiosPrivateSeller.get(`/seller/products/best/${seller.seller_id}/${filter}`);
