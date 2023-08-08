@@ -775,6 +775,109 @@ export const handleNewLastCheckedIn = async (customer_id: number) => {
   }
 };
 
+export const handleGetHighestScore = async (
+  customer_id: String
+): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  const sql = `SELECT customer_id, highest_score,  DATEDIFF(NOW(), last_played) AS daysSinceLastPlayed,tries_left
+FROM UserGame
+WHERE customer_id = ?`;
+  try {
+    const result: any = await connection.query(sql, [customer_id]);
+    if (result[0].length === 0) {
+      return result[0];
+    } else {
+      const userData = result[0][0];
+      if (userData.daysSinceLastPlayed > 0) {
+        userData.tries_left = 3;
+        const updateSql = `UPDATE UserGame SET tries_left = 3 WHERE customer_id = ?`;
+        await connection.query(updateSql, [customer_id]);
+        console.log("set to 3");
+        return userData;
+      } else {
+        return userData;
+      }
+    }
+  } catch (err: any) {
+    throw new Error(err.message);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handleUpdateLastPlayed = async (customer_id: number) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  try {
+    let sql =
+      "UPDATE UserGame SET last_played = NOW(), tries_left = (tries_left-1) WHERE customer_id = ?";
+    let result: any = await connection.query(sql, [customer_id]);
+    return (result[0] as OkPacket).affectedRows as number;
+  } catch (err: any) {
+    throw new Error(err.message);
+  } finally {
+    await connection.release();
+  }
+};
+export const handleUpdateHighestScore = async (
+  customer_id: number,
+  highest_score: number
+) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  let sql = `SELECT *
+  FROM UserGame
+  WHERE customer_id = ?`;
+
+  try {
+    let result: any = await connection.query(sql, [customer_id]);
+
+    if (result[0].length === 0) {
+      let sql =
+        "INSERT INTO UserGame (customer_id, highest_score,last_played,tries_left) VALUES (?, ?, NOW() , 2)";
+      let result: any = await connection.query(sql, [
+        customer_id,
+        highest_score,
+      ]);
+      return (result[0] as OkPacket).affectedRows as number;
+    } else {
+      if (highest_score > result[0][0].highest_score) {
+        sql = `UPDATE UserGame SET highest_score = ? WHERE customer_id = ?`;
+        let result: any = await connection.query(sql, [
+          customer_id,
+          highest_score,
+        ]);
+        return (result[0] as OkPacket).affectedRows as number;
+      } else {
+        return 0;
+      }
+    }
+  } catch (err: any) {
+    throw new Error(err.message);
+  } finally {
+    await connection.release();
+  }
+};
+
+export const handleAddGameCoins = async (
+  customer_id: number,
+  score: number
+) => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+
+  const sql = `UPDATE customer SET coins = (coins + ?) WHERE customer_id = ?;`;
+  try {
+    const result = await connection.query(sql, [score, customer_id]);
+    return (result[0] as OkPacket).affectedRows as number;
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+};
+
 // NHAT TIEN :D
 
 export const handlesUpdateCustomerLastViewedCat = async (
