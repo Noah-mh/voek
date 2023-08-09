@@ -418,10 +418,10 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                       value={
                         selectedVariation
                           ? {
-                            label: selectedVariation,
-                            value: selectedVariation,
-                            sku: selectedSku,
-                          }
+                              label: selectedVariation,
+                              value: selectedVariation,
+                              sku: selectedSku,
+                            }
                           : null
                       }
                       onChange={(option) => {
@@ -534,9 +534,14 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                   <div className="flex space-x-3 relative overflow-visible items-center">
                     <AiOutlineStar />
                     <h1>Ratings:</h1>{" "}
-                    <h1 className="text-pink">{sellerData[0].rating ? sellerData[0].rating : 0}</h1>
                     <h1 className="text-pink">
-                      ( {sellerData[0].total_reviews ? sellerData[0].total_reviews : 0}{" "}
+                      {sellerData[0].rating ? sellerData[0].rating : 0}
+                    </h1>
+                    <h1 className="text-pink">
+                      ({" "}
+                      {sellerData[0].total_reviews
+                        ? sellerData[0].total_reviews
+                        : 0}{" "}
                       {sellerData[0].total_reviews < 2 ? "Rating" : "Ratings"} )
                     </h1>
                   </div>
@@ -544,12 +549,15 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                     <GrUserExpert />
                     <h1>Joined:</h1>{" "}
                     <h1 className="text-pink">
-                      {diffInMonths}{" "}
-                      {diffInMonths === 1 || diffInMonths === 0
-                        ? "month"
-                        : "months"}
+                      {diffInMonths > 0 ? (
+                        <span>
+                          {diffInMonths}{" "}
+                          {diffInMonths < 2 ? "Month " : "Months"} ago
+                        </span>
+                      ) : (
+                        <span>Recently</span>
+                      )}
                     </h1>
-                    <span>ago</span>
                   </div>
                 </div>
               </div>
