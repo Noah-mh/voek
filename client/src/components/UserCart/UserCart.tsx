@@ -191,8 +191,6 @@ export default function cartPage(): JSX.Element {
 
   const handleQuantityChange = (item: cartItem, change: number) => {
     const updatedGroupedCart = Object.keys(groupItems).map((sellerKey) => {
-      // const [sellerId, shopName] = sellerKey.split("_");
-      // const items = groupItems[sellerKey];
       const updatedItems = groupItems[sellerKey].map((cartItem: cartItem) => {
         if (cartItem.sku === item.sku) {
           const newItem: cartItem = {
@@ -295,6 +293,7 @@ export default function cartPage(): JSX.Element {
 
         setChangedQuantState(false);
         getUserCart();
+        setClaimedVouchers({});
       } catch (err: any) {
         console.log(err);
       }

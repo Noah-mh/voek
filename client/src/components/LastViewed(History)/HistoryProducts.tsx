@@ -57,7 +57,9 @@ const HistoryProducts = ({ selected }: HistoryProductsProps) => {
   return (
     <div className="flex justify-center items-center">
       {status ? (
-        <div className="flex justify-start flex-wrap">{showProducts()}</div>
+        <div className="flex justify-center items-center flex-wrap">
+          {showProducts()}
+        </div>
       ) : (
         <Loader />
       )}

@@ -27,8 +27,9 @@ export const getRecommendedProductsBasedOnCat = async (
   try {
     const { category_id } = req.params;
     const categoryId = parseInt(category_id);
-    const response: Array<object> =
-      await productModel.handlesGetRecommendedProductsBasedOnCat(categoryId);
+    const response: Array<object> = isNaN(categoryId)
+      ? []
+      : await productModel.handlesGetRecommendedProductsBasedOnCat(categoryId);
     return res.send(response);
   } catch (err: any) {
     return next(err);
