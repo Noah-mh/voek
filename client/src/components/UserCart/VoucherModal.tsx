@@ -132,6 +132,19 @@ VoucherModalProps) => {
     }
   };
 
+  const showVoucherError = (message: string) => {
+    toast.warn(message, {
+      position: "top-left",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+  };
+
   return (
     <>
       <Modal
@@ -229,11 +242,32 @@ VoucherModalProps) => {
                         !claimedVouchers[sellerKey]?.[
                           voucher.customer_voucher_id
                         ]) ? (
-                        <button className="opacity-40" disabled>
-                          <span className="bg-purpleAccent  p-2 px-4 font-Barlow font-semibold uppercase text-white rounded-sm text-xs">
-                            Claim
-                          </span>
-                        </button>
+                        <div
+                          className="flex flex-col justify-center font-bold"
+                          onClick={() => {
+                            let errorMessage;
+
+                            if (voucher.min_spend > totalAmt.subTotal) {
+                              errorMessage = "You did not hit the min. spend.";
+                            } else if (
+                              voucher.number_amount > groupItemsPrice[sellerKey]
+                            ) {
+                              errorMessage =
+                                "Total is too low for discount to be applied.";
+                            } else {
+                              errorMessage =
+                                "The store is not available in your cart.";
+                            }
+
+                            showVoucherError(errorMessage);
+                          }}
+                        >
+                          <button className="opacity-40" disabled>
+                            <span className="bg-purpleAccent  p-2 px-4 font-Barlow font-semibold uppercase text-white rounded-sm text-xs">
+                              Claim
+                            </span>
+                          </button>
+                        </div>
                       ) : (
                         <button
                           className={
