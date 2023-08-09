@@ -554,23 +554,30 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                   <div className="flex space-x-3 relative overflow-visible items-center">
                     <AiOutlineStar />
                     <h1>Ratings:</h1>{" "}
-                    <h1 className="text-pink">{sellerData[0].rating ? sellerData[0].rating : 0}</h1>
                     <h1 className="text-pink">
-                      ( {sellerData[0].total_reviews ? sellerData[0].total_reviews : 0}{" "}
+                      {sellerData[0].rating ? sellerData[0].rating : 0}
+                    </h1>
+                    <h1 className="text-pink">
+                      ({" "}
+                      {sellerData[0].total_reviews
+                        ? sellerData[0].total_reviews
+                        : 0}{" "}
                       {sellerData[0].total_reviews < 2 ? "Rating" : "Ratings"} )
                     </h1>
                   </div>
                   <div className="flex space-x-3 relative overflow-visible items-center">
                     <GrUserExpert />
                     <h1>Joined:</h1>{" "}
-                    {diffInMonths < 1 ? <h1 className="text-pink">Less than a month ago</h1> :
-                      (<> <h1 className="text-pink">
-                        {diffInMonths}{" "}
-                        {diffInMonths === 1
-                          ? "month"
-                          : "months"}
-                      </h1>
-                        <span>ago</span></>)}
+                    <h1 className="text-pink">
+                      {diffInMonths > 0 ? (
+                        <span>
+                          {diffInMonths}{" "}
+                          {diffInMonths < 2 ? "Month " : "Months"} ago
+                        </span>
+                      ) : (
+                        <span>Recently</span>
+                      )}
+                    </h1>
                   </div>
                 </div>
               </div>
