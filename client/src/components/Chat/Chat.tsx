@@ -443,7 +443,7 @@ const Chat = ({ userType }: ChatProps) => {
                   }}
                 />
                 <button type="submit" disabled={isSending}>
-                  <FontAwesomeIcon icon={faPaperPlane} size="sm" />
+                  <FontAwesomeIcon icon={faPaperPlane} size="sm" className={isSending ? "text-gray-300" : "text-blue-500"} />
                 </button>
               </form>
             </div>
