@@ -19,6 +19,7 @@ import {
 import { GrUserExpert } from "react-icons/gr";
 import { CiChat1 } from "react-icons/ci";
 import WishlistButton from "../Wishlist/WishlistButton";
+import ImagePopUpModel from "../../Cloudinary/ImagePopUpModel";
 
 //Noah's code
 
@@ -59,7 +60,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
   const { customer } = useCustomer();
   const customer_id = customer.customer_id;
   const [imageChosen, setImageChosen] = useState<string>(
-    productData[0].image_urls[0]
+    productData[0].variations![0].image_url
   );
   const [quantity, setQuantity] = useState<number>(1);
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -70,9 +71,22 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
     productData[0].variations![0].sku || null
   );
   const [heart, setHeart] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [popUpImage, setPopUpImage] = useState<string>("");
+
+  const handleOpenModal = (image_url: string) => {
+    setPopUpImage(image_url);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+
 
   const options = productData[0].variations!.reduce<
-    { label: string; value: string; sku: string }[]
+    { label: string; value: string; sku: string; image_url: string }[]
   >((options, variation: ProductVariation) => {
     if (variation.variation_1) {
       const compoundKey = variation.variation_2
@@ -83,6 +97,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
         value: compoundKey,
         label: compoundKey,
         sku: variation.sku,
+        image_url: variation.image_url
       });
     }
 
@@ -100,7 +115,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
           setCart(response.data.cartDetails);
         });
     }
-
+    console.log("productData", productData);
     if (selectedVariation) {
       const selectedProduct = productData.find((product) =>
         product.variations?.some((variation) => {
@@ -339,19 +354,22 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
     <div className="flex flex-col my-8 items-center justify-center">
       <div className="flex sm:flex-col xl:flex-row  justify-center space-x-12">
         <div className="flex flex-col justify-center items-center">
-          <div className="">
+          <div className="">  <button onClick={() => {
+            handleOpenModal(imageChosen)
+          }}>
             <div className="xl:w-[300px] sm:w-[300px] xl:h-[300px] sm:h-[300px] border border-lighterGreyAccent flex justify-center items-center overflow-hidden mb-3">
+
               <AdvancedImage
                 className="object-contain"
                 cldImg={cld.image(imageChosen)}
                 alt="product image"
               />
-            </div>
+            </div></button>
           </div>
           <div className="flex flex-wrap gap-2">
-            {productData[0].image_urls.map((image, index: number) => {
+            {options.map((variation, index: number) => {
               const imageStyle =
-                imageChosen === image
+                imageChosen === variation.image_url
                   ? "w-full h-full object-contain"
                   : "w-full h-full object-contain opacity-50 hover:opacity-100";
               return (
@@ -361,9 +379,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                 >
                   <AdvancedImage
                     className={imageStyle}
-                    cldImg={cld.image(image)}
+                    cldImg={cld.image(variation.image_url)}
                     alt="product image"
-                    onClick={() => setImageChosen(image)}
+                    onClick={() => { setImageChosen(variation.image_url); setSelectedSku(variation.sku); setSelectedVariation(variation.value) }}
                   />
                 </div>
               );
@@ -418,15 +436,17 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                       value={
                         selectedVariation
                           ? {
-                              label: selectedVariation,
-                              value: selectedVariation,
-                              sku: selectedSku,
-                            }
+                            label: selectedVariation,
+                            value: selectedVariation,
+                            sku: selectedSku,
+                            image_url: imageChosen
+                          }
                           : null
                       }
                       onChange={(option) => {
                         setSelectedVariation(option?.value || null);
                         setSelectedSku(option?.sku || null);
+                        setImageChosen(option?.image_url || "");
                       }}
                       options={options}
                     />
@@ -609,15 +629,18 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                                 <div className="flex space-x-2">
                                   {review.image_urls.map(
                                     (imageUrl, imageIndex) => (
-                                      <div
-                                        className="w-16 h-16"
-                                        key={imageIndex}
-                                      >
-                                        <AdvancedImage
-                                          cldImg={cld.image(imageUrl)}
-                                          className="object-cover w-full h-full"
-                                        />
-                                      </div>
+                                      <button onClick={() => {
+                                        handleOpenModal(imageUrl)
+                                      }}>
+                                        <div
+                                          className="w-16 h-16"
+                                          key={imageIndex}
+                                        >
+                                          <AdvancedImage
+                                            cldImg={cld.image(imageUrl)}
+                                            className="object-cover w-full h-full"
+                                          />
+                                        </div></button>
                                     )
                                   )}
                                 </div>
@@ -639,7 +662,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
           </div>
         </div>
       </div>
-
+      <ImagePopUpModel isOpen={isModalOpen} onClose={handleCloseModal} image_url={popUpImage} />
       <ToastContainer />
     </div>
   );
