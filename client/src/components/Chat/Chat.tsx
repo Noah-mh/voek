@@ -1,13 +1,21 @@
-import { useEffect, useState, useMemo, useContext, ChangeEvent, useCallback, useRef } from "react";
+import {
+  useEffect,
+  useState,
+  useMemo,
+  useContext,
+  ChangeEvent,
+  useCallback,
+  useRef,
+} from "react";
 import io from "socket.io-client";
 import ScrollToBottom from "react-scroll-to-bottom";
 import CustomerContext from "../../context/CustomerProvider";
 import SellerContext from "../../context/SellerProvider.tsx";
 import SideBar from "./SideBar.tsx";
-import axios from "axios";  // Noah's code
+import axios from "axios"; // Noah's code
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
+import { faPaperPlane, faPaperclip } from "@fortawesome/free-solid-svg-icons";
 import "./css/Chat.css";
 import { AdvancedImage } from "@cloudinary/react";
 import { cld } from "../../Cloudinary/Cloudinary";
@@ -15,7 +23,6 @@ import { Link } from "react-router-dom";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 import { cloudName, chatPreset } from "../../Cloudinary/Cloudinary";
-import { GrAttachment } from "react-icons/gr";
 import { RiDeleteBin5Fill } from "react-icons/ri";
 interface ChatProps {
   userType: string;
@@ -61,24 +68,24 @@ const Chat = ({ userType }: ChatProps) => {
 
   const handleUpload = useCallback(async () => {
     if (selectedFiles.length > 0) {
-      const responses = await Promise.all(selectedFiles.map(file => {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("upload_preset", chatPreset);
+      const responses = await Promise.all(
+        selectedFiles.map((file) => {
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("upload_preset", chatPreset);
 
-        return axios.post(
-          `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-          formData
-        );
-      }));
+          return axios.post(
+            `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+            formData
+          );
+        })
+      );
 
-      setPreviewUrls(responses.map(response => response.data.public_id));
+      setPreviewUrls(responses.map((response) => response.data.public_id));
       setIsUploaded(new Array(selectedFiles.length).fill(true));
       return responses;
     }
-  },
-    [selectedFiles]
-  );
+  }, [selectedFiles]);
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
@@ -90,14 +97,17 @@ const Chat = ({ userType }: ChatProps) => {
 
       console.log("newFilesArray: ", newFilesArray);
 
-      const newUrls = newFilesArray.map(file => URL.createObjectURL(file));
+      const newUrls = newFilesArray.map((file) => URL.createObjectURL(file));
       const mergedUrls = [...previewUrls, ...newUrls];
       setPreviewUrls(mergedUrls);
 
-      const mergedUploadStatus = [...isUploaded, ...new Array(newFilesArray.length).fill(false)];
+      const mergedUploadStatus = [
+        ...isUploaded,
+        ...new Array(newFilesArray.length).fill(false),
+      ];
       setIsUploaded(mergedUploadStatus);
       if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+        fileInputRef.current.value = "";
       }
     } else {
       setSelectedFiles([]);
@@ -106,21 +116,22 @@ const Chat = ({ userType }: ChatProps) => {
     }
   };
 
-
   const handleDeleteImage = (deleteIndex: number) => {
     // Update previewUrls
-    const newPreviewUrls = previewUrls.filter((_, index) => index !== deleteIndex);
+    const newPreviewUrls = previewUrls.filter(
+      (_, index) => index !== deleteIndex
+    );
     setPreviewUrls(newPreviewUrls);
 
     // Update selectedFiles
-    const newSelectedFiles = selectedFiles.filter((_, index) => index !== deleteIndex);
+    const newSelectedFiles = selectedFiles.filter(
+      (_, index) => index !== deleteIndex
+    );
     setSelectedFiles(newSelectedFiles);
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
   };
-
-
 
   const sendMessage = async () => {
     const currentDate = new Date();
@@ -148,9 +159,11 @@ const Chat = ({ userType }: ChatProps) => {
 
           await socket.emit("send_message", messageContent);
           await axiosPrivateCustomer.post("/createMessage", messageContent);
-          setMessages(prevMessages => [...prevMessages, messageContent]);
-        }
-        const promises = responses.map(response => sendImageMessage(response));
+          setMessages((prevMessages) => [...prevMessages, messageContent]);
+        };
+        const promises = responses.map((response) =>
+          sendImageMessage(response)
+        );
         await Promise.all(promises);
 
         setSelectedFiles([]);
@@ -170,7 +183,7 @@ const Chat = ({ userType }: ChatProps) => {
       };
       await socket.emit("send_message", messageContent);
       await axiosPrivateCustomer.post("/createMessage", messageContent);
-      setMessages(prevMessages => [...prevMessages, messageContent]);
+      setMessages((prevMessages) => [...prevMessages, messageContent]);
       setMessage("");
     }
   };
@@ -322,29 +335,30 @@ const Chat = ({ userType }: ChatProps) => {
                               className="message p-3"
                               id={
                                 userID === messageContent.senderID &&
-                                  userType === messageContent.senderRole
+                                userType === messageContent.senderRole
                                   ? "you"
                                   : "other"
                               }
                             >
                               <div>
-                                {/* <div className="message-content rounded-lg">
-                                  {messageContent.text}
-                                </div> */}
                                 <div className="message-content rounded-lg">
                                   {messageContent.image ? (
-                                    <AdvancedImage
-                                      cldImg={cld.image(messageContent.image)}
-                                      alt="Uploaded image"
-                                    />
+                                    <section className="my-1">
+                                      <AdvancedImage
+                                        cldImg={cld.image(messageContent.image)}
+                                        alt="Uploaded image"
+                                      />
+                                    </section>
                                   ) : (
-                                    messageContent.text && <div>{messageContent.text}</div>
+                                    messageContent.text && (
+                                      <div>{messageContent.text}</div>
+                                    )
                                   )}
                                 </div>
                                 <div className="message-meta">
                                   <div className="message-sender text-gray-50 mr-2">
                                     {userID === messageContent.senderID &&
-                                      userType === messageContent.senderRole
+                                    userType === messageContent.senderRole
                                       ? ""
                                       : otherUser?.username}
                                   </div>
@@ -360,30 +374,29 @@ const Chat = ({ userType }: ChatProps) => {
                   ) : (
                     <div></div>
                   )}
-                  {/* {selectedFiles && selectedFiles.length > 0 && previewUrls && previewUrls.length === selectedFiles.length &&
-                    <div className="flex justify-start mb-2">
-                      {previewUrls.map((url, index) => (
-                        <div key={index} className="m-2">
-                          <img src={url} alt="Preview" className="w-40 h-40 object-cover rounded" />
-                        </div>
-                      ))}
-                    </div>
-                  } */}
-                  {selectedFiles && selectedFiles.length > 0 && previewUrls && previewUrls.length === selectedFiles.length &&
-                    <div className="flex justify-start mb-2">
-                      {previewUrls.map((url, index) => (
-                        <div key={index} className="m-2 relative">
-                          <img src={url} alt="Preview" className="w-40 h-40 object-cover rounded" />
-                          <button
-                            onClick={() => handleDeleteImage(index)}
-                            className="absolute top-0 right-0 bg-red-600 text-white rounded-full p-1"
-                            style={{ transform: "translate(50%, -50%)" }}
-                          >
-                            <RiDeleteBin5Fill />
-                          </button>
-                        </div>
-                      ))}
-                    </div>}
+                  {selectedFiles &&
+                    selectedFiles.length > 0 &&
+                    previewUrls &&
+                    previewUrls.length === selectedFiles.length && (
+                      <div className="flex justify-start mb-2">
+                        {previewUrls.map((url, index) => (
+                          <div key={index} className="m-2 relative">
+                            <img
+                              src={url}
+                              alt="Preview"
+                              className="w-40 h-40 object-cover rounded"
+                            />
+                            <button
+                              onClick={() => handleDeleteImage(index)}
+                              className="absolute top-0 right-0 bg-red-600 text-white rounded-full p-1"
+                              style={{ transform: "translate(50%, -50%)" }}
+                            >
+                              <RiDeleteBin5Fill />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                 </ScrollToBottom>
               </div>
 
@@ -394,12 +407,24 @@ const Chat = ({ userType }: ChatProps) => {
                   sendMessage();
                 }}
               >
-
-                <input ref={fileInputRef} id="file-upload" type="file" accept="image/png, image/jpeg"
+                <input
+                  ref={fileInputRef}
+                  id="file-upload"
+                  type="file"
+                  accept="image/png, image/jpeg"
                   onChange={handleFileChange}
-                  className="hidden" multiple />
-                <label htmlFor="file-upload" className="cursor-pointer">
-                  <GrAttachment className="text-gray-300" />
+                  className="hidden"
+                  multiple
+                />
+                <label
+                  htmlFor="file-upload"
+                  className="cursor-pointer flex justify-center items-center mx-1"
+                >
+                  <FontAwesomeIcon
+                    icon={faPaperclip}
+                    size="xl"
+                    className="text-gray-400 hover:text-[#2a4d58]"
+                  />
                 </label>
 
                 <input
