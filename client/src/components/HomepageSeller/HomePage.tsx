@@ -6,9 +6,6 @@ import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
-import Card from '@mui/material/Card';
-import { CardHeader, Avatar, IconButton, CardContent, Typography } from '@mui/material';
-import { blue, red } from '@mui/material/colors';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import StatisticsCard from './StatisticsCard';
 import moment from 'moment';
@@ -97,8 +94,8 @@ const HomePage = () => {
 
       if (filter === "today") {
         // Generate a range of hours
-        const startHour = moment().startOf('day'); 
-        const endHour = moment().endOf('day'); 
+        const startHour = moment().startOf('day');
+        const endHour = moment().endOf('day');
         const currentHour = startHour.clone();
 
         while (currentHour.isBefore(endHour)) {
@@ -107,7 +104,7 @@ const HomePage = () => {
         }
       } else if (filter === "week" || filter === "month") {
         // Generate a range of dates
-        const startDate = moment().subtract(1, filter); 
+        const startDate = moment().subtract(1, filter);
         const endDate = moment(); // Current date
         const currentDate = startDate.clone();
 
@@ -193,25 +190,25 @@ const HomePage = () => {
       /> */}
       <Box pr={3}>
         <Grid container spacing={3} m={3} ml={0} pl={0}>
-          <StatisticsCard 
+          <StatisticsCard
             icon={<AttachMoneyIcon />}
             title={"Total Revenue Earned"}
             subheader={`$${totalRevenue}`}
             percentage={"+55% since yesterday"}
           />
-          <StatisticsCard 
+          <StatisticsCard
             icon={<AttachMoneyIcon />}
             title={"Total Products Sold"}
             subheader={totalProductsSold}
             percentage={"+55% since yesterday"}
           />
-          <StatisticsCard 
+          <StatisticsCard
             icon={<AttachMoneyIcon />}
             title={"Total Customers"}
             subheader={totalCustomers}
             percentage={"+55% since yesterday"}
           />
-          <StatisticsCard 
+          <StatisticsCard
             icon={<AttachMoneyIcon />}
             title={"Average Rating"}
             subheader={averageRatingOfProducts}
@@ -328,7 +325,7 @@ const HomePage = () => {
               </Pie>
               <Tooltip />
               <Legend />
-          </PieChart>
+            </PieChart>
           </Grid>
         </Grid>
       </Box>
