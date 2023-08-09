@@ -74,7 +74,8 @@
 .chat-window .chat-body .message .message-content-image {
   width: fit-content;
   height: auto;
-  min-height: 40px;
+  min-height: 200px;
+  min-width: 400px;
   max-width: 400px;
   background-color: #242526;
   /* border-radius: 8px; */
@@ -137,6 +138,9 @@
   height: 60px;
   background-color: #242526;
   display: flex;
+  border-bottom-right-radius: 15px;
+  border-bottom-left-radius: 15px;
+  margin-bottom: 0.5em;
 }
 
 .chat-window .chat-footer input {

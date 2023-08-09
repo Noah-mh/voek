@@ -7,7 +7,7 @@ import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer, toast, Id } from "react-toastify";
 import useCustomer from "../../hooks/UseCustomer";
 import ReferralLink from '../ReferralLink/ReferralLink';
 import { AiFillDelete } from 'react-icons/ai';
@@ -59,6 +59,7 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
   const [modal, setModal] = useState<boolean>(false);
   const [disabledModal, setDisabledModal] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [toastId, setToastId] = useState<Id | undefined>(undefined);
 
   const getActiveStatus = async () => {
     try {
@@ -185,7 +186,9 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
       }
     } catch (error) {
       console.error(error);
-      toast.error("Error Deleting Photo", {
+      toast.dismiss(toastId);
+
+      const id = toast.error("Error Deleting Photo", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -195,10 +198,19 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
         progress: undefined,
         theme: "light",
       });
+      setToastId(id);
     }
   }
 
   const handleSave = async () => {
+    if (updateUsername === username &&
+      updateEmail === email &&
+      updatePhoneNumber === phone_number &&
+      updateImage === image_url &&
+      (newPassword === "" || newPassword === undefined)) {
+      setEditing(false);
+      return;
+    }
     try {
       // Make the Axios PUT request to update the user's profile
       const response = await axiosPrivateCustomer.put(
@@ -241,12 +253,12 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
           theme: "light",
         });
       }
-
-      // Handle success and update UI accordin
     } catch (error) {
       // Handle error and display appropriate message
       console.error(error);
-      toast.error("Updating failed", {
+      toast.dismiss(toastId);
+
+      const id = toast.error("Updating failed", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -256,6 +268,7 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
         progress: undefined,
         theme: "light",
       });
+      setToastId(id);
     }
   };
   return (

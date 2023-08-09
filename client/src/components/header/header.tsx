@@ -155,6 +155,9 @@ const Header = ({ isCustomer, isSeller }: Props) => {
                         <Link
                           to="/profile"
                           className="flex flex-row items-center space-x-2"
+                          onClick={() => {
+                            sessionStorage.setItem('currentTab', '0');
+                          }}
                         >
                           <FontAwesomeIcon icon={faUser} />
                           <h1>Profile</h1>

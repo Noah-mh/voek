@@ -52,7 +52,6 @@ const AddressDisplay: React.FC<AddressDisplayProps> = ({ customerData, getAll })
     };
     useEffect(() => {
         getCountries();
-        console.log("test");
     }, []);
 
     useEffect(() => {
@@ -74,8 +73,26 @@ const AddressDisplay: React.FC<AddressDisplayProps> = ({ customerData, getAll })
         setAddressUpdates(newAddressUpdates);
     };
 
+    const hasAddressChanged = (original: Address, updated: Address) => {
+        return (
+            original.block !== updated.block ||
+            original.unit_no !== updated.unit_no ||
+            original.street_name !== updated.street_name ||
+            original.postal_code !== updated.postal_code ||
+            original.country !== updated.country
+        );
+    };
+
     const handleSave = async (index: number) => {
+        const currentAddress = addressUpdates[index];
+        const originalAddress = initialAddressUpdates[index];
         const newAddressUpdates = [...addressUpdates];
+        if (!hasAddressChanged(originalAddress, currentAddress)) {
+            newAddressUpdates[index].editing = false;
+            setAddressUpdates(newAddressUpdates);
+            return;
+        }
+
         newAddressUpdates[index].editing = false;
         setAddressUpdates(newAddressUpdates);
         try {
@@ -219,7 +236,7 @@ const AddressDisplay: React.FC<AddressDisplayProps> = ({ customerData, getAll })
                                 onChange={(e) => handleUpdate(index, 'block', e.target.value)}
                                 disabled={!address.editing}
                                 fullWidth
-                                sx={{ m: 2 }} // Apply padding
+                                sx={{ m: 2 }}
                             />
                             <TextField
                                 id={`outlined-unit-no-${index}`}
@@ -229,7 +246,7 @@ const AddressDisplay: React.FC<AddressDisplayProps> = ({ customerData, getAll })
                                 onChange={(e) => handleUpdate(index, 'unit_no', e.target.value)}
                                 disabled={!address.editing}
                                 fullWidth
-                                sx={{ m: 2 }} // Apply padding
+                                sx={{ m: 2 }}
                             />
                             <TextField
                                 id={`outlined-street-name-${index}`}
@@ -239,7 +256,7 @@ const AddressDisplay: React.FC<AddressDisplayProps> = ({ customerData, getAll })
                                 onChange={(e) => handleUpdate(index, 'street_name', e.target.value)}
                                 disabled={!address.editing}
                                 fullWidth
-                                sx={{ m: 2 }} // Apply padding
+                                sx={{ m: 2 }}
                             />
                             <TextField
                                 id={`outlined-postal-code-${index}`}
@@ -249,18 +266,8 @@ const AddressDisplay: React.FC<AddressDisplayProps> = ({ customerData, getAll })
                                 onChange={(e) => handleUpdate(index, 'postal_code', e.target.value)}
                                 disabled={!address.editing}
                                 fullWidth
-                                sx={{ m: 2 }} // Apply padding
+                                sx={{ m: 2 }}
                             />
-                            {/* <TextField
-                                id={`outlined-country-${index}`}
-                                label="Country"
-                                variant="outlined"
-                                value={address.country}
-                                onChange={(e) => handleUpdate(index, 'country', e.target.value)}
-                                disabled={!address.editing}
-                                fullWidth
-                                sx={{ m: 2 }} // Apply padding
-                            /> */}
                             <FormControl variant="outlined" fullWidth margin="normal" disabled={!address.editing} sx={{ m: 2 }}>
                                 <InputLabel id="country-label">Country</InputLabel>
                                 <Select
@@ -278,16 +285,16 @@ const AddressDisplay: React.FC<AddressDisplayProps> = ({ customerData, getAll })
                             </FormControl>
                             {address.editing ? (
                                 <div className="flex justify-center">
-                                    <Button onClick={() => handleSave(index)} variant="contained" color="primary">
+                                    <Button onClick={() => handleSave(index)} variant="contained" color="primary" sx={{ margin: '16px' }} >
                                         Save
                                     </Button>
                                 </div>
                             ) : (
                                 <div className="flex justify-center">
-                                    <Button onClick={() => handleEdit(index)} variant="contained" color="primary">
+                                    <Button onClick={() => handleEdit(index)} variant="contained" color="primary" sx={{ margin: '16px' }} >
                                         Edit
                                     </Button>
-                                    <Button onClick={() => handleDelete(index)} variant="contained" color="secondary">
+                                    <Button onClick={() => handleDelete(index)} variant="contained" sx={{ margin: '16px', backgroundColor: 'red', '&:hover': { backgroundColor: 'darkred' } }}>
                                         Delete
                                     </Button>
                                 </div>

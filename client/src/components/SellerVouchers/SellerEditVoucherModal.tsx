@@ -2,7 +2,7 @@ import { useState } from "react";
 import Modal from "@mui/material/Modal";
 import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller";
 import "./css/SellerVoucherModal.css";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer, toast, Id } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ConfirmCloseModal from "./ConfirmCloseModal";
 
@@ -41,6 +41,7 @@ const SellerVoucherModal = ({
   );
   const [isDirty, setIsDirty] = useState(false);
   const [confirmCloseModal, setConfirmCloseModal] = useState(false);
+  const [toastId, setToastId] = useState<Id | undefined>(undefined);
 
   const axiosPrivateSeller = useAxiosPrivateSeller();
 
@@ -48,7 +49,9 @@ const SellerVoucherModal = ({
     e.preventDefault();
 
     if (editedVoucher?.amount === 0) {
-      toast.warn("Discounted price cannot be $0!", {
+      toast.dismiss(toastId);
+
+      const id = toast.warn("Discounted price cannot be $0!", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -58,11 +61,14 @@ const SellerVoucherModal = ({
         progress: undefined,
         theme: "light",
       });
+      setToastId(id);
       return;
     }
 
     if (editedVoucher?.percentage === 0) {
-      toast.warn("Discounted percentage cannot be 0%!", {
+      toast.dismiss(toastId);
+
+      const id = toast.warn("Discounted percentage cannot be 0%!", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -72,6 +78,7 @@ const SellerVoucherModal = ({
         progress: undefined,
         theme: "light",
       });
+      setToastId(id);
       return;
     }
 
@@ -79,7 +86,9 @@ const SellerVoucherModal = ({
       .put(`/updateVoucher/`, editedVoucher)
       .then((response) => {
         if (response.status === 204) {
-          toast.success("Voucher Updated! 😊", {
+          toast.dismiss(toastId);
+
+          const id = toast.success("Voucher Updated! 😊", {
             position: "top-center",
             autoClose: 5000,
             hideProgressBar: false,
@@ -89,9 +98,12 @@ const SellerVoucherModal = ({
             progress: undefined,
             theme: "light",
           });
+          setToastId(id);
           setIsDirty(false);
         } else if (response.status === 400) {
-          toast.warn("Please Fill Up All The Text Fields!", {
+          toast.dismiss(toastId);
+
+          const id = toast.warn("Please Fill Up All The Text Fields!", {
             position: "top-center",
             autoClose: 5000,
             hideProgressBar: false,
@@ -101,8 +113,11 @@ const SellerVoucherModal = ({
             progress: undefined,
             theme: "light",
           });
+          setToastId(id);
         } else {
-          toast.error("Uh-oh! Error! 😔", {
+          toast.dismiss(toastId);
+
+          const id = toast.error("Uh-oh! Error! 😔", {
             position: "top-center",
             autoClose: 5000,
             hideProgressBar: false,
@@ -112,6 +127,7 @@ const SellerVoucherModal = ({
             progress: undefined,
             theme: "light",
           });
+          setToastId(id);
         }
       })
       .catch((error) => {
