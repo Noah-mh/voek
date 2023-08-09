@@ -26,6 +26,7 @@ export interface ProductVariation {
   price: number | null;
   sku: string;
   quantity: number | null;
+  image_url: string;
 }
 
 export interface Review {
@@ -47,7 +48,6 @@ export interface Customer {
 
 export interface Product {
   product_id: number;
-  image_urls: string[];
   name: string;
   description: string | null;
   variations: ProductVariation[] | null;
