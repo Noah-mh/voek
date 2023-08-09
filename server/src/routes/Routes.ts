@@ -448,6 +448,12 @@ export default function (app: Express, router: Router) {
     verifyRoles("seller"),
     sellerController.processGetAverageRatingOfProducts
   );
+  router.get(
+    "/seller/ratingPercentile/:sellerId",
+    verifyJWT,
+    verifyRoles("seller"),
+    sellerController.processGetRatingPercentileOfProducts
+  );
   router.post(
     "/addProduct/:sellerId", 
     verifyJWT,

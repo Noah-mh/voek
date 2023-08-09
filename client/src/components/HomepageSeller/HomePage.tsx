@@ -40,6 +40,7 @@ const HomePage = () => {
   const [totalProductsSold, setTotalProductsSold] = useState<string>("");
   const [totalCustomers, setTotalCustomers] = useState<string>("");
   const [averageRatingOfProducts, setAverageRatingOfProducts] = useState<string>("");
+  const [ratingPercentileOfProducts, setRatingPercentileOfProducts] = useState<string>("");
 
   const [revenueFilter, setRevenueFilter] = useState<string>("all");
   const [revenueData, setRevenueData] = useState<RevenueData[]>([]);
@@ -84,6 +85,15 @@ const HomePage = () => {
     }
   }
 
+  const getRatingPercentileOfProducts = async () => {
+    try {
+      const { data } = await axiosPrivateSeller.get(`/seller/ratingPercentile/${seller.seller_id}`);
+      setRatingPercentileOfProducts(data.ratingPercentile[0].rating_percentile);
+    } catch (err: any) {
+      console.log(err);
+    }
+  }
+
   const getRevenue = async (filter: string) => {
     try {
       const { data } = await axiosPrivateSeller.get(`/seller/products/revenue/${seller.seller_id}/${filter}`);
@@ -99,8 +109,8 @@ const HomePage = () => {
 
       if (filter === "today") {
         // Generate a range of hours
-        const startHour = moment().startOf('day'); 
-        const endHour = moment().endOf('day'); 
+        const startHour = moment().startOf('day');
+        const endHour = moment().endOf('day');
         const currentHour = startHour.clone();
 
         while (currentHour.isBefore(endHour)) {
@@ -109,7 +119,7 @@ const HomePage = () => {
         }
       } else if (filter === "week" || filter === "month") {
         // Generate a range of dates
-        const startDate = moment().subtract(1, filter); 
+        const startDate = moment().subtract(1, filter);
         const endDate = moment(); // Current date
         const currentDate = startDate.clone();
 
@@ -178,23 +188,13 @@ const HomePage = () => {
     getTotalProductsSold();
     getTotalCustomers();
     getAverageRatingOfProducts();
+    getRatingPercentileOfProducts();
   }, [])
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AF19FF', '#FF5733', '#FFB700', '#FFC733', '#FFD966'];
 
   return (
     <Box>
-      {/* <Box
-        sx={{
-          backgroundColor: blue[100], 
-          height: '400px', 
-          width: '100vw',
-          position: 'absolute', 
-          top: 0, 
-          left: 0, 
-          zIndex: 0
-        }}
-      /> */}
       <Box
         sx={{
           fontFamily: 'Roboto',
@@ -213,25 +213,25 @@ const HomePage = () => {
             icon={<AttachMoneyIcon />}
             title={"Total Revenue Earned"}
             subheader={`$${totalRevenue}`}
-            percentage={"+55% since yesterday"}
+            percentage={`${ratingPercentileOfProducts} percentile`}
           />
           <StatisticsCard 
             icon={<ShoppingCartOutlinedIcon />}
             title={"Total Products Sold"}
             subheader={totalProductsSold}
-            percentage={"+55% since yesterday"}
+            percentage={`${ratingPercentileOfProducts} percentile`}
           />
           <StatisticsCard 
             icon={<AccountCircleIcon />}
             title={"Total Customers"}
             subheader={totalCustomers}
-            percentage={"+55% since yesterday"}
+            percentage={`${ratingPercentileOfProducts} percentile`}
           />
           <StatisticsCard 
             icon={<StarBorderRoundedIcon />}
             title={"Average Rating"}
             subheader={averageRatingOfProducts}
-            percentage={"+55% since yesterday"}
+            percentage={`${ratingPercentileOfProducts} percentile`}
           />
         </Grid>
         <Grid container spacing={3} m={3} ml={0} boxShadow={1} borderRadius={5}>
@@ -254,7 +254,7 @@ const HomePage = () => {
               <MenuItem value="today">Today</MenuItem>
             </TextField>
             <LineChart
-              width={800}
+              width={1200}
               height={400}
               data={revenueData}
               margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
@@ -343,7 +343,7 @@ const HomePage = () => {
               </Pie>
               <Tooltip />
               <Legend />
-          </PieChart>
+            </PieChart>
           </Grid>
         </Grid>
       </Box>

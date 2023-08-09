@@ -476,6 +476,16 @@ export const processGetAverageRatingOfProducts = async (req: Request, res: Respo
     }
 }
 
+export const processGetRatingPercentileOfProducts = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { sellerId } = req.params;
+        const result = await sellerModel.handleGetRatingPercentileOfProducts(parseInt(sellerId));
+        return res.json({ averageRating : result });
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
 export const processGetAllSellers = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const result = await sellerModel.handleGetAllSellers();

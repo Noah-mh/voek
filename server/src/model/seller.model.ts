@@ -421,9 +421,15 @@ export const handleUpdateProductVariationActive = async (
   const connection = await promisePool.getConnection();
   const sql1 = `UPDATE product_variations SET active = ? WHERE sku = ?;`;
   const sql2 = `UPDATE products SET active = true WHERE product_id = ?;`;
-  const sql3 = `UPDATE products p SET p.active = false 
-    WHERE p.product_id = ? 
-    AND (SELECT pv.active FROM product_variations pv WHERE pv.product_id = ? AND pv.active = 1) IS NULL;`;
+  const sql3 = `UPDATE products p
+  SET p.active = ?
+  WHERE p.product_id = ?
+  AND NOT EXISTS (
+    SELECT 1
+    FROM product_variations pv
+    WHERE pv.product_id = p.product_id
+    AND pv.active = 1
+  );`;
 
   try {
     connection.beginTransaction();
@@ -434,7 +440,7 @@ export const handleUpdateProductVariationActive = async (
       const result2: any = await connection.query(sql2, [productId]);
     } else {
       const result3: any = await connection.query(sql3, [
-        productId,
+        active,
         productId,
       ]);
     }
@@ -1540,6 +1546,44 @@ export const handleGetTotalCustomers = async (
   }
 }
 
+export const handleGetPercentileOfTotalCustomers = async (
+  seller_id: number
+): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  let sql = `SELECT
+  CASE
+    WHEN COUNT(*) > 0 THEN
+      (
+        SELECT COALESCE(ROUND((average_rating / highest_rating * 100), 2), 0)
+        FROM (
+          SELECT
+            lp.seller_id,
+            COALESCE(ROUND(MAX(r.rating), 2), 0) AS highest_rating,
+            COALESCE(ROUND(AVG(r.rating), 2), 0) AS average_rating,
+            RANK() OVER (ORDER BY COALESCE(ROUND(AVG(r.rating), 2), 0) DESC) AS rating_rank
+          FROM review r
+          LEFT JOIN listed_products lp ON r.product_id = lp.product_id
+          GROUP BY lp.seller_id
+        ) ratings
+        WHERE ratings.seller_id = ?
+      )
+    ELSE 0.00
+  END AS rating_percentile
+FROM review r
+INNER JOIN listed_products lp ON r.product_id = lp.product_id
+WHERE lp.seller_id = ?;`;
+
+  try {
+    const [result] = await connection.query(sql, [seller_id, seller_id]);
+    return result as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+}
+
 export const handleGetAverageRatingOfProducts = async (
   seller_id: number
 ): Promise<Object[]> => {
@@ -1551,6 +1595,44 @@ export const handleGetAverageRatingOfProducts = async (
 
   try {
     const [result] = await connection.query(sql, [seller_id]);
+    return result as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+}
+
+export const handleGetRatingPercentileOfProducts = async (
+  seller_id: number
+): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  let sql = `SELECT
+  CASE
+    WHEN COUNT(*) > 0 THEN
+      (
+        SELECT COALESCE(ROUND((average_rating / highest_rating * 100), 2), 0)
+        FROM (
+          SELECT
+            lp.seller_id,
+            COALESCE(ROUND(MAX(r.rating), 2), 0) AS highest_rating,
+            COALESCE(ROUND(AVG(r.rating), 2), 0) AS average_rating,
+            RANK() OVER (ORDER BY COALESCE(ROUND(AVG(r.rating), 2), 0) DESC) AS rating_rank
+          FROM review r
+          LEFT JOIN listed_products lp ON r.product_id = lp.product_id
+          GROUP BY lp.seller_id
+        ) ratings
+        WHERE ratings.seller_id = ?
+      )
+    ELSE 0.00
+  END AS rating_percentile
+FROM review r
+INNER JOIN listed_products lp ON r.product_id = lp.product_id
+WHERE lp.seller_id = ?;`;
+
+  try {
+    const [result] = await connection.query(sql, [seller_id, seller_id]);
     return result as Object[];
   } catch (err: any) {
     throw new Error(err);
