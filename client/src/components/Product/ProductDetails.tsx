@@ -6,7 +6,7 @@ import { cld } from "../../Cloudinary/Cloudinary";
 import Select from "react-select";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import useCustomer from "../../hooks/UseCustomer";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer, toast, Id } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Rating from "@mui/material/Rating";
 import { Link, useNavigate } from "react-router-dom";
@@ -73,6 +73,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
   const [heart, setHeart] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [popUpImage, setPopUpImage] = useState<string>("");
+  const [toastId, setToastId] = useState<Id | undefined>(undefined);
 
   const handleOpenModal = (image_url: string) => {
     setPopUpImage(image_url);
@@ -177,8 +178,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
       ) {
         return prevQuantity + 1;
       } else {
-        // Show notification
-        toast.error("Cannot add more than the available quantity", {
+        toast.dismiss(toastId);
+
+        const id = toast.error("Cannot add more than the available quantity", {
           position: "top-center",
           autoClose: 5000,
           hideProgressBar: false,
@@ -188,6 +190,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
           progress: undefined,
           theme: "light",
         });
+        setToastId(id);
         return prevQuantity; // Return the same quantity if it shouldn't be updated
       }
     });
@@ -199,7 +202,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
 
   const handleAddToCart = () => {
     if (!customer_id) {
-      toast.error("Please Log in to add into cart", {
+      toast.dismiss(toastId);
+
+      const id = toast.warn("Please Log in to add into cart", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -209,6 +214,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
         progress: undefined,
         theme: "light",
       });
+      setToastId(id);
       return;
     } else {
       axiosPrivateCustomer
@@ -228,7 +234,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
         .then((response) => {
           // On successful addition to cart, show the popup
           console.log(response);
-          toast.success("Item Added to Cart! 😊", {
+          toast.dismiss(toastId);
+
+          const id = toast.success("Item Added to Cart! 😊", {
             position: "top-center",
             autoClose: 5000,
             hideProgressBar: false,
@@ -238,11 +246,14 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             progress: undefined,
             theme: "light",
           });
+          setToastId(id);
         })
         .catch((error) => {
           // Handle error here
           console.error(error);
-          toast.error("Error! Adding to cart failed", {
+          toast.dismiss(toastId);
+
+          const id = toast.error("Error! Adding to cart failed", {
             position: "top-center",
             autoClose: 5000,
             hideProgressBar: false,
@@ -252,6 +263,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             progress: undefined,
             theme: "light",
           });
+          setToastId(id);
         });
     }
   };
@@ -277,7 +289,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
       .catch((error) => {
         // Handle error here
         console.error(error);
-        toast.error("Error! Deleting review failed", {
+        toast.dismiss(toastId);
+
+        const id = toast.error("Error! Deleting review failed", {
           position: "top-center",
           autoClose: 5000,
           hideProgressBar: false,
@@ -287,12 +301,15 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
           progress: undefined,
           theme: "light",
         });
+        setToastId(id);
       });
   };
 
   const handleOnClickChat = () => {
     if (!customer_id) {
-      toast.warn("Please Log in to chat with the seller", {
+      toast.dismiss(toastId);
+
+      const id = toast.warn("Please Log in to chat with the seller", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -302,6 +319,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
         progress: undefined,
         theme: "light",
       });
+      setToastId(id);
       return;
     } else {
       axiosPrivateCustomer
@@ -321,7 +339,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
           if (response.status === 201 || response.status === 200) {
             navigate("/chat");
           } else {
-            toast.error("Error!", {
+            toast.dismiss(toastId);
+
+            const id = toast.error("Error!", {
               position: "top-center",
               autoClose: 5000,
               hideProgressBar: false,
@@ -331,12 +351,15 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
               progress: undefined,
               theme: "light",
             });
+            setToastId(id);
           }
         })
         .catch((error) => {
           // Handle error here
           console.error(error);
-          toast.error("Error!", {
+          toast.dismiss(toastId);
+
+          const id = toast.error("Error!", {
             position: "top-center",
             autoClose: 5000,
             hideProgressBar: false,
@@ -346,6 +369,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             progress: undefined,
             theme: "light",
           });
+          setToastId(id);
         });
     }
   };
@@ -459,14 +483,14 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             <div className="w-[120px] h-full px-[26px] flex items-center border border-lighterGreyAccent">
               <div className="flex justify-between items-center w-full">
                 <button
-                  className="text-base text-gray-500 hover:text-purpleAccent"
+                  className="text-base px-2 text-gray-500 hover:text-purpleAccent"
                   onClick={() => decreaseQuantity()}
                 >
                   -
                 </button>
                 <h1>{quantity}</h1>
                 <button
-                  className="text-base text-gray-500 hover:text-purpleAccent"
+                  className="text-base px-2 text-gray-500 hover:text-purpleAccent"
                   onClick={() => increaseQuantity(selectedSku)}
                 >
                   +
@@ -554,23 +578,30 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                   <div className="flex space-x-3 relative overflow-visible items-center">
                     <AiOutlineStar />
                     <h1>Ratings:</h1>{" "}
-                    <h1 className="text-pink">{sellerData[0].rating ? sellerData[0].rating : 0}</h1>
                     <h1 className="text-pink">
-                      ( {sellerData[0].total_reviews ? sellerData[0].total_reviews : 0}{" "}
+                      {sellerData[0].rating ? sellerData[0].rating : 0}
+                    </h1>
+                    <h1 className="text-pink">
+                      ({" "}
+                      {sellerData[0].total_reviews
+                        ? sellerData[0].total_reviews
+                        : 0}{" "}
                       {sellerData[0].total_reviews < 2 ? "Rating" : "Ratings"} )
                     </h1>
                   </div>
                   <div className="flex space-x-3 relative overflow-visible items-center">
                     <GrUserExpert />
                     <h1>Joined:</h1>{" "}
-                    {diffInMonths < 1 ? <h1 className="text-pink">Less than a month ago</h1> :
-                      (<> <h1 className="text-pink">
-                        {diffInMonths}{" "}
-                        {diffInMonths === 1
-                          ? "month"
-                          : "months"}
-                      </h1>
-                        <span>ago</span></>)}
+                    <h1 className="text-pink">
+                      {diffInMonths > 0 ? (
+                        <span>
+                          {diffInMonths}{" "}
+                          {diffInMonths < 2 ? "Month " : "Months"} ago
+                        </span>
+                      ) : (
+                        <span>Recently</span>
+                      )}
+                    </h1>
                   </div>
                 </div>
               </div>

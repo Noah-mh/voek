@@ -2,7 +2,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import { useEffect, useState } from "react";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer, toast, Id } from "react-toastify";
 
 interface Voucher {
   seller_id: number;
@@ -50,10 +50,11 @@ const VoucherModal = ({
   setLastClaimedVoucher,
   groupItemsPrice,
 }: // getUserCart,
-VoucherModalProps) => {
+  VoucherModalProps) => {
   const [groupedVouchers, setGroupedVouchers] = useState<{
     [key: string]: Voucher[];
   }>({});
+  const [toastId, setToastId] = useState<Id | undefined>(undefined);
 
   useEffect(() => {
     //if have time, get seller username and display it instead of the id
@@ -96,7 +97,9 @@ VoucherModalProps) => {
         // If there are no more vouchers claimed for this seller, remove the seller from claimedVouchers
         const { [key]: _, ...updatedClaimedVouchers } = claimedVouchers;
         setClaimedVouchers(updatedClaimedVouchers);
-        toast.warn("Voucher has been unclaimed.", {
+        toast.dismiss(toastId);
+
+        const id = toast.warn("Voucher has been unclaimed.", {
           position: "top-left",
           autoClose: 5000,
           hideProgressBar: false,
@@ -106,6 +109,7 @@ VoucherModalProps) => {
           progress: undefined,
           theme: "light",
         });
+        setToastId(id);
         // getUserCart();
         return;
       }
@@ -119,7 +123,9 @@ VoucherModalProps) => {
         },
       });
       setWasAVVoucherClaimed(true);
-      toast.success("Voucher claimed!", {
+      toast.dismiss(toastId);
+
+      const id = toast.success("Voucher claimed!", {
         position: "top-left",
         autoClose: 5000,
         hideProgressBar: false,
@@ -129,11 +135,14 @@ VoucherModalProps) => {
         progress: undefined,
         theme: "light",
       });
+      setToastId(id);
     }
   };
 
   const showVoucherError = (message: string) => {
-    toast.warn(message, {
+    toast.dismiss(toastId);
+
+    const id = toast.warn(message, {
       position: "top-left",
       autoClose: 5000,
       hideProgressBar: false,
@@ -143,6 +152,7 @@ VoucherModalProps) => {
       progress: undefined,
       theme: "light",
     });
+    setToastId(id);
   };
 
   return (
@@ -237,11 +247,11 @@ VoucherModalProps) => {
                         </div>
                       </div>
                       {voucher.min_spend > totalAmt.subTotal ||
-                      !groupItems.hasOwnProperty(sellerKey) ||
-                      (voucher.number_amount > groupItemsPrice[sellerKey] &&
-                        !claimedVouchers[sellerKey]?.[
+                        !groupItems.hasOwnProperty(sellerKey) ||
+                        (voucher.number_amount > groupItemsPrice[sellerKey] &&
+                          !claimedVouchers[sellerKey]?.[
                           voucher.customer_voucher_id
-                        ]) ? (
+                          ]) ? (
                         <div
                           className="flex flex-col justify-center font-bold"
                           onClick={() => {

@@ -17,12 +17,11 @@ import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperPlane, faPaperclip } from "@fortawesome/free-solid-svg-icons";
 import "./css/Chat.css";
+import { cld, cloudName, chatPreset } from "../../Cloudinary/Cloudinary";
 import { AdvancedImage } from "@cloudinary/react";
-import { cld } from "../../Cloudinary/Cloudinary";
 import { Link } from "react-router-dom";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
-import { cloudName, chatPreset } from "../../Cloudinary/Cloudinary";
 import { RiDeleteBin5Fill } from "react-icons/ri";
 import ImagePopUpModel from "../../Cloudinary/ImagePopUpModel";
 interface ChatProps {
@@ -69,6 +68,11 @@ const Chat = ({ userType }: ChatProps) => {
   const [isSending, setIsSending] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [popUpImage, setPopUpImage] = useState<string>("");
+  const [hasLoaded, setHasLoaded] = useState(false);
+
+  const handleImageLoad = () => {
+    setHasLoaded(true);
+  };
 
   const handleOpenModal = (image_url: string) => {
     setPopUpImage(image_url);
@@ -151,7 +155,10 @@ const Chat = ({ userType }: ChatProps) => {
 
     try {
       const currentDate = new Date();
-      const formattedDateTime = currentDate.toISOString().split('.')[0].replace('T', ' ');
+      const formattedDateTime = currentDate
+        .toISOString()
+        .split(".")[0]
+        .replace("T", " ");
 
       if (selectedFiles.length > 0) {
         console.log("selectedFiles: ", selectedFiles);
@@ -360,24 +367,27 @@ const Chat = ({ userType }: ChatProps) => {
                             >
                               <div>
                                 {messageContent.image ? (
-                                  <button onClick={() => {
-                                    handleOpenModal(messageContent.image)
-                                  }}>
+                                  <button
+                                    onClick={() => {
+                                      handleOpenModal(messageContent.image);
+                                    }}
+                                  >
                                     <div className="message-content-image rounded-lg">
                                       <section className="my-1">
                                         <AdvancedImage
-                                          cldImg={cld.image(messageContent.image)}
+                                          cldImg={cld.image(
+                                            messageContent.image
+                                          )}
                                           alt="Uploaded image"
                                         />
                                       </section>
-                                    </div></button>
+                                    </div>
+                                  </button>
                                 ) : (
                                   <div className="message-content rounded-lg">
-                                    {
-                                      messageContent.text && (
-                                        <div>{messageContent.text}</div>
-                                      )
-                                    }
+                                    {messageContent.text && (
+                                      <div>{messageContent.text}</div>
+                                    )}
                                   </div>
                                 )}
                                 <div className="message-meta">
@@ -401,13 +411,17 @@ const Chat = ({ userType }: ChatProps) => {
                   )}
                 </ScrollToBottom>
               </div>
-              <ImagePopUpModel isOpen={isModalOpen} onClose={handleCloseModal} image_url={popUpImage} />
+              <ImagePopUpModel
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+                image_url={popUpImage}
+              />
               {selectedFiles &&
                 selectedFiles.length > 0 &&
                 previewUrls &&
                 previewUrls.length === selectedFiles.length && (
-                  <div className="relative border-2 border border-[#3a3b3c] flex fixed w-auto bg-[#242526] p-2 rounded-lg">
-                    <div className="flex justify-start">
+                  <div className="relative border-2 border-[#3a3b3c] flex w-auto bg-[#242526] p-2 rounded-t-md">
+                    <div className="flex flex-wrap justify-start">
                       {previewUrls.map((url, index) => (
                         <div key={index} className="relative mr-4">
                           <img
@@ -464,20 +478,25 @@ const Chat = ({ userType }: ChatProps) => {
                   }}
                 />
                 <button type="submit" disabled={isSending}>
-                  {isSending ?
-                    <span className="loader"></span> :
-                    <FontAwesomeIcon icon={faPaperPlane} size="sm" className={"text-blue-500"} />
-                  }
+                  {isSending ? (
+                    <span className="loader"></span>
+                  ) : (
+                    <FontAwesomeIcon
+                      icon={faPaperPlane}
+                      size="sm"
+                      className={"text-blue-500"}
+                    />
+                  )}
                 </button>
               </form>
             </div>
           )}
         </div>
-      </div >
+      </div>
       <div className="hidden xl:flex justify-start items-end grow">
         <Picker data={data} onEmojiSelect={addEmoji} />
       </div>
-    </div >
+    </div>
   );
 };
 

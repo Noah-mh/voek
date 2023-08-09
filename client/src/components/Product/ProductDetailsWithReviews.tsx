@@ -149,7 +149,7 @@ const ProductDetailWithReview: React.FC = () => {
       const date_created = moment(sellerData[0].date_created);
 
       const diffInMonths = moment().diff(date_created, "months");
-      console.log(diffInMonths);
+      console.log("diffInMonths: ", diffInMonths);
       console.log("review", productReview);
       setDiffInMonths(diffInMonths);
     }

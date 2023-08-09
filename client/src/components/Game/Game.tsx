@@ -3,6 +3,7 @@ import "./css/Game.css";
 import StartScreen from "./StartingScreen";
 import CustomerContext from "../../context/CustomerProvider";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
+import { ToastContainer, toast, Id } from "react-toastify";
 const Game: React.FC = () => {
   const { customer } = useContext(CustomerContext);
   const customer_id = customer.customer_id;
@@ -18,6 +19,7 @@ const Game: React.FC = () => {
   const [isGameStarted, setIsGameStarted] = useState<boolean>(false);
   const [highestScore, setHighestScore] = useState<number>(0);
   const [triesLeft, setTriesLeft] = useState<number>(3);
+  const [toastId, setToastId] = useState<Id | undefined>(undefined);
 
   const getHighestScore = async () => {
     try {
@@ -134,8 +136,20 @@ const Game: React.FC = () => {
     }
     updateCoins();
     updateHighestScore();
-    alert("Game Over! You have gained " + score + " coins.");
+    // alert("Game Over! You have gained " + score + " coins.");
+    toast.dismiss(toastId);
 
+    const id = toast.info("Game Over! You have gained  " + score + "  coins.", {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+    setToastId(id);
     // Reset game states
     setIsGameStarted(false);
     setScore(0);
@@ -195,8 +209,9 @@ const Game: React.FC = () => {
       <div id="gameBarContainer">
         <div id="gameBar" style={{ width: `${barWidth}%` }}></div>
       </div>
-      <div id="score">Score: {score}</div>
+      <div id="score">Score: {score}</div><ToastContainer />
     </div>
+
   );
 };
 
