@@ -135,7 +135,6 @@ export default function cartPage(): JSX.Element {
           if (res.data.length > 0) {
             const tempGroupedItems: { [key: string]: cartItem[] } = {};
             res.data.forEach((item: cartItem) => {
-              const seller_id = item.seller_id;
               const seller_key: string = `${item.seller_id}_${item.shop_name}`;
               if (!tempGroupedItems[seller_key]) {
                 tempGroupedItems[seller_key] = [];
@@ -307,15 +306,23 @@ export default function cartPage(): JSX.Element {
   useEffect(() => {
     const discAmt = Math.floor(userCoins / 10);
     if (isChecked) {
-      setTotalAmt({
-        ...totalAmt,
-        total: Number((totalAmt.total - discAmt).toFixed(2)),
-      });
+      if (totalAmt.total < discAmt) {
+        return;
+      } else {
+        setTotalAmt({
+          ...totalAmt,
+          total: Number((totalAmt.total - discAmt).toFixed(2)),
+        });
+      }
     } else {
-      setTotalAmt({
-        ...totalAmt,
-        total: Number((totalAmt.total + discAmt).toFixed(2)),
-      });
+      if (totalAmt.total < discAmt) {
+        return;
+      } else {
+        setTotalAmt({
+          ...totalAmt,
+          total: Number((totalAmt.total + discAmt).toFixed(2)),
+        });
+      }
     }
   }, [isChecked]);
 
@@ -519,14 +526,17 @@ export default function cartPage(): JSX.Element {
                   };
                 });
               } else {
+                console.log("here?");
                 let difference = 0;
                 setGroupItemsPrice((prevState) => {
                   let nowPercentage = 1 - Number(voucher.percentage_amount);
-                  let previousPrice = prevState[voucher.seller_id];
+                  let previousPrice = prevState[key];
                   const newTotalPriceAmt = Number(
                     prevState[key] / Number(nowPercentage)
                   );
+
                   difference = Number(newTotalPriceAmt) - Number(previousPrice);
+
                   return {
                     ...prevState,
                     [key]: Number(newTotalPriceAmt.toFixed(2)),
