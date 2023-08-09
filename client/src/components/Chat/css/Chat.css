@@ -1,11 +1,15 @@
+.chat-parent:has(.chatContainer) {
+  display: flex;
+}
+
 .chatContainer {
   background-color: #18191a;
-  height: 86.1vh;
+  /* height: 86.1vh; */
 }
 
 .chat-window {
-  width: 100vmin;
-  height: 100vh;
+  /* width: 100vmin; */
+  /* height: 100vh; */
   /* border-left: 1px solid #4b4d52;
   border-right: 1px solid #4b4d52; */
 }
@@ -29,13 +33,13 @@
 
 .chat-window .chat-body {
   /* height: calc(100vh - (45px + 43px)); */
-  height: 77.7vh;
+  /* height: 77.7vh; */
   background: #3a3b3c;
   position: relative;
 }
 .chat-window .chat-body .message-container {
   width: 100%;
-  height: 100%;
+  /* height: 100%; */
   overflow-y: scroll;
   overflow-x: hidden;
 }

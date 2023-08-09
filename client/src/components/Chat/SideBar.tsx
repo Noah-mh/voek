@@ -83,7 +83,7 @@ const SideBar = ({
 
   return (
     <div className="w-full overflow-y-auto">
-      <div className="flex flex-col h-screen bg-gray-800 chatSidebar">
+      <div className="flex flex-col bg-gray-800 chatSidebar">
         <div className="flex justify-stretch grow mt-10">
           <div className="flex flex-col grow">
             <div className="text-white flex flex-col justify-center items-center font-medium">

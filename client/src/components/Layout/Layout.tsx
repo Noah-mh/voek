@@ -6,7 +6,7 @@ const Layout = () => {
   return (
     <main className="App flex flex-col min-h-screen">
       <Header isCustomer={true} />
-      <div className="flex-grow">
+      <div className="flex-grow chat-parent">
         <Outlet />
       </div>
       <Footer className="mt-auto" />
