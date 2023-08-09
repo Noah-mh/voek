@@ -151,7 +151,10 @@ const Chat = ({ userType }: ChatProps) => {
 
     try {
       const currentDate = new Date();
-      const formattedDateTime = currentDate.toISOString().split('.')[0].replace('T', ' ');
+      const formattedDateTime = currentDate
+        .toISOString()
+        .split(".")[0]
+        .replace("T", " ");
 
       if (selectedFiles.length > 0) {
         console.log("selectedFiles: ", selectedFiles);
@@ -353,37 +356,40 @@ const Chat = ({ userType }: ChatProps) => {
                               className="message p-3"
                               id={
                                 userID === messageContent.senderID &&
-                                  userType === messageContent.senderRole
+                                userType === messageContent.senderRole
                                   ? "you"
                                   : "other"
                               }
                             >
                               <div>
                                 {messageContent.image ? (
-                                  <button onClick={() => {
-                                    handleOpenModal(messageContent.image)
-                                  }}>
+                                  <button
+                                    onClick={() => {
+                                      handleOpenModal(messageContent.image);
+                                    }}
+                                  >
                                     <div className="message-content-image rounded-lg">
                                       <section className="my-1">
                                         <AdvancedImage
-                                          cldImg={cld.image(messageContent.image)}
+                                          cldImg={cld.image(
+                                            messageContent.image
+                                          )}
                                           alt="Uploaded image"
                                         />
                                       </section>
-                                    </div></button>
+                                    </div>
+                                  </button>
                                 ) : (
                                   <div className="message-content rounded-lg">
-                                    {
-                                      messageContent.text && (
-                                        <div>{messageContent.text}</div>
-                                      )
-                                    }
+                                    {messageContent.text && (
+                                      <div>{messageContent.text}</div>
+                                    )}
                                   </div>
                                 )}
                                 <div className="message-meta">
                                   <div className="message-sender text-gray-50 mr-2">
                                     {userID === messageContent.senderID &&
-                                      userType === messageContent.senderRole
+                                    userType === messageContent.senderRole
                                       ? ""
                                       : otherUser?.username}
                                   </div>
@@ -401,12 +407,16 @@ const Chat = ({ userType }: ChatProps) => {
                   )}
                 </ScrollToBottom>
               </div>
-              <ImagePopUpModel isOpen={isModalOpen} onClose={handleCloseModal} image_url={popUpImage} />
+              <ImagePopUpModel
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+                image_url={popUpImage}
+              />
               {selectedFiles &&
                 selectedFiles.length > 0 &&
                 previewUrls &&
                 previewUrls.length === selectedFiles.length && (
-                  <div className="relative border-2 border border-[#3a3b3c] flex fixed w-auto bg-[#242526] p-2 rounded-lg">
+                  <div className="relative border-2 border-[#3a3b3c] flex w-auto bg-[#242526] p-2">
                     <div className="flex justify-start">
                       {previewUrls.map((url, index) => (
                         <div key={index} className="relative mr-4">
@@ -464,20 +474,25 @@ const Chat = ({ userType }: ChatProps) => {
                   }}
                 />
                 <button type="submit" disabled={isSending}>
-                  {isSending ?
-                    <span className="loader"></span> :
-                    <FontAwesomeIcon icon={faPaperPlane} size="sm" className={"text-blue-500"} />
-                  }
+                  {isSending ? (
+                    <span className="loader"></span>
+                  ) : (
+                    <FontAwesomeIcon
+                      icon={faPaperPlane}
+                      size="sm"
+                      className={"text-blue-500"}
+                    />
+                  )}
                 </button>
               </form>
             </div>
           )}
         </div>
-      </div >
+      </div>
       <div className="hidden xl:flex justify-start items-end grow">
         <Picker data={data} onEmojiSelect={addEmoji} />
       </div>
-    </div >
+    </div>
   );
 };
 
