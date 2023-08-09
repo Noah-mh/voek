@@ -7,7 +7,7 @@ import { AdvancedImage } from "@cloudinary/react";
 import { cld } from "../../Cloudinary/Cloudinary";
 import useAxiosPrivateCustomer from '../../hooks/useAxiosPrivateCustomer';
 import useCustomer from "../../hooks/UseCustomer";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer, toast, Id } from "react-toastify";
 import RedeemVoucher from './RedeemVoucher';
 
 interface Seller {
@@ -24,7 +24,7 @@ const ClaimVouchers = () => {
     const { customer } = useCustomer();
 
     const [sellers, setSellers] = useState<Seller[]>([])
-
+    const [toastId, setToastId] = useState<Id | undefined>(undefined);
     const getSellers = async () => {
         try {
             const { data } = await axios.get(`/sellers`)
@@ -40,7 +40,9 @@ const ClaimVouchers = () => {
 
     const handleOnClickChat = (seller_id: number) => {
         if (!customer.customer_id) {
-            toast.warn("Please Log in to chat with the seller", {
+            toast.dismiss(toastId);
+
+            const id = toast.warn("Please Log in to chat with the seller", {
                 position: "top-center",
                 autoClose: 5000,
                 hideProgressBar: false,
@@ -50,6 +52,7 @@ const ClaimVouchers = () => {
                 progress: undefined,
                 theme: "light",
             });
+            setToastId(id);
             return;
         } else {
             axiosPrivateCustomer
@@ -69,7 +72,9 @@ const ClaimVouchers = () => {
                     if (response.status === 201 || response.status === 200) {
                         navigate("/chat");
                     } else {
-                        toast.error("Error!", {
+                        toast.dismiss(toastId);
+
+                        const id = toast.error("Error!", {
                             position: "top-center",
                             autoClose: 5000,
                             hideProgressBar: false,
@@ -79,12 +84,15 @@ const ClaimVouchers = () => {
                             progress: undefined,
                             theme: "light",
                         });
+                        setToastId(id);
                     }
                 })
                 .catch((error) => {
                     // Handle error here
                     console.error(error);
-                    toast.error("Error!", {
+                    toast.dismiss(toastId);
+
+                    const id = toast.error("Error!", {
                         position: "top-center",
                         autoClose: 5000,
                         hideProgressBar: false,
@@ -94,6 +102,7 @@ const ClaimVouchers = () => {
                         progress: undefined,
                         theme: "light",
                     });
+                    setToastId(id);
                 });
         }
     };

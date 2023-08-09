@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useContext } from "react";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer, toast, Id } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import CustomerContext from "../../context/CustomerProvider";
 import moment from "moment";
 import tz from "moment-timezone";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
+
 
 import Button from "@mui/material/Button";
 
@@ -21,6 +22,7 @@ const DailyCoin: React.FC = () => {
   const [alreadyCheckedIn, setAlreadyCheckedIn] = useState<boolean>(false);
   const [currentDayStreak, setCurrentDayStreak] = useState<number>(0);
   const [newCheckIn, setNewCheckIn] = useState<boolean>(false);
+  const [toastId, setToastId] = useState<Id | undefined>(undefined);
 
   const getCurrentDayStreak = async () => {
     try {
@@ -45,7 +47,9 @@ const DailyCoin: React.FC = () => {
 
   const checkIn = async () => {
     if (alreadyCheckedIn) {
-      toast.error("You have already checked in :(", {
+      toast.dismiss(toastId);
+
+      const id = toast.error("You have already checked in :(", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -55,6 +59,7 @@ const DailyCoin: React.FC = () => {
         progress: undefined,
         theme: "light",
       });
+      setToastId(id);
     } else {
       try {
         if (newCheckIn) {
@@ -67,7 +72,9 @@ const DailyCoin: React.FC = () => {
           });
         }
 
-        toast.success("You have checked in for today!", {
+        toast.dismiss(toastId);
+
+        const id = toast.success("You have checked in for today!", {
           position: "top-center",
           autoClose: 5000,
           hideProgressBar: false,
@@ -77,9 +84,12 @@ const DailyCoin: React.FC = () => {
           progress: undefined,
           theme: "light",
         });
+        setToastId(id);
       } catch (err: any) {
         console.log(err);
-        toast.error("Unable to check in :(", {
+        toast.dismiss(toastId);
+
+        const id = toast.error("Unable to check in :(", {
           position: "top-center",
           autoClose: 5000,
           hideProgressBar: false,
@@ -89,6 +99,7 @@ const DailyCoin: React.FC = () => {
           progress: undefined,
           theme: "light",
         });
+        setToastId(id);
       }
     }
     getCurrentDayStreak();

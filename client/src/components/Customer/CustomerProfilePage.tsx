@@ -87,6 +87,7 @@ const CustomerProfilePage = () => {
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
+    sessionStorage.setItem('currentTab', String(newValue));
   };
 
   const getCustomerDetails = async () => {
@@ -130,6 +131,10 @@ const CustomerProfilePage = () => {
   };
 
   useEffect(() => {
+    const tabIndex = sessionStorage.getItem('currentTab');
+    if (tabIndex) {
+      setValue(Number(tabIndex));
+    }
     getAll();
   }, []);
 

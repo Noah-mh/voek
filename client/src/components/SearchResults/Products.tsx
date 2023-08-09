@@ -42,7 +42,7 @@ const Products = ({ userInput }: ProductsProps) => {
                 })}
               </div>
             ) : (
-              <div className="flex justify-center items-center">
+              <div className="flex justify-center items-center text-3xl font-bold">
                 No products found for "{userInput}"
               </div>
             )}

@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import loginPhoto from "../../img/login/loginVec.png";
 import axios from "../../api/axios";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer, toast, Id } from "react-toastify";
 
 const ForgetPasswordCustomer = () => {
   const [disabled, setDisabled] = useState<boolean>(true);
   const [email, setEmail] = useState<string>("");
   const [errMsg, setErrMsg] = useState<string>("");
+  const [toastId, setToastId] = useState<Id | undefined>(undefined);
 
   useEffect(() => {
     setDisabled(email.length === 0);
@@ -23,7 +24,9 @@ const ForgetPasswordCustomer = () => {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
       });
-      toast.success(
+      toast.dismiss(toastId);
+
+      const id = toast.success(
         "If the email exists, you will receive a password reset link",
         {
           position: "top-center",
@@ -36,12 +39,26 @@ const ForgetPasswordCustomer = () => {
           theme: "light",
         }
       );
+      setToastId(id);
     } catch (err: any) {
       if (!err?.response) {
         setErrMsg("No Server Response");
       } else {
         setErrMsg("Server Error");
       }
+      toast.dismiss(toastId);
+
+      const id = toast.error(errMsg, {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+      setToastId(id);
     }
   };
 
@@ -78,7 +95,6 @@ const ForgetPasswordCustomer = () => {
               />
             </div>
           </form>
-          <div className="text-red-500 text-center">{errMsg}</div>
         </div>
       </div>
     </div>

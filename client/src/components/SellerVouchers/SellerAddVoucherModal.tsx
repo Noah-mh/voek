@@ -3,7 +3,7 @@ import Modal from "@mui/material/Modal";
 import "./css/SellerVoucherModal.css";
 import useSeller from "../../hooks/useSeller.js";
 import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer, toast, Id } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ConfirmCloseModal from "./ConfirmCloseModal";
 
@@ -38,6 +38,7 @@ const SellerAddVoucherModal = ({
 }: SellerVoucherModalProps) => {
   const [isDirty, setIsDirty] = useState(false);
   const [confirmCloseModal, setConfirmCloseModal] = useState(false);
+  const [toastId, setToastId] = useState<Id | undefined>(undefined);
 
   const { seller } = useSeller();
   const sellerId = seller.seller_id;
@@ -52,7 +53,9 @@ const SellerAddVoucherModal = ({
     e.preventDefault();
 
     if (voucher?.type === 1 && voucher?.amount === 0) {
-      toast.warn("Discounted price cannot be $0!", {
+      toast.dismiss(toastId);
+
+      const id = toast.warn("Discounted price cannot be $0!", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -62,6 +65,7 @@ const SellerAddVoucherModal = ({
         progress: undefined,
         theme: "light",
       });
+      setToastId(id);
       return;
     }
 
