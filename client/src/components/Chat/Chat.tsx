@@ -17,12 +17,11 @@ import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperPlane, faPaperclip } from "@fortawesome/free-solid-svg-icons";
 import "./css/Chat.css";
+import { cld, cloudName, chatPreset } from "../../Cloudinary/Cloudinary";
 import { AdvancedImage } from "@cloudinary/react";
-import { cld } from "../../Cloudinary/Cloudinary";
 import { Link } from "react-router-dom";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
-import { cloudName, chatPreset } from "../../Cloudinary/Cloudinary";
 import { RiDeleteBin5Fill } from "react-icons/ri";
 import ImagePopUpModel from "../../Cloudinary/ImagePopUpModel";
 interface ChatProps {
@@ -69,6 +68,11 @@ const Chat = ({ userType }: ChatProps) => {
   const [isSending, setIsSending] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [popUpImage, setPopUpImage] = useState<string>("");
+  const [hasLoaded, setHasLoaded] = useState(false);
+
+  const handleImageLoad = () => {
+    setHasLoaded(true);
+  };
 
   const handleOpenModal = (image_url: string) => {
     setPopUpImage(image_url);
@@ -356,7 +360,7 @@ const Chat = ({ userType }: ChatProps) => {
                               className="message p-3"
                               id={
                                 userID === messageContent.senderID &&
-                                userType === messageContent.senderRole
+                                  userType === messageContent.senderRole
                                   ? "you"
                                   : "other"
                               }
@@ -389,7 +393,7 @@ const Chat = ({ userType }: ChatProps) => {
                                 <div className="message-meta">
                                   <div className="message-sender text-gray-50 mr-2">
                                     {userID === messageContent.senderID &&
-                                    userType === messageContent.senderRole
+                                      userType === messageContent.senderRole
                                       ? ""
                                       : otherUser?.username}
                                   </div>
@@ -416,8 +420,8 @@ const Chat = ({ userType }: ChatProps) => {
                 selectedFiles.length > 0 &&
                 previewUrls &&
                 previewUrls.length === selectedFiles.length && (
-                  <div className="relative border-2 border-[#3a3b3c] flex w-auto bg-[#242526] p-2">
-                    <div className="flex justify-start">
+                  <div className="relative border-2 border-[#3a3b3c] flex w-auto bg-[#242526] p-2 rounded-t-md">
+                    <div className="flex flex-wrap justify-start">
                       {previewUrls.map((url, index) => (
                         <div key={index} className="relative mr-4">
                           <img

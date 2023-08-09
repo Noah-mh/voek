@@ -59,6 +59,7 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
   const [modal, setModal] = useState<boolean>(false);
   const [disabledModal, setDisabledModal] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [toastId, setToastId] = useState<Id | undefined>(undefined);
 
   const getActiveStatus = async () => {
     try {
@@ -185,7 +186,9 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
       }
     } catch (error) {
       console.error(error);
-      toast.error("Error Deleting Photo", {
+      toast.dismiss(toastId);
+
+      const id = toast.error("Error Deleting Photo", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -195,6 +198,7 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
         progress: undefined,
         theme: "light",
       });
+      setToastId(id);
     }
   }
 
@@ -252,7 +256,9 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
     } catch (error) {
       // Handle error and display appropriate message
       console.error(error);
-      toast.error("Updating failed", {
+      toast.dismiss(toastId);
+
+      const id = toast.error("Updating failed", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -262,6 +268,7 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
         progress: undefined,
         theme: "light",
       });
+      setToastId(id);
     }
   };
   return (
