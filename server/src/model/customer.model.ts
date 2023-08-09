@@ -22,9 +22,7 @@ export const handleLogin = async (
   const sql = `SELECT username, password, customer_id, phone_number, email FROM customer WHERE email = ? AND active != 0`;
   try {
     const result: any = await connection.query(sql, [email]);
-    const encryptrdPassword = result[0].length
-      ? result[0][0].password
-      : "";
+    const encryptrdPassword = result[0].length ? result[0][0].password : "";
     const check = await bcrypt.compare(password, encryptrdPassword);
     if (check) {
       const customer_id: number = result[0][0]?.customer_id;
@@ -49,10 +47,7 @@ export const handleStoreRefreshToken = async (
   const connection = await promisePool.getConnection();
   const sql = `UPDATE customer SET refresh_token =? WHERE customer_id =?`;
   try {
-    const result = await connection.query(sql, [
-      refreshtoken,
-      customer_id,
-    ]);
+    const result = await connection.query(sql, [refreshtoken, customer_id]);
     return (result[0] as any).affectedRows as number;
   } catch (err: any) {
     throw new Error(err);
@@ -264,9 +259,7 @@ export const handleGetCustomerIdByRefId = async (
   const sql = `SELECT customer_id FROM customer WHERE referral_id = ?`;
   try {
     const result: any = await connection.query(sql, [referral_id]);
-    return result[0][0]?.customer_id
-      ? result[0][0].customer_id
-      : null;
+    return result[0][0]?.customer_id ? result[0][0].customer_id : null;
   } catch (err: any) {
     throw new Error(err);
   } finally {
@@ -299,9 +292,7 @@ export const handleActiveAccount = async (
   }
 };
 
-export const handleLogOut = async (
-  refreshToken: string
-): Promise<number> => {
+export const handleLogOut = async (refreshToken: string): Promise<number> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `UPDATE customer SET refresh_token = NULL WHERE refresh_token = ?`;
@@ -416,18 +407,12 @@ export const handleUpdateCustomerDetails = async (
   const connection = await promisePool.getConnection();
   try {
     let sql = `SELECT * FROM customer WHERE email like ? and customer_id != ?`;
-    let result = (await connection.query(sql, [
-      email,
-      customer_id,
-    ])) as any;
+    let result = (await connection.query(sql, [email, customer_id])) as any;
     if (result[0].length != 0) {
       return { duplicateEmail: true };
     } else {
       let sql = `SELECT * FROM customer WHERE email like ? and customer_id = ?`;
-      let result = (await connection.query(sql, [
-        email,
-        customer_id,
-      ])) as any;
+      let result = (await connection.query(sql, [email, customer_id])) as any;
       if (result[0].length === 0) {
         sql =
           "UPDATE update_customer SET new_email = ?, email_sent = utc_timestamp() WHERE customer_id = ?";
@@ -544,9 +529,7 @@ export const handleChangeEmail = async (customer_id: number) => {
   }
 };
 
-export const handleDeactivateAccount = async (
-  customer_id: number
-) => {
+export const handleDeactivateAccount = async (customer_id: number) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = "UPDATE customer SET active = 0 WHERE customer_id = ?";
@@ -560,16 +543,12 @@ export const handleDeactivateAccount = async (
   }
 };
 
-export const handleGetCustomerStatus = async (
-  customer_id: number
-) => {
+export const handleGetCustomerStatus = async (customer_id: number) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = "SELECT active FROM customer WHERE customer_id = ?";
   try {
-    const result = (await connection.query(sql, [
-      customer_id,
-    ])) as any;
+    const result = (await connection.query(sql, [customer_id])) as any;
     return result[0][0].active;
   } catch (err: any) {
     throw new Error(err);
@@ -618,9 +597,7 @@ interface LoginResult {
 
 //ALLISON :D
 
-export const handleGetCoins = async (
-  customer_id: string
-): Promise<number> => {
+export const handleGetCoins = async (customer_id: string): Promise<number> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT coins FROM customer WHERE customer_id = ?`;
@@ -703,9 +680,7 @@ WHERE customer_id = ?`;
 
     if (userData.daysSinceLastCheckIn === 1) {
       userData.current_day_streak =
-        userData.current_day_streak === 7
-          ? 1
-          : userData.current_day_streak + 1;
+        userData.current_day_streak === 7 ? 1 : userData.current_day_streak + 1;
     } else {
       userData.current_day_streak = 1;
     }
@@ -719,10 +694,7 @@ WHERE customer_id = ?`;
       customer_id,
     ]);
 
-    handleAddLastCheckedInCoins(
-      customer_id,
-      userData.current_day_streak
-    );
+    handleAddLastCheckedInCoins(customer_id, userData.current_day_streak);
 
     return userData;
   } catch (err: any) {
@@ -842,11 +814,13 @@ export const handleUpdateHighestScore = async (
       return (result[0] as OkPacket).affectedRows as number;
     } else {
       if (highest_score > result[0][0].highest_score) {
+        console.log("score is higher");
         sql = `UPDATE UserGame SET highest_score = ? WHERE customer_id = ?`;
         let result: any = await connection.query(sql, [
-          customer_id,
           highest_score,
+          customer_id,
         ]);
+        console.log("high score updated");
         return (result[0] as OkPacket).affectedRows as number;
       } else {
         return 0;
@@ -887,10 +861,7 @@ export const handlesUpdateCustomerLastViewedCat = async (
   const connection = await promisePool.getConnection();
   const sql = `UPDATE customer SET last_viewed_cat_id = ? WHERE customer_id = ?;`;
   try {
-    const result = await connection.query(sql, [
-      categoryId,
-      customerId,
-    ]);
+    const result = await connection.query(sql, [categoryId, customerId]);
     return result as Array<Object>;
   } catch (err: any) {
     throw new Error(err);
@@ -899,9 +870,7 @@ export const handlesUpdateCustomerLastViewedCat = async (
   }
 };
 
-export const handlesGetCustomerLastViewedCat = async (
-  customerId: number
-) => {
+export const handlesGetCustomerLastViewedCat = async (customerId: number) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
   const sql = `SELECT last_viewed_cat_id as categoryId FROM customer WHERE customer_id = ?;`;
@@ -996,10 +965,7 @@ export const handleCustomerProfilePhotoEdit = async (
     WHERE customer_id = ?
   `;
   try {
-    const [result] = await connection.query(sql, [
-      image_url,
-      customerId,
-    ]);
+    const [result] = await connection.query(sql, [image_url, customerId]);
     return (result as ResultSetHeader).affectedRows as number;
   } catch (err: any) {
     throw new Error(err);
@@ -1094,10 +1060,7 @@ export const handleCustomerAddressDelete = async (
     WHERE address_id = ? AND customer_id = ?
   `;
   try {
-    const [result] = await connection.query(sql, [
-      address_id,
-      customer_id,
-    ]);
+    const [result] = await connection.query(sql, [address_id, customer_id]);
     return (result as ResultSetHeader).affectedRows as number;
   } catch (err: any) {
     console.log(err);
