@@ -79,7 +79,7 @@ const Header = ({ isCustomer, isSeller }: Props) => {
       ref={ref}
       className="flex items-center justify-center bg-white p-6 px-8 drop-shadow-md"
     >
-      <div className={`w-${customer?.customer_id ? 9 : 7}/12 flex`}>
+      <div className={`w-7/12 flex`}>
         <div className="flex items-center  mr-6">
           <span className="font-bold text-xl tracking-widest">
             {seller?.seller_id ? (

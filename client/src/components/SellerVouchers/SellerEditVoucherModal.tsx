@@ -251,12 +251,30 @@ const SellerVoucherModal = ({
                     }
                   }}
                   onChange={(text) => {
-                    let number: number = parseInt(text.target.value);
-                    setEditedVoucher({
-                      ...editedVoucher,
-                      percentage: number,
-                    });
-                    setIsDirty(true);
+                    if (
+                      parseInt(text.target.value) < 101 &&
+                      parseInt(text.target.value) > -1
+                    ) {
+                      setEditedVoucher({
+                        ...editedVoucher,
+                        percentage: parseInt(text.target.value),
+                      });
+                      setIsDirty(true);
+                    } else {
+                      toast.warn(
+                        "Type Percentage Must be Between 0% and 101%",
+                        {
+                          position: "top-center",
+                          autoClose: 5000,
+                          hideProgressBar: false,
+                          closeOnClick: true,
+                          pauseOnHover: true,
+                          draggable: true,
+                          progress: undefined,
+                          theme: "light",
+                        }
+                      );
+                    }
                   }}
                 />
                 <label
