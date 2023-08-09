@@ -120,7 +120,7 @@ const ModalComponent: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, order
 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 transition-all duration-300">
-            <div className="bg-white p-5 rounded-md min-w-96! w-auto z-20">
+            <div className="bg-white p-5 rounded-md w-[650px] z-20">
                 <h2 className="text-center">Rate the product</h2>
                 <div className="flex justify-center cursor-pointer mt-4">
                     {[1, 2, 3, 4, 5].map((star) => (
@@ -132,7 +132,7 @@ const ModalComponent: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, order
                 <textarea className="w-full p-2 mt-2 rounded-md" onChange={handleCommentChange} value={comment} placeholder="Leave your comment" />
                 <div className="flex flex-col items-center border-2 border-dashed p-2 mt-4">
                     <div className="flex flex-col items-center justify-center">
-                        <div className="flex justify-center mt-4">
+                        <div className="flex flex-wrap justify-center mt-4">
                             {previewUrls.map((url, index) => (
                                 <div key={index} className="relative m-2">
                                     <img src={url} alt="Preview" className="w-40 h-40 object-cover rounded" />
