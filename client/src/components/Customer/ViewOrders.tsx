@@ -75,7 +75,7 @@ const ViewOrders = ({ orders }: Props) => {
     <div className="flex flex-col items-center justify-center p-8">
       <h1 className="mb-8 text-4xl font-bold">Orders</h1>
       {orderedOrders?.map((ordersArray: any) => (
-        <div key={uuidv4()} className="mb-8  shadow-md rounded p-4">
+        <div key={uuidv4()} className="mb-8  shadow-md rounded p-4 w-full">
           <div className="flex flex-col"></div>
           {ordersArray.map((Orders: any) => (
             <div>

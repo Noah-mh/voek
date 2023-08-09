@@ -418,10 +418,10 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                       value={
                         selectedVariation
                           ? {
-                              label: selectedVariation,
-                              value: selectedVariation,
-                              sku: selectedSku,
-                            }
+                            label: selectedVariation,
+                            value: selectedVariation,
+                            sku: selectedSku,
+                          }
                           : null
                       }
                       onChange={(option) => {
@@ -523,7 +523,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                     </div>
                   </div>
                 </div>
-                <div className="grow flex space-x-16 gap-y-20 pl-10 text-gray-400">
+                <div className="grow flex space-x-12 gap-y-20 pl-10 text-gray-600">
                   <div className="flex space-x-3 relative overflow-visible items-center">
                     <AiOutlineShopping />
                     <h1>Total Products:</h1>{" "}
@@ -534,9 +534,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                   <div className="flex space-x-3 relative overflow-visible items-center">
                     <AiOutlineStar />
                     <h1>Ratings:</h1>{" "}
-                    <h1 className="text-pink">{sellerData[0].rating}</h1>
+                    <h1 className="text-pink">{sellerData[0].rating ? sellerData[0].rating : 0}</h1>
                     <h1 className="text-pink">
-                      ( {sellerData[0].total_reviews}{" "}
+                      ( {sellerData[0].total_reviews ? sellerData[0].total_reviews : 0}{" "}
                       {sellerData[0].total_reviews < 2 ? "Rating" : "Ratings"} )
                     </h1>
                   </div>

@@ -1,4 +1,4 @@
-import * as dotenv from 'dotenv';
+import * as dotenv from "dotenv";
 dotenv.config();
 
 const config = {
@@ -15,10 +15,15 @@ const config = {
   sendInBlueAPIKey: process.env.SENDINBLUE_API_KEY,
   signUpCustomerTokenSecret: process.env.SIGNUP_CUSTOMER_TOKEN_SECRET,
   signUpSellerTokenSecret: process.env.SIGNUP_SELLER_TOKEN_SECRET,
-  forgetPasswordCustomerTokenSecret: process.env.FORGETPASSWORD_CUSTOMER_TOKEN_SECRET,
-  forgetPasswordSellerTokenSecret: process.env.FORGETPASSWORD_SELLER_TOKEN_SECRET,
+  forgetPasswordCustomerTokenSecret:
+    process.env.FORGETPASSWORD_CUSTOMER_TOKEN_SECRET,
+  forgetPasswordSellerTokenSecret:
+    process.env.FORGETPASSWORD_SELLER_TOKEN_SECRET,
   paypalClientId: process.env.PAYPAL_CLIENT_ID,
   paypalClientSecret: process.env.PAYPAL_APP_SECRET,
+  cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME,
+  cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
+  cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET,
   ssl: {
     rejectUnauthorized: false,
   },
