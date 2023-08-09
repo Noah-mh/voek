@@ -65,6 +65,7 @@ const Chat = ({ userType }: ChatProps) => {
   const [isUploaded, setIsUploaded] = useState<boolean[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [isSending, setIsSending] = useState(false);
 
   const handleUpload = useCallback(async () => {
     if (selectedFiles.length > 0) {
@@ -134,57 +135,60 @@ const Chat = ({ userType }: ChatProps) => {
   };
 
   const sendMessage = async () => {
-    const currentDate = new Date();
-    const year = currentDate.getFullYear();
-    const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
-    const day = currentDate.getDate().toString().padStart(2, "0");
-    const hours = currentDate.getHours().toString().padStart(2, "0");
-    const minutes = currentDate.getMinutes().toString().padStart(2, "0");
-    const seconds = currentDate.getSeconds().toString().padStart(2, "0");
+    setIsSending(true); // Start sending
 
-    const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-    if (selectedFiles.length > 0) {
-      console.log("selectedFiles: ", selectedFiles);
-      const responses = await handleUpload();
-      if (responses) {
-        const sendImageMessage = async (response: any) => {
-          const messageContent: ChatMessage = {
-            roomID: roomID!,
-            text: "",
-            image: response.data.public_id,
-            senderID: userID,
-            senderRole: userType,
-            dateCreated: formattedDateTime,
+    try {
+      const currentDate = new Date();
+      const formattedDateTime = currentDate.toISOString().split('.')[0].replace('T', ' ');
+
+      if (selectedFiles.length > 0) {
+        console.log("selectedFiles: ", selectedFiles);
+        const responses = await handleUpload();
+        if (responses) {
+          const sendImageMessage = async (response: any) => {
+            const messageContent: ChatMessage = {
+              roomID: roomID!,
+              text: "",
+              image: response.data.public_id,
+              senderID: userID,
+              senderRole: userType,
+              dateCreated: formattedDateTime,
+            };
+
+            await socket.emit("send_message", messageContent);
+            await axiosPrivateCustomer.post("/createMessage", messageContent);
+            setMessages((prevMessages) => [...prevMessages, messageContent]);
           };
 
-          await socket.emit("send_message", messageContent);
-          await axiosPrivateCustomer.post("/createMessage", messageContent);
-          setMessages((prevMessages) => [...prevMessages, messageContent]);
-        };
-        const promises = responses.map((response) =>
-          sendImageMessage(response)
-        );
-        await Promise.all(promises);
+          const promises = responses.map((response) =>
+            sendImageMessage(response)
+          );
+          await Promise.all(promises);
 
-        setSelectedFiles([]);
-        setPreviewUrls([]);
-        setIsUploaded([]);
+          setSelectedFiles([]);
+          setPreviewUrls([]);
+          setIsUploaded([]);
+        }
       }
-    }
 
-    if (message !== "") {
-      const messageContent: ChatMessage = {
-        roomID: roomID!,
-        text: message,
-        image: "",
-        senderID: userID,
-        senderRole: userType,
-        dateCreated: formattedDateTime,
-      };
-      await socket.emit("send_message", messageContent);
-      await axiosPrivateCustomer.post("/createMessage", messageContent);
-      setMessages((prevMessages) => [...prevMessages, messageContent]);
-      setMessage("");
+      if (message !== "") {
+        const messageContent: ChatMessage = {
+          roomID: roomID!,
+          text: message,
+          image: "",
+          senderID: userID,
+          senderRole: userType,
+          dateCreated: formattedDateTime,
+        };
+        await socket.emit("send_message", messageContent);
+        await axiosPrivateCustomer.post("/createMessage", messageContent);
+        setMessages((prevMessages) => [...prevMessages, messageContent]);
+        setMessage("");
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+    } finally {
+      setIsSending(false); // Finished sending, whether successful or not
     }
   };
 
@@ -271,8 +275,8 @@ const Chat = ({ userType }: ChatProps) => {
   }, [socket, receiveBroadcastCallback]);
 
   return (
-    <div className="chatContainer flex flex-col xl:flex-row overflow-hidden">
-      <div className="hidden xl:block xl:w-1/4">
+    <div className="chatContainer flex grow flex-col xl:flex-row overflow-hidden">
+      <div className="hidden xl:flex xl:w-1/4">
         <SideBar
           userID={userID}
           userType={userType}
@@ -286,14 +290,16 @@ const Chat = ({ userType }: ChatProps) => {
         />
       </div>
       <div className="w-full xl:w-3/4 flex grow">
-        <div className="chatColumn flex justify-center items-start grow">
+        <div className="chatColumn flex flex-col justify-center items-start grow">
           {userID == null || roomID == null ? (
-            <div className="chat-window noChatChosenBody bg-gray-50 flex justify-center items-center text-gray-300 grow">
-              Pick someone to start chatting!
+            <div className="chat-window noChatChosenBody bg-gray-50 flex justify-center items-center text-gray-300 grow w-full">
+              <div className="chat-body flex justify-center items-center">
+                Pick someone to start chatting!
+              </div>
             </div>
           ) : (
             <div
-              className="chat-window grow"
+              className="chat-window flex flex-col grow w-full"
               onClick={async () => {
                 await axiosPrivateCustomer.put(`/updateMessagesStatus`, {
                   roomID: roomID,
@@ -323,7 +329,7 @@ const Chat = ({ userType }: ChatProps) => {
                   <p className="tracking-wide">{otherUser?.username}</p>
                 </div>
               )}
-              <div className="chat-body">
+              <div className="chat-body flex grow">
                 <ScrollToBottom className="message-container">
                   {roomID != null && messages.length > 0 ? (
                     messages
@@ -335,7 +341,7 @@ const Chat = ({ userType }: ChatProps) => {
                               className="message p-3"
                               id={
                                 userID === messageContent.senderID &&
-                                userType === messageContent.senderRole
+                                  userType === messageContent.senderRole
                                   ? "you"
                                   : "other"
                               }
@@ -358,7 +364,7 @@ const Chat = ({ userType }: ChatProps) => {
                                 <div className="message-meta">
                                   <div className="message-sender text-gray-50 mr-2">
                                     {userID === messageContent.senderID &&
-                                    userType === messageContent.senderRole
+                                      userType === messageContent.senderRole
                                       ? ""
                                       : otherUser?.username}
                                   </div>
@@ -436,15 +442,15 @@ const Chat = ({ userType }: ChatProps) => {
                     setMessage(e.target.value);
                   }}
                 />
-                <button type="submit">
-                  <FontAwesomeIcon icon={faPaperPlane} size="sm" />
+                <button type="submit" disabled={isSending}>
+                  <FontAwesomeIcon icon={faPaperPlane} size="sm" className={isSending ? "text-gray-300" : "text-blue-500"} />
                 </button>
               </form>
             </div>
           )}
         </div>
       </div>
-      <div className="flex justify-start items-end grow">
+      <div className="hidden xl:flex justify-start items-end grow">
         <Picker data={data} onEmojiSelect={addEmoji} />
       </div>
     </div>
