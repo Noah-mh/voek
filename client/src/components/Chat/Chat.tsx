@@ -289,7 +289,9 @@ const Chat = ({ userType }: ChatProps) => {
         <div className="chatColumn flex flex-col justify-center items-start grow">
           {userID == null || roomID == null ? (
             <div className="chat-window noChatChosenBody bg-gray-50 flex justify-center items-center text-gray-300 grow w-full">
-              Pick someone to start chatting!
+              <div className="chat-body flex justify-center items-center">
+                Pick someone to start chatting!
+              </div>
             </div>
           ) : (
             <div
@@ -324,7 +326,6 @@ const Chat = ({ userType }: ChatProps) => {
                 </div>
               )}
               <div className="chat-body flex grow">
-                {/* <div>Hello World</div> */}
                 <ScrollToBottom className="message-container">
                   {roomID != null && messages.length > 0 ? (
                     messages

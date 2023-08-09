@@ -32,10 +32,12 @@
 }
 
 .chat-window .chat-body {
-  /* height: calc(100vh - (45px + 43px)); */
+  height: calc(85vh - (45px + 43px));
   /* height: 77.7vh; */
   background: #3a3b3c;
-  position: relative;
+  /* position: relative; */
+  /* overflow: scroll; */
+  /* height: 100%; */
 }
 .chat-window .chat-body .message-container {
   width: 100%;
