@@ -271,8 +271,8 @@ const Chat = ({ userType }: ChatProps) => {
   }, [socket, receiveBroadcastCallback]);
 
   return (
-    <div className="chatContainer flex flex-col xl:flex-row overflow-hidden">
-      <div className="hidden xl:block xl:w-1/4">
+    <div className="chatContainer flex grow flex-col xl:flex-row overflow-hidden">
+      <div className="hidden xl:flex xl:w-1/4">
         <SideBar
           userID={userID}
           userType={userType}
@@ -286,14 +286,16 @@ const Chat = ({ userType }: ChatProps) => {
         />
       </div>
       <div className="w-full xl:w-3/4 flex grow">
-        <div className="chatColumn flex justify-center items-start grow">
+        <div className="chatColumn flex flex-col justify-center items-start grow">
           {userID == null || roomID == null ? (
-            <div className="chat-window noChatChosenBody bg-gray-50 flex justify-center items-center text-gray-300 grow">
-              Pick someone to start chatting!
+            <div className="chat-window noChatChosenBody bg-gray-50 flex justify-center items-center text-gray-300 grow w-full">
+              <div className="chat-body flex justify-center items-center">
+                Pick someone to start chatting!
+              </div>
             </div>
           ) : (
             <div
-              className="chat-window grow"
+              className="chat-window flex flex-col grow w-full"
               onClick={async () => {
                 await axiosPrivateCustomer.put(`/updateMessagesStatus`, {
                   roomID: roomID,
@@ -323,7 +325,7 @@ const Chat = ({ userType }: ChatProps) => {
                   <p className="tracking-wide">{otherUser?.username}</p>
                 </div>
               )}
-              <div className="chat-body">
+              <div className="chat-body flex grow">
                 <ScrollToBottom className="message-container">
                   {roomID != null && messages.length > 0 ? (
                     messages
@@ -444,7 +446,7 @@ const Chat = ({ userType }: ChatProps) => {
           )}
         </div>
       </div>
-      <div className="flex justify-start items-end grow">
+      <div className="hidden xl:flex justify-start items-end grow">
         <Picker data={data} onEmojiSelect={addEmoji} />
       </div>
     </div>
