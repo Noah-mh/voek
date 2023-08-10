@@ -1,22 +1,29 @@
-import { useEffect, useState, useMemo, useContext, ChangeEvent, useCallback, useRef } from "react";
+import {
+  useEffect,
+  useState,
+  useMemo,
+  useContext,
+  ChangeEvent,
+  useCallback,
+  useRef,
+} from "react";
 import io from "socket.io-client";
 import ScrollToBottom from "react-scroll-to-bottom";
 import CustomerContext from "../../context/CustomerProvider";
 import SellerContext from "../../context/SellerProvider.tsx";
 import SideBar from "./SideBar.tsx";
-import axios from "axios";  // Noah's code
+import axios from "axios";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
+import { faPaperPlane, faPaperclip } from "@fortawesome/free-solid-svg-icons";
 import "./css/Chat.css";
+import { cld, cloudName, chatPreset } from "../../Cloudinary/Cloudinary";
 import { AdvancedImage } from "@cloudinary/react";
-import { cld } from "../../Cloudinary/Cloudinary";
 import { Link } from "react-router-dom";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
-import { cloudName, chatPreset } from "../../Cloudinary/Cloudinary";
-import { GrAttachment } from "react-icons/gr";
 import { RiDeleteBin5Fill } from "react-icons/ri";
+import ImagePopUpModel from "../../Cloudinary/ImagePopUpModel";
 interface ChatProps {
   userType: string;
 }
@@ -58,27 +65,44 @@ const Chat = ({ userType }: ChatProps) => {
   const [isUploaded, setIsUploaded] = useState<boolean[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [isSending, setIsSending] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [popUpImage, setPopUpImage] = useState<string>("");
+  const [hasLoaded, setHasLoaded] = useState(false);
+
+  const handleImageLoad = () => {
+    setHasLoaded(true);
+  };
+
+  const handleOpenModal = (image_url: string) => {
+    setPopUpImage(image_url);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
 
   const handleUpload = useCallback(async () => {
     if (selectedFiles.length > 0) {
-      const responses = await Promise.all(selectedFiles.map(file => {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("upload_preset", chatPreset);
+      const responses = await Promise.all(
+        selectedFiles.map((file) => {
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("upload_preset", chatPreset);
 
-        return axios.post(
-          `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-          formData
-        );
-      }));
+          return axios.post(
+            `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+            formData
+          );
+        })
+      );
 
-      setPreviewUrls(responses.map(response => response.data.public_id));
+      setPreviewUrls(responses.map((response) => response.data.public_id));
       setIsUploaded(new Array(selectedFiles.length).fill(true));
       return responses;
     }
-  },
-    [selectedFiles]
-  );
+  }, [selectedFiles]);
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
@@ -90,14 +114,17 @@ const Chat = ({ userType }: ChatProps) => {
 
       console.log("newFilesArray: ", newFilesArray);
 
-      const newUrls = newFilesArray.map(file => URL.createObjectURL(file));
+      const newUrls = newFilesArray.map((file) => URL.createObjectURL(file));
       const mergedUrls = [...previewUrls, ...newUrls];
       setPreviewUrls(mergedUrls);
 
-      const mergedUploadStatus = [...isUploaded, ...new Array(newFilesArray.length).fill(false)];
+      const mergedUploadStatus = [
+        ...isUploaded,
+        ...new Array(newFilesArray.length).fill(false),
+      ];
       setIsUploaded(mergedUploadStatus);
       if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+        fileInputRef.current.value = "";
       }
     } else {
       setSelectedFiles([]);
@@ -106,72 +133,81 @@ const Chat = ({ userType }: ChatProps) => {
     }
   };
 
-
   const handleDeleteImage = (deleteIndex: number) => {
     // Update previewUrls
-    const newPreviewUrls = previewUrls.filter((_, index) => index !== deleteIndex);
+    const newPreviewUrls = previewUrls.filter(
+      (_, index) => index !== deleteIndex
+    );
     setPreviewUrls(newPreviewUrls);
 
     // Update selectedFiles
-    const newSelectedFiles = selectedFiles.filter((_, index) => index !== deleteIndex);
+    const newSelectedFiles = selectedFiles.filter(
+      (_, index) => index !== deleteIndex
+    );
     setSelectedFiles(newSelectedFiles);
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
   };
 
-
-
   const sendMessage = async () => {
-    const currentDate = new Date();
-    const year = currentDate.getFullYear();
-    const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
-    const day = currentDate.getDate().toString().padStart(2, "0");
-    const hours = currentDate.getHours().toString().padStart(2, "0");
-    const minutes = currentDate.getMinutes().toString().padStart(2, "0");
-    const seconds = currentDate.getSeconds().toString().padStart(2, "0");
+    setIsSending(true); // Start sending
 
-    const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-    if (selectedFiles.length > 0) {
-      console.log("selectedFiles: ", selectedFiles);
-      const responses = await handleUpload();
-      if (responses) {
-        const sendImageMessage = async (response: any) => {
-          const messageContent: ChatMessage = {
-            roomID: roomID!,
-            text: "",
-            image: response.data.public_id,
-            senderID: userID,
-            senderRole: userType,
-            dateCreated: formattedDateTime,
+    try {
+      const currentDate = new Date();
+      const formattedDateTime = currentDate
+        .toISOString()
+        .split(".")[0]
+        .replace("T", " ");
+
+      if (selectedFiles.length > 0) {
+        console.log("selectedFiles: ", selectedFiles);
+        const responses = await handleUpload();
+        if (responses) {
+          const sendImageMessage = async (response: any) => {
+            const messageContent: ChatMessage = {
+              roomID: roomID!,
+              text: "",
+              image: response.data.public_id,
+              senderID: userID,
+              senderRole: userType,
+              dateCreated: formattedDateTime,
+            };
+
+            await socket.emit("send_message", messageContent);
+            await axiosPrivateCustomer.post("/createMessage", messageContent);
+            setMessages((prevMessages) => [...prevMessages, messageContent]);
           };
 
-          await socket.emit("send_message", messageContent);
-          await axiosPrivateCustomer.post("/createMessage", messageContent);
-          setMessages(prevMessages => [...prevMessages, messageContent]);
+          const promises = responses.map((response) =>
+            sendImageMessage(response)
+          );
+          await Promise.all(promises);
+
+          setSelectedFiles([]);
+          setPreviewUrls([]);
+          setIsUploaded([]);
         }
-        const promises = responses.map(response => sendImageMessage(response));
-        await Promise.all(promises);
-
-        setSelectedFiles([]);
-        setPreviewUrls([]);
-        setIsUploaded([]);
       }
-    }
 
-    if (message !== "") {
-      const messageContent: ChatMessage = {
-        roomID: roomID!,
-        text: message,
-        image: "",
-        senderID: userID,
-        senderRole: userType,
-        dateCreated: formattedDateTime,
-      };
-      await socket.emit("send_message", messageContent);
-      await axiosPrivateCustomer.post("/createMessage", messageContent);
-      setMessages(prevMessages => [...prevMessages, messageContent]);
-      setMessage("");
+      if (message !== "") {
+        const messageContent: ChatMessage = {
+          roomID: roomID!,
+          text: message,
+          image: "",
+          senderID: userID,
+          senderRole: userType,
+          dateCreated: formattedDateTime,
+        };
+        await socket.emit("send_message", messageContent);
+        await axiosPrivateCustomer.post("/createMessage", messageContent);
+        setMessages((prevMessages) => [...prevMessages, messageContent]);
+        setMessage("");
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+    } finally {
+      setIsSending(false); // Finished sending, whether successful or not
     }
   };
 
@@ -258,8 +294,8 @@ const Chat = ({ userType }: ChatProps) => {
   }, [socket, receiveBroadcastCallback]);
 
   return (
-    <div className="chatContainer flex flex-col xl:flex-row overflow-hidden">
-      <div className="hidden xl:block xl:w-1/4">
+    <div className="chatContainer flex grow flex-col xl:flex-row overflow-hidden">
+      <div className="hidden xl:flex xl:w-1/4">
         <SideBar
           userID={userID}
           userType={userType}
@@ -273,14 +309,16 @@ const Chat = ({ userType }: ChatProps) => {
         />
       </div>
       <div className="w-full xl:w-3/4 flex grow">
-        <div className="chatColumn flex justify-center items-start grow">
+        <div className="chatColumn flex flex-col justify-center items-start grow">
           {userID == null || roomID == null ? (
-            <div className="chat-window noChatChosenBody bg-gray-50 flex justify-center items-center text-gray-300 grow">
-              Pick someone to start chatting!
+            <div className="chat-window noChatChosenBody bg-gray-50 flex justify-center items-center text-gray-300 grow w-full">
+              <div className="chat-body flex justify-center items-center">
+                Pick someone to start chatting!
+              </div>
             </div>
           ) : (
             <div
-              className="chat-window grow"
+              className="chat-window flex flex-col grow w-full"
               onClick={async () => {
                 await axiosPrivateCustomer.put(`/updateMessagesStatus`, {
                   roomID: roomID,
@@ -310,7 +348,7 @@ const Chat = ({ userType }: ChatProps) => {
                   <p className="tracking-wide">{otherUser?.username}</p>
                 </div>
               )}
-              <div className="chat-body">
+              <div className="chat-body flex grow">
                 <ScrollToBottom className="message-container">
                   {roomID != null && messages.length > 0 ? (
                     messages
@@ -328,19 +366,30 @@ const Chat = ({ userType }: ChatProps) => {
                               }
                             >
                               <div>
-                                {/* <div className="message-content rounded-lg">
-                                  {messageContent.text}
-                                </div> */}
-                                <div className="message-content rounded-lg">
-                                  {messageContent.image ? (
-                                    <AdvancedImage
-                                      cldImg={cld.image(messageContent.image)}
-                                      alt="Uploaded image"
-                                    />
-                                  ) : (
-                                    messageContent.text && <div>{messageContent.text}</div>
-                                  )}
-                                </div>
+                                {messageContent.image ? (
+                                  <button
+                                    onClick={() => {
+                                      handleOpenModal(messageContent.image);
+                                    }}
+                                  >
+                                    <div className="message-content-image rounded-lg">
+                                      <section className="my-1">
+                                        <AdvancedImage
+                                          cldImg={cld.image(
+                                            messageContent.image
+                                          )}
+                                          alt="Uploaded image"
+                                        />
+                                      </section>
+                                    </div>
+                                  </button>
+                                ) : (
+                                  <div className="message-content rounded-lg">
+                                    {messageContent.text && (
+                                      <div>{messageContent.text}</div>
+                                    )}
+                                  </div>
+                                )}
                                 <div className="message-meta">
                                   <div className="message-sender text-gray-50 mr-2">
                                     {userID === messageContent.senderID &&
@@ -360,20 +409,26 @@ const Chat = ({ userType }: ChatProps) => {
                   ) : (
                     <div></div>
                   )}
-                  {/* {selectedFiles && selectedFiles.length > 0 && previewUrls && previewUrls.length === selectedFiles.length &&
-                    <div className="flex justify-start mb-2">
+                </ScrollToBottom>
+              </div>
+              <ImagePopUpModel
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+                image_url={popUpImage}
+              />
+              {selectedFiles &&
+                selectedFiles.length > 0 &&
+                previewUrls &&
+                previewUrls.length === selectedFiles.length && (
+                  <div className="relative border-2 border-[#3a3b3c] flex w-auto bg-[#242526] p-2 rounded-t-md">
+                    <div className="flex flex-wrap justify-start">
                       {previewUrls.map((url, index) => (
-                        <div key={index} className="m-2">
-                          <img src={url} alt="Preview" className="w-40 h-40 object-cover rounded" />
-                        </div>
-                      ))}
-                    </div>
-                  } */}
-                  {selectedFiles && selectedFiles.length > 0 && previewUrls && previewUrls.length === selectedFiles.length &&
-                    <div className="flex justify-start mb-2">
-                      {previewUrls.map((url, index) => (
-                        <div key={index} className="m-2 relative">
-                          <img src={url} alt="Preview" className="w-40 h-40 object-cover rounded" />
+                        <div key={index} className="relative mr-4">
+                          <img
+                            src={url}
+                            alt="Preview"
+                            className="w-40 h-40 object-cover rounded"
+                          />
                           <button
                             onClick={() => handleDeleteImage(index)}
                             className="absolute top-0 right-0 bg-red-600 text-white rounded-full p-1"
@@ -383,10 +438,9 @@ const Chat = ({ userType }: ChatProps) => {
                           </button>
                         </div>
                       ))}
-                    </div>}
-                </ScrollToBottom>
-              </div>
-
+                    </div>
+                  </div>
+                )}
               <form
                 className="chat-footer"
                 onSubmit={(e) => {
@@ -394,12 +448,24 @@ const Chat = ({ userType }: ChatProps) => {
                   sendMessage();
                 }}
               >
-
-                <input ref={fileInputRef} id="file-upload" type="file" accept="image/png, image/jpeg"
+                <input
+                  ref={fileInputRef}
+                  id="file-upload"
+                  type="file"
+                  accept="image/png, image/jpeg"
                   onChange={handleFileChange}
-                  className="hidden" multiple />
-                <label htmlFor="file-upload" className="cursor-pointer">
-                  <GrAttachment className="text-gray-300" />
+                  className="hidden"
+                  multiple
+                />
+                <label
+                  htmlFor="file-upload"
+                  className="cursor-pointer flex justify-center items-center mx-1 ml-4"
+                >
+                  <FontAwesomeIcon
+                    icon={faPaperclip}
+                    size="xl"
+                    className="text-gray-400 hover:text-[#2a4d58]"
+                  />
                 </label>
 
                 <input
@@ -411,15 +477,23 @@ const Chat = ({ userType }: ChatProps) => {
                     setMessage(e.target.value);
                   }}
                 />
-                <button type="submit">
-                  <FontAwesomeIcon icon={faPaperPlane} size="sm" />
+                <button type="submit" disabled={isSending}>
+                  {isSending ? (
+                    <span className="loader"></span>
+                  ) : (
+                    <FontAwesomeIcon
+                      icon={faPaperPlane}
+                      size="sm"
+                      className={"text-blue-500"}
+                    />
+                  )}
                 </button>
               </form>
             </div>
           )}
         </div>
       </div>
-      <div className="flex justify-start items-end grow">
+      <div className="hidden xl:flex justify-start items-end grow">
         <Picker data={data} onEmojiSelect={addEmoji} />
       </div>
     </div>

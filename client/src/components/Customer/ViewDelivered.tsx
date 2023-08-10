@@ -154,10 +154,10 @@ const ViewDelivered = ({ deliveredOrders, getAll }: Props) => {
                               {order.variation_1 && order.variation_2
                                 ? `${order.variation_1} and ${order.variation_2}`
                                 : order.variation_1
-                                ? order.variation_1
-                                : order.variation_2
-                                ? order.variation_2
-                                : "No Variation"}
+                                  ? order.variation_1
+                                  : order.variation_2
+                                    ? order.variation_2
+                                    : "No Variation"}
                             </p>
                           </div>
                         </div>

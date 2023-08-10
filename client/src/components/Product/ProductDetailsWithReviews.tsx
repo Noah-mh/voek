@@ -26,6 +26,7 @@ export interface ProductVariation {
   price: number | null;
   sku: string;
   quantity: number | null;
+  image_url: string;
 }
 
 export interface Review {
@@ -47,7 +48,6 @@ export interface Customer {
 
 export interface Product {
   product_id: number;
-  image_urls: string[];
   name: string;
   description: string | null;
   variations: ProductVariation[] | null;
@@ -149,7 +149,7 @@ const ProductDetailWithReview: React.FC = () => {
       const date_created = moment(sellerData[0].date_created);
 
       const diffInMonths = moment().diff(date_created, "months");
-      console.log(diffInMonths);
+      console.log("diffInMonths: ", diffInMonths);
       console.log("review", productReview);
       setDiffInMonths(diffInMonths);
     }

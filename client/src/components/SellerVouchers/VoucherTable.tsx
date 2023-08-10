@@ -14,7 +14,7 @@ import {
   faToggleOff,
 } from "@fortawesome/free-solid-svg-icons";
 
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer, toast, Id } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 interface Voucher {
@@ -46,6 +46,7 @@ const VoucherTable = () => {
     useState<boolean>(false);
   const [addVoucherStatus, setAddVoucherStatus] = useState<number>();
   const [deleteVoucherStatus, setDeleteVoucherStatus] = useState<number>();
+  const [toastId, setToastId] = useState<Id | undefined>(undefined);
 
   const axiosPrivateSeller = useAxiosPrivateSeller();
   const { seller } = useSeller();
@@ -62,7 +63,9 @@ const VoucherTable = () => {
               setVouchers(response.data);
               const successMessage =
                 active === 1 ? "Voucher Activated" : "Voucher Deactivated";
-              toast.success(successMessage + " 😊", {
+              toast.dismiss(toastId);
+
+              const id = toast.success(successMessage + " 😊", {
                 position: "top-center",
                 autoClose: 5000,
                 hideProgressBar: false,
@@ -72,9 +75,12 @@ const VoucherTable = () => {
                 progress: undefined,
                 theme: "light",
               });
+              setToastId(id);
             });
         } else {
-          toast.error("Uh-oh! Error! 😔", {
+          toast.dismiss(toastId);
+
+          const id = toast.error("Uh-oh! Error! 😔", {
             position: "top-center",
             autoClose: 5000,
             hideProgressBar: false,
@@ -84,6 +90,7 @@ const VoucherTable = () => {
             progress: undefined,
             theme: "light",
           });
+          setToastId(id);
         }
       });
   };

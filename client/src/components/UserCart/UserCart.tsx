@@ -8,7 +8,7 @@ import PayPal from "../PayPal/PayPal";
 import Select from "react-select";
 import { AdvancedImage } from "@cloudinary/react";
 import { cld } from "../../Cloudinary/Cloudinary";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer, toast, Id } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import VoucherModal from "./VoucherModal";
 
@@ -104,6 +104,7 @@ export default function cartPage(): JSX.Element {
     total: 0,
   });
   const [success, setSuccess] = useState<boolean>(false);
+  const [toastId, setToastId] = useState<Id | undefined>(undefined);
 
   useEffect(() => {
     if (success) {
@@ -135,7 +136,6 @@ export default function cartPage(): JSX.Element {
           if (res.data.length > 0) {
             const tempGroupedItems: { [key: string]: cartItem[] } = {};
             res.data.forEach((item: cartItem) => {
-              const seller_id = item.seller_id;
               const seller_key: string = `${item.seller_id}_${item.shop_name}`;
               if (!tempGroupedItems[seller_key]) {
                 tempGroupedItems[seller_key] = [];
@@ -174,7 +174,9 @@ export default function cartPage(): JSX.Element {
       await axiosPrivateCustomer.delete(
         `/customer/cart/deleteCart/${customer_id}/${sku}`
       );
-      toast.success("Item removed from cart. 🤡", {
+      toast.dismiss(toastId);
+
+      const id = toast.success("Item removed from cart. 🤡", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -184,6 +186,7 @@ export default function cartPage(): JSX.Element {
         progress: undefined,
         theme: "light",
       });
+      setToastId(id);
       getUserCart();
     } catch (err: any) {
       console.log(err);
@@ -192,8 +195,6 @@ export default function cartPage(): JSX.Element {
 
   const handleQuantityChange = (item: cartItem, change: number) => {
     const updatedGroupedCart = Object.keys(groupItems).map((sellerKey) => {
-      // const [sellerId, shopName] = sellerKey.split("_");
-      // const items = groupItems[sellerKey];
       const updatedItems = groupItems[sellerKey].map((cartItem: cartItem) => {
         if (cartItem.sku === item.sku) {
           const newItem: cartItem = {
@@ -275,7 +276,9 @@ export default function cartPage(): JSX.Element {
   useEffect(() => {
     if (changedQuantState == false) return;
     if (prodQuantity <= 0) {
-      toast.success("Item removed from cart. 🤡", {
+      toast.dismiss(toastId);
+
+      const id = toast.success("Item removed from cart. 🤡", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -285,6 +288,7 @@ export default function cartPage(): JSX.Element {
         progress: undefined,
         theme: "light",
       });
+      setToastId(id);
     }
     const alterQuantFnc = async () => {
       try {
@@ -296,6 +300,7 @@ export default function cartPage(): JSX.Element {
 
         setChangedQuantState(false);
         getUserCart();
+        setClaimedVouchers({});
       } catch (err: any) {
         console.log(err);
       }
@@ -307,15 +312,23 @@ export default function cartPage(): JSX.Element {
   useEffect(() => {
     const discAmt = Math.floor(userCoins / 10);
     if (isChecked) {
-      setTotalAmt({
-        ...totalAmt,
-        total: Number((totalAmt.total - discAmt).toFixed(2)),
-      });
+      if (totalAmt.total < discAmt) {
+        return;
+      } else {
+        setTotalAmt({
+          ...totalAmt,
+          total: Number((totalAmt.total - discAmt).toFixed(2)),
+        });
+      }
     } else {
-      setTotalAmt({
-        ...totalAmt,
-        total: Number((totalAmt.total + discAmt).toFixed(2)),
-      });
+      if (totalAmt.total < discAmt) {
+        return;
+      } else {
+        setTotalAmt({
+          ...totalAmt,
+          total: Number((totalAmt.total + discAmt).toFixed(2)),
+        });
+      }
     }
   }, [isChecked]);
 
@@ -475,7 +488,7 @@ export default function cartPage(): JSX.Element {
                 setTotalAmt((prevState) => {
                   const newShippingAmt = Number(
                     Number(prevState.shippingFee) /
-                      (1 - Number(voucher.percentage_amount))
+                    (1 - Number(voucher.percentage_amount))
                   );
 
                   return {
@@ -519,14 +532,17 @@ export default function cartPage(): JSX.Element {
                   };
                 });
               } else {
+                console.log("here?");
                 let difference = 0;
                 setGroupItemsPrice((prevState) => {
                   let nowPercentage = 1 - Number(voucher.percentage_amount);
-                  let previousPrice = prevState[voucher.seller_id];
+                  let previousPrice = prevState[key];
                   const newTotalPriceAmt = Number(
                     prevState[key] / Number(nowPercentage)
                   );
+
                   difference = Number(newTotalPriceAmt) - Number(previousPrice);
+
                   return {
                     ...prevState,
                     [key]: Number(newTotalPriceAmt.toFixed(2)),
@@ -558,7 +574,9 @@ export default function cartPage(): JSX.Element {
 
   const paypalButtonOnClickHandler = () => {
     if (userCart.length == 0) {
-      toast.warn("Add items to cart :)", {
+      toast.dismiss(toastId);
+
+      const id = toast.warn("Add items to cart :)", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -568,8 +586,11 @@ export default function cartPage(): JSX.Element {
         progress: undefined,
         theme: "light",
       });
+      setToastId(id);
     } else if (userAddresses.length == 0) {
-      toast.warn("Add an address first :0", {
+      toast.dismiss(toastId);
+
+      const id = toast.warn("Add an address first :0", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -579,8 +600,11 @@ export default function cartPage(): JSX.Element {
         progress: undefined,
         theme: "light",
       });
+      setToastId(id);
     } else if (selectedAddress == null) {
-      toast.warn("Select an address first", {
+      toast.dismiss(toastId);
+
+      const id = toast.warn("Select an address first", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -590,6 +614,7 @@ export default function cartPage(): JSX.Element {
         progress: undefined,
         theme: "light",
       });
+      setToastId(id);
     }
   };
 
@@ -742,9 +767,8 @@ export default function cartPage(): JSX.Element {
           </div>
           <div className="activateCoins flex justify-between border-t-2 pt-3 my-3">
             <div
-              className={`bg-white rounded h-10 w-20 flex items-center justify-center pt-1 ${
-                wasAVVoucherClaimed ? "" : "voucherButton"
-              } `}
+              className={`bg-white rounded h-10 w-20 flex items-center justify-center pt-1 ${wasAVVoucherClaimed ? "" : "voucherButton"
+                } `}
             >
               <Button
                 onClick={handleOpen}
@@ -789,10 +813,10 @@ export default function cartPage(): JSX.Element {
                 value={
                   selectedAddress
                     ? {
-                        value: selectedAddress,
-                        label: `${selectedAddress.street_name}, ${selectedAddress.block}, ${selectedAddress.postal_code}`,
-                        address: selectedAddress,
-                      }
+                      value: selectedAddress,
+                      label: `${selectedAddress.street_name}, ${selectedAddress.block}, ${selectedAddress.postal_code}`,
+                      address: selectedAddress,
+                    }
                     : null
                 }
                 styles={{
@@ -816,6 +840,9 @@ export default function cartPage(): JSX.Element {
                 <Link
                   to={"/profile"}
                   className="flex  items-center justify-center bg-white hover:bg-transparent hover:border-2 hover:box-border text-center hover:border-white hover:text-white text-softerPurple font-bold py-2 px-4 rounded mx-auto"
+                  onClick={() => {
+                    sessionStorage.setItem('currentTab', '1');
+                  }}
                 >
                   Add an Address..
                 </Link>

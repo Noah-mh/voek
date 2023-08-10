@@ -172,8 +172,8 @@ const SignupCustomer = ({ referral_id }: Props): JSX.Element => {
           />
         </div>
         <div className="field-wrapper flex">
-          <ReCAPTCHA 
-            sitekey={import.meta.env.RECAPTCHA || "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"}
+          <ReCAPTCHA
+            sitekey={import.meta.env.VITE_RECAPTCHA}
             ref={captchaRef}
           />
         </div>

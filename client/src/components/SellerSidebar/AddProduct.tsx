@@ -4,13 +4,14 @@ import useSeller from '../../hooks/useSeller.tsx';
 
 import ProductForm from "./ProductForm.tsx";
 import Box from '@mui/material/Box';
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer, toast, Id } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const AddProduct = () => {
 
   const { seller } = useSeller();
   const sellerId = seller.seller_id;
+  const [toastId, setToastId] = useState<Id | undefined>(undefined);
 
   const handleSubmit = async (e: any) => {
     console.log("event", e);
@@ -22,7 +23,9 @@ const AddProduct = () => {
         );
         console.log("addProduct response", response)
         if (response.data.productId === 0) {
-          toast.error(e.name + " could not be created as it already exists.", {
+          toast.dismiss(toastId);
+
+          const id = toast.error(e.name + " could not be created as it already exists.", {
             position: "top-center",
             autoClose: 5000,
             hideProgressBar: false,
@@ -32,8 +35,11 @@ const AddProduct = () => {
             progress: undefined,
             theme: "light",
           });
+          setToastId(id);
         } else {
-          toast.success("Successfully added " + e.name, {
+          toast.dismiss(toastId);
+
+          const id = toast.success("Successfully added " + e.name, {
             position: "top-center",
             autoClose: 5000,
             hideProgressBar: false,
@@ -43,10 +49,13 @@ const AddProduct = () => {
             progress: undefined,
             theme: "light",
           });
+          setToastId(id);
         }
       } catch (err) {
         console.log(err);
-        toast.error("Error adding " + e.name, {
+        toast.dismiss(toastId);
+
+        const id = toast.error("Error adding " + e.name, {
           position: "top-center",
           autoClose: 5000,
           hideProgressBar: false,
@@ -56,6 +65,7 @@ const AddProduct = () => {
           progress: undefined,
           theme: "light",
         });
+        setToastId(id);
       }
     }
 
