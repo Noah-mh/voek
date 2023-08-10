@@ -33,7 +33,9 @@ const Homepage = () => {
           );
           const promises = [image, pricing];
           return Promise.all(promises).then((responses) => {
-            product.image = responses[0].data[0].imageURL;
+            product.image = product.image =
+              responses[0].data[0]?.imageURL ||
+              "/test/No_Image_Available_hyxfvc.jpg";
             product.lowestPrice = responses[1].data[0].lowestPrice;
             product.highestPrice = responses[1].data[0].highestPrice;
             return product;
@@ -64,6 +66,10 @@ const Homepage = () => {
             });
         })
         .then((data) => {
+          console.log("data: ", data);
+          if (data.length === 0) {
+            return data;
+          }
           const topProducts = data.map((product: any) => {
             const image = axios.get(`/getProductImage/${product.product_id}`);
             const pricing = axios.get(
@@ -71,7 +77,9 @@ const Homepage = () => {
             );
             const promises = [image, pricing];
             return Promise.all(promises).then((responses) => {
-              product.image = responses[0].data[0].imageURL;
+              product.image = product.image =
+                responses[0].data[0]?.imageURL ||
+                "/test/No_Image_Available_hyxfvc.jpg";
               product.lowestPrice = responses[1].data[0].lowestPrice;
               product.highestPrice = responses[1].data[0].highestPrice;
               return product;
@@ -80,7 +88,9 @@ const Homepage = () => {
           return topProducts;
         })
         .then((topProducts) => {
+          console.log("products: ", topProducts);
           Promise.all(topProducts).then((products) => {
+            console.log("products: ", products);
             setForYouProducts(products);
           });
         })
@@ -97,7 +107,7 @@ const Homepage = () => {
       <div className="sliders">
         <Slider header={"Top Picks"} products={topProducts} />
         <div className="w-4/5 h-1 bg-gray-400 mx-auto rounded-md"></div>
-        {customerId != undefined && (
+        {customerId != undefined && forYouProducts.length > 0 && (
           <Slider header={"For You"} products={forYouProducts} />
         )}
       </div>

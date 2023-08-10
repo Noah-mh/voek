@@ -116,7 +116,7 @@ const Header = ({ isCustomer, isSeller }: Props) => {
           ) : null}
         </div>
       </div>
-      <div className={`block justify-end ${isCustomer && 'w-1/2'}`}>
+      <div className={`block justify-end ${isCustomer && "w-1/2"}`}>
         <div className="text-sm lg:flex-grow inline-block  px-4  leading-none">
           {isCustomer ? (
             customer?.customer_id ? (
@@ -127,9 +127,6 @@ const Header = ({ isCustomer, isSeller }: Props) => {
                   setSearchResults={setSearchResults}
                 />
                 <div className="ml-5 flex">
-                  <Link to="/customer/game" className="mx-2">
-                    <p className="text-purpleAccent">Play To Earn!</p>
-                  </Link>
                   <div className="mx-2">
                     <p
                       className="text-purpleAccent hover:cursor-pointer"
@@ -158,6 +155,9 @@ const Header = ({ isCustomer, isSeller }: Props) => {
                         <Link
                           to="/profile"
                           className="flex flex-row items-center space-x-2"
+                          onClick={() => {
+                            sessionStorage.setItem('currentTab', '0');
+                          }}
                         >
                           <FontAwesomeIcon icon={faUser} />
                           <h1>Profile</h1>
@@ -201,6 +201,9 @@ const Header = ({ isCustomer, isSeller }: Props) => {
                       </MenuItem>
                     </Menu>
                   </div>
+                  <Link to="/customer/game" className="mx-2">
+                    <p className="text-purpleAccent">Play To Earn!</p>
+                  </Link>
                   <Link to="/customer/dailyCheckIn" className="mx-2">
                     <p className="text-purpleAccent">Check In</p>
                   </Link>

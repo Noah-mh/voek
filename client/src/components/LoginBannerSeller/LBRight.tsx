@@ -71,7 +71,7 @@ const LBRight = ({ setLogin, setUserDetails }: props): JSX.Element => {
             type="text"
             name="email"
             placeholder="EMAIL"
-            className="w-72"
+            className="w-72 !outline-none"
             autoComplete="off"
             value={inputEmail}
             onChange={(e) => { setEmail(e.target.value) }}
@@ -83,7 +83,7 @@ const LBRight = ({ setLogin, setUserDetails }: props): JSX.Element => {
             name="password"
             placeholder="PASSWORD"
             autoComplete="new-password"
-            className="w-72"
+            className="w-72 !outline-none"
             onChange={(e) => { setPassword(e.target.value) }}
             value={password}
           />
@@ -93,7 +93,7 @@ const LBRight = ({ setLogin, setUserDetails }: props): JSX.Element => {
           <Link to='/seller/forgetPassword'>Forget Password?</Link>
         </div>
         <p>{errMsg}</p>
-        <input disabled={disabled} type="submit" value="LOG IN" className="submitLogin" />
+        <input disabled={disabled} type="submit" value="LOG IN" className="submitLogin !outline-none" />
         <div className="field-wrapper flex justify-center">
           <Link to='/seller/signup'>Don't have an account? <span className="text-white">Sign up!</span></Link>
         </div>

@@ -10,7 +10,7 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import useCustomer from "../../hooks/UseCustomer";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer, toast, Id } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 
@@ -35,7 +35,7 @@ const AddressModal: React.FC<AddressModalProps> = ({ getAll, addAddress, countri
     const { customer } = useCustomer();
     const customer_id = customer.customer_id;
     const axiosPrivateCustomer = useAxiosPrivateCustomer();
-
+    const [toastId, setToastId] = useState<Id | undefined>(undefined);
     const [open, setOpen] = useState(false);
     const [address, setAddress] = useState({
         block: '',
@@ -102,6 +102,19 @@ const AddressModal: React.FC<AddressModalProps> = ({ getAll, addAddress, countri
                 postal_code: !address.postal_code,
                 country: !address.country
             });
+            toast.dismiss(toastId); // Close the existing toast
+
+            const id = toast.error("All fields are required", {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            });
+            setToastId(id);
             return;
         }
         handleClose();

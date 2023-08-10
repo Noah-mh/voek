@@ -15,7 +15,7 @@ import RedeemVoucher from "../RedeemVoucher/RedeemVoucher";
 import { AiOutlineShop, AiOutlineStar, AiOutlineShopping } from "react-icons/ai";
 import { GrUserExpert } from "react-icons/gr";
 import { CiChat1 } from "react-icons/ci";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer, toast, Id } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
 import moment from "moment";
 import "./css/CustomerSellerProfilePage.css";
@@ -84,6 +84,7 @@ const CustomerSellerProfilePage: React.FC = () => {
   const [categoryData, setCategoryData] = useState<Category[]>([]);
   const [productData, setProductData] = useState<Product[]>([]);
   const [value, setValue] = useState<number>(0);
+  const [toastId, setToastId] = useState<Id | undefined>(undefined);
   const navigate = useNavigate();
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
   const { customer } = useCustomer();
@@ -144,7 +145,9 @@ const CustomerSellerProfilePage: React.FC = () => {
 
   const handleOnClickChat = () => {
     if (!customer_id) {
-      toast.warn("Please Log in to chat with the seller", {
+      toast.dismiss(toastId);
+
+      const id = toast.warn("Please Log in to chat with the seller", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -154,6 +157,7 @@ const CustomerSellerProfilePage: React.FC = () => {
         progress: undefined,
         theme: "light",
       });
+      setToastId(id);
       return;
     } else {
       axiosPrivateCustomer
@@ -173,7 +177,8 @@ const CustomerSellerProfilePage: React.FC = () => {
           if (response.status === 201 || response.status === 200) {
             navigate("/chat");
           } else {
-            toast.error("Error!", {
+            toast.dismiss(toastId);
+            const id = toast.error("Error!", {
               position: "top-center",
               autoClose: 5000,
               hideProgressBar: false,
@@ -183,6 +188,7 @@ const CustomerSellerProfilePage: React.FC = () => {
               progress: undefined,
               theme: "light",
             });
+            setToastId(id);
           }
         })
         .catch((error) => {

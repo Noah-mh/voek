@@ -1,9 +1,10 @@
 import React, { ChangeEvent, useState } from 'react';
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer, toast, Id } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { cloudName, defaultPreset } from '../../Cloudinary/Cloudinary';
 import axios from 'axios';
 import { RiDeleteBin5Fill } from "react-icons/ri";
+import Rating from '@mui/material/Rating';
 //Noah's code
 interface ModalProps {
     isOpen: boolean;
@@ -19,6 +20,7 @@ const ModalComponent: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, order
     const [comment, setComment] = useState<string>("");
     const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
     const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+    const [toastId, setToastId] = useState<Id | undefined>(undefined);
 
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files ? Array.from(event.target.files) : [];
@@ -39,8 +41,9 @@ const ModalComponent: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, order
                 rating: !rating,
                 comment: !comment
             });
-            console.log(error);
-            toast.error("Error! Cannot add rating", {
+            toast.dismiss(toastId);
+
+            const id = toast.error("Please rate the product before submitting", {
                 position: "top-center",
                 autoClose: 5000,
                 hideProgressBar: false,
@@ -50,6 +53,7 @@ const ModalComponent: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, order
                 progress: undefined,
                 theme: "light",
             });
+            setToastId(id);
             return;
         }
 
@@ -68,13 +72,12 @@ const ModalComponent: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, order
 
         onSubmit(orders_product_id, customer_id, rating, comment, uploadedImageUrls);
 
-        // Clearing states
         onClose();
         setComment("");
         setRating(0);
         setFilesToUpload([]);
         setPreviewUrls([]);
-
+        toast.dismiss(toastId);
         toast.success("Rating success", {
             position: "top-center",
             autoClose: 5000,
@@ -93,15 +96,16 @@ const ModalComponent: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, order
         return null;
     }
 
-    const handleRatingChange = (rating: number) => {
-        setRating(rating);
+    const handleChange = (_event: ChangeEvent<{}>, newValue: number | null) => {
+        console.log(newValue); setRating(newValue === null ? 0 : newValue);
         setError({
             ...error,
-            rating: rating === 0 // Set error true if rating is 0
+            rating: newValue === null ? true : false
         });
+
     };
 
-    const handleCommentChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const handleCommentChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
         setComment(event.target.value);
         setError({
             ...error,
@@ -110,29 +114,27 @@ const ModalComponent: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, order
     };
 
     const handleDelete = (indexToDelete: number) => {
-        // Remove the selected file based on its index
         setFilesToUpload(prevFiles => prevFiles.filter((_, index) => index !== indexToDelete));
-
-        // Remove the preview URL based on its index
         setPreviewUrls(prevUrls => prevUrls.filter((_, index) => index !== indexToDelete));
     };
 
 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 transition-all duration-300">
-            <div className="bg-white p-5 rounded-md min-w-96! w-auto z-20">
-                <h2 className="text-center">Rate the product</h2>
+            <div className="bg-white p-5 rounded-md w-[650px] z-20">
+                <h1 className="text-center font-bold h-12 text-2xl">Rate the product</h1>
                 <div className="flex justify-center cursor-pointer mt-4">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                        <span key={star} onClick={() => handleRatingChange(star)} className={`text-xl mx-1 ${star <= rating ? 'text-yellow-500' : ''}`}>
-                            {star <= rating ? '★' : '☆'}
-                        </span>
-                    ))}
+                    <Rating
+                        name="half-rating"
+                        defaultValue={0}
+                        precision={0.5}
+                        onChange={handleChange}
+                    />
                 </div>
-                <textarea className="w-full p-2 mt-2 rounded-md" onChange={handleCommentChange} value={comment} placeholder="Leave your comment" />
+                <textarea className="w-full p-2 mt-2 min-h-[42px] max-h-[100px] rounded-md" onChange={handleCommentChange} value={comment} placeholder="Leave your comment" />
                 <div className="flex flex-col items-center border-2 border-dashed p-2 mt-4">
                     <div className="flex flex-col items-center justify-center">
-                        <div className="flex justify-center mt-4">
+                        <div className="flex flex-wrap justify-center mt-4">
                             {previewUrls.map((url, index) => (
                                 <div key={index} className="relative m-2">
                                     <img src={url} alt="Preview" className="w-40 h-40 object-cover rounded" />
