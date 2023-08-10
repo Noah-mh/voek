@@ -40,23 +40,23 @@ const Game: React.FC = () => {
   };
 
   const updateHighestScore = async () => {
-    try {
-      await axiosPrivateCustomer.put(`/customer/game/updateScore`, {
-        customer_id: customer_id,
-        highest_score: score,
-      });
-      getHighestScore();
-    } catch (err: any) {
-      console.log(err);
-    }
+    await axiosPrivateCustomer.put(`/customer/game/updateScore`, {
+      customer_id: customer_id,
+      highest_score: score,
+    });
   };
 
   const updateCoins = async () => {
+    return await axiosPrivateCustomer.put(`customer/game/updateCoins`, {
+      customer_id: customer_id,
+      score: score,
+    });
+  };
+
+  const updateStats = async () => {
     try {
-      await axiosPrivateCustomer.put(`customer/game/updateCoins`, {
-        customer_id: customer_id,
-        score: score,
-      });
+      await Promise.all([updateCoins(), updateHighestScore()]);
+      getHighestScore();
     } catch (err: any) {
       console.log(err);
     }
@@ -134,8 +134,7 @@ const Game: React.FC = () => {
     if (animationFrameId) {
       cancelAnimationFrame(animationFrameId);
     }
-    updateCoins();
-    updateHighestScore();
+    updateStats();
     // alert("Game Over! You have gained " + score + " coins.");
     toast.dismiss(toastId);
 
@@ -209,9 +208,9 @@ const Game: React.FC = () => {
       <div id="gameBarContainer">
         <div id="gameBar" style={{ width: `${barWidth}%` }}></div>
       </div>
-      <div id="score">Score: {score}</div><ToastContainer />
+      <div id="score">Score: {score}</div>
+      <ToastContainer />
     </div>
-
   );
 };
 
