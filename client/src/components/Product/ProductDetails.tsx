@@ -8,11 +8,17 @@ import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import useCustomer from "../../hooks/UseCustomer";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { AiFillHeart, AiOutlineHeart, AiFillDelete } from "react-icons/ai";
 import Rating from "@mui/material/Rating";
 import { Link, useNavigate } from "react-router-dom";
-import { AiOutlineShop } from "react-icons/ai";
+import {
+  AiOutlineShop,
+  AiOutlineStar,
+  AiOutlineShopping,
+  AiFillDelete,
+} from "react-icons/ai";
+import { GrUserExpert } from "react-icons/gr";
 import { CiChat1 } from "react-icons/ci";
+import WishlistButton from "../Wishlist/WishlistButton";
 
 //Noah's code
 
@@ -37,6 +43,7 @@ interface seller {
   image_url: string;
   total_products: number;
   total_reviews: number;
+  rating: number;
   date_created: Date;
 }
 
@@ -120,135 +127,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
       }
     }
   }, [selectedVariation, productData]);
-
-  useEffect(() => {
-    // Nhat Tien (Wishlist) :D
-    const checkWishlistProductExistence = async () => {
-      if (customer_id != undefined) {
-        try {
-          const response = await axiosPrivateCustomer.get(
-            `/checkWishlistProductExistence/?customerId=${customer_id}&productId=${productData[0].product_id}`
-          );
-          if (response.data.length > 0) {
-            setHeart(true);
-          } else {
-            setHeart(false);
-          }
-        } catch (err: any) {
-          setHeart(false);
-        }
-      }
-    };
-    checkWishlistProductExistence();
-  }, []);
-
-  const handleAddToWishlist = () => {
-    if (customer_id == undefined) {
-      toast.warn("Please Log in to add into wishlist", {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
-      return;
-    } else {
-      axiosPrivateCustomer
-        .post(
-          "/insertWishlistedProduct",
-          JSON.stringify({
-            customerId: customer_id,
-            productId: productData[0].product_id,
-          }),
-          {
-            headers: { "Content-Type": "application/json" },
-            withCredentials: true,
-          }
-        )
-        .then((response) => {
-          // On successful addition to wishlist, show the popup
-          if (response.status === 201) {
-            setHeart(true);
-            toast.success("Item Added to Wishlist! 😊", {
-              position: "top-center",
-              autoClose: 5000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "light",
-            });
-          }
-        })
-        .catch((error) => {
-          // Handle error here
-          console.error(error);
-          toast.error("Error! Adding to wishlist failed", {
-            position: "top-center",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-          });
-        });
-    }
-  };
-
-  const handleRemoveFromWishlist = () => {
-    if (customer_id == undefined) {
-      toast.warn("Please Log in to use the wishlist", {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
-    } else {
-      axiosPrivateCustomer
-        .delete(
-          `/deleteWishlistedProduct?customer_id=${customer_id}&product_id=${productData[0].product_id}`
-        )
-        .then((response) => {
-          if (response.status === 200) {
-            setHeart(false);
-            toast.success("Item Removed from Wishlist! 😊", {
-              position: "top-center",
-              autoClose: 5000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "light",
-            });
-          }
-        })
-        .catch((error) => {
-          // Handle error here
-          console.error(error);
-          toast.error("Error! Removing from wishlist failed", {
-            position: "top-center",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-          });
-        });
-    }
-  };
 
   //Noah
   // Flattening the variations array
@@ -540,10 +418,10 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                       value={
                         selectedVariation
                           ? {
-                              label: selectedVariation,
-                              value: selectedVariation,
-                              sku: selectedSku,
-                            }
+                            label: selectedVariation,
+                            value: selectedVariation,
+                            sku: selectedSku,
+                          }
                           : null
                       }
                       onChange={(option) => {
@@ -577,23 +455,13 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             </div>
             <div className="w-[60px] h-full flex justify-center items-center border border-lighterGreyAccent">
               <div className="hover:cursor-pointer">
-                {heart ? (
-                  <AiFillHeart
-                    onClick={() => {
-                      handleRemoveFromWishlist();
-                    }}
-                    color="pink"
-                    size="2em"
-                  />
-                ) : (
-                  <AiOutlineHeart
-                    onClick={() => {
-                      handleAddToWishlist();
-                    }}
-                    color="pink"
-                    size="2em"
-                  />
-                )}
+                <WishlistButton
+                  productID={productData[0].product_id}
+                  customerID={customer_id}
+                  setHeart={setHeart}
+                  heart={heart}
+                  toast={toast}
+                />
               </div>
             </div>
             <div className="flex-1 h-full">
@@ -655,28 +523,33 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                     </div>
                   </div>
                 </div>
-                <div className="grow grid grid-cols-3 gap-x-10 gap-y-20 pl-10 text-gray-400">
-                  <div className="flex justify-between relative overflow-visible">
+                <div className="grow flex space-x-12 gap-y-20 pl-10 text-gray-600">
+                  <div className="flex space-x-3 relative overflow-visible items-center">
+                    <AiOutlineShopping />
                     <h1>Total Products:</h1>{" "}
                     <h1 className="text-pink">
                       {sellerData[0].total_products}
                     </h1>
                   </div>
-                  <div className="flex justify-between relative overflow-visible">
-                    <h1>Total Ratings:</h1>{" "}
-                    <h1 className="text-pink">{sellerData[0].total_reviews}</h1>
+                  <div className="flex space-x-3 relative overflow-visible items-center">
+                    <AiOutlineStar />
+                    <h1>Ratings:</h1>{" "}
+                    <h1 className="text-pink">{sellerData[0].rating ? sellerData[0].rating : 0}</h1>
+                    <h1 className="text-pink">
+                      ( {sellerData[0].total_reviews ? sellerData[0].total_reviews : 0}{" "}
+                      {sellerData[0].total_reviews < 2 ? "Rating" : "Ratings"} )
+                    </h1>
                   </div>
-                  <div className="flex justify-between relative overflow-visible">
+                  <div className="flex space-x-3 relative overflow-visible items-center">
+                    <GrUserExpert />
                     <h1>Joined:</h1>{" "}
                     <h1 className="text-pink">
                       {diffInMonths}{" "}
-                      {diffInMonths === 1 || diffInMonths === 0 ? (
-                        <span>month</span>
-                      ) : (
-                        <span>months</span>
-                      )}{" "}
-                      ago
+                      {diffInMonths === 1 || diffInMonths === 0
+                        ? "month"
+                        : "months"}
                     </h1>
+                    <span>ago</span>
                   </div>
                 </div>
               </div>
@@ -695,9 +568,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                               <div className="flex items-center space-x-3">
                                 <div className="w-10 h-10">
                                   <AdvancedImage
-                                    cldImg={cld
-                                      .image(review.customerImage)
-                                      }
+                                    cldImg={cld.image(review.customerImage)}
                                     className="h-10 aspect-square object-cover rounded-lg"
                                   />
                                 </div>

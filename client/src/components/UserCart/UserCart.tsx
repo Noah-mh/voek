@@ -371,7 +371,7 @@ export default function cartPage(): JSX.Element {
             case "Shipping": {
               if (voucher.number_amount) {
                 const discAmt = voucher.number_amount;
-
+                console.log("1;");
                 setTotalAmt((prevState) => ({
                   ...prevState,
                   shippingFee: Number(
@@ -461,7 +461,7 @@ export default function cartPage(): JSX.Element {
           switch (voucher.voucher_category) {
             case "Shipping": {
               if (voucher.number_amount) {
-                const discAmt = 1 - Number(voucher.number_amount);
+                const discAmt = Number(voucher.number_amount);
 
                 setTotalAmt((prevState) => ({
                   ...prevState,
@@ -595,7 +595,7 @@ export default function cartPage(): JSX.Element {
 
   return (
     <div className="container flex">
-      <div className="w-2/3 bg-white rounded-lg shadow-lg p-2">
+      <div className="w-3/4 bg-white rounded-lg shadow-lg p-2">
         {groupItems && (
           <div className="grid grid-cols-5 gap-2">
             <div className="col-span-2 sm:col-span-1"></div>
@@ -662,7 +662,7 @@ export default function cartPage(): JSX.Element {
                   <div>{item.variation_2 ? item.variation_2 : "-"}</div>
                 </div>
                 <div className="col-span-2 sm:col-span-1">${item.price}</div>
-                <div className="col-span-3 sm:col-span-1">
+                <div className="col-span-4 sm:col-span-1 justify-center">
                   <button
                     className="text-sm border px-1 py-0.5 mx-2"
                     onClick={(event) => {
@@ -696,7 +696,7 @@ export default function cartPage(): JSX.Element {
                     +
                   </button>
                   <button
-                    className="text-white bg-purpleAccent hover:bg-softerPurple focus:ring-4 focus:outline-none focus:ring-softerPurple font-medium rounded-lg text-xs px-2.5 py-2 text-center hover:cursor-pointer"
+                    className="text-white bg-purpleAccent hover:bg-softerPurple focus:ring-4 focus:outline-none focus:ring-softerPurple font-medium text-xs px-1.5 py-1 text-center hover:cursor-pointer"
                     onClick={(event) => {
                       event.preventDefault();
                       removeCartItem(item.sku);
@@ -740,21 +740,31 @@ export default function cartPage(): JSX.Element {
             <div className=" text-white">Total</div>
             <div className="text-white">${totalAmt.total}</div>
           </div>
-          <div className="activateCoins flex justify-between border-t-2 pt-3">
-            <Button onClick={handleOpen}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 512 512"
-                width="24"
-                height="24"
-                className="walletsvg"
+          <div className="activateCoins flex justify-between border-t-2 pt-3 my-3">
+            <div
+              className={`bg-white rounded h-10 w-20 flex items-center justify-center pt-1 ${
+                wasAVVoucherClaimed ? "" : "voucherButton"
+              } `}
+            >
+              <Button
+                onClick={handleOpen}
+                className="flex items-center justify-center align-middle"
               >
-                <path
-                  fill="#ffff"
-                  d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V192c0-35.3-28.7-64-64-64H80c-8.8 0-16-7.2-16-16s7.2-16 16-16H448c17.7 0 32-14.3 32-32s-14.3-32-32-32H64zM416 272a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"
-                />
-              </svg>
-            </Button>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 512 512"
+                  width="24"
+                  height="24"
+                  className="walletsvg mt-3"
+                >
+                  <path
+                    fill="var(--softerPurple)"
+                    d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V192c0-35.3-28.7-64-64-64H80c-8.8 0-16-7.2-16-16s7.2-16 16-16H448c17.7 0 32-14.3 32-32s-14.3-32-32-32H64zM416 272a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"
+                  />
+                </svg>
+              </Button>
+            </div>
+
             <div className="showCoins text-xs text-white ">
               Coins Available: <span className="font-bold ">{userCoins}</span>
             </div>

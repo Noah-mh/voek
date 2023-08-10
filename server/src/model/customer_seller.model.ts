@@ -5,11 +5,24 @@ export const handleSellerDetailsBySellerId = async (
 ) => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const sql = `SELECT s.seller_id, s.shop_name, s.image_url, COUNT(lp.product_id) AS total_products
-  FROM seller s
-  LEFT JOIN listed_products lp ON s.seller_id = lp.seller_id
-  WHERE s.seller_id = ? AND s.active = 1
-  GROUP BY s.seller_id;`;
+  const sql = `SELECT 
+  s.seller_id, 
+  s.shop_name, 
+  s.image_url, 
+  COUNT(DISTINCT lp.product_id) AS total_products, 
+  COUNT(DISTINCT r.review_id) AS total_reviews, 
+  s.date_created, 
+  ROUND(AVG(r.rating), 2) AS rating
+FROM 
+  seller s
+LEFT JOIN 
+  listed_products lp ON s.seller_id = lp.seller_id
+LEFT JOIN 
+  review r ON lp.product_id = r.product_id
+WHERE 
+  s.seller_id = ? AND s.active = 1
+GROUP BY 
+  s.seller_id, s.shop_name, s.image_url, s.date_created;`;
   try {
     const [result] = await connection.query(sql, [seller_id]);
     return result as seller[];
@@ -28,18 +41,24 @@ export const handleSellerDetailsByProductId = async (
   const sql = `SELECT 
   s.seller_id, 
   s.shop_name, 
-  s.image_url, 
+  s.image_url,
+  COUNT(DISTINCT lp2.product_id) AS total_products,
+  COUNT(DISTINCT r.review_id) AS total_reviews, 
   s.date_created, 
-  (SELECT COUNT(*) FROM listed_products lp2 WHERE lp2.seller_id = s.seller_id) AS total_products, 
-  (SELECT COUNT(*) FROM review r INNER JOIN listed_products lp2 ON r.product_id = lp2.product_id WHERE lp2.seller_id = s.seller_id) AS total_reviews
+  ROUND(AVG(r.rating), 2) AS rating
 FROM 
   seller s
-INNER JOIN 
+JOIN 
   listed_products lp ON s.seller_id = lp.seller_id
-WHERE
-  lp.product_id = ? 
+LEFT JOIN
+  listed_products lp2 ON s.seller_id = lp2.seller_id
+LEFT JOIN 
+  review r ON lp2.product_id = r.product_id
+WHERE 
+  lp.product_id = ? AND s.active = 1
 GROUP BY 
   s.seller_id, s.shop_name, s.image_url, s.date_created;
+
   `;
   try {
     const [result] = await connection.query(sql, [product_id]);

@@ -66,7 +66,7 @@ const SignupSeller = (): JSX.Element => {
         headers: { 'Content-Type': 'application/json' },
         withCredentials: true
       });
-      toast.success("Verification link has been sent", {
+      toast.success("Verification link has been sent to your email", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,

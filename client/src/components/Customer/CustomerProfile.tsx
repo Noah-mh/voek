@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Address } from "./Address";
 import { cld } from "../../Cloudinary/Cloudinary";
 import { AdvancedImage } from "@cloudinary/react";
-import CloudinaryUpload from "../../Cloudinary/CloudinaryUpload";
+import CloudinaryUploader from "../../Cloudinary/CloudinaryUploader";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
@@ -166,11 +166,8 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
   const handleDelete = async () => {
     try {
       setUpdateImage("test/blank-profile-picture-973460_1280_tj6oeb");
-      const response = await axiosPrivateCustomer.put(
-        `/customer/profile/edit/photo/${customer_id}`,
-        {
-          image_url: "test/blank-profile-picture-973460_1280_tj6oeb",
-        }
+      const response = await axiosPrivateCustomer.delete(
+        `/customer/${customer_id}/deleteImage?image_url=${encodeURIComponent(image_url)}`
       );
       if (response.status === 200) {
         toast.success("Photo deleted", {
@@ -374,7 +371,7 @@ const CustomerProfile: React.FC<CustomerDisplayProps> = ({
             <AiFillDelete />
           </button>) : null}
         </div>
-        <CloudinaryUpload onSuccess={handleUpload} caption={"Upload New Photo"} />
+        <CloudinaryUploader onSuccess={handleUpload} caption={"Upload New Photo"} image_url={image_url} />
       </div>
 
       <ToastContainer />

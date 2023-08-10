@@ -23,7 +23,6 @@ import ForgetPasswordCustomer from "./components/ForgetPasswordCustomer/ForgetPa
 import ResetPasswordCustomer from "./components/ResetPasswordCustomer/ResetPasswordCustomer.js";
 import ForgetPasswordSeller from "./components/ForgetPasswordSeller/ForgetPasswordSeller.js";
 import HomepageSeller from "./components/HomepageSeller/HomepageSeller.js";
-import EditProduct from "./components/SellerSidebar/EditProduct.js";
 import Checkout from "./components/Checkout/Checkout.js";
 import CustomerProfilePage from "./components/Customer/CustomerProfilePage.js";
 import LastViewed from "./components/LastViewed(History)/LastViewed.js";
@@ -36,6 +35,11 @@ import SellerVouchers from "./components/SellerVouchers/SellerVouchers.js";
 import RedeemVoucher from "./components/RedeemVoucher/RedeemVoucher.js";
 import CustomerSellerProfilePage from "./components/Product/CustomerSellerProfilePage.js";
 import Chat from "./components/Chat/Chat.js";
+import Analytics from "./components/CustomerAnalytics/Analytics.js";
+import Game from "./components/Game/Game.js";
+// import MainGame from "./components/Game/assets/MainGame.js";
+import DailyCoins from "./components/DailyCoin/DailyCoin.js";
+import ClaimVouchers from "./components/RedeemVoucher/ClaimVouchers.js";
 
 function App() {
   return (
@@ -47,6 +51,7 @@ function App() {
           element={<ResetPasswordCustomer />}
         />
         <Route path="forgetPassword" element={<ForgetPasswordCustomer />} />
+        {/* <Route path="monkeyRun" element={<Game />} />*/}
 
         {/* Customer Routes */}
         <Route element={<PersistLoginCustomer />}>
@@ -77,6 +82,7 @@ function App() {
             path="customerSellerProfile/:seller_id"
             element={<CustomerSellerProfilePage />}
           />
+          <Route path="claimVouchers" element={<ClaimVouchers />} />
 
           <Route element={<RequireAuthCustomer />}>
             {/* Protected Routes with persist login */}
@@ -85,7 +91,10 @@ function App() {
             <Route path="customer/checkout" element={<Checkout />} />
             <Route path="profile" element={<CustomerProfilePage />} />
             <Route path="lastViewed" element={<LastViewed />} />
+            {/* <Route path="analytics" element={<Analytics />} /> */}
             <Route path="chat" element={<Chat userType="customer" />} />
+            <Route path="customer/dailyCheckIn" element={<DailyCoins />} />
+            <Route path="customer/game" element={<Game />} />
           </Route>
         </Route>
       </Route>
@@ -112,10 +121,6 @@ function App() {
           <Route path="seller/signup" element={<SignupBannerSeller />} />
           <Route element={<RequireAuthSeller />}>
             <Route path="seller/home" element={<HomepageSeller />} />
-            {/* <Route path="seller/manageProducts" element={<ManageProducts />} /> */}
-            <Route path="seller/editProduct" element={<EditProduct />} />
-            {/* <Route path="seller/addProduct" element={<AddProduct />} />
-            <Route path="seller/manageOrders" element={<ManageOrders />} /> */}
             <Route path="seller/orders" element={<ViewCustomerOrders />} />
             <Route path="seller/profile" element={<SellerProfile />} />
             <Route path="seller/vouchers" element={<SellerVouchers />} />

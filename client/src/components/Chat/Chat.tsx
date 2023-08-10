@@ -1,9 +1,10 @@
-import { useEffect, useState, useMemo, useContext } from "react";
+import { useEffect, useState, useMemo, useContext, ChangeEvent, useCallback, useRef } from "react";
 import io from "socket.io-client";
 import ScrollToBottom from "react-scroll-to-bottom";
 import CustomerContext from "../../context/CustomerProvider";
 import SellerContext from "../../context/SellerProvider.tsx";
 import SideBar from "./SideBar.tsx";
+import axios from "axios";  // Noah's code
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
@@ -11,17 +12,11 @@ import "./css/Chat.css";
 import { AdvancedImage } from "@cloudinary/react";
 import { cld } from "../../Cloudinary/Cloudinary";
 import { Link } from "react-router-dom";
-
-// const socket = io(
-//   import.meta.env.VITE_APP_BACKEND_BASE_URL || "http://localhost:3500",
-//   {
-//     transports: ["websocket"],
-//     query: {
-//       id: "xxxxxx",
-//     },
-//   }
-// );
-
+import data from "@emoji-mart/data";
+import Picker from "@emoji-mart/react";
+import { cloudName, chatPreset } from "../../Cloudinary/Cloudinary";
+import { GrAttachment } from "react-icons/gr";
+import { RiDeleteBin5Fill } from "react-icons/ri";
 interface ChatProps {
   userType: string;
 }
@@ -53,12 +48,79 @@ const Chat = ({ userType }: ChatProps) => {
   const [roomID, setRoomID] = useState<string | undefined>();
   const [otherUser, setOtherUser] = useState<User | null>(null);
   const [updateSideBar, setUpdateSideBar] = useState(false);
-
   const { customer } = useContext(CustomerContext);
   const { seller } = useContext(SellerContext);
   const userID =
     userType === "customer" ? customer.customer_id : seller.seller_id;
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
+
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [isUploaded, setIsUploaded] = useState<boolean[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleUpload = useCallback(async () => {
+    if (selectedFiles.length > 0) {
+      const responses = await Promise.all(selectedFiles.map(file => {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", chatPreset);
+
+        return axios.post(
+          `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+          formData
+        );
+      }));
+
+      setPreviewUrls(responses.map(response => response.data.public_id));
+      setIsUploaded(new Array(selectedFiles.length).fill(true));
+      return responses;
+    }
+  },
+    [selectedFiles]
+  );
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      const newFilesArray = Array.from(event.target.files);
+
+      // Merge the new files with the existing ones
+      const mergedFiles = [...selectedFiles, ...newFilesArray];
+      setSelectedFiles(mergedFiles);
+
+      console.log("newFilesArray: ", newFilesArray);
+
+      const newUrls = newFilesArray.map(file => URL.createObjectURL(file));
+      const mergedUrls = [...previewUrls, ...newUrls];
+      setPreviewUrls(mergedUrls);
+
+      const mergedUploadStatus = [...isUploaded, ...new Array(newFilesArray.length).fill(false)];
+      setIsUploaded(mergedUploadStatus);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    } else {
+      setSelectedFiles([]);
+      setPreviewUrls([]);
+      setIsUploaded([]);
+    }
+  };
+
+
+  const handleDeleteImage = (deleteIndex: number) => {
+    // Update previewUrls
+    const newPreviewUrls = previewUrls.filter((_, index) => index !== deleteIndex);
+    setPreviewUrls(newPreviewUrls);
+
+    // Update selectedFiles
+    const newSelectedFiles = selectedFiles.filter((_, index) => index !== deleteIndex);
+    setSelectedFiles(newSelectedFiles);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+
 
   const sendMessage = async () => {
     const currentDate = new Date();
@@ -70,6 +132,32 @@ const Chat = ({ userType }: ChatProps) => {
     const seconds = currentDate.getSeconds().toString().padStart(2, "0");
 
     const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    if (selectedFiles.length > 0) {
+      console.log("selectedFiles: ", selectedFiles);
+      const responses = await handleUpload();
+      if (responses) {
+        const sendImageMessage = async (response: any) => {
+          const messageContent: ChatMessage = {
+            roomID: roomID!,
+            text: "",
+            image: response.data.public_id,
+            senderID: userID,
+            senderRole: userType,
+            dateCreated: formattedDateTime,
+          };
+
+          await socket.emit("send_message", messageContent);
+          await axiosPrivateCustomer.post("/createMessage", messageContent);
+          setMessages(prevMessages => [...prevMessages, messageContent]);
+        }
+        const promises = responses.map(response => sendImageMessage(response));
+        await Promise.all(promises);
+
+        setSelectedFiles([]);
+        setPreviewUrls([]);
+        setIsUploaded([]);
+      }
+    }
 
     if (message !== "") {
       const messageContent: ChatMessage = {
@@ -82,7 +170,7 @@ const Chat = ({ userType }: ChatProps) => {
       };
       await socket.emit("send_message", messageContent);
       await axiosPrivateCustomer.post("/createMessage", messageContent);
-      setMessages([...messages, messageContent]);
+      setMessages(prevMessages => [...prevMessages, messageContent]);
       setMessage("");
     }
   };
@@ -98,6 +186,11 @@ const Chat = ({ userType }: ChatProps) => {
 
     const formattedTime = hours + ":" + minutes + " " + ampm;
     return formattedTime;
+  };
+
+  const addEmoji = (e: any) => {
+    let emoji = e.native;
+    setMessage(message + emoji);
   };
 
   const receiveMessageCallback = useMemo(() => {
@@ -164,13 +257,9 @@ const Chat = ({ userType }: ChatProps) => {
     };
   }, [socket, receiveBroadcastCallback]);
 
-  useEffect(() => {
-    console.log("roomID in useEffect: ", roomID);
-  }, [roomID]);
-
   return (
-    <div className="chatContainer flex flex-col md:flex-row overflow-hidden">
-      <div className="hidden md:block md:w-1/4">
+    <div className="chatContainer flex flex-col xl:flex-row overflow-hidden">
+      <div className="hidden xl:block xl:w-1/4">
         <SideBar
           userID={userID}
           userType={userType}
@@ -183,15 +272,15 @@ const Chat = ({ userType }: ChatProps) => {
           setUpdateSideBar={setUpdateSideBar}
         />
       </div>
-      <div className="w-full md:w-3/4 flex">
-        <div className="chatColumn flex justify-center items-center">
+      <div className="w-full xl:w-3/4 flex grow">
+        <div className="chatColumn flex justify-center items-start grow">
           {userID == null || roomID == null ? (
-            <div className="chat-window noChatChosenBody bg-gray-50 flex justify-center items-center text-gray-300">
+            <div className="chat-window noChatChosenBody bg-gray-50 flex justify-center items-center text-gray-300 grow">
               Pick someone to start chatting!
             </div>
           ) : (
             <div
-              className="chat-window"
+              className="chat-window grow"
               onClick={async () => {
                 await axiosPrivateCustomer.put(`/updateMessagesStatus`, {
                   roomID: roomID,
@@ -199,17 +288,28 @@ const Chat = ({ userType }: ChatProps) => {
                 });
               }}
             >
-              <Link
-                to={`/customerSellerProfile/${otherUser?.userID}`}
-                className="chat-header flex pl-4 space-x-2 items-center"
-              >
-                <AdvancedImage
-                  className="w-8 h-8 rounded-full bg-slate-500"
-                  cldImg={cld.image(otherUser?.image)}
-                  alt="User's profile picture"
-                />
-                <p className="tracking-wide">{otherUser?.username}</p>
-              </Link>
+              {userType === "customer" ? (
+                <Link
+                  to={`/customerSellerProfile/${otherUser?.userID}`}
+                  className="chat-header flex pl-4 space-x-2 items-center hover:cursor-pointer"
+                >
+                  <AdvancedImage
+                    className="w-8 h-8 rounded-full bg-slate-500"
+                    cldImg={cld.image(otherUser?.image)}
+                    alt="User's profile picture"
+                  />
+                  <p className="tracking-wide">{otherUser?.username}</p>
+                </Link>
+              ) : (
+                <div className="chat-header flex pl-4 space-x-2 items-center hover:cursor-default">
+                  <AdvancedImage
+                    className="w-8 h-8 rounded-full bg-slate-500 hover:cursor-default"
+                    cldImg={cld.image(otherUser?.image)}
+                    alt="User's profile picture"
+                  />
+                  <p className="tracking-wide">{otherUser?.username}</p>
+                </div>
+              )}
               <div className="chat-body">
                 <ScrollToBottom className="message-container">
                   {roomID != null && messages.length > 0 ? (
@@ -222,19 +322,29 @@ const Chat = ({ userType }: ChatProps) => {
                               className="message p-3"
                               id={
                                 userID === messageContent.senderID &&
-                                userType === messageContent.senderRole
+                                  userType === messageContent.senderRole
                                   ? "you"
                                   : "other"
                               }
                             >
                               <div>
-                                <div className="message-content rounded-lg">
+                                {/* <div className="message-content rounded-lg">
                                   {messageContent.text}
+                                </div> */}
+                                <div className="message-content rounded-lg">
+                                  {messageContent.image ? (
+                                    <AdvancedImage
+                                      cldImg={cld.image(messageContent.image)}
+                                      alt="Uploaded image"
+                                    />
+                                  ) : (
+                                    messageContent.text && <div>{messageContent.text}</div>
+                                  )}
                                 </div>
                                 <div className="message-meta">
                                   <div className="message-sender text-gray-50 mr-2">
                                     {userID === messageContent.senderID &&
-                                    userType === messageContent.senderRole
+                                      userType === messageContent.senderRole
                                       ? ""
                                       : otherUser?.username}
                                   </div>
@@ -250,8 +360,33 @@ const Chat = ({ userType }: ChatProps) => {
                   ) : (
                     <div></div>
                   )}
+                  {/* {selectedFiles && selectedFiles.length > 0 && previewUrls && previewUrls.length === selectedFiles.length &&
+                    <div className="flex justify-start mb-2">
+                      {previewUrls.map((url, index) => (
+                        <div key={index} className="m-2">
+                          <img src={url} alt="Preview" className="w-40 h-40 object-cover rounded" />
+                        </div>
+                      ))}
+                    </div>
+                  } */}
+                  {selectedFiles && selectedFiles.length > 0 && previewUrls && previewUrls.length === selectedFiles.length &&
+                    <div className="flex justify-start mb-2">
+                      {previewUrls.map((url, index) => (
+                        <div key={index} className="m-2 relative">
+                          <img src={url} alt="Preview" className="w-40 h-40 object-cover rounded" />
+                          <button
+                            onClick={() => handleDeleteImage(index)}
+                            className="absolute top-0 right-0 bg-red-600 text-white rounded-full p-1"
+                            style={{ transform: "translate(50%, -50%)" }}
+                          >
+                            <RiDeleteBin5Fill />
+                          </button>
+                        </div>
+                      ))}
+                    </div>}
                 </ScrollToBottom>
               </div>
+
               <form
                 className="chat-footer"
                 onSubmit={(e) => {
@@ -259,6 +394,14 @@ const Chat = ({ userType }: ChatProps) => {
                   sendMessage();
                 }}
               >
+
+                <input ref={fileInputRef} id="file-upload" type="file" accept="image/png, image/jpeg"
+                  onChange={handleFileChange}
+                  className="hidden" multiple />
+                <label htmlFor="file-upload" className="cursor-pointer">
+                  <GrAttachment className="text-gray-300" />
+                </label>
+
                 <input
                   type="text"
                   className="text-gray-300"
@@ -275,6 +418,9 @@ const Chat = ({ userType }: ChatProps) => {
             </div>
           )}
         </div>
+      </div>
+      <div className="flex justify-start items-end grow">
+        <Picker data={data} onEmojiSelect={addEmoji} />
       </div>
     </div>
   );

@@ -87,7 +87,7 @@ const SignupCustomer = ({ referral_id }: Props): JSX.Element => {
           withCredentials: true,
         }
       );
-      toast.success("Verification link has been sent", {
+      toast.success("Verification link has been sent to your email", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,

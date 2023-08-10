@@ -106,7 +106,7 @@ const ViewDelivered = ({ deliveredOrders, getAll }: Props) => {
 
       {orderedDeliveredOrders
         ?.map((ordersArray: any) => (
-          <div key={uuidv4()} className="mb-8  shadow-md rounded p-4">
+          <div key={uuidv4()} className="mb-8  shadow-md rounded p-4 w-full">
             <div className="flex flex-col"></div>
             {ordersArray.map((Orders: any) => (
               <div key={Orders.order_id}>

@@ -1,10 +1,7 @@
 import jwt from 'jsonwebtoken';
 import config from '../../config/config';
-import { UserInfo } from '../interfaces/interfaces';
 import { Request, Response, NextFunction } from "express";
 import * as sellerModel from "../model/seller.model";
-import { parse } from 'path';
-import { P } from 'pino';
 
 // GET all products from 1 seller
 export const processGetAllProductsOfSeller = async (req: Request, res: Response, next: NextFunction) => {
@@ -43,7 +40,7 @@ export const processAddProduct = async (req: Request, res: Response, next: NextF
     try {
         const sellerId: number = parseInt(req.params.sellerId);
         const { name, description, categoryId, variations, quantity, price, imageUrl } = req.body;
-        if (!name || !categoryId || !quantity || !price || !imageUrl) return res.sendStatus(400);
+        if (!name || !categoryId || !quantity || !price || (!imageUrl && variations.length === 0)) return res.sendStatus(400);
         const response: any = await sellerModel.handleAddProduct(sellerId, name, description, categoryId, variations, quantity, price, imageUrl);
         return res.json({ productId: response });
     } catch (err: any) {
@@ -54,10 +51,10 @@ export const processAddProduct = async (req: Request, res: Response, next: NextF
 // POST update product
 export const processEditProduct = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const sellerId: number = parseInt(req.params.productId);
-        const { values, variations } = req.body;
-        if (!values || !variations) return res.sendStatus(400);
-        const response: any = await sellerModel.handleEditProduct(sellerId, values, variations);
+        const productId: number = parseInt(req.params.productId);
+        const { keys, values, variations } = req.body;
+        if (!variations) return res.sendStatus(400);
+        const response: any = await sellerModel.handleEditProduct(productId, keys, values, variations);
         return res.json(response);
     } catch (err: any) {
         return next(err);
@@ -154,7 +151,7 @@ export const processVerifyOTP = async (req: Request, res: Response, next: NextFu
                     }
                 },
                 config.accessTokenSecret!,
-                { expiresIn: '300s' }
+                { expiresIn: '7200s' }
             );
             const refreshToken = jwt.sign(
                 {
@@ -404,6 +401,85 @@ export const processViewVouchers = async (req: Request, res: Response, next: Nex
         const { seller_id } = req.params;
         const result = await sellerModel.handleViewVouchers(parseInt(seller_id));
         return res.json({ vouchers: result });
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processGetSoldCategories = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { seller_id, time_period } = req.params;
+        const result = await sellerModel.handleGetSoldCategories(parseInt(seller_id), time_period);
+        return res.json({ soldCategories: result });
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processGetBestSellingProducts = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { seller_id, time_period } = req.params;
+        const result = await sellerModel.handleGetBestSellingProducts(parseInt(seller_id), time_period);
+        return res.json({ soldProducts: result });
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processGetRevenue = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { seller_id, time_period } = req.params;
+        const result = await sellerModel.handleGetRevenue(parseInt(seller_id), time_period);
+        return res.json({ revenue: result });
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processGetTotalRevenue = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { sellerId } = req.params;
+        const result = await sellerModel.handleGetTotalRevenue(parseInt(sellerId));
+        return res.json({ totalRevenue: result });
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processGetTotalProductsSold = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { sellerId } = req.params;
+        const result = await sellerModel.handleGetTotalProductsSold(parseInt(sellerId));
+        return res.json({ totalProductsSold: result });
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processGetTotalCustomers = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { sellerId } = req.params;
+        const result = await sellerModel.handleGetTotalCustomers(parseInt(sellerId));
+        return res.json({ totalCustomers : result });
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processGetAverageRatingOfProducts = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { sellerId } = req.params;
+        const result = await sellerModel.handleGetAverageRatingOfProducts(parseInt(sellerId));
+        return res.json({ averageRating : result });
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processGetAllSellers = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await sellerModel.handleGetAllSellers();
+        return res.json({ sellers: result });
     } catch (err: any) {
         return next(err);
     }

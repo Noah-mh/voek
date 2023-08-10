@@ -206,6 +206,10 @@ VoucherModalProps) => {
                               Get {voucher.percentage_amount * 100}% off
                             </h2>
                           )
+                        ) : voucher.number_amount ? (
+                          <h2 className="text-lg mb">
+                            Get ${voucher.number_amount} off
+                          </h2>
                         ) : (
                           <h2 className="text-lg mb">
                             Get{" "}
