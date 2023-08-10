@@ -108,15 +108,20 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
   const [selectedVariation, setSelectedVariation] = useState(
     options[0]?.value || null
   );
+
+  const getCartDetails = () => {
+    axiosPrivateCustomer
+      .get(`getCartDetails/${customer_id}?sku=${selectedSku}`)
+      .then((response) => {
+        setCart(response.data.cartDetails);
+      }
+      );
+  };
+
   useEffect(() => {
     if (customer_id != undefined) {
-      axiosPrivateCustomer
-        .get(`getCartDetails/${customer_id}?sku=${selectedSku}`)
-        .then((response) => {
-          setCart(response.data.cartDetails);
-        });
+      getCartDetails();
     }
-    console.log("productData", productData);
     if (selectedVariation) {
       const selectedProduct = productData.find((product) =>
         product.variations?.some((variation) => {
@@ -200,6 +205,55 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
     setQuantity((prevQuantity) => Math.max(prevQuantity - 1, 1));
   };
 
+  const addToCart = () => {
+    axiosPrivateCustomer
+      .post(
+        "/addToCart",
+        JSON.stringify({
+          product_id: productData[0].product_id,
+          sku: selectedSku,
+          quantity,
+          customer_id,
+        }),
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        }
+      )
+      .then((_response) => {
+        // On successful addition to cart, show the popup
+        toast.dismiss(toastId);
+        getCartDetails();
+        const id = toast.success("Item Added to Cart! 😊", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+        setToastId(id);
+      })
+      .catch((error) => {
+        console.log(error);
+        toast.dismiss(toastId);
+
+        const id = toast.error("Error! Adding to cart failed", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+        setToastId(id);
+      });
+  };
+
   const handleAddToCart = () => {
     if (!customer_id) {
       toast.dismiss(toastId);
@@ -216,55 +270,42 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
       });
       setToastId(id);
       return;
-    } else {
-      axiosPrivateCustomer
-        .post(
-          "/addToCart",
-          JSON.stringify({
-            product_id: productData[0].product_id,
-            sku: selectedSku,
-            quantity,
-            customer_id,
-          }),
-          {
-            headers: { "Content-Type": "application/json" },
-            withCredentials: true,
+    }
+    if (cart.length > 0) {
+      cart.find((item) => {
+        if (item.sku === selectedSku) {
+          const productVariation = allVariations.find(
+            (variation) => variation.sku === item.sku
+          );
+          if (productVariation) {
+            console.log("quantity ", quantity);
+            console.log("productVariation ", productVariation);
+            if (item.quantity + quantity > productVariation.quantity!) {
+              toast.dismiss(toastId);
+
+              const id = toast.error(
+                "Cannot add more than the available quantity",
+                {
+                  position: "top-center",
+                  autoClose: 5000,
+                  hideProgressBar: false,
+                  closeOnClick: true,
+                  pauseOnHover: true,
+                  draggable: true,
+                  progress: undefined,
+                  theme: "light",
+                }
+              );
+              setToastId(id);
+              return;
+            } else {
+              addToCart();
+            }
           }
-        )
-        .then((response) => {
-          // On successful addition to cart, show the popup
-          console.log(response);
-          toast.dismiss(toastId);
-
-          const id = toast.success("Item Added to Cart! 😊", {
-            position: "top-center",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-          });
-          setToastId(id);
-        })
-        .catch((error) => {
-          // Handle error here
-          console.error(error);
-          toast.dismiss(toastId);
-
-          const id = toast.error("Error! Adding to cart failed", {
-            position: "top-center",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-          });
-          setToastId(id);
-        });
+        }
+      });
+    } else {
+      addToCart();
     }
   };
 
