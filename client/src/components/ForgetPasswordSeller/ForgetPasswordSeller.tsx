@@ -56,10 +56,10 @@ const ForgetPasswordSeller = () => {
                 <div className="right w-1/2 h-full flex-wrap py-7">
                     <form onSubmit={submitHandler}>
                         <div className="field-wrapper flex">
-                            <input value={email} onChange={(e) => setEmail(e.target.value)} type="text" name="email" placeholder="EMAIL" className="w-72" autoComplete="off" />
+                            <input value={email} onChange={(e) => setEmail(e.target.value)} type="text" name="email" placeholder="EMAIL" className="w-72 !outline-none" autoComplete="off" />
                         </div>
                         <div className="field-wrapper flex">
-                            <input disabled={disabled} type="submit" value="SEND RESET LINK" className="submitLogin" />
+                            <input disabled={disabled} type="submit" value="SEND RESET LINK" className="submitLogin !outline-none" />
                         </div>
                     </form>
                     <div className="text-red-500 text-center">{errMsg}</div>

@@ -70,8 +70,8 @@ export const handleSendSMSOTP = async (
         if (err === null) {
           console.log(
             `Messaging response for messaging phone number: ${phoneNumber}` +
-              ` => code: ${res["status"]["code"]}` +
-              `, description: ${res["status"]["description"]}`
+            ` => code: ${res["status"]["code"]}` +
+            `, description: ${res["status"]["description"]}`
           );
         } else {
           console.log("Unable to send message. " + err);
@@ -186,9 +186,8 @@ export const handleSendEmailLink = async (
         sender,
         to: receivers,
         subject: "Verification Link For VOEK customer Sign Up",
-        textContent: `${
-          process.env.FRONTEND_BASE_URL || "http://localhost:5173"
-        }/signup/verify?signupToken=${signUpToken}`,
+        textContent: `${process.env.FRONTEND_BASE_URL || "http://localhost:5173"
+          }/signup/verify?signupToken=${signUpToken}`,
       })
       .then((response: any) => {
         console.log(response);
@@ -343,9 +342,8 @@ export const handleSendEmailForgetPassword = async (
         sender,
         to: receivers,
         subject: "Password reset link for customer",
-        textContent: `${
-          process.env.FRONTEND_BASE_URL || "http://localhost:5173"
-        }/forgetPassword/verify?forgetPasswordToken=${forgetPasswordToken}`,
+        textContent: `${process.env.FRONTEND_BASE_URL || "http://localhost:5173"
+          }/forgetPassword/verify?forgetPasswordToken=${forgetPasswordToken}`,
       })
       .then((response: any) => {
         console.log(response);
@@ -497,9 +495,8 @@ export const handleSendEmailChange = async (
       sender,
       to: receivers,
       subject: "Verification Link For VOEK customer Email Change",
-      textContent: `${
-        process.env.FRONTEND_BASE_URL || "http://localhost:5173"
-      }/customer/email-verification?token=${changeCustomerEmailToken}`,
+      textContent: `${process.env.FRONTEND_BASE_URL || "http://localhost:5173"
+        }/customer/email-verification?token=${changeCustomerEmailToken}`,
     })
     .then((response: any) => {
       console.log(response);
@@ -1237,3 +1234,39 @@ GROUP BY
     await connection.release();
   }
 };
+
+export const handleContactUs = async (
+  email: string,
+  subject: string,
+  message: string
+) => {
+  try {
+    const tranEmailApi = new Sib.TransactionalEmailsApi();
+    const sender = {
+      email: email,
+    };
+
+    const receivers = [
+      {
+        email: "voek.help.centre@gmail.com",
+      },
+    ];
+
+    tranEmailApi
+      .sendTransacEmail({
+        sender,
+        to: receivers,
+        subject: subject,
+        textContent: message,
+      })
+      .then((response: any) => {
+        console.log(response);
+        return;
+      })
+      .catch((err: any) => {
+        throw new Error(err);
+      });
+  } catch (err: any) {
+    throw new Error(err);
+  }
+}

@@ -40,6 +40,7 @@ import Game from "./components/Game/Game.js";
 // import MainGame from "./components/Game/assets/MainGame.js";
 import DailyCoins from "./components/DailyCoin/DailyCoin.js";
 import ClaimVouchers from "./components/RedeemVoucher/ClaimVouchers.js";
+import Contact from "./components/Contact/Contact.js";
 
 function App() {
   return (
@@ -58,8 +59,7 @@ function App() {
           {/* Public Routes with persist login */}
 
           <Route path="/" element={<Homepage />} />
-
-          <Route path="/" element={<Homepage />} />
+          <Route path="contact" element={<Contact />} />
           <Route path="login" element={<LoginBanner />} />
           <Route path="signup" element={<SignupBannerCustomer />} />
           <Route
@@ -76,7 +76,6 @@ function App() {
             path="customer/email-verification"
             element={<VerifyCustomerEmail />}
           />
-          <Route path="test" element={<RedeemVoucher seller_id={1} />} />
 
           <Route
             path="customerSellerProfile/:seller_id"

@@ -73,7 +73,6 @@ const ForgetPasswordCustomer = () => {
           </h1>
         </div>
         <div className="right w-1/2 h-full justify-center items-center  align-middle py-7">
-          <p className="">Please enter your email.</p>
           <form onSubmit={submitHandler}>
             <div className="field-wrapper flex">
               <input
@@ -82,7 +81,7 @@ const ForgetPasswordCustomer = () => {
                 type="text"
                 name="email"
                 placeholder="EMAIL"
-                className="w-72"
+                className="w-72 !outline-none"
                 autoComplete="off"
               />
             </div>
@@ -91,7 +90,7 @@ const ForgetPasswordCustomer = () => {
                 disabled={disabled}
                 type="submit"
                 value="SEND RESET LINK"
-                className="submitLogin"
+                className="submitLogin !outline-none"
               />
             </div>
           </form>
