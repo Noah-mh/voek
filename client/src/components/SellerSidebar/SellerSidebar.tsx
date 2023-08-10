@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
@@ -75,7 +75,14 @@ function a11yProps(index: number) {
 const Sidebar: React.FC = () => {
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
+    sessionStorage.setItem('sCurrentTab', String(newValue));
   };
+  useEffect(() => {
+    const tabIndex = sessionStorage.getItem('sCurrentTab');
+    if (tabIndex) {
+      setValue(Number(tabIndex));
+    }
+  }, []);
 
   const [value, setValue] = useState<number>(0);
 

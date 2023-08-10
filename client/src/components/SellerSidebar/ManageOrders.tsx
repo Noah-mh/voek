@@ -113,7 +113,7 @@ const ManageOrders = () => {
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
-};
+  };
 
   return (
     <div className="flex">

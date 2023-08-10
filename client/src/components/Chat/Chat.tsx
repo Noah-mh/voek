@@ -12,18 +12,18 @@ import ScrollToBottom from "react-scroll-to-bottom";
 import CustomerContext from "../../context/CustomerProvider";
 import SellerContext from "../../context/SellerProvider.tsx";
 import SideBar from "./SideBar.tsx";
-import axios from "axios"; // Noah's code
+import axios from "axios";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperPlane, faPaperclip } from "@fortawesome/free-solid-svg-icons";
 import "./css/Chat.css";
+import { cld, cloudName, chatPreset } from "../../Cloudinary/Cloudinary";
 import { AdvancedImage } from "@cloudinary/react";
-import { cld } from "../../Cloudinary/Cloudinary";
 import { Link } from "react-router-dom";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
-import { cloudName, chatPreset } from "../../Cloudinary/Cloudinary";
 import { RiDeleteBin5Fill } from "react-icons/ri";
+import ImagePopUpModel from "../../Cloudinary/ImagePopUpModel";
 interface ChatProps {
   userType: string;
 }
@@ -66,6 +66,22 @@ const Chat = ({ userType }: ChatProps) => {
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isSending, setIsSending] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [popUpImage, setPopUpImage] = useState<string>("");
+  const [hasLoaded, setHasLoaded] = useState(false);
+
+  const handleImageLoad = () => {
+    setHasLoaded(true);
+  };
+
+  const handleOpenModal = (image_url: string) => {
+    setPopUpImage(image_url);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
 
   const handleUpload = useCallback(async () => {
     if (selectedFiles.length > 0) {
@@ -139,7 +155,10 @@ const Chat = ({ userType }: ChatProps) => {
 
     try {
       const currentDate = new Date();
-      const formattedDateTime = currentDate.toISOString().split('.')[0].replace('T', ' ');
+      const formattedDateTime = currentDate
+        .toISOString()
+        .split(".")[0]
+        .replace("T", " ");
 
       if (selectedFiles.length > 0) {
         console.log("selectedFiles: ", selectedFiles);
@@ -347,20 +366,30 @@ const Chat = ({ userType }: ChatProps) => {
                               }
                             >
                               <div>
-                                <div className="message-content rounded-lg">
-                                  {messageContent.image ? (
-                                    <section className="my-1">
-                                      <AdvancedImage
-                                        cldImg={cld.image(messageContent.image)}
-                                        alt="Uploaded image"
-                                      />
-                                    </section>
-                                  ) : (
-                                    messageContent.text && (
+                                {messageContent.image ? (
+                                  <button
+                                    onClick={() => {
+                                      handleOpenModal(messageContent.image);
+                                    }}
+                                  >
+                                    <div className="message-content-image rounded-lg">
+                                      <section className="my-1">
+                                        <AdvancedImage
+                                          cldImg={cld.image(
+                                            messageContent.image
+                                          )}
+                                          alt="Uploaded image"
+                                        />
+                                      </section>
+                                    </div>
+                                  </button>
+                                ) : (
+                                  <div className="message-content rounded-lg">
+                                    {messageContent.text && (
                                       <div>{messageContent.text}</div>
-                                    )
-                                  )}
-                                </div>
+                                    )}
+                                  </div>
+                                )}
                                 <div className="message-meta">
                                   <div className="message-sender text-gray-50 mr-2">
                                     {userID === messageContent.senderID &&
@@ -380,32 +409,38 @@ const Chat = ({ userType }: ChatProps) => {
                   ) : (
                     <div></div>
                   )}
-                  {selectedFiles &&
-                    selectedFiles.length > 0 &&
-                    previewUrls &&
-                    previewUrls.length === selectedFiles.length && (
-                      <div className="flex justify-start mb-2">
-                        {previewUrls.map((url, index) => (
-                          <div key={index} className="m-2 relative">
-                            <img
-                              src={url}
-                              alt="Preview"
-                              className="w-40 h-40 object-cover rounded"
-                            />
-                            <button
-                              onClick={() => handleDeleteImage(index)}
-                              className="absolute top-0 right-0 bg-red-600 text-white rounded-full p-1"
-                              style={{ transform: "translate(50%, -50%)" }}
-                            >
-                              <RiDeleteBin5Fill />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
                 </ScrollToBottom>
               </div>
-
+              <ImagePopUpModel
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+                image_url={popUpImage}
+              />
+              {selectedFiles &&
+                selectedFiles.length > 0 &&
+                previewUrls &&
+                previewUrls.length === selectedFiles.length && (
+                  <div className="relative border-2 border-[#3a3b3c] flex w-auto bg-[#242526] p-2 rounded-t-md">
+                    <div className="flex flex-wrap justify-start">
+                      {previewUrls.map((url, index) => (
+                        <div key={index} className="relative mr-4">
+                          <img
+                            src={url}
+                            alt="Preview"
+                            className="w-40 h-40 object-cover rounded"
+                          />
+                          <button
+                            onClick={() => handleDeleteImage(index)}
+                            className="absolute top-0 right-0 bg-red-600 text-white rounded-full p-1"
+                            style={{ transform: "translate(50%, -50%)" }}
+                          >
+                            <RiDeleteBin5Fill />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               <form
                 className="chat-footer"
                 onSubmit={(e) => {
@@ -424,7 +459,7 @@ const Chat = ({ userType }: ChatProps) => {
                 />
                 <label
                   htmlFor="file-upload"
-                  className="cursor-pointer flex justify-center items-center mx-1"
+                  className="cursor-pointer flex justify-center items-center mx-1 ml-4"
                 >
                   <FontAwesomeIcon
                     icon={faPaperclip}
@@ -443,7 +478,15 @@ const Chat = ({ userType }: ChatProps) => {
                   }}
                 />
                 <button type="submit" disabled={isSending}>
-                  <FontAwesomeIcon icon={faPaperPlane} size="sm" className={isSending ? "text-gray-300" : "text-blue-500"} />
+                  {isSending ? (
+                    <span className="loader"></span>
+                  ) : (
+                    <FontAwesomeIcon
+                      icon={faPaperPlane}
+                      size="sm"
+                      className={"text-blue-500"}
+                    />
+                  )}
                 </button>
               </form>
             </div>

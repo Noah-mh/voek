@@ -72,13 +72,13 @@ const ResetPasswordCustomer = () => {
                     <form onSubmit={submitHandler}>
                         <div>
                             <div className="field-wrapper flex">
-                                <input value={password} onChange={(e) => setPassword(e.target.value)} type="text" name="email" placeholder="PASSWORD" className="w-72" autoComplete="off" />
+                                <input value={password} onChange={(e) => setPassword(e.target.value)} type="text" name="email" placeholder="PASSWORD" className="w-72 !outline-none" autoComplete="off" />
                             </div>
                             <div className="field-wrapper flex">
-                                <input value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} type="text" name="email" placeholder="CONFIRM PASSWORD" className="w-72" autoComplete="off" />
+                                <input value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} type="text" name="email" placeholder="CONFIRM PASSWORD" className="w-72 !outline-none" autoComplete="off" />
                             </div>
                             <div className="field-wrapper flex">
-                                <input disabled={disabled} type="submit" value="RESET PASSWORD" className="submitLogin" />
+                                <input disabled={disabled} type="submit" value="RESET PASSWORD" className="submitLogin !outline-none" />
                             </div>
                         </div>
                     </form>
