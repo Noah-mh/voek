@@ -34,8 +34,8 @@ interface Product {
   category?: string;
 
   // product variations only
-  variation1?: string;
-  variation2?: string;
+  variation1?: string | null;
+  variation2?: string | null;
 }
 
 function TabPanel(props: TabPanelProps) {
@@ -141,7 +141,7 @@ const Sidebar: React.FC = () => {
         <AddProduct />
       </TabPanel>
       <TabPanel value={value} index={2}>
-        <ManageProducts updateProductValue={() => { updateProductValue }} />
+        <ManageProducts updateProductValue={updateProductValue} />
       </TabPanel>
       <TabPanel value={value} index={3}>
         <ManageOrders />
