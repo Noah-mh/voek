@@ -266,6 +266,10 @@ export default function (app: Express, router: Router) {
     "/sellers",
     sellerController.processGetAllSellers
   )
+  router.post(
+    "/contact",
+    customerController.processContactUs
+  )
 
   // NOAH ENDPOINTS - reviews, customer profile, customer address, add to cart, ratings, product details, seller details, seller categories
   router.get(
@@ -431,10 +435,22 @@ export default function (app: Express, router: Router) {
     sellerController.processGetTotalRevenue
   );
   router.get(
+    "/seller/revenuePercentile/:sellerId",
+    verifyJWT,
+    verifyRoles("seller"),
+    sellerController.processGetPercentileOfTotalRevenue
+  );
+  router.get(
     "/seller/totalSold/:sellerId",
     verifyJWT,
     verifyRoles("seller"),
     sellerController.processGetTotalProductsSold
+  );
+  router.get(
+    "/seller/productPercentile/:sellerId",
+    verifyJWT,
+    verifyRoles("seller"),
+    sellerController.processGetPercentileOfTotalProductsSold
   );
   router.get(
     "/seller/totalCustomers/:sellerId",
@@ -443,10 +459,22 @@ export default function (app: Express, router: Router) {
     sellerController.processGetTotalCustomers
   );
   router.get(
+    "/seller/customerPercentile/:sellerId",
+    verifyJWT,
+    verifyRoles("seller"),
+    sellerController.processGetPercentileOfTotalCustomers
+  );
+  router.get(
     "/seller/averageRating/:sellerId",
     verifyJWT,
     verifyRoles("seller"),
     sellerController.processGetAverageRatingOfProducts
+  );
+  router.get(
+    "/seller/ratingPercentile/:sellerId",
+    verifyJWT,
+    verifyRoles("seller"),
+    sellerController.processGetRatingPercentileOfProducts
   );
   router.post(
     "/addProduct/:sellerId", 

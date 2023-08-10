@@ -7,8 +7,13 @@ import MenuItem from '@mui/material/MenuItem';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import StarBorderRoundedIcon from '@mui/icons-material/StarBorderRounded';
 import StatisticsCard from './StatisticsCard';
 import moment from 'moment';
+import { blue } from '@mui/material/colors';
+import '@fontsource/roboto/700.css';
 
 interface RevenueData {
   Revenue: number;
@@ -32,9 +37,13 @@ const HomePage = () => {
   const { seller } = useSeller();
 
   const [totalRevenue, setTotalRevenue] = useState<string>("");
+  const [percentileOfTotalRevenue, setPercentileOfTotalRevenue] = useState<string>("");
   const [totalProductsSold, setTotalProductsSold] = useState<string>("");
+  const [percentileOfTotalProductsSold, setPercentileOfTotalProductsSold] = useState<string>("");
   const [totalCustomers, setTotalCustomers] = useState<string>("");
+  const [percentileOfTotalCustomers, setPercentileOfTotalCustomers] = useState<string>("");
   const [averageRatingOfProducts, setAverageRatingOfProducts] = useState<string>("");
+  const [ratingPercentileOfProducts, setRatingPercentileOfProducts] = useState<string>("");
 
   const [revenueFilter, setRevenueFilter] = useState<string>("all");
   const [revenueData, setRevenueData] = useState<RevenueData[]>([]);
@@ -52,10 +61,30 @@ const HomePage = () => {
     }
   }
 
+  const getPercentileOfTotalRevenue = async () => {
+    try {
+      const { data } = await axiosPrivateSeller.get(`/seller/revenuePercentile/${seller.seller_id}`);
+      console.log(data)
+      setPercentileOfTotalRevenue(data.revenuePercentile[0].revenue_percentile);
+    } catch (err: any) {
+      console.log(err);
+    }
+  }
+
   const getTotalProductsSold = async () => {
     try {
       const { data } = await axiosPrivateSeller.get(`/seller/totalSold/${seller.seller_id}`);
       setTotalProductsSold(data.totalProductsSold[0].total_products_sold);
+    } catch (err: any) {
+      console.log(err);
+    }
+  }
+
+  const getPercentileOfTotalProductsSold = async () => {
+    try {
+      const { data } = await axiosPrivateSeller.get(`/seller/productPercentile/${seller.seller_id}`);
+      console.log(data)
+      setPercentileOfTotalProductsSold(data.productPercentile[0].product_percentile);
     } catch (err: any) {
       console.log(err);
     }
@@ -70,10 +99,30 @@ const HomePage = () => {
     }
   }
 
+  const getPercentileOfTotalCustomer = async () => {
+    try {
+      const { data } = await axiosPrivateSeller.get(`/seller/customerPercentile/${seller.seller_id}`);
+      console.log(data)
+      setPercentileOfTotalCustomers(data.customerPercentile[0].customer_percentile);
+    } catch (err: any) {
+      console.log(err);
+    }
+  }
+
   const getAverageRatingOfProducts = async () => {
     try {
       const { data } = await axiosPrivateSeller.get(`/seller/averageRating/${seller.seller_id}`);
       setAverageRatingOfProducts(data.averageRating[0].average_rating);
+    } catch (err: any) {
+      console.log(err);
+    }
+  }
+
+  const getRatingPercentileOfProducts = async () => {
+    try {
+      const { data } = await axiosPrivateSeller.get(`/seller/ratingPercentile/${seller.seller_id}`);
+      console.log(data)
+      setRatingPercentileOfProducts(data.ratingPercentile[0].rating_percentile);
     } catch (err: any) {
       console.log(err);
     }
@@ -170,53 +219,60 @@ const HomePage = () => {
 
   useEffect(() => {
     getTotalRevenue();
+    getPercentileOfTotalRevenue();
     getTotalProductsSold();
+    getPercentileOfTotalProductsSold();
     getTotalCustomers();
+    getPercentileOfTotalCustomer();
     getAverageRatingOfProducts();
+    getRatingPercentileOfProducts();
   }, [])
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AF19FF', '#FF5733', '#FFB700', '#FFC733', '#FFD966'];
 
   return (
     <Box>
-      {/* <Box
-        // bgColor={background || "info"}
-        height="300px"
-        width="100vw"
-        position="absolute"
-        top={0}
-        left={0}
-        // sx={darkMode && { bgColor: ({ palette: { background } }) => background.default }}
-      /> */}
+      <Box
+        sx={{
+          fontFamily: 'Roboto',
+          fontSize: 100,
+          padding: 2,
+          backgroundColor: blue[100], 
+          borderRadius: 5,
+          background: `linear-gradient(to bottom, ${blue[100]}, #FFFFFF)`
+        }}
+      >
+        Seller Dashboard
+      </Box>
       <Box pr={3}>
-        <Grid container spacing={3} m={3} ml={0} pl={0}>
-          <StatisticsCard
+        <Grid container spacing={3} m={3} mt={0} ml={0} >
+          <StatisticsCard 
             icon={<AttachMoneyIcon />}
             title={"Total Revenue Earned"}
             subheader={`$${totalRevenue}`}
-            percentage={"+55% since yesterday"}
+            percentage={`Percentile: ${percentileOfTotalRevenue}`}
           />
-          <StatisticsCard
-            icon={<AttachMoneyIcon />}
+          <StatisticsCard 
+            icon={<ShoppingCartOutlinedIcon />}
             title={"Total Products Sold"}
             subheader={totalProductsSold}
-            percentage={"+55% since yesterday"}
+            percentage={`Percentile: ${percentileOfTotalProductsSold}`}
           />
-          <StatisticsCard
-            icon={<AttachMoneyIcon />}
+          <StatisticsCard 
+            icon={<AccountCircleIcon />}
             title={"Total Customers"}
             subheader={totalCustomers}
-            percentage={"+55% since yesterday"}
+            percentage={`Percentile: ${percentileOfTotalCustomers}`}
           />
-          <StatisticsCard
-            icon={<AttachMoneyIcon />}
+          <StatisticsCard 
+            icon={<StarBorderRoundedIcon />}
             title={"Average Rating"}
             subheader={averageRatingOfProducts}
-            percentage={"+55% since yesterday"}
+            percentage={`Percentile: ${ratingPercentileOfProducts}`}
           />
         </Grid>
-        <Grid container spacing={3} mb={3}>
-          <Grid item xs={12} lg={7}>
+        <Grid container spacing={3} m={3} ml={0} boxShadow={1} borderRadius={5}>
+          <Grid item xs={12} lg={6}>
             <h1 className="text-2xl font-bold mb-4">Total Revenue</h1>
             <TextField
               select
@@ -229,13 +285,13 @@ const HomePage = () => {
               fullWidth
               sx={{ m: 2, ml: 0 }}
             >
-              <MenuItem value="today">Today</MenuItem>
               <MenuItem value="all">All Time</MenuItem>
               <MenuItem value="month">Month</MenuItem>
               <MenuItem value="week">Week</MenuItem>
+              <MenuItem value="today">Today</MenuItem>
             </TextField>
             <LineChart
-              width={1000}
+              width={1200}
               height={400}
               data={revenueData}
               margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
@@ -251,9 +307,8 @@ const HomePage = () => {
             <Slider /> 
           </Grid> */}
         </Grid>
-        <Grid container spacing={6} m={3} ml={0}>
-          <Grid item xs={12} md={7}>
-            {/* <SalesTable title="Sales by Country" rows={salesTableData} /> */}
+        <Grid container spacing={3} rowSpacing={6} m={3} ml={0}>
+          <Grid item xs={12} md={7} boxShadow={1} borderRadius={5}>
             <h1 className="text-2xl font-bold mb-4">Top Selling Products</h1>
             <TextField
               select
@@ -290,8 +345,8 @@ const HomePage = () => {
               <Bar dataKey="amt" name="Amount Sold" fill="#8884d8" background={{ fill: '#eee' }} />
             </BarChart>
           </Grid>
-          <Grid item xs={12} md={4}>
-            {/* <CategoriesList title="categories" categories={categoriesListData} /> */}
+          <Grid item md={0.5} />
+          <Grid item xs={12} md={4.5} boxShadow={1} borderRadius={5} pr={3} >
             <h1 className="text-2xl font-bold mb-4">Sales Per Category</h1>
             <TextField
               select
@@ -312,14 +367,14 @@ const HomePage = () => {
               <Pie
                 dataKey="value"
                 data={categoriesData}
-                cx="200"
-                cy="100"
+                cx="160"
+                // cy="100"
                 labelLine={false}
-                outerRadius={80}
+                outerRadius={90}
                 fill="#8884d8"
                 label
               >
-                {categoriesData.map((entry, index) => (
+                {categoriesData.map((_, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>

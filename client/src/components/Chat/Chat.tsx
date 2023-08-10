@@ -68,11 +68,6 @@ const Chat = ({ userType }: ChatProps) => {
   const [isSending, setIsSending] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [popUpImage, setPopUpImage] = useState<string>("");
-  const [hasLoaded, setHasLoaded] = useState(false);
-
-  const handleImageLoad = () => {
-    setHasLoaded(true);
-  };
 
   const handleOpenModal = (image_url: string) => {
     setPopUpImage(image_url);

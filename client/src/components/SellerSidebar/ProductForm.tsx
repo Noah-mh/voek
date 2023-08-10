@@ -367,29 +367,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     setProductVariations(updatedProductVariations);
   }, [var1Arr, var2Arr]);
 
-  // const [priceForAll, setPriceForAll] = useState<number>(0);
-  // const [quantityForAll, setQuantityForAll] = useState<number>(0);
-
-  // const handlePriceForAllChange = (event: any) => {
-  //   setPriceForAll(parseFloat(event.target.value));
-  // };
-
-  // const handleQuantityForAllChange = (event: any) => {
-  //   setQuantityForAll(parseInt(event.target.value));
-  // };
-
-  // const handleApplyToAll = (event: any) => {
-  //   event.preventDefault();
-
-  // const updatedProductVariations = productVariations.map((variation) => ({
-  //       ...variation,
-  //       price: priceForAll >= 0 ? priceForAll : variation.price,
-  //       quantity: quantityForAll >= 0 ? quantityForAll : variation.quantity,
-  //   }));
-
-  //   setProductVariations(updatedProductVariations);
-  // }
-
   const [rowErrors, setRowErrors] = useState<string>("");
 
   const handleSaveCell = (cell: MRT_Cell<ProductVariations>, value: any) => {

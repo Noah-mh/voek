@@ -301,6 +301,7 @@ export default function cartPage(): JSX.Element {
         setChangedQuantState(false);
         getUserCart();
         setClaimedVouchers({});
+        setIsChecked(false);
       } catch (err: any) {
         console.log(err);
       }
@@ -310,9 +311,20 @@ export default function cartPage(): JSX.Element {
 
   //when redeemcoins is checked
   useEffect(() => {
-    const discAmt = Math.floor(userCoins / 10);
+    const discAmt = Math.floor(userCoins / 100);
     if (isChecked) {
       if (totalAmt.total < discAmt) {
+        toast.warn("Your total is too low for coins to be applied.", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+        setIsChecked(false);
         return;
       } else {
         setTotalAmt({
@@ -352,9 +364,10 @@ export default function cartPage(): JSX.Element {
       shippingFee:
         sum == 0
           ? 0
-          : Number((Math.round((8.95 + sum * 0.1) * 100) / 100).toFixed(2)),
+          : Number((Math.round((8.95 + sum * 0.05) * 100) / 100).toFixed(2)),
 
-      total: sum == 0 ? 0 : Number(Number(sum + (8.95 + sum * 0.1)).toFixed(2)),
+      total:
+        sum == 0 ? 0 : Number(Number(sum + (8.95 + sum * 0.05)).toFixed(2)),
       coins: Number(Math.ceil(sum * 0.1)),
     });
   }, [groupItems]);
@@ -488,7 +501,7 @@ export default function cartPage(): JSX.Element {
                 setTotalAmt((prevState) => {
                   const newShippingAmt = Number(
                     Number(prevState.shippingFee) /
-                    (1 - Number(voucher.percentage_amount))
+                      (1 - Number(voucher.percentage_amount))
                   );
 
                   return {
@@ -765,34 +778,26 @@ export default function cartPage(): JSX.Element {
             <div className=" text-white">Total</div>
             <div className="text-white">${totalAmt.total}</div>
           </div>
-          <div className="activateCoins flex justify-between border-t-2 pt-3 my-3">
+          <div className="activateCoins items-center flex justify-between border-t-2 pt-3 my-3">
             <div
-              className={`bg-white rounded h-10 w-20 flex items-center justify-center pt-1 ${wasAVVoucherClaimed ? "" : "voucherButton"
-                } `}
+              className={`bg-white rounded h-7 w-20 flex items-center justify-center pt-1 ${
+                wasAVVoucherClaimed ? "" : "voucherButton"
+              } `}
             >
               <Button
                 onClick={handleOpen}
                 className="flex items-center justify-center align-middle"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 512 512"
-                  width="24"
-                  height="24"
-                  className="walletsvg mt-3"
-                >
-                  <path
-                    fill="var(--softerPurple)"
-                    d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V192c0-35.3-28.7-64-64-64H80c-8.8 0-16-7.2-16-16s7.2-16 16-16H448c17.7 0 32-14.3 32-32s-14.3-32-32-32H64zM416 272a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"
-                  />
-                </svg>
+                <span className=" text-xs font-bold font-Barlow text-purpleAccent capitalize ">
+                  Vouchers
+                </span>
               </Button>
             </div>
 
             <div className="showCoins text-xs text-white ">
               Coins Available: <span className="font-bold ">{userCoins}</span>
             </div>
-            <label className="relative inline-flex items-center mb-5 cursor-pointer">
+            <label className="relative inline-flex items-center cursor-pointer">
               <input
                 type="checkbox"
                 value=""
@@ -801,6 +806,7 @@ export default function cartPage(): JSX.Element {
                 onChange={() => {
                   isChecked ? setIsChecked(false) : setIsChecked(true);
                 }}
+                checked={isChecked}
               />
               <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
             </label>
@@ -813,10 +819,10 @@ export default function cartPage(): JSX.Element {
                 value={
                   selectedAddress
                     ? {
-                      value: selectedAddress,
-                      label: `${selectedAddress.street_name}, ${selectedAddress.block}, ${selectedAddress.postal_code}`,
-                      address: selectedAddress,
-                    }
+                        value: selectedAddress,
+                        label: `${selectedAddress.street_name}, ${selectedAddress.block}, ${selectedAddress.postal_code}`,
+                        address: selectedAddress,
+                      }
                     : null
                 }
                 styles={{
@@ -841,7 +847,7 @@ export default function cartPage(): JSX.Element {
                   to={"/profile"}
                   className="flex  items-center justify-center bg-white hover:bg-transparent hover:border-2 hover:box-border text-center hover:border-white hover:text-white text-softerPurple font-bold py-2 px-4 rounded mx-auto"
                   onClick={() => {
-                    sessionStorage.setItem('currentTab', '1');
+                    sessionStorage.setItem("currentTab", "1");
                   }}
                 >
                   Add an Address..

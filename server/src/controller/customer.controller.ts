@@ -795,3 +795,17 @@ export const processGetTotalSpentAllTime = async (
     return next(err);
   }
 };
+
+export const processContactUs = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { email, subject, message } = req.body;
+    await customerModel.handleContactUs(email, subject, message);
+    return res.sendStatus(200);
+  } catch (err: any) {
+    return next(err);
+  }
+}

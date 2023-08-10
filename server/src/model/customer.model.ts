@@ -642,8 +642,8 @@ WHERE customer_id = ?`;
     let result: any = await connection.query(sql, [customer_id]);
     const userData = result[0];
     console.log(":userdata");
-    console.log(userData);
-    if (userData.daysSinceLastCheckIn > 1) {
+    console.log(userData[0]);
+    if (userData[0].daysSinceLastCheckIn > 1) {
       // Reset streak to 0
       userData.current_day_streak = 0;
       console.log("set to 0??");
@@ -1235,5 +1235,41 @@ GROUP BY
     throw new Error(err);
   } finally {
     await connection.release();
+  }
+};
+
+export const handleContactUs = async (
+  email: string,
+  subject: string,
+  message: string
+) => {
+  try {
+    const tranEmailApi = new Sib.TransactionalEmailsApi();
+    const sender = {
+      email: email,
+    };
+
+    const receivers = [
+      {
+        email: "voek.help.centre@gmail.com",
+      },
+    ];
+
+    tranEmailApi
+      .sendTransacEmail({
+        sender,
+        to: receivers,
+        subject: subject,
+        textContent: message,
+      })
+      .then((response: any) => {
+        console.log(response);
+        return;
+      })
+      .catch((err: any) => {
+        throw new Error(err);
+      });
+  } catch (err: any) {
+    throw new Error(err);
   }
 };
