@@ -249,10 +249,10 @@ export const handleEditProduct = async (
       WHERE product_id = ?`;
   let getSku3 = `LIMIT 1
     ) AS subquery;`;
-  let getSkuVar1 = ` AND variation_1 = ?`;
-  let getSkuVar1Null = ` AND variation_1 IS NULL`;
-  let getSkuVar2 = ` AND variation_2 = ?`;
-  let getSkuVar2Null = ` AND variation_2 IS NULL`;
+  let getSkuVar1 = ` AND variation_1 = ? `;
+  let getSkuVar1Null = ` AND variation_1 IS NULL `;
+  let getSkuVar2 = ` AND variation_2 = ? `;
+  let getSkuVar2Null = ` AND variation_2 IS NULL `;
   const insertProductVariations = `INSERT INTO product_variations (sku, product_id, variation_1, variation_2, quantity, price)
     VALUES (?, ?, ?, ?, ?, ?);`;
   const insertProductImages = `INSERT INTO product_images (product_id, image_url, sku)
@@ -1507,6 +1507,38 @@ export const handleGetTotalRevenue = async (
   }
 }
 
+export const handleGetPercentileOfTotalRevenue = async (
+  seller_id: number
+): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  let sql = `SELECT ROUND(COALESCE(revenue.total_revenue / highest_total_revenue.highest_revenue * 100, 0), 2) AS revenue_percentile
+  FROM (
+      SELECT COALESCE(SUM(op.total_price), 0) AS total_revenue
+      FROM listed_products lp
+      LEFT JOIN orders_product op ON lp.product_id = op.product_id
+      WHERE lp.seller_id = ?
+  ) revenue
+  CROSS JOIN (
+      SELECT COALESCE(MAX(total_revenue), 0) AS highest_revenue
+      FROM (
+          SELECT COALESCE(SUM(op.total_price), 0) AS total_revenue
+          FROM listed_products lp
+          LEFT JOIN orders_product op ON lp.product_id = op.product_id
+          GROUP BY lp.seller_id
+      ) max_revenue
+  ) AS highest_total_revenue;`;
+
+  try {
+    const [result] = await connection.query(sql, [seller_id]);
+    return result as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+}
+
 export const handleGetTotalProductsSold = async (
   seller_id: number
 ): Promise<Object[]> => {
@@ -1515,6 +1547,36 @@ export const handleGetTotalProductsSold = async (
   let sql = `SELECT COALESCE(SUM(op.quantity), 0) AS total_products_sold FROM orders_product op 
   INNER JOIN listed_products lp ON op.product_id = lp.product_id
   WHERE lp.seller_id = ?;`;
+
+  try {
+    const [result] = await connection.query(sql, [seller_id]);
+    return result as Object[];
+  } catch (err: any) {
+    throw new Error(err);
+  } finally {
+    await connection.release();
+  }
+}
+
+export const handleGetPercentileOfTotalProductsSold = async (
+  seller_id: number
+): Promise<Object[]> => {
+  const promisePool = pool.promise();
+  const connection = await promisePool.getConnection();
+  let sql = `SELECT ROUND(COALESCE(products_count.total_products_sold / max_products_count.highest_products_sold * 100, 0), 2) AS product_percentile
+  FROM (
+      SELECT COALESCE(SUM(op.quantity), 0) AS total_products_sold FROM orders_product op 
+    INNER JOIN listed_products lp ON op.product_id = lp.product_id
+    WHERE lp.seller_id = ?
+  ) products_count
+  CROSS JOIN (
+      SELECT COALESCE(MAX(max_products_count_alias.total_products_sold), NULL) AS highest_products_sold
+      FROM (
+          SELECT COALESCE(SUM(op.quantity), 0) AS total_products_sold FROM orders_product op 
+      INNER JOIN listed_products lp ON op.product_id = lp.product_id
+      GROUP BY lp.seller_id
+      ) max_products_count_alias
+  ) AS max_products_count; `;
 
   try {
     const [result] = await connection.query(sql, [seller_id]);
@@ -1551,31 +1613,27 @@ export const handleGetPercentileOfTotalCustomers = async (
 ): Promise<Object[]> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  let sql = `SELECT
-  CASE
-    WHEN COUNT(*) > 0 THEN
-      (
-        SELECT COALESCE(ROUND((average_rating / highest_rating * 100), 2), 0)
-        FROM (
-          SELECT
-            lp.seller_id,
-            COALESCE(ROUND(MAX(r.rating), 2), 0) AS highest_rating,
-            COALESCE(ROUND(AVG(r.rating), 2), 0) AS average_rating,
-            RANK() OVER (ORDER BY COALESCE(ROUND(AVG(r.rating), 2), 0) DESC) AS rating_rank
-          FROM review r
-          LEFT JOIN listed_products lp ON r.product_id = lp.product_id
+  let sql = `SELECT ROUND(COALESCE(customers_count.customer_count / highest_count_alias.highest_customer_count * 100, 0), 2) AS customer_percentile
+  FROM (
+      SELECT lp.seller_id, COALESCE(COUNT(DISTINCT o.customer_id), 0) AS customer_count
+      FROM orders o
+      INNER JOIN orders_product op ON o.orders_id = op.orders_id
+      INNER JOIN listed_products lp ON op.product_id = lp.product_id
+      WHERE lp.seller_id = ?
+  ) customers_count
+  CROSS JOIN (
+      SELECT COALESCE(MAX(highest_count.customer_count), NULL) AS highest_customer_count
+      FROM (
+          SELECT COUNT(DISTINCT customer_id) AS customer_count 
+          FROM orders o
+          INNER JOIN orders_product op ON o.orders_id = op.orders_id
+          INNER JOIN listed_products lp ON op.product_id = lp.product_id
           GROUP BY lp.seller_id
-        ) ratings
-        WHERE ratings.seller_id = ?
-      )
-    ELSE 0.00
-  END AS rating_percentile
-FROM review r
-INNER JOIN listed_products lp ON r.product_id = lp.product_id
-WHERE lp.seller_id = ?;`;
+      ) highest_count
+  ) AS highest_count_alias;`;
 
   try {
-    const [result] = await connection.query(sql, [seller_id, seller_id]);
+    const [result] = await connection.query(sql, [seller_id]);
     return result as Object[];
   } catch (err: any) {
     throw new Error(err);

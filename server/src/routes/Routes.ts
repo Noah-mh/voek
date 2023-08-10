@@ -435,16 +435,34 @@ export default function (app: Express, router: Router) {
     sellerController.processGetTotalRevenue
   );
   router.get(
+    "/seller/revenuePercentile/:sellerId",
+    verifyJWT,
+    verifyRoles("seller"),
+    sellerController.processGetPercentileOfTotalRevenue
+  );
+  router.get(
     "/seller/totalSold/:sellerId",
     verifyJWT,
     verifyRoles("seller"),
     sellerController.processGetTotalProductsSold
   );
   router.get(
+    "/seller/productPercentile/:sellerId",
+    verifyJWT,
+    verifyRoles("seller"),
+    sellerController.processGetPercentileOfTotalProductsSold
+  );
+  router.get(
     "/seller/totalCustomers/:sellerId",
     verifyJWT,
     verifyRoles("seller"),
     sellerController.processGetTotalCustomers
+  );
+  router.get(
+    "/seller/customerPercentile/:sellerId",
+    verifyJWT,
+    verifyRoles("seller"),
+    sellerController.processGetPercentileOfTotalCustomers
   );
   router.get(
     "/seller/averageRating/:sellerId",

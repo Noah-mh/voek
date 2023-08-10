@@ -37,8 +37,11 @@ const HomePage = () => {
   const { seller } = useSeller();
 
   const [totalRevenue, setTotalRevenue] = useState<string>("");
+  const [percentileOfTotalRevenue, setPercentileOfTotalRevenue] = useState<string>("");
   const [totalProductsSold, setTotalProductsSold] = useState<string>("");
+  const [percentileOfTotalProductsSold, setPercentileOfTotalProductsSold] = useState<string>("");
   const [totalCustomers, setTotalCustomers] = useState<string>("");
+  const [percentileOfTotalCustomers, setPercentileOfTotalCustomers] = useState<string>("");
   const [averageRatingOfProducts, setAverageRatingOfProducts] = useState<string>("");
   const [ratingPercentileOfProducts, setRatingPercentileOfProducts] = useState<string>("");
 
@@ -58,6 +61,16 @@ const HomePage = () => {
     }
   }
 
+  const getPercentileOfTotalRevenue = async () => {
+    try {
+      const { data } = await axiosPrivateSeller.get(`/seller/revenuePercentile/${seller.seller_id}`);
+      console.log(data)
+      setPercentileOfTotalRevenue(data.revenuePercentile[0].revenue_percentile);
+    } catch (err: any) {
+      console.log(err);
+    }
+  }
+
   const getTotalProductsSold = async () => {
     try {
       const { data } = await axiosPrivateSeller.get(`/seller/totalSold/${seller.seller_id}`);
@@ -67,10 +80,30 @@ const HomePage = () => {
     }
   }
 
+  const getPercentileOfTotalProductsSold = async () => {
+    try {
+      const { data } = await axiosPrivateSeller.get(`/seller/productPercentile/${seller.seller_id}`);
+      console.log(data)
+      setPercentileOfTotalProductsSold(data.productPercentile[0].product_percentile);
+    } catch (err: any) {
+      console.log(err);
+    }
+  }
+
   const getTotalCustomers = async () => {
     try {
       const { data } = await axiosPrivateSeller.get(`/seller/totalCustomers/${seller.seller_id}`);
       setTotalCustomers(data.totalCustomers[0].total_customers);
+    } catch (err: any) {
+      console.log(err);
+    }
+  }
+
+  const getPercentileOfTotalCustomer = async () => {
+    try {
+      const { data } = await axiosPrivateSeller.get(`/seller/customerPercentile/${seller.seller_id}`);
+      console.log(data)
+      setPercentileOfTotalCustomers(data.customerPercentile[0].customer_percentile);
     } catch (err: any) {
       console.log(err);
     }
@@ -88,6 +121,7 @@ const HomePage = () => {
   const getRatingPercentileOfProducts = async () => {
     try {
       const { data } = await axiosPrivateSeller.get(`/seller/ratingPercentile/${seller.seller_id}`);
+      console.log(data)
       setRatingPercentileOfProducts(data.ratingPercentile[0].rating_percentile);
     } catch (err: any) {
       console.log(err);
@@ -185,8 +219,11 @@ const HomePage = () => {
 
   useEffect(() => {
     getTotalRevenue();
+    getPercentileOfTotalRevenue();
     getTotalProductsSold();
+    getPercentileOfTotalProductsSold();
     getTotalCustomers();
+    getPercentileOfTotalCustomer();
     getAverageRatingOfProducts();
     getRatingPercentileOfProducts();
   }, [])
@@ -213,25 +250,25 @@ const HomePage = () => {
             icon={<AttachMoneyIcon />}
             title={"Total Revenue Earned"}
             subheader={`$${totalRevenue}`}
-            percentage={`${ratingPercentileOfProducts} percentile`}
+            percentage={`Percentile: ${percentileOfTotalRevenue}`}
           />
           <StatisticsCard 
             icon={<ShoppingCartOutlinedIcon />}
             title={"Total Products Sold"}
             subheader={totalProductsSold}
-            percentage={`${ratingPercentileOfProducts} percentile`}
+            percentage={`Percentile: ${percentileOfTotalProductsSold}`}
           />
           <StatisticsCard 
             icon={<AccountCircleIcon />}
             title={"Total Customers"}
             subheader={totalCustomers}
-            percentage={`${ratingPercentileOfProducts} percentile`}
+            percentage={`Percentile: ${percentileOfTotalCustomers}`}
           />
           <StatisticsCard 
             icon={<StarBorderRoundedIcon />}
             title={"Average Rating"}
             subheader={averageRatingOfProducts}
-            percentage={`${ratingPercentileOfProducts} percentile`}
+            percentage={`Percentile: ${ratingPercentileOfProducts}`}
           />
         </Grid>
         <Grid container spacing={3} m={3} ml={0} boxShadow={1} borderRadius={5}>
@@ -337,7 +374,7 @@ const HomePage = () => {
                 fill="#8884d8"
                 label
               >
-                {categoriesData.map((entry, index) => (
+                {categoriesData.map((_, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>

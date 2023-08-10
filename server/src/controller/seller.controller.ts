@@ -446,6 +446,16 @@ export const processGetTotalRevenue = async (req: Request, res: Response, next: 
     }
 }
 
+export const processGetPercentileOfTotalRevenue = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { sellerId } = req.params;
+        const result = await sellerModel.handleGetPercentileOfTotalRevenue(parseInt(sellerId));
+        return res.json({ revenuePercentile : result });
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
 export const processGetTotalProductsSold = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { sellerId } = req.params;
@@ -456,11 +466,31 @@ export const processGetTotalProductsSold = async (req: Request, res: Response, n
     }
 }
 
+export const processGetPercentileOfTotalProductsSold = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { sellerId } = req.params;
+        const result = await sellerModel.handleGetPercentileOfTotalProductsSold(parseInt(sellerId));
+        return res.json({ productPercentile : result });
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
 export const processGetTotalCustomers = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { sellerId } = req.params;
         const result = await sellerModel.handleGetTotalCustomers(parseInt(sellerId));
         return res.json({ totalCustomers : result });
+    } catch (err: any) {
+        return next(err);
+    }
+}
+
+export const processGetPercentileOfTotalCustomers = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { sellerId } = req.params;
+        const result = await sellerModel.handleGetPercentileOfTotalCustomers(parseInt(sellerId));
+        return res.json({ customerPercentile : result });
     } catch (err: any) {
         return next(err);
     }
@@ -480,7 +510,7 @@ export const processGetRatingPercentileOfProducts = async (req: Request, res: Re
     try {
         const { sellerId } = req.params;
         const result = await sellerModel.handleGetRatingPercentileOfProducts(parseInt(sellerId));
-        return res.json({ averageRating : result });
+        return res.json({ ratingPercentile : result });
     } catch (err: any) {
         return next(err);
     }
