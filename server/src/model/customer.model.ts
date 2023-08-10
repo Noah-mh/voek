@@ -70,8 +70,8 @@ export const handleSendSMSOTP = async (
         if (err === null) {
           console.log(
             `Messaging response for messaging phone number: ${phoneNumber}` +
-            ` => code: ${res["status"]["code"]}` +
-            `, description: ${res["status"]["description"]}`
+              ` => code: ${res["status"]["code"]}` +
+              `, description: ${res["status"]["description"]}`
           );
         } else {
           console.log("Unable to send message. " + err);
@@ -186,8 +186,9 @@ export const handleSendEmailLink = async (
         sender,
         to: receivers,
         subject: "Verification Link For VOEK customer Sign Up",
-        textContent: `${process.env.FRONTEND_BASE_URL || "http://localhost:5173"
-          }/signup/verify?signupToken=${signUpToken}`,
+        textContent: `${
+          process.env.FRONTEND_BASE_URL || "http://localhost:5173"
+        }/signup/verify?signupToken=${signUpToken}`,
       })
       .then((response: any) => {
         console.log(response);
@@ -342,8 +343,9 @@ export const handleSendEmailForgetPassword = async (
         sender,
         to: receivers,
         subject: "Password reset link for customer",
-        textContent: `${process.env.FRONTEND_BASE_URL || "http://localhost:5173"
-          }/forgetPassword/verify?forgetPasswordToken=${forgetPasswordToken}`,
+        textContent: `${
+          process.env.FRONTEND_BASE_URL || "http://localhost:5173"
+        }/forgetPassword/verify?forgetPasswordToken=${forgetPasswordToken}`,
       })
       .then((response: any) => {
         console.log(response);
@@ -495,8 +497,9 @@ export const handleSendEmailChange = async (
       sender,
       to: receivers,
       subject: "Verification Link For VOEK customer Email Change",
-      textContent: `${process.env.FRONTEND_BASE_URL || "http://localhost:5173"
-        }/customer/email-verification?token=${changeCustomerEmailToken}`,
+      textContent: `${
+        process.env.FRONTEND_BASE_URL || "http://localhost:5173"
+      }/customer/email-verification?token=${changeCustomerEmailToken}`,
     })
     .then((response: any) => {
       console.log(response);
@@ -639,8 +642,8 @@ WHERE customer_id = ?`;
     let result: any = await connection.query(sql, [customer_id]);
     const userData = result[0];
     console.log(":userdata");
-    console.log(userData);
-    if (userData.daysSinceLastCheckIn > 1) {
+    console.log(userData[0]);
+    if (userData[0].daysSinceLastCheckIn > 1) {
       // Reset streak to 0
       userData.current_day_streak = 0;
       console.log("set to 0??");
@@ -1269,4 +1272,4 @@ export const handleContactUs = async (
   } catch (err: any) {
     throw new Error(err);
   }
-}
+};
