@@ -105,7 +105,7 @@ const SignupSeller = (): JSX.Element => {
             type="text"
             name="shopName"
             placeholder="SHOP NAME"
-            className="w-72"
+            className="w-72 !outline-none"
             autoComplete="off"
             onChange={(e) => setShopName(e.target.value)}
           />
@@ -116,7 +116,7 @@ const SignupSeller = (): JSX.Element => {
             name="email"
             placeholder="EMAIL"
             autoComplete="off"
-            className="w-72"
+            className="w-72 !outline-none"
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
@@ -126,7 +126,7 @@ const SignupSeller = (): JSX.Element => {
             name="phoneNumber"
             placeholder="PHONE NUMBER"
             autoComplete="off"
-            className="w-72"
+            className="w-72 !outline-none"
             onChange={(e) => setPhoneNumber(e.target.value)}
           />
         </div>
@@ -136,7 +136,7 @@ const SignupSeller = (): JSX.Element => {
             name="password"
             placeholder="PASSWORD"
             autoComplete="off"
-            className="w-72"
+            className="w-72 !outline-none"
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
@@ -146,13 +146,13 @@ const SignupSeller = (): JSX.Element => {
             name="password"
             placeholder="CONFIRM PASSWORD"
             autoComplete="off"
-            className="w-72"
+            className="w-72 !outline-none"
             onChange={(e) => setConfirmedPassword(e.target.value)}
           />
         </div>
         <div className="field-wrapper flex">
           <ReCAPTCHA
-            sitekey={import.meta.env.RECAPTCHA || "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"}
+            sitekey={import.meta.env.VITE_RECAPTCHA}
             ref={captchaRef}
           />
         </div>

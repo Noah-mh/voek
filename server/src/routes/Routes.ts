@@ -266,6 +266,10 @@ export default function (app: Express, router: Router) {
     "/sellers",
     sellerController.processGetAllSellers
   )
+  router.post(
+    "/contact",
+    customerController.processContactUs
+  )
 
   // NOAH ENDPOINTS - reviews, customer profile, customer address, add to cart, ratings, product details, seller details, seller categories
   router.get(

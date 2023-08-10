@@ -134,14 +134,14 @@ export default function OTP({ userDetails, setLogin }: props): JSX.Element {
           Receive OTP through{" "}
           <span
             onClick={emailSentHandler}
-            className="underline text-white hover:cursor-pointer"
+            className="underline text-white hover:cursor-pointer font-bold text-xl"
           >
             Email
           </span>{" "}
           or{" "}
           <span
             onClick={smsSentHandler}
-            className="underline text-white hover:cursor-pointer"
+            className="underline text-white hover:cursor-pointer font-bold text-xl"
           >
             SMS
           </span>
@@ -170,7 +170,7 @@ export default function OTP({ userDetails, setLogin }: props): JSX.Element {
             disabled={disabled}
             type="submit"
             value="VERIFY OTP"
-            className="submitOTP w-4/5 bg-purpleAccent text-white rounded-md p-1 text-sm font-Barlow font-semibold tracking-widest hover:bg-transparent"
+            className="!outline-none submitOTP w-4/5 bg-purpleAccent text-white rounded-md p-1 text-sm font-Barlow font-semibold tracking-widest hover:bg-transparent"
           />
         </form>
         <p>{errMsg}</p>
