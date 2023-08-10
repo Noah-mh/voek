@@ -1,12 +1,12 @@
 import { axiosPrivateSeller } from '../../api/axios.tsx';
 import ProductForm from "./ProductForm.tsx";
 import { useState } from 'react';
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer, toast, Id } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 interface SubmitVariationsInterface {
   name?: string;
-  var1: string | null; 
+  var1: string | null;
   var2: string | null;
   price: number;
   quantity: number;
@@ -23,7 +23,7 @@ interface Product {
   imageUrl: string;
   sku: string;
   subRows: Array<Product>;
-  
+
   // optional properties
   // product only
   // showSubrows?: boolean;
@@ -37,26 +37,27 @@ interface Product {
 }
 
 // const EditProduct = ( prop: Product ) => {
-  const EditProduct: React.FC<{ product: Product }> = ({ product }) => {
+const EditProduct: React.FC<{ product: Product }> = ({ product }) => {
 
   // console.log("product", product)
   // const [currentProduct, setCurrentProduct] = useState<Product>(product);
   // console.log("currentProduct", currentProduct);
   const currentProduct: Product = product;
+  const [toastId, setToastId] = useState<Id | undefined>(undefined);
 
   const handleSubmit = async (e: any) => {
     console.log("event", e);
     let keys: string[] = [];
     let values: Array<string | number> = [];
     let noVariations: SubmitVariationsInterface = {
-      var1: null, 
+      var1: null,
       var2: null,
       price: e.price,
       quantity: e.quantity,
       imageUrl: e.imageUrl,
       sku: e?.sku
     }
-    
+
     if (currentProduct.name !== e.name) {
       keys.push("name");
       values.push(e.name);
@@ -81,20 +82,25 @@ interface Product {
           }
         )
         if (response) {
-          toast.success("Successfully updated " + e.name, {
-              position: "top-center",
-              autoClose: 5000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "light",
+          toast.dismiss(toastId);
+
+          const id = toast.success("Successfully updated " + e.name, {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
           });
+          setToastId(id);
         }
       } catch (err) {
         console.log(err);
-        toast.error("Error updating " + e.name, {
+        toast.dismiss(toastId);
+
+        const id = toast.error("Error updating " + e.name, {
           position: "top-center",
           autoClose: 5000,
           hideProgressBar: false,
@@ -104,6 +110,7 @@ interface Product {
           progress: undefined,
           theme: "light",
         });
+        setToastId(id);
       }
     }
 
@@ -117,7 +124,7 @@ interface Product {
         <h1 className="text-xl font-medium mb-2">Edit Product</h1>
 
         <ToastContainer />
-        <ProductForm 
+        <ProductForm
           product={currentProduct}
           onSubmit={handleSubmit}
         />

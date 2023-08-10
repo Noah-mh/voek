@@ -126,7 +126,7 @@ const SignupCustomer = ({ referral_id }: Props): JSX.Element => {
             type="text"
             name="username"
             placeholder="USERNAME"
-            className="w-72"
+            className="w-72 !outline-none"
             autoComplete="off"
             onChange={(e) => setUsername(e.target.value)}
           />
@@ -137,7 +137,7 @@ const SignupCustomer = ({ referral_id }: Props): JSX.Element => {
             name="email"
             placeholder="EMAIL"
             autoComplete="off"
-            className="w-72"
+            className="w-72 !outline-none"
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
@@ -147,7 +147,7 @@ const SignupCustomer = ({ referral_id }: Props): JSX.Element => {
             name="phoneNumber"
             placeholder="PHONE NUMBER"
             autoComplete="off"
-            className="w-72"
+            className="w-72 !outline-none"
             onChange={(e) => setPhoneNumber(e.target.value)}
           />
         </div>
@@ -157,7 +157,7 @@ const SignupCustomer = ({ referral_id }: Props): JSX.Element => {
             name="password"
             placeholder="PASSWORD"
             autoComplete="off"
-            className="w-72"
+            className="w-72 !outline-none"
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
@@ -167,7 +167,7 @@ const SignupCustomer = ({ referral_id }: Props): JSX.Element => {
             name="password"
             placeholder="CONFIRM PASSWORD"
             autoComplete="off"
-            className="w-72"
+            className="w-72 !outline-none"
             onChange={(e) => setConfirmedPassword(e.target.value)}
           />
         </div>

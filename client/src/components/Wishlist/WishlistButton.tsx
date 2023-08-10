@@ -1,7 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
-
+import { Id } from "react-toastify";
 interface WishlistButtonProps {
   productID: any;
   customerID: any;
@@ -18,7 +18,7 @@ const WishlistButton = ({
   toast,
 }: WishlistButtonProps) => {
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
-
+  const [toastId, setToastId] = useState<Id | undefined>(undefined);
   useEffect(() => {
     // Nhat Tien (Wishlist) :D
     const checkWishlistProductExistence = async () => {
@@ -42,7 +42,9 @@ const WishlistButton = ({
 
   const handleAddToWishlist = () => {
     if (customerID == undefined) {
-      toast.warn("Please Log in to add into wishlist", {
+      toast.dismiss(toastId);
+
+      const id = toast.warn("Please Log in to add into wishlist", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -52,6 +54,7 @@ const WishlistButton = ({
         progress: undefined,
         theme: "light",
       });
+      setToastId(id);
       return;
     } else {
       axiosPrivateCustomer
@@ -70,7 +73,9 @@ const WishlistButton = ({
           // On successful addition to wishlist, show the popup
           if (response.status === 201) {
             setHeart(true);
-            toast.success("Item Added to Wishlist! 😊", {
+            toast.dismiss(toastId);
+
+            const id = toast.success("Item Added to Wishlist! 😊", {
               position: "top-center",
               autoClose: 5000,
               hideProgressBar: false,
@@ -80,12 +85,15 @@ const WishlistButton = ({
               progress: undefined,
               theme: "light",
             });
+            setToastId(id);
           }
         })
         .catch((error) => {
           // Handle error here
           console.error(error);
-          toast.error("Error! Adding to wishlist failed", {
+          toast.dismiss(toastId);
+
+          const id = toast.error("Error! Adding to wishlist failed", {
             position: "top-center",
             autoClose: 5000,
             hideProgressBar: false,
@@ -95,13 +103,16 @@ const WishlistButton = ({
             progress: undefined,
             theme: "light",
           });
+          setToastId(id);
         });
     }
   };
 
   const handleRemoveFromWishlist = () => {
     if (customerID == undefined) {
-      toast.warn("Please Log in to use the wishlist", {
+      toast.dismiss(toastId);
+
+      const id = toast.warn("Please Log in to use the wishlist", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -111,6 +122,7 @@ const WishlistButton = ({
         progress: undefined,
         theme: "light",
       });
+      setToastId(id);
     } else {
       axiosPrivateCustomer
         .delete(
@@ -119,7 +131,9 @@ const WishlistButton = ({
         .then((response) => {
           if (response.status === 200) {
             setHeart(false);
-            toast.success("Item Removed from Wishlist! 😊", {
+            toast.dismiss(toastId);
+
+            const id = toast.success("Item Removed from Wishlist! 😊", {
               position: "top-center",
               autoClose: 5000,
               hideProgressBar: false,
@@ -129,12 +143,15 @@ const WishlistButton = ({
               progress: undefined,
               theme: "light",
             });
+            setToastId(id);
           }
         })
         .catch((error) => {
           // Handle error here
           console.error(error);
-          toast.error("Error! Removing from wishlist failed", {
+          toast.dismiss(toastId);
+
+          const id = toast.error("Error! Removing from wishlist failed", {
             position: "top-center",
             autoClose: 5000,
             hideProgressBar: false,
@@ -144,6 +161,7 @@ const WishlistButton = ({
             progress: undefined,
             theme: "light",
           });
+          setToastId(id);
         });
     }
   };
