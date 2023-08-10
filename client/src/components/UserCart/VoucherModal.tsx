@@ -50,7 +50,7 @@ const VoucherModal = ({
   setLastClaimedVoucher,
   groupItemsPrice,
 }: // getUserCart,
-  VoucherModalProps) => {
+VoucherModalProps) => {
   const [groupedVouchers, setGroupedVouchers] = useState<{
     [key: string]: Voucher[];
   }>({});
@@ -247,11 +247,13 @@ const VoucherModal = ({
                         </div>
                       </div>
                       {voucher.min_spend > totalAmt.subTotal ||
-                        !groupItems.hasOwnProperty(sellerKey) ||
-                        (voucher.number_amount > groupItemsPrice[sellerKey] &&
-                          !claimedVouchers[sellerKey]?.[
+                      !groupItems.hasOwnProperty(sellerKey) ||
+                      (voucher.voucher_category == "Shipping" &&
+                        voucher.number_amount > totalAmt.shippingFee) ||
+                      (voucher.number_amount > groupItemsPrice[sellerKey] &&
+                        !claimedVouchers[sellerKey]?.[
                           voucher.customer_voucher_id
-                          ]) ? (
+                        ]) ? (
                         <div
                           className="flex flex-col justify-center font-bold"
                           onClick={() => {
@@ -264,6 +266,12 @@ const VoucherModal = ({
                             ) {
                               errorMessage =
                                 "Total is too low for discount to be applied.";
+                            } else if (
+                              voucher.voucher_category == "Shipping" &&
+                              voucher.number_amount > totalAmt.shippingFee
+                            ) {
+                              errorMessage =
+                                "Total Shipping is too low for discount to be applied.";
                             } else {
                               errorMessage =
                                 "The store is not available in your cart.";
