@@ -1,4 +1,5 @@
 import "./footer.css";
+import { useNavigate } from "react-router-dom";
 
 const Footer = (props: any) => {
   const logoStyle = {
@@ -7,18 +8,21 @@ const Footer = (props: any) => {
   const bgStyle = {
     backgroundColor: props.mode === "dark" ? "white" : "#484848",
   };
+  const navigate = useNavigate();
+
   return (
     <footer
       className="flex items-center justify-center p-6 px-8 pl-24"
       style={{ backgroundColor: bgStyle.backgroundColor }}
     >
       <div className="w-3/5 flex p-6 justify-center items-center">
-        <div className="w-1/6 ">
+        <div className="w-2/6 ">
           <h1
             className="font-bold tracking-widest text-3xl text-center"
             style={logoStyle}
           >
             VOEK
+            <span className="ms-5 text-2xl cursor-pointer hover:text-purpleAccent" onClick={() => {navigate('/contact')}} >Contact Us</span>
           </h1>
         </div>
         <div className="w-1/12 flex justify-center">
