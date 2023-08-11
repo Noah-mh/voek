@@ -22,7 +22,7 @@
   position: absolute;
   width: 1024px; /* same as canvas width */
   height: 20px;
-  top: 5px; /* adjust this if you want more space between the bar and the top edge */
+  top: 5px;
   left: 50%; /* centers the element */
   transform: translateX(
     -50%

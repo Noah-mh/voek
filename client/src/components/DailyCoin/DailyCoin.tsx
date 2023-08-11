@@ -6,7 +6,6 @@ import moment from "moment";
 import tz from "moment-timezone";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 
-
 import Button from "@mui/material/Button";
 
 const timezone = tz.tz.guess();
@@ -21,6 +20,7 @@ const DailyCoin: React.FC = () => {
 
   const [alreadyCheckedIn, setAlreadyCheckedIn] = useState<boolean>(false);
   const [currentDayStreak, setCurrentDayStreak] = useState<number>(0);
+  const [daysSinceLastCheckIn, setDaysSinceLastCheckIn] = useState<number>(0);
   const [newCheckIn, setNewCheckIn] = useState<boolean>(false);
   const [toastId, setToastId] = useState<Id | undefined>(undefined);
 
@@ -35,6 +35,7 @@ const DailyCoin: React.FC = () => {
         setCurrentDayStreak(0);
         setNewCheckIn(true);
       } else {
+        setDaysSinceLastCheckIn(res.data[0].daysSinceLastCheckIn);
         if (res.data[0].daysSinceLastCheckIn < 1) {
           setAlreadyCheckedIn(true);
         }
@@ -144,7 +145,13 @@ const DailyCoin: React.FC = () => {
             ? "Already Checked In"
             : "Check in now to claim coins!"}
         </button>
+        {!newCheckIn && (
+          <div className=" text-center text-xs pt-2 text-gray-400 font-bold font-Barlow">
+            Last Checked In: {daysSinceLastCheckIn} days ago
+          </div>
+        )}
       </div>
+
       <ToastContainer
         position="top-center"
         autoClose={5000}
