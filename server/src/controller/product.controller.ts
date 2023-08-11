@@ -216,7 +216,6 @@ export const getProductDetailsWithoutReviews = async (
         product_id
       );
     if (!response?.length) return res.sendStatus(404);
-    console.log(response);
     return res.json({ products: response });
   } catch (err: any) {
     return next(err);

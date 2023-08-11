@@ -50,7 +50,7 @@ const VoucherModal = ({
   setLastClaimedVoucher,
   groupItemsPrice,
 }: // getUserCart,
-VoucherModalProps) => {
+  VoucherModalProps) => {
   const [groupedVouchers, setGroupedVouchers] = useState<{
     [key: string]: Voucher[];
   }>({});
@@ -58,7 +58,6 @@ VoucherModalProps) => {
 
   useEffect(() => {
     //if have time, get seller username and display it instead of the id
-    console.log("VoucherModal vouchers: ", vouchers);
     if (vouchers.length > 0) {
       const tempGroupedVouchers: { [key: string]: Voucher[] } = {};
       vouchers.forEach((voucher: Voucher) => {
@@ -71,11 +70,9 @@ VoucherModalProps) => {
       });
       setGroupedVouchers(tempGroupedVouchers);
     }
-    console.log(groupedVouchers);
   }, [vouchers]);
 
   const voucherClaimed = (voucher: Voucher, sellerKey: string) => () => {
-    console.log("voucher claimed: ", voucher);
     const key = `${voucher.seller_id}_${voucher.shop_name}`;
     setLastClaimedVoucher(voucher);
     setWasAVVoucherClaimed(false);
@@ -247,13 +244,13 @@ VoucherModalProps) => {
                         </div>
                       </div>
                       {voucher.min_spend > totalAmt.subTotal ||
-                      !groupItems.hasOwnProperty(sellerKey) ||
-                      (voucher.voucher_category == "Shipping" &&
-                        voucher.number_amount > totalAmt.shippingFee) ||
-                      (voucher.number_amount > groupItemsPrice[sellerKey] &&
-                        !claimedVouchers[sellerKey]?.[
+                        !groupItems.hasOwnProperty(sellerKey) ||
+                        (voucher.voucher_category == "Shipping" &&
+                          voucher.number_amount > totalAmt.shippingFee) ||
+                        (voucher.number_amount > groupItemsPrice[sellerKey] &&
+                          !claimedVouchers[sellerKey]?.[
                           voucher.customer_voucher_id
-                        ]) ? (
+                          ]) ? (
                         <div
                           className="flex flex-col justify-center font-bold"
                           onClick={() => {

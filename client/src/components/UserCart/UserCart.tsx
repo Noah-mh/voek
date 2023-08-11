@@ -397,7 +397,6 @@ export default function cartPage(): JSX.Element {
             case "Shipping": {
               if (voucher.number_amount) {
                 const discAmt = voucher.number_amount;
-                console.log("1;");
                 setTotalAmt((prevState) => ({
                   ...prevState,
                   shippingFee: Number(
@@ -545,7 +544,6 @@ export default function cartPage(): JSX.Element {
                   };
                 });
               } else {
-                console.log("here?");
                 let difference = 0;
                 setGroupItemsPrice((prevState) => {
                   let nowPercentage = 1 - Number(voucher.percentage_amount);

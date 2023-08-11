@@ -16,7 +16,9 @@ export const getCustomerRooms = async (
   try {
     const { userID } = req.params;
     if (!userID) return res.sendStatus(400);
-    const response: DMRoom[] = await dmRoomModel.getCustomerRooms(userID);
+    const response: DMRoom[] = await dmRoomModel.getCustomerRooms(
+      userID
+    );
     return res.status(200).send(response);
   } catch (err) {
     next(err);
@@ -31,7 +33,9 @@ export const getSellerRooms = async (
   try {
     const { userID } = req.params;
     if (!userID) return res.sendStatus(400);
-    const response: DMRoom[] = await dmRoomModel.getSellerRooms(userID);
+    const response: DMRoom[] = await dmRoomModel.getSellerRooms(
+      userID
+    );
     return res.status(200).send(response);
   } catch (err) {
     next(err);
@@ -50,7 +54,6 @@ export const createDMRoom = async (
       customerID,
       sellerID
     );
-    console.log("response: ", response);
     if (response === 409) return res.sendStatus(200);
     if (response === 0) return res.sendStatus(400);
     return res.sendStatus(201);

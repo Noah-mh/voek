@@ -64,7 +64,6 @@ const HomePage = () => {
   const getPercentileOfTotalRevenue = async () => {
     try {
       const { data } = await axiosPrivateSeller.get(`/seller/revenuePercentile/${seller.seller_id}`);
-      console.log(data)
       setPercentileOfTotalRevenue(data.revenuePercentile[0].revenue_percentile);
     } catch (err: any) {
       console.log(err);
@@ -83,7 +82,6 @@ const HomePage = () => {
   const getPercentileOfTotalProductsSold = async () => {
     try {
       const { data } = await axiosPrivateSeller.get(`/seller/productPercentile/${seller.seller_id}`);
-      console.log(data)
       setPercentileOfTotalProductsSold(data.productPercentile[0].product_percentile);
     } catch (err: any) {
       console.log(err);
@@ -102,7 +100,6 @@ const HomePage = () => {
   const getPercentileOfTotalCustomer = async () => {
     try {
       const { data } = await axiosPrivateSeller.get(`/seller/customerPercentile/${seller.seller_id}`);
-      console.log(data)
       setPercentileOfTotalCustomers(data.customerPercentile[0].customer_percentile);
     } catch (err: any) {
       console.log(err);
@@ -121,7 +118,6 @@ const HomePage = () => {
   const getRatingPercentileOfProducts = async () => {
     try {
       const { data } = await axiosPrivateSeller.get(`/seller/ratingPercentile/${seller.seller_id}`);
-      console.log(data)
       setRatingPercentileOfProducts(data.ratingPercentile[0].rating_percentile);
     } catch (err: any) {
       console.log(err);
@@ -237,7 +233,7 @@ const HomePage = () => {
           fontFamily: 'Roboto',
           fontSize: 100,
           padding: 2,
-          backgroundColor: blue[100], 
+          backgroundColor: blue[100],
           borderRadius: 5,
           background: `linear-gradient(to bottom, ${blue[100]}, #FFFFFF)`
         }}
@@ -246,25 +242,25 @@ const HomePage = () => {
       </Box>
       <Box pr={3}>
         <Grid container spacing={3} m={3} mt={0} ml={0} >
-          <StatisticsCard 
+          <StatisticsCard
             icon={<AttachMoneyIcon />}
             title={"Total Revenue Earned"}
             subheader={`$${totalRevenue}`}
             percentage={`Percentile: ${percentileOfTotalRevenue}`}
           />
-          <StatisticsCard 
+          <StatisticsCard
             icon={<ShoppingCartOutlinedIcon />}
             title={"Total Products Sold"}
             subheader={totalProductsSold}
             percentage={`Percentile: ${percentileOfTotalProductsSold}`}
           />
-          <StatisticsCard 
+          <StatisticsCard
             icon={<AccountCircleIcon />}
             title={"Total Customers"}
             subheader={totalCustomers}
             percentage={`Percentile: ${percentileOfTotalCustomers}`}
           />
-          <StatisticsCard 
+          <StatisticsCard
             icon={<StarBorderRoundedIcon />}
             title={"Average Rating"}
             subheader={averageRatingOfProducts}
