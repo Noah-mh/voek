@@ -77,10 +77,10 @@ const Game: React.FC = () => {
 
     canvas.width = 1024;
     canvas.height = 576;
-    ctx.shadowColor = "rgba(0, 0, 0, 0.2)"; // Color of the shadow; you can change this
-    ctx.shadowBlur = 10; // Blur intensity; you can adjust this
-    ctx.shadowOffsetX = 5; // Horizontal distance of shadow; you can adjust this
-    ctx.shadowOffsetY = 5; // Vertical distance of shadow; you can adjust this
+    ctx.shadowColor = "rgba(0, 0, 0, 0.2)"; // Color of the shadow
+    ctx.shadowBlur = 10; // Blur intensity
+    ctx.shadowOffsetX = 5; // Horizontal distance of shadow
+    ctx.shadowOffsetY = 5; // Vertical distance of shadow
 
     ctx.fillStyle = "#492583";
     ctx.beginPath();
@@ -155,7 +155,6 @@ const Game: React.FC = () => {
     setBarWidth(100);
     setReductionRate(0.005);
     setCircleDiameter(100);
-    // ... any other state resets you deem necessary
   };
   useEffect(() => {
     if (barWidth > 0 && isGameStarted) {
