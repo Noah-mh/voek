@@ -74,10 +74,10 @@
 .chat-window .chat-body .message .message-content-image {
   width: fit-content;
   height: auto;
-  min-height: 200px;
-  min-width: 400px;
+  min-height: 100px;
+  min-width: fit-content;
   max-width: 400px;
-  background-color: #242526;
+  background-color: #e9e8eb;
   /* border-radius: 8px; */
   display: flex;
   align-items: center;
@@ -117,6 +117,7 @@
 #you .message-content-image {
   justify-content: flex-start;
   color: white;
+  background-color: #242526;
 }
 
 #you .message-meta {
