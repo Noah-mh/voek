@@ -11,22 +11,27 @@
   position: relative;
   width: 1024px;
 
-  margin: 0 auto; /* center the game container */
+  margin: 0 auto;
+  /* center the game container */
   display: flex;
-  justify-content: center; /* centers children horizontally */
-  align-items: center; /* centers children vertically */
+  justify-content: center;
+  /* centers children horizontally */
+  align-items: center;
+  /* centers children vertically */
   height: 80vh;
   background-color: #ebebeb;
 }
+
 #gameBarContainer {
   position: absolute;
-  width: 1024px; /* same as canvas width */
+  width: 1024px;
+  /* same as canvas width */
   height: 20px;
   top: 5px;
-  left: 50%; /* centers the element */
-  transform: translateX(
-    -50%
-  ); /* shifts it back half its width to truly center */
+  left: 50%;
+  /* centers the element */
+  transform: translateX(-50%);
+  /* shifts it back half its width to truly center */
   border: 2px solid grey;
   background-color: #e0e0e0;
 }
@@ -34,13 +39,12 @@
 #gameBar {
   height: 100%;
   background: rgb(63, 94, 251);
-  background: radial-gradient(
-    circle,
-    rgba(63, 94, 251, 1) 0%,
-    rgba(252, 70, 107, 1) 100%
-  );
+  background: radial-gradient(circle,
+      rgba(63, 94, 251, 1) 0%,
+      rgba(252, 70, 107, 1) 100%);
 
-  width: 100%; /* initially full HP, JavaScript will adjust the width */
+  width: 100%;
+  /* initially full HP, JavaScript will adjust the width */
 }
 
 #score {
@@ -50,12 +54,15 @@
   font-size: 24px;
   font-family: Rocher;
 }
+
 #startScreen {
   position: absolute;
   width: 100%;
   height: 100%;
-  background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
-  z-index: 2; /* Ensure it's above the canvas */
+  background-color: rgba(255, 255, 255, 0.9);
+  /* Semi-transparent white */
+  z-index: 2;
+  /* Ensure it's above the canvas */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -67,7 +74,8 @@
 
 #startScreen.fadeOut {
   opacity: 0;
-  visibility: hidden; /* ensures that the start screen doesn't capture clicks when invisible */
+  visibility: hidden;
+  /* ensures that the start screen doesn't capture clicks when invisible */
 }
 
 #startButton {

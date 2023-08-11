@@ -100,7 +100,6 @@ export const handleCustomerRated = async (
       orders_product_id,
       customer_id,
     ]);
-    console.log("update shipment rated");
     return (result as ResultSetHeader).affectedRows;
   } catch (err: any) {
     throw new Error(err);

@@ -290,7 +290,6 @@ export const processGetCoins = async (
   try {
     const { customer_id } = req.params;
     const result = await customerModel.handleGetCoins(customer_id);
-    console.log("Successfully got coins");
     return res.json({ result });
   } catch (err: any) {
     return next(err);
@@ -307,7 +306,6 @@ export const processGetAddress = async (
     const result = await customerModel.handleGetCustomerAddresses(
       customer_id
     );
-    console.log("Successfully got address");
     return res.json(result);
   } catch (err: any) {
     return next(err);
@@ -325,7 +323,6 @@ export const processGetLastCheckedIn = async (
     const result = await customerModel.handleGetLastCheckedIn(
       customer_id
     );
-    console.log("Successfully got last checked in");
     return res.json(result);
   } catch (err: any) {
     return next(err);
@@ -343,7 +340,6 @@ export const processUpdateLastCheckedIn = async (
     const result = await customerModel.handleUpdateCheckIn(
       customer_id
     );
-    console.log("Successfully update last checked in");
     return res.json(result);
   } catch (err: any) {
     return next(err);
@@ -361,7 +357,6 @@ export const processNewLastCheckedIn = async (
     const result = await customerModel.handleNewLastCheckedIn(
       customer_id
     );
-    console.log("Successfully added new checkedin");
     return res.json(result);
   } catch (err: any) {
     return next(err);
@@ -376,8 +371,9 @@ export const processGetHighestScore = async (
   try {
     const { customer_id } = req.params;
 
-    const result = await customerModel.handleGetHighestScore(customer_id);
-    console.log("Successfully got highest score");
+    const result = await customerModel.handleGetHighestScore(
+      customer_id
+    );
     return res.json(result);
   } catch (err: any) {
     return next(err);
@@ -392,8 +388,10 @@ export const processUpdateGameCoins = async (
   try {
     const { customer_id, score } = req.body;
 
-    const result = await customerModel.handleAddGameCoins(customer_id, score);
-    console.log("Successfully added coins");
+    const result = await customerModel.handleAddGameCoins(
+      customer_id,
+      score
+    );
     return res.json(result);
   } catch (err: any) {
     return next(err);
@@ -408,8 +406,9 @@ export const processUpdateLastPlayed = async (
   try {
     const { customer_id } = req.body;
 
-    const result = await customerModel.handleUpdateLastPlayed(customer_id);
-    console.log("Successfully updated last played");
+    const result = await customerModel.handleUpdateLastPlayed(
+      customer_id
+    );
     return res.json(result);
   } catch (err: any) {
     return next(err);
@@ -428,7 +427,6 @@ export const processUpdateHighestScore = async (
       customer_id,
       highest_score
     );
-    console.log("Successfully updated highest score");
     return res.json(result);
   } catch (err: any) {
     return next(err);
@@ -626,7 +624,6 @@ export const processCustomerAddressAdd = async (
         customerId
       );
     if (!response) return res.sendStatus(404);
-    console.log("Successfully added address with id ", response);
     return res.json(response);
   } catch (err: any) {
     return next(err);
@@ -649,7 +646,6 @@ export const processCustomerAddressDelete = async (
         customerId
       );
     if (!response) return res.sendStatus(404);
-    console.log("Successfully deleted address");
     return res.sendStatus(200);
   } catch (err: any) {
     return next(err);
@@ -685,7 +681,6 @@ export const processCustomerAddressUpdate = async (
         customerId
       );
     if (!response) return res.sendStatus(404);
-    console.log("Successfully updated address");
     return res.sendStatus(200);
   } catch (err: any) {
     return next(err);
@@ -775,7 +770,6 @@ export const processCustomerImageDelete = async (
     }
     return res.sendStatus(200);
   } catch (err: any) {
-    console.log("Error deleting image: ", err);
     return next(err);
   }
 };
@@ -808,4 +802,4 @@ export const processContactUs = async (
   } catch (err: any) {
     return next(err);
   }
-}
+};

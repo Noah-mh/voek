@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import watchImg from "./assets/watch.png";
-import bagImg from "./assets/bagBanner.png";
-import shoeImg from "./assets/shoeBanner.png";
+import { watchImg, bagImg, shoeImg } from "./images.ts";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
