@@ -23,11 +23,12 @@ const CloudinaryUploader: React.FC<CloudinaryUploadProps> = ({ onSuccess, captio
             formData.append('upload_preset', defaultPreset);
 
             try {
-                if (image_url != "test/blank-profile-picture-973460_1280_tj6oeb") {
+                if (image_url !== "test/blank-profile-picture-973460_1280_tj6oeb" && image_url !== "") {
                     await axiosPrivateCustomer.delete(
                         `/customer/${customer.customer_id}/deleteImage?image_url=${encodeURIComponent(image_url)}`
                     );
                 }
+
                 const response = await axios.post(
                     `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
                     formData
