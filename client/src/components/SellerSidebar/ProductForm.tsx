@@ -7,12 +7,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import Box from "@mui/material/Box";
 import TextField from '@mui/material/TextField';
-
+import axios from 'axios';
 import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller.js";
-import { cld } from "../../Cloudinary/Cloudinary";
+import { cld, defaultPreset, cloudName } from "../../Cloudinary/Cloudinary";
 import { AdvancedImage } from "@cloudinary/react";
-import CloudinaryWidgetUploader from "../../Cloudinary/CloudinaryWidgetUploader.js";
-// import CloudinaryUpload from '../../Cloudinary/CloudinaryUpload.js';
+import CloudinaryUploader from '../../Cloudinary/CloudinaryUploader.js';
 import MenuItem from '@mui/material/MenuItem';
 import InputAdornment from '@mui/material/InputAdornment';
 import Button from '@mui/material/Button';
@@ -295,9 +294,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
   }, [currentProduct])
 
   // console.log productVariations every time it changes
-  useEffect(() => {
-    console.log("useEffect productVariations", productVariations)
-  }, [productVariations]);
 
   // setProductVariations if var1Arr and var2Arr changes, meaning that variations changed
   useEffect(() => {
@@ -379,6 +375,66 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     }
     setProductVariations([...productVariations]);
   }
+  console.log("Component Rendered");
+  const [index, setIndex] = useState<number>(0);
+
+  const handleVariationImageUpload = async (resultInfo: any) => {
+    console.log("index in handleVariationImageUpload", index + productVariations[index].imageUrl);
+    setProductVariations((prevProductVariations) => {
+      const updatedVariations = [...prevProductVariations];
+      updatedVariations[index] = {
+        ...updatedVariations[index],
+        imageUrl: resultInfo.public_id,
+      };
+      console.log("updatedVariations", updatedVariations[index]);
+      return updatedVariations;
+    })
+  }
+  useEffect(() => {
+    console.log("Index state changed:", index);
+  }, [index])
+
+  const handleVariationImageDelete = () => {
+    console.log("index in handleVariationImageDelete", index + productVariations[index].imageUrl);
+    try {
+      const response = axiosPrivateSeller.delete(`/seller/deleteImage?image_url=${encodeURIComponent(productVariations[index].imageUrl)}`);
+      console.log("response", response);
+      setProductVariations((prevProductVariations) => {
+        const updatedVariations = [...prevProductVariations];
+        updatedVariations[index] = {
+          ...updatedVariations[index],
+          imageUrl: "",
+        };
+        return updatedVariations;
+      })
+    } catch (error) {
+      console.error("Deletion failed:", error);
+    }
+  }
+
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploaded, setIsUploaded] = useState(false);
+
+  const handleUpload = async () => {
+    if (selectedFile) {
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      formData.append('upload_preset', defaultPreset);
+      const response = await axios.post(
+        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+        formData
+      );
+      console.log("response", response);
+      handleVariationImageUpload(response.data);
+      setIsUploaded(true);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedFile && !isUploaded) {
+      handleUpload();
+    }
+  }, [selectedFile, handleUpload, isUploaded]);
 
   const columns = useMemo<MRT_ColumnDef<ProductVariations>[]>(
     () => [
@@ -416,16 +472,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                     type="button"
                     className="flex"
                     onClick={() => {
-                      console.log("row", row)
-                      setProductVariations((prevProductVariations) => {
-                        const updatedVariations = [...prevProductVariations];
-                        updatedVariations[row.index] = {
-                          ...updatedVariations[row.index],
-                          imageUrl: "",
-                        };
-                        return updatedVariations;
-                      })
-                      console.log("updated product variations", productVariations)
+                      setIndex(row.index);
+                      handleVariationImageDelete();
                     }}
                   >
                     <DeleteIcon />
@@ -433,22 +481,23 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                 </Box>
               </div>
             ))}
-            <CloudinaryWidgetUploader
-              onSuccess={async (resultInfo: any) => {
-                console.log("row3", row)
-                console.log("resultInfo", resultInfo)
-                setProductVariations((prevProductVariations) => {
-                  const updatedVariations = [...prevProductVariations];
-                  updatedVariations[row.index] = {
-                    ...updatedVariations[row.index],
-                    imageUrl: resultInfo.public_id,
-                  };
-                  return updatedVariations;
-                })
-              }}
-              caption={"Upload Image"}
-              key={row.index}
-            />
+            <div className="flex flex-col items-center justify-center py-10">
+              <label htmlFor={`file-upload-${row.index}`} className="mb-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer">
+                Upload Image
+              </label>
+              <input
+                id={`file-upload-${row.index}`}
+                type="file"
+                accept="image/png, image/jpeg"
+                onChange={(event) => {
+                  setIndex(row.index);
+                  const file = event.target.files ? event.target.files[0] : null;
+                  setSelectedFile(file);
+                  setIsUploaded(false);
+                }}
+                className="hidden"
+              />
+            </div>
           </Box>
         )
       },
@@ -574,6 +623,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
   }
 
   const handleDeleteImage = () => {
+    const response = axiosPrivateSeller.delete(`/seller/deleteImage?image_url=${encodeURIComponent(formValues.imageUrl.value)}`);
+    console.log("Successfully deleted:", response + formValues.imageUrl.value);
     setFormValues({
       ...formValues,
       imageUrl: {
@@ -581,6 +632,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
         value: ""
       }
     })
+
   };
 
   const [priceForAll, setPriceForAll] = useState<number>();
@@ -1153,9 +1205,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
                   justifyContent: 'center'
                 }}
               >
-                <CloudinaryWidgetUploader
+                <CloudinaryUploader
                   onSuccess={handleUploadImage}
                   caption={"UPLOAD IMAGE"}
+                  image_url={""}
                 />
               </Box>
               <Box

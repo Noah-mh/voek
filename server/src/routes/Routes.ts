@@ -249,27 +249,21 @@ export default function (app: Express, router: Router) {
     verifyJWT,
     verifyRoles("customer"),
     customerController.processGetTotalSpentAllTime
-  )
+  );
   router.get(
     "/seller/products/categories/:seller_id/:time_period",
     verifyJWT,
     verifyRoles("seller"),
     sellerController.processGetSoldCategories
-  )
+  );
   router.get(
     "/seller/products/best/:seller_id/:time_period",
     verifyJWT,
     verifyRoles("seller"),
     sellerController.processGetBestSellingProducts
-  )
-  router.get(
-    "/sellers",
-    sellerController.processGetAllSellers
-  )
-  router.post(
-    "/contact",
-    customerController.processContactUs
-  )
+  );
+  router.get("/sellers", sellerController.processGetAllSellers);
+  router.post("/contact", customerController.processContactUs);
 
   // NOAH ENDPOINTS - reviews, customer profile, customer address, add to cart, ratings, product details, seller details, seller categories
   router.get(
@@ -401,6 +395,13 @@ export default function (app: Express, router: Router) {
     verifyRoles("customer"),
     customerController.processCustomerImageDelete
   );
+
+  router.delete(
+    "/seller/deleteImage",
+    verifyJWT,
+    verifyRoles("seller"),
+    sellerController.processDeleteProductImage
+  );
   //end of NOAH ENDPOINTS
 
   // ASHLEY ENDPOINTS - seller platform
@@ -411,7 +412,7 @@ export default function (app: Express, router: Router) {
     sellerController.processGetAllProductsOfSeller
   );
   router.get(
-    "/bestSellers/:sellerId", 
+    "/bestSellers/:sellerId",
     verifyJWT,
     verifyRoles("seller"),
     sellerController.processGetBestSellers
@@ -420,7 +421,7 @@ export default function (app: Express, router: Router) {
     "/categories",
     verifyJWT,
     verifyRoles("seller"),
-   sellerController.processGetAllCategories
+    sellerController.processGetAllCategories
   );
   router.get(
     "/seller/products/revenue/:seller_id/:time_period",
@@ -477,13 +478,13 @@ export default function (app: Express, router: Router) {
     sellerController.processGetRatingPercentileOfProducts
   );
   router.post(
-    "/addProduct/:sellerId", 
+    "/addProduct/:sellerId",
     verifyJWT,
     verifyRoles("seller"),
     sellerController.processAddProduct
   );
   router.post(
-    "/editProduct/:productId", 
+    "/editProduct/:productId",
     verifyJWT,
     verifyRoles("seller"),
     sellerController.processEditProduct
