@@ -66,7 +66,6 @@ const Homepage = () => {
             });
         })
         .then((data) => {
-          console.log("data: ", data);
           if (data.length === 0) {
             return data;
           }
@@ -88,9 +87,7 @@ const Homepage = () => {
           return topProducts;
         })
         .then((topProducts) => {
-          console.log("products: ", topProducts);
           Promise.all(topProducts).then((products) => {
-            console.log("products: ", products);
             setForYouProducts(products);
           });
         })

@@ -97,7 +97,7 @@ const ModalComponent: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, order
     }
 
     const handleChange = (_event: ChangeEvent<{}>, newValue: number | null) => {
-        console.log(newValue); setRating(newValue === null ? 0 : newValue);
+        setRating(newValue === null ? 0 : newValue);
         setError({
             ...error,
             rating: newValue === null ? true : false

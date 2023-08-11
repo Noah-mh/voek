@@ -16,7 +16,6 @@ const CloudinaryUploader: React.FC<CloudinaryUploadProps> = ({ onSuccess, captio
     const { customer } = useCustomer();
 
     const handleUpload = useCallback(async () => {
-        console.log("customer ", customer);
         if (selectedFile) {
             const formData = new FormData();
             formData.append('file', selectedFile);

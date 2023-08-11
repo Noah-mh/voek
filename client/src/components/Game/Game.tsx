@@ -26,8 +26,6 @@ const Game: React.FC = () => {
       const res = await axiosPrivateCustomer.get(
         `/customer/game/getHighestScore/${customer_id}`
       );
-      console.log(res.data);
-      console.log("highestScore");
       if (res.data.length === 0) {
         setHighestScore(0);
       } else {

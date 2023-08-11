@@ -518,7 +518,6 @@ const MyComponent: React.FC = () => {
                 platform.position.x += player.speed * 6;
               });
               goombas.forEach((goomba) => {
-                console.log(goomba.direction);
                 if (goomba.direction == 1) {
                   goomba.position.x += 2;
                 } else if (goomba.direction == -1) {
@@ -579,10 +578,10 @@ const MyComponent: React.FC = () => {
             player.velocity.y >= 0 &&
             player.position.y + player.height <= platform.position.y &&
             player.position.y + player.height + player.velocity.y >=
-              platform.position.y &&
+            platform.position.y &&
             player.position.x + player.width >= platform.position.x &&
             player.position.x + player.velocity.x <=
-              platform.position.x + platform.width + player.width
+            platform.position.x + platform.width + player.width
           ) {
             player.velocity.y = 0;
             player.position.y = platform.position.y - player.height;
@@ -593,10 +592,10 @@ const MyComponent: React.FC = () => {
               goomba.velocity.y >= 0 &&
               goomba.position.y + goomba.height <= platform.position.y &&
               goomba.position.y + goomba.height + goomba.velocity.y >=
-                platform.position.y &&
+              platform.position.y &&
               goomba.position.x + goomba.width >= platform.position.x &&
               goomba.position.x + goomba.velocity.x <=
-                platform.position.x + platform.width + goomba.width
+              platform.position.x + platform.width + goomba.width
             ) {
               goomba.velocity.y = 0;
             }

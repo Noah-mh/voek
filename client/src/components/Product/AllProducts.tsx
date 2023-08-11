@@ -27,10 +27,18 @@ const AllProducts: React.FC<AllProductProps> = ({ productData }) => {
           >
             <Card sx={{ maxWidth: 400, minHeight: 400, maxHeight: 400 }}>
               <CardActionArea>
-                <AdvancedImage
-                  className="w-64 h-64"
-                  cldImg={cld.image(product.image_url)}
-                />
+                {product.image_url != null ? (
+                  <AdvancedImage
+                    className="w-64 h-64"
+                    cldImg={cld.image(product.image_url)}
+                  />
+                ) : (
+                  <AdvancedImage
+                    className="w-64 h-64"
+                    cldImg={cld.image(`/test/No_Image_Available_hyxfvc.jpg`)}
+                  />
+                )
+                }
                 <CardContent>
                   <Typography
                     gutterBottom

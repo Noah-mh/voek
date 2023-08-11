@@ -64,7 +64,6 @@ GROUP BY
     const [result] = await connection.query(sql, [product_id]);
     return result as seller[];
   } catch (err: any) {
-    console.log("err:", err);
     throw new Error(err);
   } finally {
     await connection.release();

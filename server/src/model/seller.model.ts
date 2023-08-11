@@ -43,7 +43,6 @@ export const handleGetAllProductsOfSeller = async (
     const result: any = await connection.query(sql, [sellerId]);
     return result[0] as any[];
   } catch (err: any) {
-    console.log(err);
     throw new Error(err);
   } finally {
     await connection.release();
@@ -69,7 +68,6 @@ export const handleGetBestSellers = async (
     const result: any = await connection.query(sql, [sellerId]);
     return result[0] as any[];
   } catch (err: any) {
-    console.log(err);
     throw new Error(err);
   } finally {
     await connection.release();
@@ -86,7 +84,6 @@ export const handleGetAllCategories = async (): Promise<any[]> => {
     const result: any = await connection.query(sql);
     return result[0] as any[];
   } catch (err: any) {
-    console.log(err);
     throw new Error(err);
   } finally {
     await connection.release();
@@ -119,8 +116,6 @@ export const handleAddProduct = async (
   try {
     // start a local transaction
     connection.beginTransaction();
-    // console.log("begin transaction");
-
     // insert into products table unless there is a duplicate, in which case lasatInsertId will be 0
     return Promise.resolve(
       connection.query(insertProducts, [
@@ -133,12 +128,9 @@ export const handleAddProduct = async (
       ])
     )
       .then(async (response) => {
-        // console.log("model response", response)
         let lastInsertId = Object.values(response[0])[2];
-        // console.log("lastInsertId", lastInsertId);
         // if product exists, do not insert into products table and return lastInsertId
         if (lastInsertId === 0) {
-          // console.log("Product already exists.");
           return lastInsertId;
         } else {
           let lastInsertId = Object.values(response[0])[2];
@@ -149,7 +141,6 @@ export const handleAddProduct = async (
           ]);
           // if variations exist, map variations
           if (variations.length !== 0) {
-            // console.log("variations", variations);
             await Promise.all(
               variations.map(async (variation) => {
                 // create sku
@@ -169,12 +160,10 @@ export const handleAddProduct = async (
                   variation.imageUrl,
                   sku,
                 ]);
-                // console.log("variation inserted");
                 return lastInsertId;
               })
             );
           } else {
-            // console.log("variations DONT exist");
             // create sku
             const sku = uuidv4();
             connection.query(insertProductVariations, [
@@ -190,10 +179,8 @@ export const handleAddProduct = async (
               imageUrl,
               sku,
             ]);
-            // console.log("single variation inserted");
             return lastInsertId;
           }
-          // console.log("Product has been inserted.");
           return lastInsertId;
         }
       })
@@ -207,7 +194,6 @@ export const handleAddProduct = async (
     throw new Error(err);
   } finally {
     connection.commit();
-    // console.log("ended transaction");
     await connection.release();
   }
 };
@@ -1485,7 +1471,7 @@ export const handleGetRevenue = async (
   } finally {
     await connection.release();
   }
-}
+};
 
 export const handleGetTotalRevenue = async (
   seller_id: number
@@ -1505,7 +1491,7 @@ export const handleGetTotalRevenue = async (
   } finally {
     await connection.release();
   }
-}
+};
 
 export const handleGetPercentileOfTotalRevenue = async (
   seller_id: number
@@ -1537,7 +1523,7 @@ export const handleGetPercentileOfTotalRevenue = async (
   } finally {
     await connection.release();
   }
-}
+};
 
 export const handleGetTotalProductsSold = async (
   seller_id: number
@@ -1556,7 +1542,7 @@ export const handleGetTotalProductsSold = async (
   } finally {
     await connection.release();
   }
-}
+};
 
 export const handleGetPercentileOfTotalProductsSold = async (
   seller_id: number
@@ -1586,7 +1572,7 @@ export const handleGetPercentileOfTotalProductsSold = async (
   } finally {
     await connection.release();
   }
-}
+};
 
 export const handleGetTotalCustomers = async (
   seller_id: number
@@ -1606,7 +1592,7 @@ export const handleGetTotalCustomers = async (
   } finally {
     await connection.release();
   }
-}
+};
 
 export const handleGetPercentileOfTotalCustomers = async (
   seller_id: number
@@ -1640,7 +1626,7 @@ export const handleGetPercentileOfTotalCustomers = async (
   } finally {
     await connection.release();
   }
-}
+};
 
 export const handleGetAverageRatingOfProducts = async (
   seller_id: number
@@ -1659,7 +1645,7 @@ export const handleGetAverageRatingOfProducts = async (
   } finally {
     await connection.release();
   }
-}
+};
 
 export const handleGetRatingPercentileOfProducts = async (
   seller_id: number
@@ -1690,14 +1676,17 @@ INNER JOIN listed_products lp ON r.product_id = lp.product_id
 WHERE lp.seller_id = ?;`;
 
   try {
-    const [result] = await connection.query(sql, [seller_id, seller_id]);
+    const [result] = await connection.query(sql, [
+      seller_id,
+      seller_id,
+    ]);
     return result as Object[];
   } catch (err: any) {
     throw new Error(err);
   } finally {
     await connection.release();
   }
-}
+};
 
 const convertLocalTimeToUTC = (): string => {
   const now = new Date();

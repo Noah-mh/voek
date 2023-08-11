@@ -29,8 +29,6 @@ const DailyCoin: React.FC = () => {
       const res = await axiosPrivateCustomer.get(
         `/customer/checkIn/getCheckIn/${customer_id}`
       );
-      console.log(res.data);
-      console.log("coins date");
       if (res.data.length === 0) {
         setCurrentDayStreak(0);
         setNewCheckIn(true);

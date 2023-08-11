@@ -374,7 +374,6 @@ GROUP BY
 
   try {
     const result = await connection.query(sql, product_id);
-    console.log(result[0]);
     return result[0] as Review[];
   } catch (err: any) {
     throw new Error(err);
