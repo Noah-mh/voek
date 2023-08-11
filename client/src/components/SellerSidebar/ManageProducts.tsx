@@ -4,16 +4,12 @@ import MaterialReactTable, {
   type MRT_Row,
 } from 'material-react-table';
 
-// import SellerSidebar from "../SellerSidebar/SellerSidebar.js";
-import EditProduct from "../SellerSidebar/EditProduct.js";
 import Box from "@mui/material/Box";
 import EditIcon from '@mui/icons-material/Edit';
 import IconButton from '@mui/material/IconButton';
 
 import useSeller from "../../hooks/useSeller.js";
 import Active from "./Active.tsx"
-
-import { Link } from 'react-router-dom';
 
 import useAxiosPrivateSeller from "../../hooks/useAxiosPrivateSeller.js";
 
@@ -39,41 +35,7 @@ interface Product {
   variation2?: string | null;
 }
 
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
-
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`vertical-tabpanel-${index}`}
-      aria-labelledby={`vertical-tab-${index}`}
-      {...other}
-    >
-      {value === index && (
-        <Box
-          sx={{
-            p: 3,
-            flexGrow: 1, // make it take up the remaining space
-
-            width: "100%",
-          }}
-        >
-          {children}
-        </Box>
-      )}
-    </div>
-  );
-}
-
 interface ManageProductProps {
-  // updateTabPanelValue: (newValue: number) => void;
   updateProductValue: (newProduct: Product) => void;
 }
 
@@ -277,17 +239,19 @@ const ManageProducts: React.FC<ManageProductProps> = ({ updateProductValue }) =>
         } else if (!row.original.active && row.getParentRow()) {
           // if all productVariations become inactive but product active, make product inactive 
           // console.log("all productVariations become inactive but product active")
-          var productVariationsAllInactive = true;
+          var productVariationsNotAllInactive = false;
           for (var i = 0; i < row.getParentRow().originalSubRows.length; i++) {
-            if (i != row.index+1 && row.getParentRow().originalSubRows[i].active) {
-              productVariationsAllInactive = false;
+            // if there is at least 1 other active product variation, then productVariationsNotAllInactive = true
+            if (i != row.index && row.getParentRow().originalSubRows[i].active) {
+              productVariationsNotAllInactive = true;
               break;
             }
           }
           setIsCheckedMap((prevMap: boolean[][]) => {
             const updatedMap = [...prevMap];
             updatedMap[Math.floor(row.id)][row.index+1] = !prevMap[Math.floor(row.id)][row.index+1];
-            if (row.getParentRow().original.active && productVariationsAllInactive) {
+            // if product is active but all product variations are inactive, product become inactive
+            if (row.getParentRow().original.active && !productVariationsNotAllInactive) {
               updatedMap[Math.floor(row.id)][0] = false;
               row.getParentRow().original.active = false;
             }
