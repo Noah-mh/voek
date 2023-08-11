@@ -3,7 +3,6 @@ import tz from "moment-timezone";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import { AdvancedImage } from "@cloudinary/react";
 import { cld } from "../../Cloudinary/Cloudinary";
-import { get } from "http";
 
 interface SideBarUserProps {
   userID: string;
