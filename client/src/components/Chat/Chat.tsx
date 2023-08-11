@@ -107,8 +107,6 @@ const Chat = ({ userType }: ChatProps) => {
       const mergedFiles = [...selectedFiles, ...newFilesArray];
       setSelectedFiles(mergedFiles);
 
-      console.log("newFilesArray: ", newFilesArray);
-
       const newUrls = newFilesArray.map((file) => URL.createObjectURL(file));
       const mergedUrls = [...previewUrls, ...newUrls];
       setPreviewUrls(mergedUrls);
@@ -156,7 +154,6 @@ const Chat = ({ userType }: ChatProps) => {
         .replace("T", " ");
 
       if (selectedFiles.length > 0) {
-        console.log("selectedFiles: ", selectedFiles);
         const responses = await handleUpload();
         if (responses) {
           const sendImageMessage = async (response: any) => {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import useCustomer from "../../hooks/UseCustomer";
-import noImage from "../../img/product/No_Image_Available.jpg";
+import { noImage } from "../../img/images";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import "./UserCart.css";
 import { Link, useNavigate } from "react-router-dom";
@@ -501,7 +501,7 @@ export default function cartPage(): JSX.Element {
                 setTotalAmt((prevState) => {
                   const newShippingAmt = Number(
                     Number(prevState.shippingFee) /
-                      (1 - Number(voucher.percentage_amount))
+                    (1 - Number(voucher.percentage_amount))
                   );
 
                   return {
@@ -780,9 +780,8 @@ export default function cartPage(): JSX.Element {
           </div>
           <div className="activateCoins items-center flex justify-between border-t-2 pt-3 my-3">
             <div
-              className={`bg-white rounded h-7 w-20 flex items-center justify-center pt-1 ${
-                wasAVVoucherClaimed ? "" : "voucherButton"
-              } `}
+              className={`bg-white rounded h-7 w-20 flex items-center justify-center pt-1 ${wasAVVoucherClaimed ? "" : "voucherButton"
+                } `}
             >
               <Button
                 onClick={handleOpen}
@@ -819,10 +818,10 @@ export default function cartPage(): JSX.Element {
                 value={
                   selectedAddress
                     ? {
-                        value: selectedAddress,
-                        label: `${selectedAddress.street_name}, ${selectedAddress.block}, ${selectedAddress.postal_code}`,
-                        address: selectedAddress,
-                      }
+                      value: selectedAddress,
+                      label: `${selectedAddress.street_name}, ${selectedAddress.block}, ${selectedAddress.postal_code}`,
+                      address: selectedAddress,
+                    }
                     : null
                 }
                 styles={{
