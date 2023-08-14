@@ -173,13 +173,8 @@ const ManageProducts: React.FC<ManageProductProps> = ({ updateProductValue }) =>
 
   const [isCheckedMap, setIsCheckedMap] = useState<boolean[][]>([]);
 
-  useEffect(() => {
-    isCheckedMap.forEach((item) => console.log(item));
-  }, [isCheckedMap]);
-
   // update isCheckedMap
   const handleToggle = async (row: any) => {
-    console.log("active row", row);
     // update row.original.active
     row.original.active = !row.original.active;
 

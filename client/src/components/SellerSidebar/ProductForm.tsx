@@ -135,12 +135,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     }
   }, [])
 
-  // console.log currentProduct every time it changes
-  useEffect(() => {
-    console.log("currentProduct", currentProduct);
-    currentProduct ? console.log("currentProduct name", currentProduct.name) : "";
-  }, [currentProduct])
-
   // maximum number of variations allowed
   const maximumVariations = 2;
   // variations state --> stores category name (e.g. colour, size) and variations (e.g. red, blue, small, medium, etc.)
@@ -293,8 +287,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     setProductVariationsDefault();
   }, [currentProduct])
 
-  // console.log productVariations every time it changes
-
   // setProductVariations if var1Arr and var2Arr changes, meaning that variations changed
   useEffect(() => {
     let updatedProductVariations: ProductVariations[] = [];
@@ -375,30 +367,25 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     }
     setProductVariations([...productVariations]);
   }
-  console.log("Component Rendered");
+  // console.log("Component Rendered");
   const [index, setIndex] = useState<number>(0);
 
   const handleVariationImageUpload = async (resultInfo: any) => {
-    console.log("index in handleVariationImageUpload", index + productVariations[index].imageUrl);
+    // console.log("index in handleVariationImageUpload", index + productVariations[index].imageUrl);
     setProductVariations((prevProductVariations) => {
       const updatedVariations = [...prevProductVariations];
       updatedVariations[index] = {
         ...updatedVariations[index],
         imageUrl: resultInfo.public_id,
       };
-      console.log("updatedVariations", updatedVariations[index]);
       return updatedVariations;
     })
   }
-  useEffect(() => {
-    console.log("Index state changed:", index);
-  }, [index])
 
   const handleVariationImageDelete = () => {
-    console.log("index in handleVariationImageDelete", index + productVariations[index].imageUrl);
+    // console.log("index in handleVariationImageDelete", index + productVariations[index].imageUrl);
     try {
-      const response = axiosPrivateSeller.delete(`/seller/deleteImage?image_url=${encodeURIComponent(productVariations[index].imageUrl)}`);
-      console.log("response", response);
+      axiosPrivateSeller.delete(`/seller/deleteImage?image_url=${encodeURIComponent(productVariations[index].imageUrl)}`);
       setProductVariations((prevProductVariations) => {
         const updatedVariations = [...prevProductVariations];
         updatedVariations[index] = {
@@ -424,7 +411,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
         `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
         formData
       );
-      console.log("response", response);
       handleVariationImageUpload(response.data);
       setIsUploaded(true);
     }
@@ -542,11 +528,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     }
   })
 
-  // console.log formValues every time it changes
-  useEffect(() => {
-    console.log("formValues", formValues);
-  }, [formValues])
-
   // setFormValues default a.k.a. according to currentProduct if it exists
   const setFormValuesDefault = () => {
     currentProduct?.categoryId ? setSelectedCategory(currentProduct.categoryId) : "";
@@ -590,11 +571,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     setFormValuesDefault();
   }, [currentProduct]);
 
-  // console.log selectedCategory every time it changes
-  useEffect(() => {
-    console.log("selectedCategory", selectedCategory);
-  }, [selectedCategory])
-
   const [categories, setCategories] = useState<Category[]>([]);
 
   // get categories options
@@ -612,7 +588,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
   }, []);
 
   const handleUploadImage = async (resultInfo: any) => {
-    console.log("Successfully uploaded:", resultInfo.public_id);
+    // console.log("Successfully uploaded:", resultInfo.public_id);
     setFormValues({
       ...formValues,
       imageUrl: {
@@ -623,8 +599,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
   }
 
   const handleDeleteImage = () => {
-    const response = axiosPrivateSeller.delete(`/seller/deleteImage?image_url=${encodeURIComponent(formValues.imageUrl.value)}`);
-    console.log("Successfully deleted:", response + formValues.imageUrl.value);
+    axiosPrivateSeller.delete(`/seller/deleteImage?image_url=${encodeURIComponent(formValues.imageUrl.value)}`);
+    // console.log("Successfully deleted:", response + formValues.imageUrl.value);
     setFormValues({
       ...formValues,
       imageUrl: {
@@ -746,14 +722,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     onSubmit(formData);
     if (!currentProduct) handleReset();
   }
-
-  useEffect(() => {
-    console.log("rowErrors", rowErrors);
-  }, [rowErrors])
-
-  useEffect(() => {
-    console.log("formValues.imageUrl.errorMessage", formValues.imageUrl.errorMessage)
-  }, [formValues.imageUrl.error, formValues.imageUrl.errorMessage])
 
   return (
     <Box
