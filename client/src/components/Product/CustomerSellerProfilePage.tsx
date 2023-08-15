@@ -279,10 +279,15 @@ const CustomerSellerProfilePage: React.FC = () => {
                     <GrUserExpert />
                     <h1>Joined:</h1>{" "}
                     <h1 className="text-pink">
-                      {diffInMonths}{" "}
-                      {diffInMonths === 1 || diffInMonths === 0 ? "month" : "months"}
+                      {diffInMonths > 0 ? (
+                        <span>
+                          {diffInMonths}{" "}
+                          {diffInMonths < 2 ? "Month " : "Months"} ago
+                        </span>
+                      ) : (
+                        <span>Recently</span>
+                      )}
                     </h1>
-                    <span>ago</span>
                   </div>
                 </div>
               </div>
