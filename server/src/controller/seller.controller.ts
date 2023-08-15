@@ -291,7 +291,6 @@ export const processSendEmailLink = async (
 ) => {
   try {
     const { email, shopName, phone_number, password } = req.body;
-    console.log(email, shopName, phone_number, password);
     if (!email || !shopName || !phone_number || !password)
       return res.sendStatus(400);
     const result = await sellerModel.handleSignUp(

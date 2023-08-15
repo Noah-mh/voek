@@ -22,7 +22,6 @@ export const handlesInsertingVoucher = async (
     percentage_amount = amount / 100;
   } else if (type === 1) {
     number_amount = amount.toFixed(2);
-    console.log("number_amount: ", number_amount);
   }
 
   try {
@@ -111,7 +110,8 @@ export const handlesUpdateVoucher = async (
   SET voucher_name = ?, number_amount = ?, percentage_amount = ?, voucher_category = ?, 
   min_spend = ?, expiration_date = CAST(? as datetime), redemptions_available = ?, active = ?
   WHERE voucher_id = ?;`;
-  if (percentage_amount !== null) percentage_amount = percentage_amount / 100;
+  if (percentage_amount !== null)
+    percentage_amount = percentage_amount / 100;
   if (number_amount !== null)
     number_amount = Math.round(number_amount * 1e2) / 1e2;
   try {
@@ -155,7 +155,9 @@ export const handlesDeleteVoucher = async (
 ): Promise<number> => {
   const promisePool = pool.promise();
   const connection = await promisePool.getConnection();
-  const deletedFromSeller = await handlesDeleteSellerVoucher(voucher_id);
+  const deletedFromSeller = await handlesDeleteSellerVoucher(
+    voucher_id
+  );
   if (deletedFromSeller === 0) throw new Error("Voucher not found");
   const sql = `DELETE FROM customer_voucher WHERE voucher_id = ?;`;
   try {

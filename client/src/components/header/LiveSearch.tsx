@@ -54,13 +54,6 @@ const LiveSearch: FC<LiveSearchProps> = ({
           type="text"
           className="w-[444px] h-12 px-5 py-3 text-lg rounded-full border-2 border-purpleAccent focus:border-l-purpleAccent outline-none transition text-greyAccent placeholder:text-gray-300"
           placeholder="Search for your product!"
-          // onKeyDown={(e) => {
-          //   if (e.key === "Backspace") {
-          //     const currentInput = userInput.length === 0 ? "" : userInput;
-          //     console.log("currentInput", currentInput);
-          //     setUserInput(currentInput);
-          //   }
-          // }}
           onChange={handleSearchChange}
           onFocus={() => {
             setFocus(true);
@@ -71,7 +64,6 @@ const LiveSearch: FC<LiveSearchProps> = ({
         />
         <Link
           to={link}
-        // className={userInput === "" ? "opacity-50 pointer-events-none" : ""}
         >
           <button
             type="submit"

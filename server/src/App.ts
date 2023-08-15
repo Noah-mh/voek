@@ -42,15 +42,15 @@ chatMessageRoutes(app, router);
 const server: Server = http.createServer(app);
 io(server, process.env.PORT || port);
 
-app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
-  console.log(error);
-  res.status(500).json(error.message);
-});
-
-// app.listen(process.env.PORT || port, () => {
-//   console.log(`Server is listening on port ${process.env.PORT || port}`);
-// });
+app.use(
+  (error: Error, req: Request, res: Response, next: NextFunction) => {
+    console.log(error);
+    res.status(500).json(error.message);
+  }
+);
 
 server.listen(process.env.PORT || port, () => {
-  console.log(`Server is listening on port ${process.env.PORT || port}`);
+  console.log(
+    `Server is listening on port ${process.env.PORT || port}`
+  );
 });

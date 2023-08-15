@@ -3,7 +3,7 @@ import axios from "../../api/axios";
 import { AxiosResponse } from "axios";
 import "./LBRight.css";
 import { Link } from "react-router-dom";
-import { toast } from "react-toastify";
+import { ToastContainer, toast, Id } from "react-toastify";
 
 interface props {
   setLogin: React.Dispatch<React.SetStateAction<boolean>>;
@@ -22,6 +22,7 @@ const LBRight = ({ setLogin, setUserDetails }: props): JSX.Element => {
   const [password, setPassword] = useState<string>("");
   const [errMsg, setErrMsg] = useState<string>("");
   const [disabled, setDisabled] = useState<boolean>(true);
+  const [toastId, setToastId] = useState<Id | undefined>(undefined);
 
   useEffect(() => {
     setErrMsg("");
@@ -46,8 +47,8 @@ const LBRight = ({ setLogin, setUserDetails }: props): JSX.Element => {
       console.log(err);
       if (!err?.response) {
         setErrMsg("No Server Response");
-      } else if (err?.response.status === 401) {
-        toast.error("Incorrect Username/Password", {
+        toast.dismiss(toastId);
+        const id = toast.error("No Server Response", {
           position: "top-center",
           autoClose: 5000,
           hideProgressBar: false,
@@ -57,8 +58,34 @@ const LBRight = ({ setLogin, setUserDetails }: props): JSX.Element => {
           progress: undefined,
           theme: "light",
         });
+        setToastId(id);
+      } else if (err?.response.status === 401) {
+        toast.dismiss(toastId);
+        const id = toast.error("Incorrect Username/Password", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+        setToastId(id);
       } else {
         setErrMsg("Login Failed");
+        toast.dismiss(toastId);
+        const id = toast.error("Login Failed", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+        setToastId(id);
       }
     }
   };
@@ -97,7 +124,6 @@ const LBRight = ({ setLogin, setUserDetails }: props): JSX.Element => {
         <div className="field-wrapper flex justify-center">
           <Link to="/forgetpassword">Forget Password?</Link>
         </div>
-        <p>{errMsg}</p>
         <input
           disabled={disabled}
           type="submit"
@@ -108,7 +134,9 @@ const LBRight = ({ setLogin, setUserDetails }: props): JSX.Element => {
           <Link to="/signup">Don't have an account? <span className="text-white">Sign up!</span></Link>
         </div>
       </form>
+      <ToastContainer />
     </div>
+
   );
 };
 export default LBRight;

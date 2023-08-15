@@ -84,7 +84,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
     setIsModalOpen(false);
   };
 
-
+  useEffect(() => {
+    console.log("image ", imageChosen)
+  }, [imageChosen])
 
   const options = productData[0].variations!.reduce<
     { label: string; value: string; sku: string; image_url: string }[]
@@ -419,7 +421,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
     <div className="flex flex-col my-8 items-center justify-center">
       <div className="flex sm:flex-col xl:flex-row  justify-center space-x-12">
         <div className="flex flex-col justify-center items-center">
-          <div className="">  <button onClick={() => {
+          {imageChosen != null ? (<div className="">  <button onClick={() => {
             handleOpenModal(imageChosen)
           }}>
             <div className="xl:w-[300px] sm:w-[300px] xl:h-[300px] sm:h-[300px] border border-lighterGreyAccent flex justify-center items-center overflow-hidden mb-3">
@@ -430,7 +432,18 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                 alt="product image"
               />
             </div></button>
-          </div>
+          </div>) : (<div className="">  <button onClick={() => {
+            handleOpenModal(imageChosen)
+          }}>
+            <div className="xl:w-[300px] sm:w-[300px] xl:h-[300px] sm:h-[300px] border border-lighterGreyAccent flex justify-center items-center overflow-hidden mb-3">
+
+              <AdvancedImage
+                className="object-contain"
+                cldImg={cld.image(`/test/No_Image_Available_hyxfvc.jpg`)}
+                alt="product image"
+              />
+            </div></button>
+          </div>)}
           <div className="flex flex-wrap gap-2">
             {options.map((variation, index: number) => {
               const imageStyle =
@@ -441,13 +454,22 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                 <div
                   className="w-[110px] h-[110px] p-[15px] border border-lighterGreyAccent cursor-pointer"
                   key={index}
-                >
-                  <AdvancedImage
-                    className={imageStyle}
-                    cldImg={cld.image(variation.image_url)}
-                    alt="product image"
-                    onClick={() => { setImageChosen(variation.image_url); setSelectedSku(variation.sku); setSelectedVariation(variation.value) }}
-                  />
+                >{variation.image_url != null ?
+                  (
+                    <AdvancedImage
+                      className={imageStyle}
+                      cldImg={cld.image(variation.image_url)}
+                      alt="product image"
+                      onClick={() => { setImageChosen(variation.image_url); setSelectedSku(variation.sku); setSelectedVariation(variation.value) }}
+                    />
+                  ) : (
+                    <AdvancedImage
+                      className={imageStyle}
+                      cldImg={cld.image(`/test/No_Image_Available_hyxfvc.jpg`)}
+                      alt="product image"
+                      onClick={() => { setImageChosen(variation.image_url); setSelectedSku(variation.sku); setSelectedVariation(variation.value) }}
+                    />
+                  )}
                 </div>
               );
             })}
