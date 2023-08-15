@@ -3,7 +3,7 @@ import axios from "../../api/axios";
 import { AxiosResponse } from "axios";
 import "./LBRight.css";
 import { Link } from "react-router-dom";
-import { ToastContainer, toast, Id } from "react-toastify";
+import { toast, Id } from "react-toastify";
 
 interface props {
   setLogin: React.Dispatch<React.SetStateAction<boolean>>;
@@ -134,9 +134,7 @@ const LBRight = ({ setLogin, setUserDetails }: props): JSX.Element => {
           <Link to="/signup">Don't have an account? <span className="text-white">Sign up!</span></Link>
         </div>
       </form>
-      <ToastContainer />
     </div>
-
   );
 };
 export default LBRight;

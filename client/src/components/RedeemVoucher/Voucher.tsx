@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import useCustomer from "../../hooks/UseCustomer";
-import { toast } from "react-toastify";
+import { toast, Id } from "react-toastify";
 import useAxiosPrivateCustomer from "../../hooks/useAxiosPrivateCustomer";
 import Loader from "../Loader/Loader";
 import Button from "@mui/material/Button";
@@ -27,6 +27,7 @@ const Voucher = ({ voucher }: Props) => {
   const { customer } = useCustomer();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [redeemed, setRedeemed] = useState<boolean>(false);
+  const [toastId, setToastId] = useState<Id | undefined>(undefined);
   const axiosPrivateCustomer = useAxiosPrivateCustomer();
 
   useEffect(() => {
@@ -58,7 +59,8 @@ const Voucher = ({ voucher }: Props) => {
       await axiosPrivateCustomer.put(
         `/customer/vouchers/${customer.customer_id}/${voucher.voucher_id}}`
       );
-      toast.success(
+      toast.dismiss(toastId);
+      const id = toast.success(
         "Voucher has been claimed. Please check ur voucher waller 🤡",
         {
           position: "top-center",
@@ -71,9 +73,11 @@ const Voucher = ({ voucher }: Props) => {
           theme: "light",
         }
       );
+      setToastId(id);
       setRedeemed(true);
     } else {
-      toast.warning("Login To Redeem Voucher. 🤡", {
+      toast.dismiss(toastId);
+      const id = toast.warning("Login To Redeem Voucher. 🤡", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -83,6 +87,7 @@ const Voucher = ({ voucher }: Props) => {
         progress: undefined,
         theme: "light",
       });
+      setToastId(id);
     }
   };
 

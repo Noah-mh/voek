@@ -41,7 +41,6 @@ const ClaimVouchers = () => {
     const handleOnClickChat = (seller_id: number) => {
         if (!customer.customer_id) {
             toast.dismiss(toastId);
-
             const id = toast.warn("Please Log in to chat with the seller", {
                 position: "top-center",
                 autoClose: 5000,
