@@ -286,7 +286,7 @@ const Chat = ({ userType }: ChatProps) => {
   }, [socket, receiveBroadcastCallback]);
 
   return (
-    <div className="chatContainer flex grow flex-col xl:flex-row overflow-hidden">
+    <div className="chatContainer flex grow flex-col xl:flex-row">
       <div className="hidden xl:flex xl:w-1/4">
         <SideBar
           userID={userID}
@@ -352,7 +352,7 @@ const Chat = ({ userType }: ChatProps) => {
                               className="message p-3"
                               id={
                                 userID === messageContent.senderID &&
-                                  userType === messageContent.senderRole
+                                userType === messageContent.senderRole
                                   ? "you"
                                   : "other"
                               }
@@ -385,7 +385,7 @@ const Chat = ({ userType }: ChatProps) => {
                                 <div className="message-meta">
                                   <div className="message-sender text-gray-50 mr-2">
                                     {userID === messageContent.senderID &&
-                                      userType === messageContent.senderRole
+                                    userType === messageContent.senderRole
                                       ? ""
                                       : otherUser?.username}
                                   </div>

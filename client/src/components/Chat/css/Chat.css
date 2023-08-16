@@ -190,6 +190,21 @@
 
 .chatSidebar {
   background-color: #18191a !important;
+  min-height: calc(55vh - (45px + 43px));
+  max-height: calc(95vh - (45px + 43px));
+}
+
+.chatSidebar::-webkit-scrollbar-track {
+  background: #18191A;
+}
+
+.chatSidebar::-webkit-scrollbar {
+  width: 2px;
+}
+
+.chatSidebar::-webkit-scrollbar-thumb {
+  background: rgba(176, 179, 184, 0.3);
+  border-radius: 4px;
 }
 
 .noChatChosenBody {
