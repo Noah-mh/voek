@@ -4,7 +4,11 @@
 
 .chatContainer {
   background-color: #18191a;
-  /* height: 86.1vh; */
+
+}
+
+.chat-window {
+  max-height: 86.1vh;
 }
 
 .chat-window p {
@@ -27,7 +31,9 @@
 }
 
 .chat-window .chat-body {
-  height: calc(85vh - (45px + 43px));
+  /* max-height: calc(85vh - (45px + 43px)); */
+  min-height: calc(55vh - (45px + 43px));
+  max-height: calc(85vh - (45px + 43px));
   /* height: 77.7vh; */
   background: #3a3b3c;
   /* position: relative; */
@@ -136,7 +142,7 @@
 }
 
 .chat-window .chat-footer {
-  height: 60px;
+  min-height: 60px;
   background-color: #242526;
   display: flex;
   border-bottom-right-radius: 15px;
@@ -176,6 +182,7 @@
 .chat-window .chat-footer button:hover {
   color: #2a4d58;
 }
+
 
 .hide {
   opacity: 0 !important;
